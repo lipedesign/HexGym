@@ -28,7 +28,7 @@ Valem para toda Task. Os valores vêm da especificação, das decisões de 03/11
 - **Plataforma:** iOS 26 e watchOS 26 como mínimo. O pacote declara `platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)]`: o macOS existe só para o `swift test` rodar no Mac. Nenhuma API só do iOS 27 ou do watchOS 27. O que precisa do SDK do iPhone ou do Watch (a galeria, o Watch, o ícone) espera o Xcode 27.2 (#23) e o projeto (#21 e #22), e roda com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)`. Nada com o Xcode-beta.
 - **O comando do pacote:** `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexDesign`. As duas opções vêm da #19: o `--swift` cai nas Command Line Tools enquanto não há Xcode completo, e o `--swift-test-flags` dá as flags que carregam o plugin `TestingMacros`, que o `swift test` delas às vezes perde (6 falhas em 13 rodadas), e não dá nada com o Xcode completo. Se a #19 entrar com outro nome para essas opções, vale o da #19. Os passos dizem "o comando do pacote" e, quando for o caso, o `--filter`. Até a Task 8, o HexDesign não está em parte nenhuma do `check.mjs`, então o QA roda o comando do pacote além do `node scripts/hexgym/check.mjs`.
 - **O que o `swift` das Command Line Tools não tem:** XCTest (só há Swift Testing); os macros `@Entry` e `#Preview` (faltam os plugins `SwiftUIMacros` e `PreviewsMacros`), então as chaves de ambiente são `EnvironmentKey` escritas à mão e não há `#Preview`; e o `xcstringstool`, então o `.xcstrings` quebra o build e os textos do pacote ficam em `Resources/Strings/<idioma>.lproj/<tabela>.strings` e `.stringsdict`, uma tabela por assunto (o `defaultLocalization` é `en`). O `@Observable` funciona. No Mac, o Dynamic Type não muda tamanho (`@ScaledMetric` e `Font.custom(_:size:relativeTo:)` dão o mesmo valor em `.large` e em `.accessibility3`): a escala é testada como função pura no Mac, e na tela, no simulador (Task 10).
-- **Arquivos que a fase 0 está mexendo:** `scripts/hexgym/check.mjs` e `scripts/hexgym/xcode.mjs` (na #19, na #20 e na #22) e o projeto Xcode (na #21 e na #22). Uma Task daqui que precise mexer neles entra com `Depende de:` da issue da fase 0 que mexe ali, em vez de correr junto. A exceção é a Task 8: ela espera a #20, mas não a #22, que precisa do Xcode 27.2 (#23) e cria a parte `app`, longe da `packages`. A Task 8 não começa com a #22 em andamento, e se a #22 entrar em `develop` no meio dela, a Task 8 faz `git merge origin/develop` antes do QA.
+- **Arquivos que a fase 0 está mexendo:** `scripts/hexgym/check.mjs` e `scripts/hexgym/xcode.mjs` (na #19, na #20 e na #22) e o projeto Xcode (na #21 e na #22). Uma Task daqui que precise mexer neles entra com `Depende de:` da issue da fase 0 que mexe ali, em vez de correr junto. A exceção é a Task 8: ela espera a #20, mas não a #22, que precisa do Xcode 27.2 (#23) e cria a parte `app`, longe da `packages`. Se a #22 entrar em `develop` no meio da Task 8, a branch dela faz `git merge origin/develop` antes do QA.
 - **Os blocos de interface:** mostram só as assinaturas, e os corpos são de quem implementa. `{ get }` e `{ get set }` dizem se uma propriedade calculada é só de leitura ou também de escrita; fora de um protocolo, o Swift não compila essa forma, então ela não é para colar.
 - **Poucas dependências:** nenhum pacote Swift de terceiros e nenhuma dependência npm nova. A Barlow Condensed é recurso, não dependência: os arquivos vêm de um commit fixado do `google/fonts`, conferidos pelo hash (Task 2).
 - **Cores:** sempre em Display P3 (`Color(.displayP3, ...)`), com os valores aprovados em sRGB convertidos para o mesmo ponto (Task 1); o P3 mais vivo só no brilho, e nunca no Giz. Recorde sempre em ouro; erro sempre `Color.red`, o systemRed; os cinzas do sistema (`.secondary`, e `.tertiary` só em decoração e em estado desligado); esforço sempre com número ou rótulo, além da cor.
@@ -84,7 +84,7 @@ docs/hexgym/design-system/                a documentação pública (Task 9)
 docs/hexgym/prints/                       os prints e os vídeos dos PRs, uma pasta por issue
 ```
 
-Arquivos da fase 0 que mudam aqui: `scripts/hexgym/check.mjs` e `check.test.mjs` (Task 8); `apple/HexGym.xcodeproj/project.pbxproj`, `scripts/hexgym/project-format.test.mjs`, `apple/HexGym/Localizable.xcstrings` e os arquivos do app que mostram o logotipo (Task 10); `apple/HexGymWatch/HexGymWatchApp.swift` (Tasks 10 e 11); e os `AppIcon.appiconset` do iPhone e do Watch (Task 12). Saem `apple/Shared/Wordmark.swift` (Task 10) e `scripts/hexgym/placeholder-icon.swift` (Task 12).
+Arquivos da fase 0 que mudam aqui: `scripts/hexgym/check.mjs` e `check.test.mjs` (Task 8); `apple/HexGym.xcodeproj/project.pbxproj`, `scripts/hexgym/project-format.test.mjs`, `apple/HexGym/Localizable.xcstrings` e os arquivos do app que mostram o logotipo (Task 10); `apple/HexGymWatch/HexGymWatchApp.swift` (Tasks 10 e 11); os `AppIcon.appiconset` do iPhone e do Watch (Task 12); e o `MARKETING_VERSION` do `project.pbxproj`, na branch da release (Task 13). Saem `apple/Shared/Wordmark.swift` (Task 10) e `scripts/hexgym/placeholder-icon.swift` (Task 12).
 
 ## Ordem e dependências
 
@@ -248,7 +248,7 @@ O `printTheSwatches` grava `cores.png`: os quatro temas lado a lado, cada um com
 - [ ] **Step 2: Run them to verify they fail**
 
 Run: o comando do pacote
-Expected: FAIL, `cannot find 'HexRGB' in scope`.
+Expected: FAIL no build dos testes, com `cannot find '...' in scope` num tipo novo desta Task: o `HexTheme` ou o `HexRGB`, o que o compilador achar primeiro.
 
 - [ ] **Step 3: Implement `HexRGB.swift` and `HexPalette.swift`**
 
@@ -409,7 +409,7 @@ O `printTheTypeScale` grava `tipografia.png`, com cada estilo escrito em portugu
 - [ ] **Step 3: Run them to verify they fail**
 
 Run: o comando do pacote, com `--filter TypeTests`
-Expected: FAIL, `cannot find 'HexFonts' in scope`.
+Expected: FAIL no build dos testes, com `cannot find '...' in scope` num tipo novo desta Task: o `HexWeight` ou o `HexFonts`, o que o compilador achar primeiro.
 
 - [ ] **Step 4: Implement `HexFonts`, `HexTextStyle` and `HexWordmark`, and add the fonts to `Package.swift`**
 
@@ -774,7 +774,7 @@ O print grava `botao-principal.png` (os quatro temas, normal, com alto contraste
 - [ ] **Step 2: Run them to verify they fail**
 
 Run: o comando do pacote, com `--filter "WorkoutInputTests|PrimaryButtonTests"`
-Expected: FAIL, `cannot find 'WorkoutFormat' in scope`.
+Expected: FAIL no build dos testes, com `cannot find '...' in scope` num tipo novo desta Task: o `WorkoutFormat`, o `HexPrimaryButtonStyle` ou o `PressedEffect`, conforme o arquivo de teste que o compilador ler primeiro.
 
 - [ ] **Step 3: Implement the button, the rolling number, the formats, the inputs and the strings**
 
@@ -922,7 +922,7 @@ O print grava `segmentos.png` (0, 3 e 5 de 5, e 1 de 5 da direita para a esquerd
 - [ ] **Step 2: Run them to verify they fail**
 
 Run: o comando do pacote, com `--filter "ProgressTests|GlowTests"`
-Expected: FAIL, `cannot find 'SlantedSegments' in scope`.
+Expected: FAIL no build dos testes, com `cannot find '...' in scope` num tipo novo desta Task: o `SlantedSegments` ou o `GlowSpec`, conforme o arquivo de teste que o compilador ler primeiro.
 
 - [ ] **Step 3: Implement the four components, `brightness` and the strings**
 
@@ -1016,7 +1016,7 @@ git commit -m "Da Apple, com a marca: o cartão de vidro tingido, os botões sec
 
 ### Task 8: O HexDesign na checagem
 
-**Depende de:** 1 e #20. A #19 cria a parte `packages`, e a #20 põe o HexStore nela: esta Task mexe no mesmo lugar e entra depois das duas. Ela não espera a #22, que precisa do Xcode 27.2 e cria a parte `app` (a exceção das Restrições globais): não começa com a #22 em andamento, e se a #22 entrar em `develop` enquanto esta Task corre, `git merge origin/develop` na branch antes do QA.
+**Depende de:** 1 e #20. A #19 cria a parte `packages`, e a #20 põe o HexStore nela: esta Task mexe no mesmo lugar e entra depois das duas. Ela não espera a #22, que precisa do Xcode 27.2 e cria a parte `app` (a exceção das Restrições globais): se a #22 entrar em `develop` enquanto esta Task corre, `git merge origin/develop` na branch antes do QA.
 
 **Files:**
 - Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs`
@@ -1088,10 +1088,10 @@ Cada número e cada valor vem do código e dos testes das Tasks 1 a 7, nunca de 
 
 - [ ] **Step 3: Check the links and the text**
 
-Run: `grep -rn -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" docs/hexgym/design-system` (o travessão e o meio-travessão, em UTF-8) e, para os links, este comando, que confere cada `](caminho)` relativo dos arquivos:
+Run: `grep -rn -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" docs/hexgym/design-system` (o travessão e o meio-travessão, em UTF-8) e, para os links, este comando, que confere cada `](caminho)` relativo dos arquivos, com ou sem título:
 
 ```bash
-node -e 'const fs=require("fs"),path=require("path");const d="docs/hexgym/design-system";let bad=0;for(const f of fs.readdirSync(d).filter(n=>n.endsWith(".md"))){for(const m of fs.readFileSync(path.join(d,f),"utf8").matchAll(/\]\(([^)\s]+)\)/g)){const p=m[1].split("#")[0];if(p&&!/^[a-z]+:/i.test(p)&&!fs.existsSync(path.join(d,p))){console.log(f+": "+m[1]);bad=1}}}process.exit(bad)'
+node -e 'const fs=require("fs"),path=require("path");const d="docs/hexgym/design-system";let bad=0;for(const f of fs.readdirSync(d).filter(n=>n.endsWith(".md"))){for(const m of fs.readFileSync(path.join(d,f),"utf8").matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)){const p=m[1].split("#")[0];if(p&&!/^[a-z]+:/i.test(p)&&!fs.existsSync(path.join(d,p))){console.log(f+": "+m[1]);bad=1}}}process.exit(bad)'
 ```
 
 Expected: o `grep` sem nenhuma linha, e o `node` sai com 0, sem nenhum link quebrado escrito.
