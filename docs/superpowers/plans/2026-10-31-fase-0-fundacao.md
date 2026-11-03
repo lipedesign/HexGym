@@ -66,7 +66,7 @@ apple/
   ExportOptions.plist
   Packages/HexEngine/            o motor no JavaScriptCore
     JS/                          o que o script leva além do lib, com os testes em Node
-    Sources/HexEngine/           o ator e, em Resources/, o script gerado e o host.js
+    Sources/HexEngine/           o ator e, em Resources/, o script gerado (comprimido, com o sha256) e o host.js
     Tests/HexEngineTests/        os testes Swift e, em Cases/, os casos gravados
   Packages/HexStore/             o documento de dados no App Group
 .github/workflows/hexgym.yml
@@ -480,7 +480,7 @@ git commit -m "Plans: the printable plan in lib/plan-print.js, so plan-share.js 
 - Create: `apple/Packages/HexEngine/JS/values.test.mjs`, `polyfills.test.mjs`, `runtime.test.mjs`, `build.test.mjs`
 - Create: `apple/Packages/HexEngine/JS/test-fixtures/imports-react.js` (uma linha: `import 'react'`), `dynamic-import.js` (`export const load = name => import(name)`) e `import-meta.js` (`export const here = import.meta.url`)
 - Create: `scripts/build-hexgym-engine.mjs`
-- Create (gerado): `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js`
+- Create (gerados): `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate` (o script, comprimido) e `hexengine.js.sha256` (o sha256 do script descomprimido)
 - Create: `apple/.gitattributes`
 - Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs` (parte `engine`)
 
@@ -498,8 +498,10 @@ git commit -m "Plans: the printable plan in lib/plan-print.js, so plan-share.js 
     - `makeCall(modules) → call(name, argsJson) → string`: `name` é `"<caminho do módulo>#<export>"`, como `"frontend/src/lib/onerm.js#estimate1RM"`; os argumentos são `decodeValue(JSON.parse(argsJson))` e a resposta é `JSON.stringify(encodeValue({ returned, args }))`, com os argumentos depois da chamada, para mostrar o que a função mudou; nome que não existe lança um erro que diz o nome.
 
     Cada troca de documento cura e registra os exercícios personalizados e os apelidos, como o boot do app web (`useStore.js:1352-1354`): `healCustomEx`, `registerCustom` e `registerExerciseAliases`.
-  - `scripts/build-hexgym-engine.mjs`: `engineGraph(repo) → Promise<{ [módulo]: string[] }>`, `cleanModules(graph) → string[]` (os `frontend/src/lib/*.js` limpos, em ordem alfabética), `buildEngine(repo, { extra = [] } = {}) → Promise<{ code, modules }>` e `main(argv, io) → Promise<number>`, com `io = { build, readFile, writeFile, out, err }` e os reais como padrão. CLI: `node scripts/build-hexgym-engine.mjs [--check]`.
-  - O `hexengine.js`: um script clássico que cria o global `HexEngine` com o que `runtime.js` exporta, `call = makeCall(__modules)` e `__modules`, com cada módulo do motor pelo caminho a partir da raiz do repositório.
+  - `scripts/build-hexgym-engine.mjs`: `engineGraph(repo) → Promise<{ [módulo]: string[] }>`, `cleanModules(graph) → string[]` (os `frontend/src/lib/*.js` limpos, em ordem alfabética), `buildEngine(repo, { extra = [] } = {}) → Promise<{ code, modules }>`, `readEngine(repo) → string`, `engineIo(repo)` e `main(argv, io) → Promise<number>`, com `io = { build, readFile, writeFile, out, err }` e os reais como padrão. CLI: `node scripts/build-hexgym-engine.mjs [--check]`.
+    - `readEngine` devolve o script guardado, descomprimido, para quem o roda sem fazer o build (a Task 6). Quando falta um dos dois arquivos ou eles não batem, lança um erro que manda rodar o build.
+    - `engineIo(repo)` é o `io` de verdade sobre os arquivos de `repo`: o `readFile()` devolve o script guardado, descomprimido, ou `null` quando falta um dos dois arquivos ou eles não batem, e o `writeFile(code)` grava os dois.
+  - O script, que o `hexengine.js.deflate` guarda comprimido: um script clássico que cria o global `HexEngine` com o que `runtime.js` exporta, `call = makeCall(__modules)` e `__modules`, com cada módulo do motor pelo caminho a partir da raiz do repositório.
   - A parte `engine` do `check.mjs`.
 
 **O que é o motor:** todo módulo de `frontend/src/lib` (sem os testes e sem `fixtures/`) que não alcança, por nenhum caminho de imports estáticos ou dinâmicos, um pacote, um módulo do Node ou um arquivo fora de `frontend/src/lib` e `api/coach/core`, mais os JSON e os módulos de `api/coach/core` que ele importa. Assim, módulo novo do openGym que não puxa o navegador entra sozinho, e o `--check` mostra a mudança.
@@ -515,9 +517,14 @@ git commit -m "Plans: the printable plan in lib/plan-print.js, so plan-share.js 
   - um `resolveId` que falha com `o motor não pode importar <x> (em <módulo>)` para qualquer coisa fora das duas pastas e de `apple/Packages/HexEngine/JS`;
   - um `generateBundle` que lê a saída com `this.parse` e falha com `o script do motor ficou com import dinâmico` se achar um `ImportExpression`. As duas conferências vão pela árvore do código, nunca por expressão regular, porque há comentários que falam de `import.meta.glob` e de `import()`;
   - o `banner` `// Gerado por scripts/build-hexgym-engine.mjs a partir do openGym <versão>, com <n> módulos. Não edite à mão.`
-- A CLI grava `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js`. Com `--check`, só compara (arquivo que falta conta como velho) e sai com 1 e `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js está desatualizado. Rode: node scripts/build-hexgym-engine.mjs`, como os outros `--check` do repositório.
-- `apple/.gitattributes` marca `Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js` com `linguist-generated=true -diff` e `Packages/HexEngine/Tests/HexEngineTests/Cases/*.json` (Task 7) com `linguist-generated=true`, para o GitHub dobrar esses diffs. O `-diff` faz o git e o GitHub mostrarem o script como binário, porque o pacote do revisor do relentless leva o `gh pr diff` inteiro, e o script não cabe nele.
-- O revisor não vê o conteúdo do script gerado, que o diff do PR mostra como binário. O QA mostra a prova dele: o tamanho em bytes, o número de linhas, o sha256, os módulos do `lib` que entraram e o `node scripts/build-hexgym-engine.mjs --check` passando. Se o `gh pr diff <pr> -R lipedesign/HexGym > /dev/null` falhar (406, acima do limite do diff de PR do GitHub: 20.000 linhas ou 300 arquivos), vale o que diz a nota `2026-11-03-um-orquestrador-so.md`.
+- A CLI grava dois arquivos em `apple/Packages/HexEngine/Sources/HexEngine/Resources/`:
+  - `hexengine.js.deflate`: o script em `zlib.deflateRawSync`, no nível 9 (o DEFLATE cru, que o `NSData.decompressed(using: .zlib)` da Task 7 lê);
+  - `hexengine.js.sha256`: o sha256 do script descomprimido, em hexadecimal, com uma quebra de linha no fim.
+
+  Ela só grava quando o script mudou ou quando um dos dois arquivos falta ou não bate, e diz qual dos dois foi. Um `.deflate` de outro nível ou de outro zlib, com o mesmo texto, fica como está. Com `--check`, só compara o script do build com o conteúdo descomprimido do `.deflate`, nunca com os bytes comprimidos, e confere o `.sha256` (arquivo que falta conta como velho). Quando algo não bate, sai com 1 e `O hexengine.js está desatualizado (apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate). Rode: node scripts/build-hexgym-engine.mjs`, como os outros `--check` do repositório.
+- `apple/.gitattributes` marca `Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate`, `Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.sha256` e `Packages/HexEngine/Tests/HexEngineTests/Cases/*.json` (Task 7) com `linguist-generated=true`, para o GitHub dobrar esses diffs. Sem `-diff`: o `.deflate` é binário pelo conteúdo.
+- O script vai comprimido porque o pacote do revisor do relentless leva o `gh pr diff` inteiro, e o texto dele, com uns 2,4 MB, não cabe. A API do GitHub ignora o `.gitattributes`: com o `-diff`, o `gh pr diff` do PR #45 seguiu com o script inteiro. E o diff de 30.989 linhas desse PR veio sem 406, então o pacote levaria o texto todo. Comprimido, o script é binário pelo conteúdo, e o diff só diz que ele mudou.
+- O revisor não vê o texto do script, e o QA mostra a prova dele: os bytes comprimidos e descomprimidos, o número de linhas e o sha256 do script descomprimido, a primeira linha (o `banner`), os módulos do `lib` que entraram e o `node scripts/build-hexgym-engine.mjs --check` passando. Se o `gh pr diff <pr> -R lipedesign/HexGym > /dev/null` falhar (406), vale o que diz a nota `2026-11-03-um-orquestrador-so.md`.
 
 - [ ] **Step 1: Write the failing tests for `values.js`, `polyfills.js` and `runtime.js`**
 
@@ -630,6 +637,26 @@ test('--check reports a stale script and writes nothing', async () => {
 })
 ```
 
+Depois deles, um teste com o `io` de verdade (`engineIo`) numa pasta de `os.tmpdir()`, apagada no fim:
+
+```js
+test('the real io keeps the script compressed with its sha256, rewrites only what changed, and --check sees a wrong sha256 and a missing file', async () => {
+  const { code } = await engine(), dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hexengine-'))
+  const at = name => path.join(dir, 'apple/Packages/HexEngine/Sources/HexEngine/Resources', name)
+  const io = { ...engineIo(dir), build: async () => ({ code, modules: [] }), stdout: '', out: line => { io.stdout += line + '\n' }, err: () => {} }
+  try {
+    await io.writeFile(code); assert.equal(await io.readFile(), code); assert.equal(await main(['--check'], io), 0)
+    const packed = fs.readFileSync(at('hexengine.js.deflate')); assert.ok(packed.subarray(0, 8000).includes(0), 'o git vê como binário')
+    const level1 = zlib.deflateRawSync(code, { level: 1 }); assert.ok(!level1.equals(packed)); fs.writeFileSync(at('hexengine.js.deflate'), level1)
+    assert.equal(await main(['--check'], io), 0); assert.equal(await main([], io), 0); assert.ok(fs.readFileSync(at('hexengine.js.deflate')).equals(level1))
+    fs.writeFileSync(at('hexengine.js.sha256'), '0'.repeat(64) + '\n'); assert.equal(await main(['--check'], io), 1)
+    assert.equal(await main([], io), 0); assert.match(io.stdout, /eles não batiam/); assert.equal(await main(['--check'], io), 0)
+    assert.equal(await main([], { ...io, build: async () => ({ code: code + '// outro\n', modules: [] }) }), 0); assert.match(io.stdout, /o script mudou/)
+    fs.rmSync(at('hexengine.js.deflate')); assert.equal(await main(['--check'], io), 1); assert.equal(await io.readFile(), null)
+  } finally { fs.rmSync(dir, { recursive: true, force: true }) }
+})
+```
+
 - [ ] **Step 6: Run them to verify they fail**
 
 Run: `node --test apple/Packages/HexEngine/JS/build.test.mjs`
@@ -642,7 +669,7 @@ Seguindo as decisões acima.
 - [ ] **Step 8: Generate the script and run every test**
 
 Run: `node scripts/build-hexgym-engine.mjs && node --test 'apple/Packages/HexEngine/JS/*.test.mjs'`
-Expected: o build imprime o número de módulos e o tamanho do script, e os testes dão PASS, 21 no total.
+Expected: o build imprime o número de módulos, o tamanho do script, descomprimido e comprimido, e por que gravou, e os testes dão PASS, 22 no total.
 
 - [ ] **Step 9: Add the `engine` part to `check.mjs`**
 
@@ -654,7 +681,7 @@ Expected: `ok`.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add scripts/build-hexgym-engine.mjs apple/.gitattributes apple/Packages/HexEngine/JS apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js scripts/hexgym/check.mjs scripts/hexgym/check.test.mjs
+git add scripts/build-hexgym-engine.mjs apple/.gitattributes apple/Packages/HexEngine/JS apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.sha256 scripts/hexgym/check.mjs scripts/hexgym/check.test.mjs
 git commit -m "Script do motor: os módulos limpos do lib num HexEngine só, com --check"
 ```
 
@@ -671,7 +698,7 @@ git commit -m "Script do motor: os módulos limpos do lib num HexEngine só, com
 - Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs` (a parte `engine` ganha o Vitest, e entra a parte `load`)
 
 **Interfaces:**
-- Consumes: o script, com `__modules` (Task 5); `buildDemoState()` de `frontend/src/lib/demoSeed.js`; `draftOf` e `stateFromSaved` (Task 4); `buildCombinedEntries` de `frontend/src/lib/session-merge.js`.
+- Consumes: o script, com `__modules`, e o `readEngine` (Task 5); `buildDemoState()` de `frontend/src/lib/demoSeed.js`; `draftOf` e `stateFromSaved` (Task 4); `buildCombinedEntries` de `frontend/src/lib/session-merge.js`.
 - Produces:
   - `scripts/hexgym/engine-tests.mjs`: `pickEngineTests(files, engineModules) → { picked: string[], skipped: [{ path, reason }] }`, com `files` como `[{ path, text }]`, `engineModules` como um `Set` e os caminhos sempre a partir da raiz do repositório;
   - `cd frontend && npx vitest run --config vitest.hexengine.config.js`;
@@ -679,17 +706,17 @@ git commit -m "Script do motor: os módulos limpos do lib num HexEngine só, com
   - a parte `load`.
 
 **O config do Vitest:**
-- Roda o script uma vez, com `new Function(code + '\nreturn HexEngine')`, para saber os módulos de `__modules` e o que cada um exporta.
+- Lê o script descomprimido pelo `readEngine(repo)` de `scripts/build-hexgym-engine.mjs` e o roda uma vez, com `new Function(code + '\nreturn HexEngine')`, para saber os módulos de `__modules` e o que cada um exporta.
 - Escolhe os testes com `pickEngineTests`, sobre os `*.test.js` e `*.test.jsx` de `src/lib`. Entra o teste em que cada import (`import … from`, `import '…'`, `export … from` e `import('…')` com texto fixo) é um módulo do script, `vitest`, `fast-check`, um módulo `node:` ou um `.json`, com pelo menos um módulo do script, e que não chama `vi.mock`, `vi.doMock`, `vi.stubEnv` nem `vi.resetModules`: um mock não alcança o código que já está dentro do script, e o ambiente ficou fixo no build. O que fica de fora leva o motivo, nesta ordem: o primeiro import fora da lista (`importa <x>`, com o nome do pacote ou o caminho a partir da raiz), a primeira das quatro chamadas (`chama vi.mock`), ou `não importa nenhum módulo do motor`.
 - Tira os de `EXCLUDED`, um objeto `arquivo → motivo` no próprio config, só para teste que falha por causa do redirecionamento. O primeiro candidato é `state-json.test.js`, cuja checagem só existe com `MODE === 'test'`. Cada entrada passa pela revisão.
 - Lança erro se a escolha tiver menos de 117 arquivos (o número da seção 8.2) ou se faltar um destes: `progression`, `sync-merge`, `onerm`, `finish-workout`, `recovery`, `workout-model`, `log-workout`, `history`, `supersetFlow`, `routines`, `units`, `measurements`, `plan-share`, `exercises` e `state-core`. Imprime `HexEngine: <n> arquivos de teste contra o script, <m> de fora` e, com `HEXENGINE_SKIPPED=1`, uma linha `fora: <arquivo> (<motivo>)` para cada um dos de fora.
 - `test.setupFiles: ['./src/test-setup.js']`, o mesmo do `vite.config.js`, e nada mais dele.
-- Um plugin `enforce: 'pre'`: quando um teste escolhido importa um módulo do script, o `resolveId` devolve `\0hexengine:<caminho>`, e o `load` devolve um módulo que pega o script de `\0hexengine-script` (`export default new Function(<texto do script> + '\nreturn HexEngine')()`, avaliado uma vez por arquivo de teste) e reexporta cada nome com `export const <nome> = m.<nome>`, mais o `default`. Nenhum módulo do `lib` exporta `let` ou `var`, então copiar o valor não perde nada.
+- Um plugin `enforce: 'pre'`: quando um teste escolhido importa um módulo do script, o `resolveId` devolve `\0hexengine:<caminho>`, e o `load` devolve um módulo que pega o script de `\0hexengine-script` (`export default new Function(<texto do readEngine> + '\nreturn HexEngine')()`, avaliado uma vez por arquivo de teste) e reexporta cada nome com `export const <nome> = m.<nome>`, mais o `default`. Nenhum módulo do `lib` exporta `let` ou `var`, então copiar o valor não perde nada.
 
 **O teste de carga** (`engine-load.mjs`):
 - Usa o `jsc` de `/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`. Sem ele, sai com 1 e `o teste de carga precisa do jsc do macOS`.
 - Monta no Node o histórico grande com `padHistory(buildDemoState(), total)`: os treinos do demo copiados para trás, uma semana por vez, com `id` novo, até `total` (padrão 1.040, cinco anos de quatro treinos por semana).
-- Roda `jsc --useJIT=false` (o iPhone roda o JavaScriptCore sem JIT) num script de medição que carrega o `hexengine.js` com `load()`, mede com `preciseTime()` e imprime um JSON com:
+- Roda `jsc --useJIT=false` (o iPhone roda o JavaScriptCore sem JIT) num script de medição que carrega o script do motor com `load()` (o `jsc` não descomprime: o `engine-load.mjs` lê o script pelo `readEngine` e o grava descomprimido num arquivo temporário, apagado no fim), mede com `preciseTime()` e imprime um JSON com:
   - `evaluate`: avaliar o script;
   - `restore`: o `HexEngine.restore` do documento;
   - `tick`: a mediana de 20 séries marcadas, cada uma como o `update()` do app web faz: `draftOf(S)`, uma série a mais feita em `active`, `done()`, `stampChange(prev, next, now)` e `stateJson(next)`. A sessão começa como o `beginWorkout` (`sheets.jsx:3120-3135`): as `entries` de `buildCombinedEntries(S, [rotina.id])` (`session-merge.js:22`) e os mesmos campos de `active`;
@@ -739,7 +766,7 @@ Expected: `HexEngine: <n> arquivos de teste contra o script, <m> de fora`, com n
 
 - [ ] **Step 5: Prove the tests read the script**
 
-Trocar à mão, no script gerado, o `return` de `estimate1RM` por `return 0` e rodar o comando do passo 4.
+Trocar, no script guardado, o `return` de `estimate1RM` por `return 0` e rodar o comando do passo 4. O script está comprimido, então a troca lê o texto pelo `readEngine` e o grava pelo `writeFile` do `engineIo`, que regrava também o `.sha256`.
 Expected: FAIL em `onerm.test.js`. Depois, `node scripts/build-hexgym-engine.mjs` e o passo 4 de novo, com PASS.
 
 - [ ] **Step 6: Write the failing tests for the load test**
@@ -817,17 +844,17 @@ public struct EngineInfo: Equatable, Sendable { public let exercises: Int; publi
 public enum EngineError: Error, Equatable, Sendable { case scriptMissing, notLoaded, javaScript(String) }
 ```
 
-  - Internos, para os testes com `@testable import`: `call(_ name: String, json arguments: Data) throws -> Data` e `evaluate(_ script: String) throws -> String`.
+  - Internos, para os testes com `@testable import`: `call(_ name: String, json arguments: Data) throws -> Data`, `evaluate(_ script: String) throws -> String` e `static func bundledScript() throws -> (script: Data, sha256: String)`, o script descomprimido e o texto do `hexengine.js.sha256`, os dois do `Bundle.module` do HexEngine (o alvo de teste tem o próprio `Bundle.module`, para os `Cases`, e por isso não lê os recursos do motor direto).
   - `scripts/hexgym/xcode.mjs`: `developerDir({ env = process.env, exists = fs.existsSync, selected = () => execFileSync('xcode-select', ['-p'], { encoding: 'utf8' }) } = {}) → string`. A ordem: `DEVELOPER_DIR`, depois `/Applications/Xcode.app`, depois `/Applications/Xcode-beta.app`, depois o que o `xcode-select -p` aponta quando não é a Command Line Tools (o runner `xcode-27` tem nomes com número, como `/Applications/Xcode_27.2.app`). Rodado sozinho, imprime o resultado: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)` é como os comandos desta fase escolhem o Xcode.
   - `scripts/hexgym/engine-cases.mjs`: `TIME_ZONES = ['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland']` e `buildCases(load) → Promise<[{ name, fn, args, ignore? }]>`, em que `load(caminho)` importa um módulo de `frontend/src/lib`.
   - `scripts/hexgym/record-engine-cases.mjs`: `recordZone(zone) → Promise<string>` (o texto do arquivo daquele fuso) e a CLI `[--check]`.
   - A parte `packages` do `check.mjs`, começada aqui; a Task 8 põe o HexStore depois.
 
 **Como o pacote funciona:**
-- `load()` cria o `JSContext`, avalia o `host.js` e depois o `hexengine.js` (os dois do `Bundle.module`, com `withSourceURL`), chama `setDeviceLanguage(language)` e lê o `info()`. Sem o script, `.scriptMissing`. Antes do `load()`, toda chamada lança `.notLoaded`.
+- `load()` cria o `JSContext`, avalia o `host.js` (do `Bundle.module`, com `withSourceURL`) e depois o script do motor: lê o `hexengine.js.deflate` do `Bundle.module` (pelo `bundledScript()`), descomprime com `NSData.decompressed(using: .zlib)` e avalia com `withSourceURL`. Depois, chama `setDeviceLanguage(language)` e lê o `info()`. Sem o script, ou se ele não descomprime, `.scriptMissing`. Antes do `load()`, toda chamada lança `.notLoaded`.
 - O `host.js` traz os complementos do Swift (seção 8.2): `console`, com cada método indo para o `Logger(subsystem: "app.hexgym", category: "motor")` no nível certo, e `setTimeout`/`clearTimeout`, com cada timer guardado num `Map` do JS e disparado por um `Task.sleep` do Swift que volta ao ator. Os blocos Swift que o `host.js` chama capturam o ator com `[weak self]`, para o contexto não prender o motor.
 - Swift e JS trocam texto JSON, nunca `JSValue` de objeto. Depois de cada chamada, se `context.exception` não for nulo, ele vira `.javaScript("<mensagem>\n<stack>")` e é limpo, e o contexto segue usável. Exceção dentro de um timer vai para o log como erro.
-- `Package.swift`: `swift-tools-version: 6.2`; `platforms: [.iOS(.v26), .macOS(.v26)]`, sem watchOS, porque o Watch não roda JavaScript; produto `HexEngine`; recursos `.copy("Resources/hexengine.js")` e `.copy("Resources/host.js")`; alvo de teste `HexEngineTests` com `.copy("Cases")`. A pasta `JS/` da Task 5 fica fora dos alvos.
+- `Package.swift`: `swift-tools-version: 6.2`; `platforms: [.iOS(.v26), .macOS(.v26)]`, sem watchOS, porque o Watch não roda JavaScript; produto `HexEngine`; recursos `.copy("Resources/hexengine.js.deflate")`, `.copy("Resources/hexengine.js.sha256")` e `.copy("Resources/host.js")`; alvo de teste `HexEngineTests` com `.copy("Cases")`. A pasta `JS/` da Task 5 fica fora dos alvos.
 - `apple/.gitignore`: `xcuserdata/`, `DerivedData/`, `build/`, `.build/` e `.swiftpm/`.
 
 **Os casos gravados.** O Node grava o que o código do openGym responde, num arquivo por fuso, e o Swift confere que o JavaScriptCore, rodando o script, responde o mesmo (seção 8.2 e Foco da revisão 5).
@@ -883,12 +910,16 @@ Expected: PASS, 5 testes.
 
 - [ ] **Step 4: Write `Package.swift` and the failing Swift tests**
 
-Em `HexEngineTests.swift`, `object(_:)` lê um `Data` como `[String: Any]`, `loaded(_ language: String = "en")` devolve um `HexEngine(language:)` já carregado, e `openGymVersion()` lê a versão de `frontend/package.json` a partir do `#filePath`:
+Em `HexEngineTests.swift`, `object(_:)` lê um `Data` como `[String: Any]`, `loaded(_ language: String = "en")` devolve um `HexEngine(language:)` já carregado, e `openGymVersion()` lê a versão de `frontend/package.json` a partir do `#filePath`. O arquivo importa o `CryptoKit`, para o sha256 do script:
 
 ```swift
 @Test func loadsTheCatalogueAndTheOpenGymVersion() async throws {
   let info = try await HexEngine().load()
   #expect(info.exercises > 5000); #expect(info.openGymVersion == openGymVersion())
+}
+@Test func theBundledScriptMatchesItsSha256() throws {
+  let (script, sha256) = try HexEngine.bundledScript()
+  #expect(SHA256.hash(data: script).map { String(format: "%02x", $0) }.joined() + "\n" == sha256)
 }
 @Test func callsBeforeLoadFail() async {
   await #expect(throws: EngineError.notLoaded) { try await HexEngine().document() }
@@ -958,7 +989,7 @@ Expected: FAIL, o alvo `HexEngine` não compila porque ainda não tem código.
 - [ ] **Step 7: Run them to verify they pass**
 
 Run: o comando do passo 5
-Expected: PASS, 11 testes.
+Expected: PASS, 12 testes.
 
 - [ ] **Step 8: Write the failing tests for the recorder**
 

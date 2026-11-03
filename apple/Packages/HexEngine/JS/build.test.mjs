@@ -4,13 +4,16 @@
 //
 // Cada buildEngine faz dois builds do Vite, o de sondagem e o de verdade; engine() guarda o
 // primeiro do arquivo, para os testes que só leem o resultado. Os fixtures de test-fixtures/
-// entram no build pelo extra, para ver cada recusa com o nome do módulo.
+// entram no build pelo extra, para ver cada recusa com o nome do módulo. O último teste grava o
+// script com o io de verdade numa pasta temporária, apagada no fim.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
-import { buildEngine, cleanModules, main } from '../../../../scripts/build-hexgym-engine.mjs'
+import zlib from 'node:zlib'
+import { buildEngine, cleanModules, engineIo, main } from '../../../../scripts/build-hexgym-engine.mjs'
 
 const repo = path.join(fs.realpathSync(import.meta.dirname), '..', '..', '..', '..')
 let first = null
@@ -23,7 +26,7 @@ function fakeIo({ built, current }) {
     writes: [], stdout: '', stderr: '',
     build: async () => ({ code: built, modules: [] }),
     readFile: async () => current,
-    writeFile: async (file, text) => { io.writes.push({ file, text }) },
+    writeFile: async code => { io.writes.push(code) },
     out: line => { io.stdout += line + '\n' },
     err: line => { io.stderr += line + '\n' },
   }
@@ -69,4 +72,19 @@ test('--check reports a stale script and writes nothing', async () => {
   const io = fakeIo({ built: 'novo', current: 'velho' })
   assert.equal(await main(['--check'], io), 1); assert.match(io.stderr, /hexengine\.js está desatualizado/); assert.equal(io.writes.length, 0)
   assert.equal(await main(['--check'], fakeIo({ built: 'novo', current: 'novo' })), 0)
+})
+test('the real io keeps the script compressed with its sha256, rewrites only what changed, and --check sees a wrong sha256 and a missing file', async () => {
+  const { code } = await engine(), dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hexengine-'))
+  const at = name => path.join(dir, 'apple/Packages/HexEngine/Sources/HexEngine/Resources', name)
+  const io = { ...engineIo(dir), build: async () => ({ code, modules: [] }), stdout: '', out: line => { io.stdout += line + '\n' }, err: () => {} }
+  try {
+    await io.writeFile(code); assert.equal(await io.readFile(), code); assert.equal(await main(['--check'], io), 0)
+    const packed = fs.readFileSync(at('hexengine.js.deflate')); assert.ok(packed.subarray(0, 8000).includes(0), 'o git vê como binário')
+    const level1 = zlib.deflateRawSync(code, { level: 1 }); assert.ok(!level1.equals(packed)); fs.writeFileSync(at('hexengine.js.deflate'), level1)
+    assert.equal(await main(['--check'], io), 0); assert.equal(await main([], io), 0); assert.ok(fs.readFileSync(at('hexengine.js.deflate')).equals(level1))
+    fs.writeFileSync(at('hexengine.js.sha256'), '0'.repeat(64) + '\n'); assert.equal(await main(['--check'], io), 1)
+    assert.equal(await main([], io), 0); assert.match(io.stdout, /eles não batiam/); assert.equal(await main(['--check'], io), 0)
+    assert.equal(await main([], { ...io, build: async () => ({ code: code + '// outro\n', modules: [] }) }), 0); assert.match(io.stdout, /o script mudou/)
+    fs.rmSync(at('hexengine.js.deflate')); assert.equal(await main(['--check'], io), 1); assert.equal(await io.readFile(), null)
+  } finally { fs.rmSync(dir, { recursive: true, force: true }) }
 })

@@ -1,6 +1,8 @@
 # Arquivos gerados, para o GitHub dobrar o diff deles: o script do motor
 # (node scripts/build-hexgym-engine.mjs) e os casos gravados no Node para os testes do Xcode.
-# O script vai também com -diff, e o diff o mostra como binário: o pacote do revisor do
-# relentless leva o gh pr diff inteiro, e os 2,4 MB dele não cabem.
-Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js linguist-generated=true -diff
+# O script vai comprimido, com o sha256 do texto ao lado, porque o pacote do revisor do relentless
+# leva o gh pr diff inteiro, e a API do GitHub ignora este arquivo: com -diff, o diff do PR seguiu
+# com os 2,4 MB do texto. Comprimido, ele é binário pelo conteúdo, e o diff só diz que mudou.
+Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate linguist-generated=true
+Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.sha256 linguist-generated=true
 Packages/HexEngine/Tests/HexEngineTests/Cases/*.json linguist-generated=true

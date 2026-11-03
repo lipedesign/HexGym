@@ -2,9 +2,12 @@
 // O script do motor do HexGym (seção 8.2 do design doc). O JavaScriptCore do iPhone não carrega
 // módulos, então este build junta num script clássico só, o HexEngine, os módulos de
 // frontend/src/lib que não puxam o navegador, com o Vite que o frontend já tem. O script gerado é
-// versionado, para o app compilar sem Node.
+// versionado, para o app compilar sem Node, e vai comprimido, com o sha256 do texto ao lado, em
+// apple/Packages/HexEngine/Sources/HexEngine/Resources: hexengine.js.deflate e hexengine.js.sha256.
+// Comprimido, ele é binário pelo conteúdo, e o diff do PR só diz que mudou: o pacote do revisor do
+// relentless leva o gh pr diff inteiro, e o GitHub mostra os 2,4 MB do texto mesmo com -diff.
 //
-//   node scripts/build-hexgym-engine.mjs           # grava o script
+//   node scripts/build-hexgym-engine.mjs           # grava o script, quando ele mudou
 //   node scripts/build-hexgym-engine.mjs --check   # só compara, e sai com 1 se ele estiver velho
 //
 // O motor é todo módulo de frontend/src/lib (sem os testes e sem fixtures/) que não alcança, por
@@ -16,16 +19,21 @@
 // Node 22, sem dependência nova. O Vite vem de frontend/node_modules, porque a raiz não tem, e
 // nada do vite.config.js do app entra (configFile: false).
 
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import { createRequire, isBuiltin } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import zlib from 'node:zlib'
 
 // O caminho de verdade deste arquivo, sem links, como no scripts/hexgym/check.mjs.
 const SELF = fs.realpathSync(fileURLToPath(import.meta.url))
 const REPO = path.join(path.dirname(SELF), '..')
 
-const OUT = 'apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js'
+// Os dois arquivos do script guardado, a partir da raiz.
+const RESOURCES = 'apple/Packages/HexEngine/Sources/HexEngine/Resources'
+const DEFLATE = `${RESOURCES}/hexengine.js.deflate`
+const SHA256 = `${RESOURCES}/hexengine.js.sha256`
 const LIB = 'frontend/src/lib/'
 // As duas pastas do motor.
 const FOLDERS = [LIB, 'api/coach/core/']
@@ -247,20 +255,69 @@ export async function buildEngine(repo, { extra = [] } = {}) {
   return { code: chunk.code, modules }
 }
 
-const realIo = {
-  build: () => buildEngine(REPO),
-  readFile: file => fs.promises.readFile(path.join(REPO, file), 'utf8'),
-  async writeFile(file, text) {
-    const at = path.join(REPO, file)
-    await fs.promises.mkdir(path.dirname(at), { recursive: true })
-    await fs.promises.writeFile(at, text)
-  },
-  out: line => console.log(line),
-  err: line => console.error(line),
+const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex')
+
+// O script guardado em repo, descomprimido, ou null quando falta um dos dois arquivos, quando o
+// .deflate não descomprime ou quando o .sha256 não é o do texto com a quebra de linha no fim. Outro
+// erro de leitura sobe.
+function storedEngine(repo) {
+  let packed, sum
+  try {
+    packed = fs.readFileSync(path.join(repo, DEFLATE))
+    sum = fs.readFileSync(path.join(repo, SHA256), 'utf8')
+  } catch (e) {
+    if (e?.code === 'ENOENT') return null
+    throw e
+  }
+  let bytes
+  try {
+    bytes = zlib.inflateRawSync(packed)
+  } catch (e) {
+    // Os erros do zlib têm um código Z_ (Z_DATA_ERROR, Z_BUF_ERROR): não é o que o build grava.
+    if (String(e?.code).startsWith('Z_')) return null
+    throw e
+  }
+  return sum === `${sha256(bytes)}\n` ? bytes.toString('utf8') : null
 }
 
-// A CLI: grava o script e diz quantos módulos e quanto ele tem; com --check, só compara (o
-// arquivo que falta conta como velho) e sai com 1 quando ele está velho. Devolve o código de saída.
+// O script guardado, descomprimido, para quem o roda sem fazer o build (o Vitest e o teste de carga
+// no jsc, da Task 6). Quando falta um dos dois arquivos ou eles não batem, lança um erro que manda
+// rodar o build.
+export function readEngine(repo = REPO) {
+  const code = storedEngine(repo)
+  if (code === null) throw new Error(`o script do motor falta ou não bate com o sha256 (${DEFLATE} e ${SHA256}). Rode: node scripts/build-hexgym-engine.mjs`)
+  return code
+}
+
+// O io de verdade do main, sobre os arquivos de repo (os testes usam uma pasta temporária). O
+// readFile devolve o script guardado, descomprimido, ou null; o writeFile grava os dois arquivos, o
+// script em DEFLATE cru no nível 9 (o formato que o NSData.decompressed(using: .zlib) do Swift lê)
+// e o sha256 do texto, e devolve o tamanho comprimido.
+export function engineIo(repo) {
+  return {
+    build: () => buildEngine(repo),
+    readFile: async () => storedEngine(repo),
+    async writeFile(code) {
+      const bytes = Buffer.from(code, 'utf8')
+      const packed = zlib.deflateRawSync(bytes, { level: 9 })
+      await fs.promises.mkdir(path.join(repo, RESOURCES), { recursive: true })
+      await fs.promises.writeFile(path.join(repo, DEFLATE), packed)
+      await fs.promises.writeFile(path.join(repo, SHA256), `${sha256(bytes)}\n`)
+      return packed.length
+    },
+    out: line => console.log(line),
+    err: line => console.error(line),
+  }
+}
+
+const realIo = engineIo(REPO)
+const kb = bytes => Math.round(bytes / 1024)
+
+// A CLI. Com --check, só compara o script do build com o guardado, descomprimido, nunca com os
+// bytes comprimidos, e confere o sha256 (arquivo que falta conta como velho); sai com 1 quando algo
+// não bate. Sem --check, grava os dois arquivos só quando o script mudou ou quando um deles falta ou
+// não bate, e diz qual dos dois foi; um .deflate de outro zlib, ou de outro nível, com o mesmo texto
+// fica como está. Devolve o código de saída.
 export async function main(argv = [], io = {}) {
   const { build, readFile, writeFile, out, err } = { ...realIo, ...io }
   if (argv.some(a => a !== '--check')) {
@@ -275,27 +332,26 @@ export async function main(argv = [], io = {}) {
     for (const reason of e.errors?.map(x => x.message) ?? [e.message]) err(`o script do motor não saiu: ${reason}`)
     return 1
   }
-  const size = `${built.modules.length} módulos, ${Math.round(Buffer.byteLength(built.code) / 1024)} KB`
-  if (argv.includes('--check')) {
-    let current = null
-    try {
-      current = await readFile(OUT)
-    } catch (e) {
-      if (e?.code !== 'ENOENT') {
-        err(`não deu para ler ${OUT}: ${e.message}`)
-        return 1
-      }
-      // O arquivo que falta conta como velho.
-    }
-    if (current !== built.code) {
-      err(`${OUT} está desatualizado. Rode: node scripts/build-hexgym-engine.mjs`)
-      return 1
-    }
-    out(`${OUT} está em dia (${size}).`)
+  let current
+  try {
+    current = await readFile()
+  } catch (e) {
+    err(`não deu para ler ${DEFLATE}: ${e.message}`)
+    return 1
+  }
+  const size = `${built.modules.length} módulos, ${kb(Buffer.byteLength(built.code))} KB`
+  if (current === built.code) {
+    out(`O hexengine.js está em dia (${DEFLATE}): ${size}.${argv.includes('--check') ? '' : ' Nada a gravar.'}`)
     return 0
   }
-  await writeFile(OUT, built.code)
-  out(`Gravei ${OUT}: ${size}.`)
+  if (argv.includes('--check')) {
+    err(`O hexengine.js está desatualizado (${DEFLATE}). Rode: node scripts/build-hexgym-engine.mjs`)
+    return 1
+  }
+  const packed = await writeFile(built.code)
+  const why = current == null ? 'faltava um dos dois arquivos, ou eles não batiam' : 'o script mudou'
+  const compressed = typeof packed === 'number' ? `, ${kb(packed)} KB comprimido` : ''
+  out(`Gravei o hexengine.js.deflate e o hexengine.js.sha256 em ${RESOURCES} (${size}${compressed}), porque ${why}.`)
   return 0
 }
 
