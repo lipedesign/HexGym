@@ -9,7 +9,7 @@ import { isWarmupRow, hasCompletedWork } from './workout-model.js'
 import { fmtNum, fmtVol, fmtDur, fmtDate, todayISO, DAYS, weekOrder, weekDayOffset } from './format.js'
 import { t, tn, dateLocale } from './i18n-core.js'
 import { speedUnitOf } from './speed.js'
-import { printedName } from './plan-share.js'
+import { printedName } from './plan-print.js'
 import { esc, printShell, printDocument, probeMarks, paperDate } from './print-doc.js'
 import { reportData, workSetsOf } from './report.js'
 

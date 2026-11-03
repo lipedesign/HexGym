@@ -315,7 +315,7 @@ export async function shareExportBlob(blob, filename) {
   await Share.share({ title: filename, url: uri })
 }
 
-// Hand a self-contained HTML document (lib/plan-share.js planPrintHTML) to the OS print flow.
+// Hand a self-contained HTML document (lib/plan-print.js planPrintHTML) to the OS print flow.
 // Android routes it through the system PrintManager — "Save as PDF", "Save to Drive", a real
 // printer; iOS through the print sheet — "Save to Files" (as PDF), share, print. Either way the
 // platform renders the PDF, so no PDF library rides in the bundle. The local `Print` plugin is

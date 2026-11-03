@@ -3,7 +3,7 @@
 import { afterEach, describe, it, expect } from 'vitest'
 import { KMH_PER_MPH, speedUnitOf, speedLabel, toSpeed, fromSpeed, fmtSpeed } from './speed.js'
 import { setLabel, exLine } from './history.js'
-import { planPrintHTML } from './plan-share.js'
+import { planPrintHTML } from './plan-print.js'
 import { setWeightDecimals } from './format.js'
 
 const BIKE = '2138'   // stationary bike, cardio

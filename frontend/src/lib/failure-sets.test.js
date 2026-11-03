@@ -7,7 +7,8 @@ import { buildSessionEntries } from './session-start.js'
 import { readSession, nextPrescription } from './progression.js'
 import { workoutText } from './workout-text.js'
 import { finishCompare } from './finish-compare.js'
-import { buildPlanBundle, parsePlan, planPrintHTML } from './plan-share.js'
+import { buildPlanBundle, parsePlan } from './plan-share.js'
+import { planPrintHTML } from './plan-print.js'
 
 // Sets to failure (Discord request, roadmap v1.4.2 "a universal AMRAP / to failure flag"): an
 // optional `failure: true` on a row, and `lastToFailure: true` on a planned exercise.
