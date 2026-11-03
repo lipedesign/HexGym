@@ -6,9 +6,10 @@
 // uma parte atualiza a mensagem esperada aqui.
 // Os dois testes do link simbólico (issue #39) chamam o check.mjs por links num diretório
 // temporário, que cada um apaga no fim.
-// Os três testes da issue #44 (uma parte que não roda nenhum teste falha) vêm depois deles: a
-// regra sem processo, e os dois que rodam uma cópia do check.mjs numa pasta temporária, que cada
-// um apaga no fim, com ou sem o NODE_TEST_CONTEXT no ambiente.
+// Os quatro testes da issue #44 (uma parte que não roda nenhum teste falha) vêm depois deles: a
+// regra sem processo; os dois que rodam uma cópia do check.mjs numa pasta temporária, com ou sem
+// o NODE_TEST_CONTEXT no ambiente; e o do aviso do isMain(), com uma pasta temporária vazia. Cada
+// um apaga a sua pasta no fim.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -120,4 +121,16 @@ test('check.mjs counts the tests that node --test ran, and fails when NODE_TEST_
   assert.equal(skipped.status, 1, skipped.stdout)
   assert.match(skipped.stderr, /a parte scripts não rodou nenhum teste/)
   assert.match(skipped.stdout, /\nfalhou: scripts \(nenhum teste\)\n$/)
+})
+
+// O isMain() que não lê o argv[1] não sai calado. Com o -e, o argv[1] é o primeiro argumento
+// depois do código: aqui, um caminho que não existe, dentro de uma pasta temporária vazia.
+test('check.mjs says on stderr that nothing ran when it cannot tell whether it is the script', t => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  const code = `await import(${JSON.stringify(pathToFileURL(path.join(HERE, 'check.mjs')).href)})`
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', code, path.join(tmp, 'nao-existe')], { encoding: 'utf8' })
+  assert.equal(r.status, 0, r.stderr)
+  assert.equal(r.stdout, '')
+  assert.match(r.stderr, /check\.mjs: nenhuma checagem rodou/)
 })

@@ -200,11 +200,14 @@ async function main(argv) {
   return 1
 }
 
-// Chamado como script, e não importado: as duas pontas passam pelo realpath.
+// Chamado como script, e não importado: as duas pontas passam pelo realpath. Se o realpath do
+// argv[1] falhar, nada roda, e o aviso no stderr diz isso, para a saída 0 não passar calada.
 function isMain() {
+  if (!process.argv[1]) return false
   try {
-    return Boolean(process.argv[1]) && fs.realpathSync(process.argv[1]) === SELF
-  } catch {
+    return fs.realpathSync(process.argv[1]) === SELF
+  } catch (err) {
+    console.error(`check.mjs: nenhuma checagem rodou, porque não deu para saber se ele foi chamado como script (${err.message})`)
     return false
   }
 }
