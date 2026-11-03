@@ -11,7 +11,7 @@ vi.mock('../lib/api.js', () => ({ api: vi.fn(() => Promise.resolve({})) }))
 vi.mock('../sheets.jsx', () => ({ exConfigSheet: vi.fn(), exercisePicker: vi.fn(), glyphPicker: vi.fn(), confirmSheet: vi.fn() }))
 vi.mock('../components/Media.jsx', () => ({ Thumb: () => null }))
 vi.mock('../components/BodyMap.jsx', () => ({ default: () => null }))
-vi.mock('../lib/plan-share.js', async importOriginal => ({ ...await importOriginal(), printPlan: vi.fn() }))
+vi.mock('../lib/plan-print.js', async importOriginal => ({ ...await importOriginal(), printPlan: vi.fn() }))
 vi.mock('../lib/mobile.js', async importOriginal => {
   const real = await importOriginal()
   env.printHtml = vi.fn(() => Promise.resolve())
@@ -20,7 +20,7 @@ vi.mock('../lib/mobile.js', async importOriginal => {
 
 import RoutineEdit from './RoutineEdit.jsx'
 import { DEF, useStore } from '../store/useStore.js'
-import { printPlan } from '../lib/plan-share.js'
+import { printPlan } from '../lib/plan-print.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 let root, host

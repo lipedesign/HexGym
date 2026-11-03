@@ -41,7 +41,7 @@ const load = p => server.ssrLoadModule(p)
 const core = await load('/src/lib/i18n-core.js')
 const { registerCustom } = await load('/src/lib/exercises.js')
 const { buildDemoState } = await load('/src/lib/demoSeed.js')
-const plan = await load('/src/lib/plan-share.js')
+const plan = await load('/src/lib/plan-print.js')
 const hasReport = existsSync(join(root, 'src/lib/report-print.js'))
 const report = hasReport ? await load('/src/lib/report-print.js') : null
 

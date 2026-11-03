@@ -1,6 +1,6 @@
 // The printable plan (#149) and one routine on its own page (#282).
 import { afterEach, describe, it, expect } from 'vitest'
-import { planPrintHTML } from './plan-share.js'
+import { planPrintHTML } from './plan-print.js'
 import { CASED_NAME_LANGS, EXERCISE_NAME_LANGS, _setLangState } from './i18n-core.js'
 
 const S = {
