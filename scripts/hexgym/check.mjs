@@ -31,16 +31,19 @@ const ROOT = path.join(path.dirname(SELF), '..', '..')
 
 // Os módulos que moram ao lado deste arquivo, importados pelo caminho de verdade dele: pelo mesmo
 // link, um import comum os procuraria ao lado do link. Nenhum dos dois roda nada ao ser importado,
-// e o developerDir só é chamado quando uma checagem da parte packages vai rodar.
+// e o developerDir e o swiftTestFlags só são chamados quando uma checagem da parte packages vai rodar.
 const sibling = name => import(pathToFileURL(path.join(path.dirname(SELF), name)).href)
-const { developerDir } = await sibling('xcode.mjs')
+const { developerDir, swiftTestFlags } = await sibling('xcode.mjs')
 const { TIME_ZONES } = await sibling('engine-cases.mjs')
 
-// O ambiente de uma rodada do swift test do HexEngine: o swift do xcode.mjs (o Xcode completo ou,
-// sem ele, as Command Line Tools) e o fuso, no TZ do processo e no HEXGYM_CASES, que diz ao
-// RecordedCasesTests quais casos gravados rodar.
-const swiftIn = zone => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }), TZ: zone, HEXGYM_CASES: zone })
-const HEXENGINE = ['test', '--package-path', 'apple/Packages/HexEngine']
+// Uma rodada do swift test do HexEngine. O args leva, logo depois do test, os argumentos do
+// swiftTestFlags para o swift do xcode.mjs (o Xcode completo ou, sem ele, as Command Line Tools, que
+// recebem o caminho do plugin do TestingMacros), os mesmos em toda rodada, para o plano de compilação
+// ser o mesmo em todas. O env leva esse swift e o fuso, no TZ do processo e no HEXGYM_CASES, que diz
+// ao RecordedCasesTests quais casos gravados rodar.
+const swiftDir = () => developerDir({ swiftOnly: true })
+const hexEngineTest = (...rest) => ['test', ...swiftTestFlags(swiftDir()), '--package-path', 'apple/Packages/HexEngine', ...rest]
+const swiftIn = zone => ({ DEVELOPER_DIR: swiftDir(), TZ: zone, HEXGYM_CASES: zone })
 
 // Sempre nesta ordem, e cada Task põe a sua parte no lugar dela:
 // scripts, engine, load, packages, app.
@@ -72,14 +75,13 @@ export const PARTS = {
   ],
   // Todos os testes do HexEngine no primeiro fuso, com os casos gravados dele, e os casos gravados de
   // novo em cada outro fuso. Só a primeira rodada compila: as outras rodam o que ela compilou
-  // (--skip-build), porque o swift test refaz parte da compilação a cada chamada, mesmo sem mudança,
-  // e com as Command Line Tools cada compilação dos testes pode falhar ao acaso (o plugin do
-  // TestingMacros que fica de fora, issue #19). O env é uma função: sem o swift, só esta parte falha.
+  // (--skip-build), porque o swift test refaz parte da compilação a cada chamada, mesmo sem mudança.
+  // O args e o env são funções: sem o swift, só esta parte falha.
   packages: [
-    { name: `HexEngine, com os casos gravados em ${TIME_ZONES[0]}`, cmd: 'swift', args: [...HEXENGINE], env: () => swiftIn(TIME_ZONES[0]) },
+    { name: `HexEngine, com os casos gravados em ${TIME_ZONES[0]}`, cmd: 'swift', args: () => hexEngineTest(), env: () => swiftIn(TIME_ZONES[0]) },
     ...TIME_ZONES.slice(1).map(zone => ({
       name: `HexEngine, casos gravados em ${zone}`, cmd: 'swift',
-      args: [...HEXENGINE, '--skip-build', '--filter', 'RecordedCasesTests'], env: () => swiftIn(zone),
+      args: () => hexEngineTest('--skip-build', '--filter', 'RecordedCasesTests'), env: () => swiftIn(zone),
     })),
   ],
 }

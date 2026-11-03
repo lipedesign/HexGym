@@ -8,11 +8,15 @@
 //   4. só para os pacotes Swift (swiftOnly), as Command Line Tools, quando têm o swift.
 // O Xcode-beta nunca é escolhido: é pré-lançamento, e o desta máquina está sem os componentes da
 // primeira abertura (decisão do tech lead, 03/11/2026). Sem nenhum, um erro diz o que fazer.
+// O swiftTestFlags dá os argumentos que o swift test precisa com aquele swift: com as Command Line
+// Tools, o caminho do plugin do TestingMacros, e com um Xcode completo, nenhum.
 //
-//   node scripts/hexgym/xcode.mjs           # o Xcode completo: xcodebuild, xcrun e codesign
-//   node scripts/hexgym/xcode.mjs --swift   # o do swift test dos pacotes
+//   node scripts/hexgym/xcode.mjs                    # o Xcode completo: xcodebuild, xcrun e codesign
+//   node scripts/hexgym/xcode.mjs --swift            # o do swift test dos pacotes
+//   node scripts/hexgym/xcode.mjs --swift-test-flags # os argumentos do swift test, para esse swift
 //
-//   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexEngine
+//   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) \
+//     --package-path apple/Packages/HexEngine
 //
 // Node 22, sem dependências. Importar este arquivo não roda nada.
 
@@ -24,7 +28,9 @@ import { fileURLToPath } from 'node:url'
 const SELF = fs.realpathSync(fileURLToPath(import.meta.url))
 
 const XCODE = '/Applications/Xcode.app/Contents/Developer'
-const CLT = '/Library/Developer/CommandLineTools'
+export const CLT = '/Library/Developer/CommandLineTools'
+// O plugin dos macros do Swift Testing (@Test, @Suite, #expect) nas Command Line Tools.
+const TESTING_MACROS = `${CLT}/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib`
 
 // Um Xcode de pré-lançamento, pelo nome do .app: o Xcode-beta.app daqui, ou um Xcode_27.0_beta.app.
 const isBeta = dir => /\/[^/]*beta[^/]*\.app(\/|$)/i.test(dir)
@@ -50,14 +56,30 @@ export function developerDir({
   throw new Error(`nenhum Xcode encontrado: instale o Xcode 27.2 ou defina DEVELOPER_DIR${why}`)
 }
 
-// A CLI: imprime o caminho e sai com 0; sem Xcode, sai com 1 e o motivo; com argumentos errados, 2.
+// Os argumentos que o swift test precisa com o swift do dir. Com as Command Line Tools, o swift 6.4
+// às vezes compila os testes sem o plugin do TestingMacros e falha ao acaso com "plugin for module
+// 'TestingMacros' not found" (issue #19, decisão do tech lead de 03/11): o -load-plugin-library dá
+// ao compilador o caminho do plugin. Com outro dir, ou sem o plugin no disco, nenhum. Com o Xcode
+// 27.2, o developerDir escolhe o Xcode.app, e os argumentos somem sozinhos.
+export function swiftTestFlags(dir, { exists = fs.existsSync } = {}) {
+  if (String(dir).replace(/\/+$/, '') !== CLT || !exists(TESTING_MACROS)) return []
+  return ['-Xswiftc', '-load-plugin-library', '-Xswiftc', TESTING_MACROS]
+}
+
+// A CLI: imprime o caminho, ou os argumentos do swift test separados por espaço (nada, quando não há
+// nenhum), e sai com 0; sem Xcode, sai com 1 e o motivo; com argumentos errados, 2.
 function main(argv) {
-  if (argv.length > 1 || (argv.length === 1 && argv[0] !== '--swift')) {
-    console.error('uso: node scripts/hexgym/xcode.mjs [--swift]')
+  if (argv.length > 1 || (argv.length === 1 && !['--swift', '--swift-test-flags'].includes(argv[0]))) {
+    console.error('uso: node scripts/hexgym/xcode.mjs [--swift | --swift-test-flags]')
     return 2
   }
   try {
-    console.log(developerDir({ swiftOnly: argv[0] === '--swift' }))
+    if (argv[0] === '--swift-test-flags') {
+      const flags = swiftTestFlags(developerDir({ swiftOnly: true }))
+      if (flags.length) console.log(flags.join(' '))
+    } else {
+      console.log(developerDir({ swiftOnly: argv[0] === '--swift' }))
+    }
     return 0
   } catch (err) {
     console.error(err.message)

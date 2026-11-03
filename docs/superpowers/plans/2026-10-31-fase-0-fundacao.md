@@ -14,7 +14,7 @@
 
 Valem para toda Task. Os valores vêm da especificação e do levantamento de 31/10/2026.
 
-- **Plataforma:** iOS 26 e watchOS 26 como mínimo (`IPHONEOS_DEPLOYMENT_TARGET = 26.0`, `WATCHOS_DEPLOYMENT_TARGET = 26.0`). Xcode 27.2 estável, em `/Applications/Xcode.app` (o founder instala na Task 12), via `DEVELOPER_DIR`, porque o `xcode-select` desta máquina aponta para as Command Line Tools. O Xcode-beta nunca é escolhido (decisão do tech lead de 03/11): até o 27.2 chegar, os pacotes rodam com o `swift` das Command Line Tools. Da Task 7 em diante, o `swift test` dos pacotes roda com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift)`, e todo `xcodebuild`, `xcrun` e `codesign`, com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)`, que exige o Xcode completo.
+- **Plataforma:** iOS 26 e watchOS 26 como mínimo (`IPHONEOS_DEPLOYMENT_TARGET = 26.0`, `WATCHOS_DEPLOYMENT_TARGET = 26.0`). Xcode 27.2 estável, em `/Applications/Xcode.app` (o founder instala na Task 12), via `DEVELOPER_DIR`, porque o `xcode-select` desta máquina aponta para as Command Line Tools. O Xcode-beta nunca é escolhido (decisão do tech lead de 03/11): até o 27.2 chegar, os pacotes rodam com o `swift` das Command Line Tools. Da Task 7 em diante, o `swift test` dos pacotes roda como `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path …`, e todo `xcodebuild`, `xcrun` e `codesign`, com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)`, que exige o Xcode completo. O `--swift-test-flags` está ali por causa do erro ao acaso do `swift` das Command Line Tools, `plugin for module 'TestingMacros' not found`: com elas, ele dá ao `swift test` o caminho do plugin, e com o Xcode completo não dá nada.
 - **Formato do projeto:** `objectVersion = 77` e `preferredProjectObjectVersion = 77` (o formato "Xcode 16.0", que o Xcode 26 e o 27 abrem), sempre `project.pbxproj`, nunca o `.xcproj` em JSON do Xcode 27.2. Pacotes com `swift-tools-version: 6.2`. Nenhuma API só do iOS 27 ou do watchOS 27.
 - **O Watch não roda JavaScript:** nada de JavaScriptCore nos alvos do Watch.
 - **Poucas dependências:** nenhum pacote Swift de terceiros e nenhuma dependência npm nova; o script do motor usa o Vite que o frontend já tem.
@@ -845,7 +845,8 @@ public enum EngineError: Error, Equatable, Sendable { case scriptMissing, notLoa
 ```
 
   - Internos, para os testes com `@testable import`: `call(_ name: String, json arguments: Data) throws -> Data`, `evaluate(_ script: String) throws -> String` e `static func bundledScript() throws -> (script: Data, sha256: String)`, o script descomprimido e o texto do `hexengine.js.sha256`, os dois do `Bundle.module` do HexEngine (o alvo de teste tem o próprio `Bundle.module`, para os `Cases`, e por isso não lê os recursos do motor direto).
-  - `scripts/hexgym/xcode.mjs`: `developerDir({ env = process.env, exists = fs.existsSync, selected = () => execFileSync('xcode-select', ['-p'], { encoding: 'utf8' }), swiftOnly = false } = {}) → string`. A ordem: `DEVELOPER_DIR`; `/Applications/Xcode.app/Contents/Developer`; o que o `xcode-select -p` aponta, quando não é a Command Line Tools (o runner `xcode-27` tem nomes com número, como `/Applications/Xcode_27.2.app`); e, só com `swiftOnly: true`, `/Library/Developer/CommandLineTools`, quando existe `/Library/Developer/CommandLineTools/usr/bin/swift`. Fora disso, lança `nenhum Xcode encontrado: instale o Xcode 27.2 ou defina DEVELOPER_DIR`. O Xcode-beta nunca é escolhido. Rodado sozinho, imprime o resultado: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)` é como os comandos desta fase escolhem o Xcode completo, o do `xcodebuild`, e `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift)`, o do `swift` dos pacotes.
+  - `scripts/hexgym/xcode.mjs`: `developerDir({ env = process.env, exists = fs.existsSync, selected = () => execFileSync('xcode-select', ['-p'], { encoding: 'utf8' }), swiftOnly = false } = {}) → string`. A ordem: `DEVELOPER_DIR`; `/Applications/Xcode.app/Contents/Developer`; o que o `xcode-select -p` aponta, quando não é a Command Line Tools (o runner `xcode-27` tem nomes com número, como `/Applications/Xcode_27.2.app`); e, só com `swiftOnly: true`, `/Library/Developer/CommandLineTools`, quando existe `/Library/Developer/CommandLineTools/usr/bin/swift`. Fora disso, lança `nenhum Xcode encontrado: instale o Xcode 27.2 ou defina DEVELOPER_DIR`. O Xcode-beta nunca é escolhido, nem quando o `xcode-select -p` aponta para ele. Rodado sozinho, imprime o resultado: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)` é como os comandos desta fase escolhem o Xcode completo, o do `xcodebuild`, e `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift)`, o do `swift` dos pacotes.
+  - `scripts/hexgym/xcode.mjs` também exporta a constante `CLT` (`/Library/Developer/CommandLineTools`) e `swiftTestFlags(dir, { exists = fs.existsSync } = {}) → string[]`, por causa do erro ao acaso `plugin for module 'TestingMacros' not found` do `swift` da CLT. Quando o `dir`, sem a barra do fim, é o `CLT` e o `${CLT}/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib` existe, ela devolve `['-Xswiftc', '-load-plugin-library', '-Xswiftc', <esse caminho>]`; em qualquer outro caso, `[]`. O caminho sai da constante. `node scripts/hexgym/xcode.mjs --swift-test-flags` imprime os argumentos do `developerDir({ swiftOnly: true })`, separados por espaço, e nada com o Xcode completo. Com o Xcode 27.2, o `developerDir` escolhe o Xcode.app, e os argumentos somem sozinhos.
   - `scripts/hexgym/engine-cases.mjs`: `TIME_ZONES = ['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland']` e `buildCases(load) → Promise<[{ name, fn, args, ignore? }]>`, em que `load(caminho)` importa um módulo de `frontend/src/lib`.
   - `scripts/hexgym/record-engine-cases.mjs`: `recordZone(zone) → Promise<string>` (o texto do arquivo daquele fuso) e a CLI `[--check]`.
   - A parte `packages` do `check.mjs`, começada aqui; a Task 8 põe o HexStore depois.
@@ -884,7 +885,7 @@ public enum EngineError: Error, Equatable, Sendable { case scriptMissing, notLoa
 - Primeiro, confere que `evaluate("Intl.DateTimeFormat().resolvedOptions().timeZone")` é o fuso de `HEXGYM_CASES`: a prova de que o `TZ` chegou ao JavaScriptCore.
 - Depois, para cada caso do arquivo daquele fuso, `call(fn, json: args)`, tira os caminhos de `ignore` e compara com `result`: a mesma estrutura, os mesmos textos e booleanos, e números iguais, com tolerância relativa de `1e-9` para os que não são inteiros (o `Math.exp` e o `Math.pow` podem diferir no último bit entre o V8 e o JavaScriptCore). A falha diz o nome do caso.
 
-- [ ] **Step 1: Write the failing tests for `developerDir`**
+- [ ] **Step 1: Write the failing tests for `developerDir` and `swiftTestFlags`**
 
 ```js
 test('DEVELOPER_DIR wins', () => assert.equal(developerDir({ env: { DEVELOPER_DIR: '/x' }, exists: () => true }), '/x'))
@@ -900,6 +901,23 @@ test('swift packages fall back to the Command Line Tools, never the beta', () =>
   developerDir({ env: {}, swiftOnly: true, exists: p => p.includes('Xcode-beta') || p.startsWith('/Library/Developer/CommandLineTools'), selected: () => '/Library/Developer/CommandLineTools\n' }), '/Library/Developer/CommandLineTools'))
 test('swift packages still prefer Xcode.app', () => assert.equal(
   developerDir({ env: {}, swiftOnly: true, exists: () => true }), '/Applications/Xcode.app/Contents/Developer'))
+test('the beta is refused when xcode-select points to it', () => assert.throws(
+  () => developerDir({ env: {}, exists: p => p.includes('Xcode-beta'), selected: () => '/Applications/Xcode-beta.app/Contents/Developer\n' }), /nenhum Xcode encontrado/))
+
+const PLUGIN = '/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib'
+const FLAGS = ['-Xswiftc', '-load-plugin-library', '-Xswiftc', PLUGIN]
+test('the Command Line Tools with the TestingMacros plugin get the four flags', () => {
+  assert.equal(CLT, '/Library/Developer/CommandLineTools')
+  assert.deepEqual(swiftTestFlags(CLT, { exists: p => p === PLUGIN }), FLAGS)
+})
+test('the Command Line Tools without the plugin get none', () =>
+  assert.deepEqual(swiftTestFlags(CLT, { exists: () => false }), []))
+test('Xcode.app, or a DEVELOPER_DIR somewhere else, gets none', () => {
+  assert.deepEqual(swiftTestFlags('/Applications/Xcode.app/Contents/Developer', { exists: () => true }), [])
+  assert.deepEqual(swiftTestFlags(developerDir({ env: { DEVELOPER_DIR: '/x' }, swiftOnly: true }), { exists: () => true }), [])
+})
+test('a DEVELOPER_DIR that points to the Command Line Tools gets the four flags', () => assert.deepEqual(
+  swiftTestFlags(developerDir({ env: { DEVELOPER_DIR: '/Library/Developer/CommandLineTools/' }, swiftOnly: true }), { exists: p => p === PLUGIN }), FLAGS))
 ```
 
 - [ ] **Step 2: Run them to verify they fail**
@@ -910,7 +928,7 @@ Expected: FAIL, `Cannot find module` para `./xcode.mjs`.
 - [ ] **Step 3: Implement `xcode.mjs` and run the tests**
 
 Run: o comando do passo 2
-Expected: PASS, 7 testes.
+Expected: PASS, 12 testes.
 
 - [ ] **Step 4: Write `Package.swift` and the failing Swift tests**
 
@@ -985,7 +1003,7 @@ Em `HexEngineTests.swift`, `object(_:)` lê um `Data` como `[String: Any]`, `loa
 
 - [ ] **Step 5: Run them to verify they fail**
 
-Run: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexEngine`
+Run: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexEngine`
 Expected: FAIL, o alvo `HexEngine` não compila porque ainda não tem código.
 
 - [ ] **Step 6: Implement `HexEngine.swift` and `host.js`**
@@ -1021,17 +1039,17 @@ Expected: PASS, 2 testes, e os três arquivos em `Cases/`.
 
 - [ ] **Step 12: Replay the cases in each zone**
 
-Run: `for z in America/Sao_Paulo Europe/Zurich Pacific/Auckland; do TZ=$z HEXGYM_CASES=$z DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexEngine --filter RecordedCasesTests || exit 1; done`
+Run: `for z in America/Sao_Paulo Europe/Zurich Pacific/Auckland; do TZ=$z HEXGYM_CASES=$z DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexEngine --filter RecordedCasesTests || exit 1; done`
 Expected: PASS nos três. Um caso diferente é uma diferença real entre o JavaScriptCore e o V8: a Task para com BLOCKED e o caso, sem tirar o caso.
 
 - [ ] **Step 13: Prove the zone check works**
 
-Run: `TZ=America/Sao_Paulo HEXGYM_CASES=Europe/Zurich DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexEngine --filter RecordedCasesTests`
+Run: `TZ=America/Sao_Paulo HEXGYM_CASES=Europe/Zurich DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexEngine --filter RecordedCasesTests`
 Expected: FAIL na conferência do fuso.
 
 - [ ] **Step 14: Add the checks**
 
-Em `PARTS.engine`: `{ name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] }`. `PARTS.packages`: `swift test --package-path apple/Packages/HexEngine` com `TZ` e `HEXGYM_CASES` no primeiro fuso de `TIME_ZONES`, e uma rodada com `--skip-build --filter RecordedCasesTests` para cada outro fuso, que roda o que a primeira compilou. O `env` de cada uma é uma função que devolve `{ DEVELOPER_DIR: developerDir({ swiftOnly: true }), TZ, HEXGYM_CASES }`. Como diz a Task 1, as rodadas do `swift test` precisam mostrar ao `check.mjs` quantos testes rodaram, senão a parte `packages`, que só tem elas, conta zero e falha (a `engine` segue contada pelo `node --test` dela): o `spawnCheck` põe o `--xunit-output` num arquivo da pasta temporária da checagem e conta os `<testcase>` sem `<skipped>`, `<failure>` nem `<error>`. Atualizar a mensagem do teste "unknown part".
+Em `PARTS.engine`: `{ name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] }`. `PARTS.packages`: `swift test --package-path apple/Packages/HexEngine` com `TZ` e `HEXGYM_CASES` no primeiro fuso de `TIME_ZONES`, e uma rodada com `--skip-build --filter RecordedCasesTests` para cada outro fuso, que roda o que a primeira compilou. O `env` de cada uma é uma função que devolve `{ DEVELOPER_DIR: developerDir({ swiftOnly: true }), TZ, HEXGYM_CASES }`. O `args` de cada uma também é função: todo `swift test` da parte, inclusive os com `--skip-build`, leva logo depois do `test` os mesmos `swiftTestFlags(developerDir({ swiftOnly: true }))`, para o plano de compilação ser o mesmo em todos. Os dois só são calculados quando a parte roda: sem o `swift`, só a parte `packages` falha, e um teste do `check.test.mjs` prova isso. Como diz a Task 1, as rodadas do `swift test` precisam mostrar ao `check.mjs` quantos testes rodaram, senão a parte `packages`, que só tem elas, conta zero e falha (a `engine` segue contada pelo `node --test` dela): o `spawnCheck` põe o `--xunit-output` num arquivo da pasta temporária da checagem e conta os `<testcase>` sem `<skipped>`, `<failure>` nem `<error>`. Atualizar a mensagem do teste "unknown part".
 
 Run: `node scripts/hexgym/check.mjs scripts engine packages`
 Expected: `ok`.
@@ -1056,7 +1074,7 @@ git commit -m "HexEngine: o motor num JSContext dentro de um ator, com os casos 
 - Modify: `scripts/hexgym/check.mjs` (a parte `packages` ganha o HexStore)
 
 **Interfaces:**
-- Consumes: `developerDir({ swiftOnly: true })` de `scripts/hexgym/xcode.mjs` (Task 7) na checagem.
+- Consumes: `developerDir({ swiftOnly: true })` e `swiftTestFlags` de `scripts/hexgym/xcode.mjs` (Task 7) na checagem.
 - Produces:
 
 ```swift
@@ -1145,7 +1163,7 @@ Swift Testing, cada teste num diretório temporário novo:
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexStore`
+Run: `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexStore`
 Expected: FAIL, `cannot find 'DocumentStore' in scope`.
 
 - [ ] **Step 3: Implement `DocumentStore`**
@@ -1173,7 +1191,7 @@ Expected: PASS, 14 testes.
 
 - [ ] **Step 5: Add HexStore to the `packages` check**
 
-Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: ['test', '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta.
+Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`, com o `args` como função, como os do HexEngine. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta.
 
 Run: `node scripts/hexgym/check.mjs packages`
 Expected: `ok`.

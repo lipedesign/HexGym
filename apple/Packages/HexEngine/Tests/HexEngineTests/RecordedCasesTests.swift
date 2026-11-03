@@ -5,7 +5,8 @@
 // depender do fuso da máquina.
 //
 //   TZ=Europe/Zurich HEXGYM_CASES=Europe/Zurich DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) \
-//     swift test --package-path apple/Packages/HexEngine --filter RecordedCasesTests
+//     swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexEngine \
+//     --filter RecordedCasesTests
 
 import Foundation
 import JavaScriptCore
