@@ -14,7 +14,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 /**
  * Minimal local Capacitor plugin that hands a self-contained HTML document to the Android
  * system print flow (Save as PDF, Save to Drive, a real printer). Android WebView has no
- * window.print(), so the printable plan page (lib/plan-share.js planPrintHTML) can only reach
+ * window.print(), so the printable plan page (lib/plan-print.js planPrintHTML) can only reach
  * a PDF this way. No PDF library is bundled — the OS renders it.
  *
  * Usage from JS:
