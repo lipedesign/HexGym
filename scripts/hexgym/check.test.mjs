@@ -6,6 +6,9 @@
 // uma parte atualiza a mensagem esperada aqui.
 // Os dois testes do link simbólico (issue #39) chamam o check.mjs por links num diretório
 // temporário, que cada um apaga no fim.
+// Os três testes da issue #44 (uma parte que não roda nenhum teste falha) vêm depois deles: a
+// regra sem processo, e os dois que rodam uma cópia do check.mjs numa pasta temporária, que cada
+// um apaga no fim, com ou sem o NODE_TEST_CONTEXT no ambiente.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -14,7 +17,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { PARTS, planChecks, runChecks } from './check.mjs'
+import { PARTS, planChecks, runChecks, runParts } from './check.mjs'
 
 test('the scripts part runs the node tests of scripts/hexgym', () => {
   assert.deepEqual(planChecks(['scripts']).map(c => [c.cmd, ...c.args]), [['node', '--test', 'scripts/hexgym/*.test.mjs']])
@@ -68,4 +71,53 @@ process.exitCode = await spawnCheck({ name: 'pasta', cmd: process.execPath, args
     assert.equal(r.status, 0, `${script}: ${r.stderr}`)
     assert.equal(r.stdout, `${REPO}\n`, script)
   }
+})
+
+// A regra da issue #44 sem processo: o run de mentira conta os testes de cada checagem e devolve
+// o código dela. A parte engine tem a forma da Task 5, uma checagem que não é teste e uma que é.
+test('a part passes when its checks pass and, together, ran at least one test', async () => {
+  const ran = []
+  const run = async (check, count) => { ran.push(check.name); count(check.tests ?? 0); return check.code ?? 0 }
+  const engine = [{ name: 'script do motor em dia' }, { name: 'testes do script do motor', tests: 3 }]
+  assert.deepEqual(await runParts({ engine }, run), { ok: true })
+  assert.deepEqual(await runParts({ load: [{ name: 'carga' }], engine }, run), { ok: false, part: 'load', tests: 0 })
+  assert.deepEqual(await runParts({ engine: [{ name: 'quebrado', code: 1 }, ...engine] }, run), { ok: false, failed: 'quebrado', part: 'engine' })
+  assert.deepEqual(ran, ['script do motor em dia', 'testes do script do motor', 'carga', 'quebrado'])
+})
+
+// Uma cópia do check.mjs numa pasta temporária, que sai no fim do teste, com os arquivos pedidos
+// ao lado dela. A raiz da cópia é essa pasta: a parte scripts só acha os testes que estiverem
+// ali, e nunca este arquivo, que se chamaria de novo. A cópia roda só a parte scripts, porque os
+// arquivos das outras partes não estão na pasta.
+function copiedCheck(t, files = {}) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  const dir = path.join(tmp, 'scripts', 'hexgym')
+  fs.mkdirSync(dir, { recursive: true })
+  fs.copyFileSync(path.join(HERE, 'check.mjs'), path.join(dir, 'check.mjs'))
+  for (const [name, text] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), text)
+  return path.join(dir, 'check.mjs')
+}
+
+// Todo processo aberto por um node --test herda o NODE_TEST_CONTEXT=child dele. Cada caso diz o
+// ambiente que quer: sem a variável, ou com ela.
+const { NODE_TEST_CONTEXT: _, ...WITHOUT_CONTEXT } = process.env
+const ONE_TEST = "import { test } from 'node:test'\ntest('um', () => {})\n"
+const runScripts = (script, env) => spawnSync(process.execPath, [script, 'scripts'], { encoding: 'utf8', env })
+
+test('check.mjs fails when a part finds no test file', t => {
+  const r = runScripts(copiedCheck(t), WITHOUT_CONTEXT)
+  assert.equal(r.status, 1, r.stdout)
+  assert.match(r.stderr, /a parte scripts não rodou nenhum teste/)
+  assert.match(r.stdout, /\nfalhou: scripts \(nenhum teste\)\n$/)
+})
+test('check.mjs counts the tests that node --test ran, and fails when NODE_TEST_CONTEXT makes it skip them', t => {
+  const script = copiedCheck(t, { 'um.test.mjs': ONE_TEST })
+  const ran = runScripts(script, WITHOUT_CONTEXT)
+  assert.equal(ran.status, 0, ran.stderr)
+  assert.match(ran.stdout, /\nok\n$/)
+  const skipped = runScripts(script, { ...WITHOUT_CONTEXT, NODE_TEST_CONTEXT: 'child' })
+  assert.equal(skipped.status, 1, skipped.stdout)
+  assert.match(skipped.stderr, /a parte scripts não rodou nenhum teste/)
+  assert.match(skipped.stdout, /\nfalhou: scripts \(nenhum teste\)\n$/)
 })
