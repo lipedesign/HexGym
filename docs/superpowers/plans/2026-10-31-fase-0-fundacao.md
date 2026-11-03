@@ -1201,11 +1201,10 @@ git commit -m "HexStore: o documento de dados no App Group, com cópia anterior"
 - Create: `scripts/hexgym/placeholder-icon.swift`
 - Create: `scripts/hexgym/project-format.test.mjs`
 - Create: `docs/hexgym/prints/<issue>/` (os prints do PR)
-- Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs` (parte `app`)
 
 **Interfaces:**
 - Consumes: os produtos `HexEngine` (Task 7) e `HexStore` (Task 8), ligados só ao alvo `HexGym`. O `HexGymTests`, hospedado no app, importa os dois pelo app: duas cópias estáticas no mesmo processo fariam dois tipos `HexEngine`.
-- Produces: os esquemas `HexGym` (compila o app com o Watch e os widgets embutidos e roda o `HexGymTests`) e `HexGymWatch`; a view `Wordmark()`; a parte `app` do `check.mjs`.
+- Produces: os esquemas `HexGym` (compila o app com o Watch e os widgets embutidos e roda o `HexGymTests`) e `HexGymWatch`; a view `Wordmark()`.
 
 As decisões do projeto, que o arquivo precisa seguir:
 
@@ -1268,17 +1267,17 @@ Seguindo as decisões acima. Os identificadores do pbxproj são 24 dígitos hexa
 Run: `sips -g hasAlpha apple/HexGym/Assets.xcassets/AppIcon.appiconset/AppIcon.png`
 Expected: `hasAlpha: no`.
 
-- [ ] **Step 4: Add the `app` part to `check.mjs`**
+- [ ] **Step 4: Leave the `app` part to Task 10**
 
-`PARTS.app`, com `env: () => ({ DEVELOPER_DIR: developerDir() })`:
+Os dois builds, sem assinatura, que o passo 5 roda direto:
 1. `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination "generic/platform=iOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build`
 2. `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGymWatch -destination "generic/platform=watchOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build`
 
-Como diz a Task 1, uma checagem que roda testes precisa mostrar ao `check.mjs` quantos rodou, e os dois builds não rodam nenhum: sem uma checagem assim, a parte `app` conta zero e falha. Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
+Esta Task não mexe no `check.mjs` nem no `check.test.mjs`. A parte `app` só entra na Task 10 (passo 5), com três checagens: estes dois builds e a rodada de testes do esquema `HexGym`, com os testes do `AppModel`. Só a rodada de testes entra na conta, porque build não roda teste, e, como diz a Task 1, uma parte que não rodou nenhum teste falha. O `SmokeTests.swift` só guarda o lugar do alvo de testes até a Task 10 trocá-lo pelo `AppModelTests.swift`, e não vira checagem do `check.mjs`: seria uma checagem só para a conta passar de zero.
 
 - [ ] **Step 5: Run the checks**
 
-Run: `node scripts/hexgym/check.mjs scripts app`
+Run: `node scripts/hexgym/check.mjs scripts` e os dois builds do passo 4, cada um com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)` na frente
 Expected: os testes de formato passam e os dois builds terminam com `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 6: Verify the embedding and the Info.plist**
@@ -1288,7 +1287,7 @@ Expected: `PlugIns/HexGymWidgets.appex`, `Watch/HexGymWatch.app` e, dentro dele,
 
 - [ ] **Step 7: See it run**
 
-O build da checagem é sem assinatura (`CODE_SIGNING_ALLOWED=NO`), e um app sem assinatura não leva os entitlements: para ver rodando, compilar assinado, para um simulador de iPhone com o sistema 26 ou mais novo (`xcrun simctl list devices available`), com a assinatura local que o Xcode faz para simulador: `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData build`, e o mesmo com `-scheme HexGymWatch` para um simulador de Apple Watch. Instalar os dois com `xcrun simctl install`.
+Os builds do passo 5 são sem assinatura (`CODE_SIGNING_ALLOWED=NO`), e um app sem assinatura não leva os entitlements: para ver rodando, compilar assinado, para um simulador de iPhone com o sistema 26 ou mais novo (`xcrun simctl list devices available`), com a assinatura local que o Xcode faz para simulador: `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData build`, e o mesmo com `-scheme HexGymWatch` para um simulador de Apple Watch. Instalar os dois com `xcrun simctl install`.
 
 Run: `xcrun simctl get_app_container <udid> app.hexgym group.app.hexgym`
 Expected: a pasta do App Group no simulador, a prova de que o entitlement chegou.
@@ -1298,7 +1297,7 @@ Depois, `xcrun simctl launch` nos dois e print das duas telas com `xcrun simctl 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add apple/HexGym.xcodeproj apple/Shared apple/HexGym apple/HexGymWidgets apple/HexGymWatch apple/HexGymWatchWidgets apple/HexGymTests apple/Config scripts/hexgym docs/hexgym/prints
+git add apple/HexGym.xcodeproj apple/Shared apple/HexGym apple/HexGymWidgets apple/HexGymWatch apple/HexGymWatchWidgets apple/HexGymTests apple/Config scripts/hexgym/placeholder-icon.swift scripts/hexgym/project-format.test.mjs docs/hexgym/prints
 git commit -m "Projeto Xcode do HexGym com os quatro alvos e o ícone provisório"
 ```
 
@@ -1314,7 +1313,8 @@ git commit -m "Projeto Xcode do HexGym com os quatro alvos e o ícone provisóri
 - Create: `apple/HexGym/Localizable.xcstrings`
 - Create: `apple/HexGymTests/AppModelTests.swift` (e remove o `SmokeTests.swift`)
 - Create: `docs/hexgym/prints/<issue>/` (os prints do PR)
-- Modify: `scripts/hexgym/xcode.mjs`, `scripts/hexgym/xcode.test.mjs`, `scripts/hexgym/check.mjs`
+- Modify: `scripts/hexgym/xcode.mjs`, `scripts/hexgym/xcode.test.mjs`
+- Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs` (parte `app`)
 
 **Interfaces:**
 - Consumes: `HexEngine` (Task 7): `init(language:)`, `load() -> EngineInfo`, `freshDocument() -> Data` e `restore(_:)`; `DocumentStore` (Task 8): `appGroupDirectory()`, `load() -> StoredDocument` e `save(_:)`.
@@ -1333,6 +1333,7 @@ git commit -m "Projeto Xcode do HexGym com os quatro alvos e o ícone provisóri
 ```
 
 - `scripts/hexgym/xcode.mjs` ganha `pickSimulator(simctlJSON, family = 'iPhone') → udid`: o primeiro aparelho disponível com o nome começando por `family`, no iOS mais novo que for 26 ou acima.
+- A parte `app` do `check.mjs`, com os dois builds da Task 9 e a rodada de testes (passo 5).
 
 `start()`: sem `store`, vira `.failed` na hora, sem carregar o motor nem gravar nada. Com `store`: `engine.load()`; depois `store.load()`. Com `.empty`, `freshDocument()` e `save` do que ele devolveu, origem `.created`. Com `.current`, `restore`, origem `.opened`, e nada é gravado. Com `.recovered`, `restore` e depois `save` dos mesmos bytes recuperados, para o próximo início abrir normal, origem `.recovered`. O documento novo não leva horário: um carimbo de agora ganharia, numa sincronização futura, de um documento de verdade do servidor. Qualquer erro vira `.failed(<descrição do erro>)` e vai para o `Logger(subsystem: "app.hexgym", category: "app")`, e depois de um erro nada é gravado. `live()` tenta `DocumentStore(directory: DocumentStore.appGroupDirectory())` e, se falhar, passa `nil`: nunca inventa outra pasta, porque o documento iria para um lugar que o Watch e os widgets não veem, ou que o sistema limpa.
 
@@ -1400,9 +1401,14 @@ Expected: FAIL, `pickSimulator is not a function` e `cannot find 'AppModel' in s
 
 `HexGymApp` cria o `AppModel.live()` e chama `start()` num `.task` da janela. As chamadas ao motor e ao armazenamento ficam nos atores, fora da thread principal.
 
-- [ ] **Step 5: Add the test run to the `app` part**
+- [ ] **Step 5: Add the `app` part to `check.mjs`**
 
-Terceira checagem de `PARTS.app`: `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`. Como diz a Task 1, essa checagem precisa mostrar ao `check.mjs` quantos testes rodou, senão a parte `app`, em que só ela roda testes, conta zero e falha.
+`PARTS.app`, parte nova, com três checagens nesta ordem, cada uma com `env: () => ({ DEVELOPER_DIR: developerDir() })`:
+1. o build do app, o primeiro do passo 4 da Task 9;
+2. o build do Watch, o segundo do mesmo passo;
+3. a rodada de testes, `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`.
+
+Das três, só a rodada de testes entra na conta, porque build não roda teste. Como diz a Task 1, ela precisa mostrar ao `check.mjs` quantos testes rodou: senão, a parte `app` conta zero e falha. Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
 
 - [ ] **Step 6: Run the checks**
 
