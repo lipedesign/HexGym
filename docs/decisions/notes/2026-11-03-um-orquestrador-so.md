@@ -92,13 +92,22 @@ trabalho. Nada disso chegou a existir: a Tarefa 1 não tinha começado.
 - **Achado que fica para depois:** uma issue no milestone da fase, sub-issue do épico, com a linha
   `Origem:` do relentless, e na linha `Depende de:` da issue da versão, para a versão esperar por
   ela. O que pode esperar a fase seguinte vai para o milestone dela, com `orphan:ok`.
-- **PR que passa do limite do diff do GitHub** (20.000 linhas ou 300 arquivos, como o do script
-  gerado do motor, na Task 5): o `gh pr diff` responde 406, e o pacote do revisor do relentless vai
-  sem diff. O corpo do PR avisa o revisor e manda ler os arquivos pelo
+- **Arquivo gerado grande** (como o script do motor, na Task 5): vai para o git comprimido, binário
+  pelo conteúdo, e o QA mostra a prova dele. O pacote do revisor do relentless leva o `gh pr diff`
+  inteiro no stdin do revisor, e o PR #45 mostrou que o texto chega lá:
+  - a API do GitHub ignora o `.gitattributes`, também no diff de PR: com o `-diff` no
+    `.gitattributes`, o `gh pr diff 45` seguiu com 2.496.519 bytes, o `hexengine.js` inteiro;
+  - o diff dele, de 30.989 linhas e 2.491.059 bytes, veio sem 406.
+
+  O script do motor vai como `hexengine.js.deflate`, com o sha256 do texto ao lado, e o QA mostra o
+  tamanho comprimido e descomprimido, o número de linhas e o sha256 do texto, a primeira linha, os
+  módulos que entraram e o `--check` passando.
+- **PR que passa mesmo do limite do diff do GitHub:** o `gh pr diff` responde 406, e o pacote do
+  revisor do relentless vai sem diff. O corpo do PR avisa o revisor e manda ler os arquivos pelo
   `gh api --method GET 'repos/lipedesign/HexGym/pulls/<pr>/files' --paginate`, em que o GitHub
   deixa sem o patch os arquivos muito grandes, e o QA mostra o `--check` do arquivo gerado passando.
-  Fazer o pacote cair nessa lista quando o `gh pr diff` falha é uma mudança para propor ao
-  relentless, com o ok do founder.
+  Duas mudanças ficam para propor ao relentless, com o ok do founder: o pacote do revisor deixar de
+  fora os arquivos gerados e, quando o `gh pr diff` falha, ler essa lista.
 - **Quadro:** o Project 6 anda pelas automações do próprio GitHub, já ligadas (issue adicionada, PR
   ligado à issue, issue fechada, PR com merge), e cada cartão mostra a etiqueta `state:*`. Nenhum
   script espelha as etiquetas nas colunas. A visão "Pede você" filtra
@@ -151,12 +160,17 @@ trabalho. Nada disso chegou a existir: a Tarefa 1 não tinha começado.
   2.1.317, com `CLAUDECODE=1`): o caminho do `run-isolated-review.sh` funciona aqui. Os PRs #29, #30,
   #33 e #34 foram revisados pelo Agent tool, em que a lista de comandos do `reviewer.md` não vale e o
   gancho de isolamento não reconhece o papel.
-- A API do diff de PR do GitHub responde 406 acima de 20.000 linhas ou 300 arquivos (por exemplo,
-  https://github.com/reviewdog/reviewdog/issues/1696). Em 03/11/2026, o diff da API de comparação
-  (`application/vnd.github.diff`) de um commit com um arquivo de 25.000 linhas marcado com
-  `-diff linguist-generated=true` no `.gitattributes` trouxe as 25.000 linhas, como sem o `-diff`:
-  a API ignora o `.gitattributes`. Os dois commits de teste ficaram em refs fora das branches,
-  apagadas depois.
+- Há relatos de que a API do diff de PR do GitHub responde 406 acima de 20.000 linhas ou 300
+  arquivos (por exemplo, https://github.com/reviewdog/reviewdog/issues/1696), mas em 03/11/2026 o
+  `gh pr diff 45`, de 30.989 linhas e 2.491.059 bytes (no commit `762f7cd`), veio sem 406. Com o
+  `-diff linguist-generated=true` no `.gitattributes` (no commit `e746259`), ele seguiu com
+  2.496.519 bytes e o `hexengine.js` inteiro. No mesmo dia, o diff da API de comparação
+  (`application/vnd.github.diff`) de um commit com um arquivo de 25.000 linhas marcado do mesmo
+  jeito trouxe as 25.000 linhas, como sem o `-diff`. A API ignora o `.gitattributes` nos dois. Os
+  dois commits de teste da comparação ficaram em refs fora das branches, apagadas depois.
+- Sem atributo `diff` ou `binary` no `.gitattributes`, o git trata como binário o arquivo que tem um
+  byte zero nos primeiros 8.000 bytes (o `buffer_is_binary` do `xdiff-interface.c`). O
+  `hexengine.js.deflate` tem um bem no começo, e o `build.test.mjs` confere isso.
 - Em 03/11/2026, o Project 6 tinha ligadas as automações "Auto-add sub-issues to project",
   "Auto-close issue", "Item added to project", "Item closed", "Pull request linked to issue" e
   "Pull request merged" (o campo `workflows` do `ProjectV2` no GraphQL), e a visão "Pede você"
