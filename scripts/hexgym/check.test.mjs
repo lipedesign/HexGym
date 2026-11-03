@@ -10,8 +10,10 @@
 // regra sem processo; os dois que rodam uma cópia do check.mjs numa pasta temporária, com ou sem
 // o NODE_TEST_CONTEXT no ambiente; e o do aviso do isMain(), com uma pasta temporária vazia. Cada
 // um apaga a sua pasta no fim.
-// Os três da issue #18 (a conta do Vitest e a do engine-load.mjs) vêm no fim, também com pastas
+// Os três da issue #18 (a conta do Vitest e a do engine-load.mjs) vêm depois, também com pastas
 // temporárias, e nenhum roda o Vitest de verdade nem o jsc.
+// Os cinco da issue #19 (a parte packages, a conta do swift test e a parte sem o swift) vêm no fim,
+// com um swift e um xcode.mjs de mentira em pastas temporárias, e nenhum roda o swift de verdade.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -29,7 +31,7 @@ test('no part means every part, in PARTS order', () => {
   assert.deepEqual(planChecks([]), Object.values(PARTS).flat())
 })
 test('an unknown part fails with the list of parts', () => {
-  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine, load\)/)
+  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine, load, packages\)/)
 })
 test('runChecks stops at the first failure', async () => {
   const ran = []
@@ -92,13 +94,14 @@ test('a part passes when its checks pass and, together, ran at least one test', 
 // ao lado dela. A raiz da cópia é essa pasta: a parte scripts só acha os testes que estiverem
 // ali, e nunca este arquivo, que se chamaria de novo. A cópia roda a parte scripts e, com um
 // engine-load.mjs de mentira ao lado dela, a parte load; os arquivos da parte engine não estão
-// na pasta.
+// na pasta. Os dois módulos que o check.mjs importa (xcode.mjs e engine-cases.mjs, desde a issue
+// #19) vão junto, porque sem eles a cópia nem abre; nenhum dos dois é teste.
 function copiedCheck(t, files = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
   const dir = path.join(tmp, 'scripts', 'hexgym')
   fs.mkdirSync(dir, { recursive: true })
-  fs.copyFileSync(path.join(HERE, 'check.mjs'), path.join(dir, 'check.mjs'))
+  for (const name of ['check.mjs', 'xcode.mjs', 'engine-cases.mjs']) fs.copyFileSync(path.join(HERE, name), path.join(dir, name))
   for (const [name, text] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), text)
   return path.join(dir, 'check.mjs')
 }
@@ -200,4 +203,132 @@ test('a Vitest that writes no report counts zero, and its part fails', async t =
   const vitest = fakeVitest(t, { isAgent: false, report: false })
   const engine = [{ name: 'vitest', cmd: vitest.cmd, args: ['vitest', 'run'], cwd: vitest.cwd, env: { GITHUB_ACTIONS: 'false' } }]
   assert.deepEqual(await runParts({ engine }), { ok: false, part: 'engine', tests: 0 })
+})
+
+// A parte packages da issue #19, sem rodar nada: o swift test de todos os testes do HexEngine no
+// primeiro fuso, e o dos casos gravados em cada um dos outros dois, com o que o primeiro compilou. O
+// DEVELOPER_DIR do ambiente ganha do resto no developerDir, então o args e o env saem iguais em
+// qualquer máquina: com /x, o swiftTestFlags não dá nenhum argumento.
+test('the packages part runs every HexEngine test in the first zone, and the recorded cases in each other zone', t => {
+  const before = process.env.DEVELOPER_DIR
+  t.after(() => { if (before === undefined) delete process.env.DEVELOPER_DIR; else process.env.DEVELOPER_DIR = before })
+  process.env.DEVELOPER_DIR = '/x'
+  const hexengine = ['swift', 'test', '--package-path', 'apple/Packages/HexEngine']
+  const recorded = [...hexengine, '--skip-build', '--filter', 'RecordedCasesTests']
+  assert.deepEqual(PARTS.packages.map(c => [c.cmd, ...c.args()]), [hexengine, recorded, recorded])
+  assert.deepEqual(PARTS.packages.map(c => c.env()), ['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland'].map(
+    zone => ({ DEVELOPER_DIR: '/x', TZ: zone, HEXGYM_CASES: zone })))
+  assert.ok(PARTS.engine.some(c => [c.cmd, ...c.args].join(' ') === 'node scripts/hexgym/record-engine-cases.mjs --check'))
+})
+
+// Um swift de mentira, numa pasta que sai no fim do teste: um sh que chama o Node, para o caminho
+// dele acabar em swift, e guarda, de cada chamada, os argumentos que recebeu e o
+// HEXGYM_CHECK_COUNT_FILE, o TZ, o HEXGYM_CASES e o DEVELOPER_DIR que herdou.
+// Com report, ele grava no arquivo do --xunit-output um XUnit como o do Swift Testing, com dois
+// testes que passaram, um pulado, um que falhou e um com erro, e ao lado dele o arquivo com
+// -swift-testing no nome, que o Xcode completo grava, com mais um que passou.
+const XUNIT = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite name="TestResults" errors="1" tests="5" failures="1" skipped="1" time="0.01">
+<testcase classname="HexEngineTests" name="passa()" time="0.001" />
+<testcase classname="HexEngineTests" name="1 > 0()" time="0.001">
+<system-out>um texto com a palavra skipped</system-out>
+</testcase>
+<testcase classname="HexEngineTests" name="pulado()" time="0">
+<skipped />
+</testcase>
+<testcase classname="HexEngineTests" name="falha()" time="0.001">
+<failure message="esperava 1" />
+</testcase>
+<testcase classname="HexEngineTests" name="erro()" time="0.001">
+<error message="lançou" />
+</testcase>
+</testsuite>
+</testsuites>
+`
+const XUNIT_SWIFT_TESTING = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite name="TestResults" errors="0" tests="1" failures="0" skipped="0" time="0.01">
+<testcase classname="RecordedCasesTests" name="casos()" time="0.001" />
+</testsuite>
+</testsuites>
+`
+function fakeSwift(t, { report }) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  const seen = path.join(tmp, 'seen.jsonl')
+  const files = {
+    'swift.cjs': [
+      "const fs = require('node:fs')",
+      'const argv = process.argv.slice(2)',
+      "const { HEXGYM_CHECK_COUNT_FILE: countFile = null, TZ: tz = null, HEXGYM_CASES: cases = null, DEVELOPER_DIR: dev = null } = process.env",
+      `fs.appendFileSync(${JSON.stringify(seen)}, JSON.stringify({ argv, countFile, tz, cases, dev }) + '\\n')`,
+      ...(report ? [
+        "const out = argv[argv.indexOf('--xunit-output') + 1]",
+        `fs.writeFileSync(out, ${JSON.stringify(XUNIT)})`,
+        `fs.writeFileSync(out.replace(/\\.xml$/, '-swift-testing.xml'), ${JSON.stringify(XUNIT_SWIFT_TESTING)})`,
+      ] : []),
+    ].join('\n') + '\n',
+    swift: `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(tmp, 'swift.cjs'))} "$@"\n`,
+  }
+  for (const [name, text] of Object.entries(files)) fs.writeFileSync(path.join(tmp, name), text)
+  fs.chmodSync(path.join(tmp, 'swift'), 0o755)
+  return { cwd: tmp, cmd: path.join(tmp, 'swift'), seen: () => fs.readFileSync(seen, 'utf8').trim().split('\n').map(l => JSON.parse(l)) }
+}
+
+test('a swift test check counts the passed test cases of its XUnit files, and does not get HEXGYM_CHECK_COUNT_FILE', async t => {
+  const swift = fakeSwift(t, { report: true })
+  let tests
+  const check = { name: 'swift', cmd: swift.cmd, args: ['test', '--package-path', 'x', '--filter', 'Casos'], cwd: swift.cwd }
+  assert.equal(await spawnCheck(check, n => { tests = n }), 0)
+  assert.equal(tests, 3)
+  const [{ argv, countFile }] = swift.seen(), xunit = argv[2]
+  assert.deepEqual(argv, ['test', '--xunit-output', xunit, '--package-path', 'x', '--filter', 'Casos'])
+  assert.equal(countFile, null)
+  assert.ok(!fs.existsSync(path.dirname(xunit)), 'a pasta da checagem sai no fim')
+})
+test('a swift test that writes no XUnit counts zero, and its part fails', async t => {
+  const swift = fakeSwift(t, { report: false })
+  const packages = [{ name: 'swift', cmd: swift.cmd, args: ['test'], cwd: swift.cwd }]
+  assert.deepEqual(await runParts({ packages }), { ok: false, part: 'packages', tests: 0 })
+})
+
+// A parte packages de ponta a ponta, numa cópia do check.mjs: um xcode.mjs de mentira, que dá um
+// DEVELOPER_DIR e dois argumentos marcados para ele, e o swift de mentira no começo do PATH. As três
+// rodadas levam os mesmos argumentos, inclusive as duas com --skip-build, e cada uma o seu fuso.
+const MARKED = [
+  "export function developerDir() { return '/caminho/de/mentira' }",
+  "export function swiftTestFlags(dir) { return dir === '/caminho/de/mentira' ? ['-Xswiftc', '-marca'] : [] }",
+].join('\n') + '\n'
+test('every swift test of the packages part gets the same swiftTestFlags, and its own zone', t => {
+  const swift = fakeSwift(t, { report: true })
+  const r = runPart(copiedCheck(t, { 'xcode.mjs': MARKED }), 'packages', { ...WITHOUT_CONTEXT, PATH: `${swift.cwd}${path.delimiter}${process.env.PATH}` })
+  assert.equal(r.status, 0, r.stderr)
+  assert.match(r.stdout, /\ntestes contados: packages 9\nok\n$/)
+  const calls = swift.seen()
+  assert.deepEqual(calls.map(c => c.argv.slice(0, 2)), [['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output']])
+  const flags = ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexEngine']
+  assert.deepEqual(calls.map(({ argv, tz, cases, dev }) => ({ rest: argv.slice(3), tz, cases, dev })), [
+    { rest: flags, tz: 'America/Sao_Paulo', cases: 'America/Sao_Paulo', dev: '/caminho/de/mentira' },
+    { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Europe/Zurich', cases: 'Europe/Zurich', dev: '/caminho/de/mentira' },
+    { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Pacific/Auckland', cases: 'Pacific/Auckland', dev: '/caminho/de/mentira' },
+  ])
+})
+
+// Sem o swift: o developerDir do xcode.mjs de mentira lança como o de verdade numa máquina sem Xcode
+// nem Command Line Tools. A cópia abre, o --list e a parte scripts seguem, e só a packages falha, ao
+// preparar a primeira checagem dela.
+const NO_SWIFT = [
+  "export function developerDir() { throw new Error('nenhum Xcode encontrado: instale o Xcode 27.2 ou defina DEVELOPER_DIR') }",
+  'export function swiftTestFlags() { return [] }',
+].join('\n') + '\n'
+test('without swift, only the packages part fails', t => {
+  const script = copiedCheck(t, { 'um.test.mjs': ONE_TEST, 'xcode.mjs': NO_SWIFT })
+  const list = runPart(script, '--list', WITHOUT_CONTEXT)
+  assert.equal(list.status, 0, list.stderr)
+  assert.match(list.stdout, /\npackages\n {2}HexEngine, com os casos gravados em America\/Sao_Paulo: swift \(calculado ao rodar\) \[env: \(calculado ao rodar\)\]\n/)
+  const r = spawnSync(process.execPath, [script, 'scripts', 'packages'], { encoding: 'utf8', env: WITHOUT_CONTEXT })
+  assert.equal(r.status, 1, r.stdout)
+  assert.match(r.stderr, /não deu para preparar "HexEngine, com os casos gravados em America\/Sao_Paulo": nenhum Xcode encontrado/)
+  assert.match(r.stdout, /\ntestes contados: scripts 1, packages 0\nfalhou: HexEngine, com os casos gravados em America\/Sao_Paulo\n$/)
 })
