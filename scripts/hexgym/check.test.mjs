@@ -10,6 +10,8 @@
 // regra sem processo; os dois que rodam uma cópia do check.mjs numa pasta temporária, com ou sem
 // o NODE_TEST_CONTEXT no ambiente; e o do aviso do isMain(), com uma pasta temporária vazia. Cada
 // um apaga a sua pasta no fim.
+// Os três da issue #18 (a conta do Vitest e a do engine-load.mjs) vêm no fim, também com pastas
+// temporárias, e nenhum roda o Vitest de verdade nem o jsc.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -18,7 +20,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { PARTS, planChecks, runChecks, runParts } from './check.mjs'
+import { PARTS, planChecks, runChecks, runParts, spawnCheck } from './check.mjs'
 
 test('the scripts part runs the node tests of scripts/hexgym', () => {
   assert.deepEqual(planChecks(['scripts']).map(c => [c.cmd, ...c.args]), [['node', '--test', 'scripts/hexgym/*.test.mjs']])
@@ -27,7 +29,7 @@ test('no part means every part, in PARTS order', () => {
   assert.deepEqual(planChecks([]), Object.values(PARTS).flat())
 })
 test('an unknown part fails with the list of parts', () => {
-  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine\)/)
+  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine, load\)/)
 })
 test('runChecks stops at the first failure', async () => {
   const ran = []
@@ -88,8 +90,9 @@ test('a part passes when its checks pass and, together, ran at least one test', 
 
 // Uma cópia do check.mjs numa pasta temporária, que sai no fim do teste, com os arquivos pedidos
 // ao lado dela. A raiz da cópia é essa pasta: a parte scripts só acha os testes que estiverem
-// ali, e nunca este arquivo, que se chamaria de novo. A cópia roda só a parte scripts, porque os
-// arquivos das outras partes não estão na pasta.
+// ali, e nunca este arquivo, que se chamaria de novo. A cópia roda a parte scripts e, com um
+// engine-load.mjs de mentira ao lado dela, a parte load; os arquivos da parte engine não estão
+// na pasta.
 function copiedCheck(t, files = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
@@ -133,4 +136,68 @@ test('check.mjs says on stderr that nothing ran when it cannot tell whether it i
   assert.equal(r.status, 0, r.stderr)
   assert.equal(r.stdout, '')
   assert.match(r.stderr, /check\.mjs: nenhuma checagem rodou/)
+})
+
+// A conta da issue #18. A parte load roda numa cópia do check.mjs com um engine-load.mjs de mentira,
+// que grava a conta no arquivo de HEXGYM_CHECK_COUNT_FILE como o de verdade grava, ou não grava
+// nada. O Vitest é um npx de mentira (fakeVitest).
+const COUNTED = "import fs from 'node:fs'\nfs.writeFileSync(process.env.HEXGYM_CHECK_COUNT_FILE, '# tests 3\\n# pass 3\\n# fail 0\\n')\n"
+const runPart = (script, part, env) => spawnSync(process.execPath, [script, part], { encoding: 'utf8', env })
+
+test('the load part counts what engine-load.mjs writes in the file of HEXGYM_CHECK_COUNT_FILE, and fails without the file', t => {
+  const counted = runPart(copiedCheck(t, { 'engine-load.mjs': COUNTED }), 'load', WITHOUT_CONTEXT)
+  assert.equal(counted.status, 0, counted.stderr)
+  assert.match(counted.stdout, /\ntestes contados: load 3\nok\n$/)
+  const silent = runPart(copiedCheck(t, { 'engine-load.mjs': '' }), 'load', WITHOUT_CONTEXT)
+  assert.equal(silent.status, 1, silent.stdout)
+  assert.match(silent.stderr, /a parte load não rodou nenhum teste/)
+  assert.match(silent.stdout, /\ntestes contados: load 0\nfalhou: load \(nenhum teste\)\n$/)
+})
+
+// Um Vitest de mentira, numa pasta que sai no fim do teste: o vitest e o std-env que o spawnCheck lê
+// para escolher os reporters da tela (com o isAgent pedido) e um npx que guarda os argumentos que
+// recebeu e, com report, grava no arquivo do --outputFile.json um relatório com 7 testes que
+// passaram. O npx é um sh que chama o Node, para o caminho dele acabar em npx.
+function fakeVitest(t, { isAgent, report = true }) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  const files = {
+    'node_modules/vitest/package.json': '{"name":"vitest","version":"0.0.0"}\n',
+    'node_modules/std-env/package.json': '{"name":"std-env","type":"module","exports":"./index.mjs"}\n',
+    'node_modules/std-env/index.mjs': `export const isAgent = ${isAgent}\n`,
+    'npx.cjs': [
+      "const fs = require('node:fs')",
+      'const argv = process.argv.slice(2)',
+      `fs.writeFileSync(${JSON.stringify(path.join(tmp, 'args.json'))}, JSON.stringify(argv))`,
+      ...(report ? [
+        "const out = argv.find(a => a.startsWith('--outputFile.json='))",
+        "fs.writeFileSync(out.slice('--outputFile.json='.length), JSON.stringify({ numPassedTests: 7, numTotalTests: 8 }))",
+      ] : []),
+    ].join('\n') + '\n',
+    npx: `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(tmp, 'npx.cjs'))} "$@"\n`,
+  }
+  for (const [name, text] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(tmp, name)), { recursive: true })
+    fs.writeFileSync(path.join(tmp, name), text)
+  }
+  fs.chmodSync(path.join(tmp, 'npx'), 0o755)
+  return { cwd: tmp, cmd: path.join(tmp, 'npx'), args: () => JSON.parse(fs.readFileSync(path.join(tmp, 'args.json'), 'utf8')) }
+}
+
+test('a Vitest check counts the passed tests of its json report, with the screen reporters Vitest would pick', async t => {
+  for (const [isAgent, actions, screen] of [[false, 'false', ['default']], [true, 'true', ['agent', 'github-actions']]]) {
+    const vitest = fakeVitest(t, { isAgent })
+    let tests
+    const check = { name: 'vitest', cmd: vitest.cmd, args: ['vitest', 'run', '--config', 'x.config.js'], cwd: vitest.cwd, env: { GITHUB_ACTIONS: actions } }
+    assert.equal(await spawnCheck(check, n => { tests = n }), 0)
+    assert.equal(tests, 7)
+    const argv = vitest.args(), json = argv.find(a => a.startsWith('--outputFile.json='))
+    assert.deepEqual(argv, ['vitest', 'run', ...screen.map(r => `--reporter=${r}`), '--reporter=json', json, '--config', 'x.config.js'])
+    assert.ok(!fs.existsSync(path.dirname(json.slice('--outputFile.json='.length))), 'a pasta da checagem sai no fim')
+  }
+})
+test('a Vitest that writes no report counts zero, and its part fails', async t => {
+  const vitest = fakeVitest(t, { isAgent: false, report: false })
+  const engine = [{ name: 'vitest', cmd: vitest.cmd, args: ['vitest', 'run'], cwd: vitest.cwd, env: { GITHUB_ACTIONS: 'false' } }]
+  assert.deepEqual(await runParts({ engine }), { ok: false, part: 'engine', tests: 0 })
 })
