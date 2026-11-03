@@ -69,6 +69,14 @@ os dois divergem, valem as notas `docs/decisions/notes/2026-11-01-relentless-no-
   sync com o openGym entram com merge normal.
 - A CI é o `test.yml` (`tests-ok`) e, a partir da #9, o `hexgym.yml` (`hexgym-ok`). O
   `relentless-ci.yml` não fica no repositório.
+- O comando de teste é o `node scripts/hexgym/check.mjs`, o mesmo do `checks.test` do
+  `.relentless/config.json`. Ele roda as partes do `PARTS` na ordem (hoje só `scripts`), ou só as
+  pedidas (`node scripts/hexgym/check.mjs scripts`), e o `--list` mostra os comandos sem rodar
+  nada. O QA roda o mesmo comando; o `merge-if-ready.sh` o roda no commit do PR quando a CI fica
+  sem cota (o `wait-ci.sh` sai com 4), mas não com o `--dry-run`; e o `hexgym.yml` da #9 vai
+  chamá-lo por parte. A linha `test` da tabela do bloco acima diz `(none)`, e o bloco do
+  `CLAUDE.md` diz `Test: (configure)`, porque o bootstrap monta os dois blocos pelo que detecta no
+  repositório, não pelo `.relentless/config.json`.
 - O orquestrador é o do relentless, como ele vem. O HexGym não tem skill, agente nem script que
   faça o papel dele: só a configuração em `.relentless/config.json`, os modelos de issue e de PR e
   as regras de `docs/decisions/`. O critério de aceite é a Task do plano que a linha `Plano:` da
