@@ -1072,6 +1072,7 @@ git commit -m "HexEngine: o motor num JSContext dentro de um ator, com os casos 
 - Create: `apple/Packages/HexStore/Sources/HexStore/DocumentStore.swift`
 - Create: `apple/Packages/HexStore/Tests/HexStoreTests/DocumentStoreTests.swift`
 - Modify: `scripts/hexgym/check.mjs` (a parte `packages` ganha o HexStore)
+- Modify: `scripts/hexgym/check.test.mjs` (os dois testes da Task 7 que prendem as rodadas da parte `packages` esperam também a do HexStore)
 
 **Interfaces:**
 - Consumes: `developerDir({ swiftOnly: true })` e `swiftTestFlags` de `scripts/hexgym/xcode.mjs` (Task 7) na checagem.
@@ -1191,7 +1192,7 @@ Expected: PASS, 14 testes.
 
 - [ ] **Step 5: Add HexStore to the `packages` check**
 
-Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`, com o `args` como função, como os do HexEngine. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta.
+Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`, com o `args` como função, como os do HexEngine. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta. No `check.test.mjs`, os dois testes da Task 7 que prendem as rodadas da parte passam a esperar também a do HexStore, sem fuso: o que lista os comandos e os `env` da parte, e o de ponta a ponta com o swift de mentira, que vê quatro chamadas, conta 12 testes e roda sem `TZ` nem `HEXGYM_CASES` no ambiente, para mostrar que a do HexStore não recebe fuso. A parte `scripts` roda esses testes.
 
 Run: `node scripts/hexgym/check.mjs packages`
 Expected: `ok`.
@@ -1199,7 +1200,7 @@ Expected: `ok`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add apple/Packages/HexStore scripts/hexgym/check.mjs
+git add apple/Packages/HexStore scripts/hexgym/check.mjs scripts/hexgym/check.test.mjs
 git commit -m "HexStore: o documento de dados no App Group, com cópia anterior"
 ```
 
