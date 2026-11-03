@@ -1589,15 +1589,16 @@ Um segundo pedido na #24: o founder instala pelo app TestFlight, do grupo "Found
 **Issue:** #8.
 
 **Files:**
-- Create: `.github/README.md`, `.github/CONTRIBUTING.md`, `.github/SECURITY.md`
+- Modify: `.github/README.md` (a versão curta entrou antes, pela #32)
+- Create: `.github/CONTRIBUTING.md`, `.github/SECURITY.md`
 
 Em português, simples, sem travessão:
 
-- **README:** o que é o HexGym (o app nativo de academia para iPhone e Apple Watch); que é um fork do openGym, com link para `https://github.com/DuarteSantos8/openGym`, o mesmo motor e os mesmos dados; a licença AGPL-3.0 e o `NOTICE.md`, com a exceção das lojas de apps; a regra das mídias de exercício da seção 5, em poucas linhas; o estado (fase 0); como compilar (Xcode 27.2, `node scripts/hexgym/check.mjs`); links para o documento de design e para o quadro, avisando que o quadro é privado. Não chama "HexGym" de marca registrada: a pesquisa no INPI e no USPTO está pendente (seção 11).
+- **README:** a versão curta entrou pela #32 e já diz o que é o HexGym (o app nativo de academia para iPhone e Apple Watch), que é um fork do openGym, com link para `https://github.com/DuarteSantos8/openGym`, com o mesmo motor e os mesmos dados; a licença AGPL-3.0 e o `NOTICE.md`, com a exceção das lojas de apps; a regra das mídias de exercício da seção 5; o estado (fase 0) e o link para o documento de design. Esta tarefa acrescenta como compilar (Xcode 27.2, `node scripts/hexgym/check.mjs`) e o link para o quadro, avisando que o quadro é privado, e atualiza o estado. Não chama "HexGym" de marca registrada: a pesquisa no INPI e no USPTO está pendente (seção 11).
 - **CONTRIBUTING:** o caminho de uma issue até o merge (seção 9.1), o Git Flow, o checklist do PR e o relentless, que orquestra o trabalho dos agentes.
 - **SECURITY:** como avisar de uma falha sem abrir issue pública, pelo "Report a vulnerability" da aba Security. Ligar esse relato privado é uma configuração do repositório: o ok vem no mesmo pedido do texto (passo 4), e o orquestrador liga depois do merge (passo 5).
 
-- [ ] **Step 1: Write the three files**
+- [ ] **Step 1: Finish the README and write the other two files**
 
 - [ ] **Step 2: Commit**
 
