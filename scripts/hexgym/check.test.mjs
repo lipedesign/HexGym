@@ -23,7 +23,7 @@ test('no part means every part, in PARTS order', () => {
   assert.deepEqual(planChecks([]), Object.values(PARTS).flat())
 })
 test('an unknown part fails with the list of parts', () => {
-  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts\)/)
+  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine\)/)
 })
 test('runChecks stops at the first failure', async () => {
   const ran = []

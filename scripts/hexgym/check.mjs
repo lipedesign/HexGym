@@ -28,6 +28,10 @@ export const PARTS = {
   scripts: [
     { name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] },
   ],
+  engine: [
+    { name: 'script do motor em dia', cmd: 'node', args: ['scripts/build-hexgym-engine.mjs', '--check'] },
+    { name: 'testes do script do motor', cmd: 'node', args: ['--test', 'apple/Packages/HexEngine/JS/*.test.mjs'] },
+  ],
 }
 
 const LATER = '(calculado ao rodar)'

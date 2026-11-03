@@ -1,0 +1,4 @@
+# Arquivos gerados, para o GitHub dobrar o diff deles: o script do motor
+# (node scripts/build-hexgym-engine.mjs) e os casos gravados no Node para os testes do Xcode.
+Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js linguist-generated=true
+Packages/HexEngine/Tests/HexEngineTests/Cases/*.json linguist-generated=true
