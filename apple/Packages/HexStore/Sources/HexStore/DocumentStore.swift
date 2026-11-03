@@ -26,10 +26,10 @@ public enum StoredDocument: Equatable, Sendable {
 // servidor, o horário do documento em milissegundos e o id da gravação.
 public struct SyncBase: Codable, Equatable, Sendable {
   public var rev: Int
-  public var ts: Int?
+  public var ts: Int64?
   public var wid: String?
 
-  public init(rev: Int, ts: Int? = nil, wid: String? = nil) {
+  public init(rev: Int, ts: Int64? = nil, wid: String? = nil) {
     self.rev = rev
     self.ts = ts
     self.wid = wid

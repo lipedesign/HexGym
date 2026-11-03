@@ -1089,9 +1089,11 @@ public actor DocumentStore {
   public func saveSyncBase(_ base: SyncBase) throws
 }
 public enum StoredDocument: Equatable, Sendable { case empty, current(Data), recovered(Data) }
-public struct SyncBase: Codable, Equatable, Sendable { public var rev: Int; public var ts: Int?; public var wid: String? }
+public struct SyncBase: Codable, Equatable, Sendable { public var rev: Int; public var ts: Int64?; public var wid: String? }
 public enum DocumentStoreError: Error, Equatable { case appGroupUnavailable(String), unreadable, notAnObject }
 ```
+
+O `ts` é `Int64?` porque é um horário em milissegundos, e nos relógios com arm64_32 o `Int` tem 32 bits.
 
 Os arquivos, todos no `directory`: `state.json` (o documento), `state.previous.json` (a cópia anterior), `state.unreadable.json` (o último arquivo ruim, guardado para alguém olhar) e `sync-base.json`. `Package.swift`: `swift-tools-version: 6.2`, `platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)]`, produto `HexStore`, alvo de teste `HexStoreTests`.
 
