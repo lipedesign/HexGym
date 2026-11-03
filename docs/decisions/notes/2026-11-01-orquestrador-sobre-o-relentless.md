@@ -62,7 +62,7 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - O Lipe responde numa sessão do Claude Code neste projeto com `/decide <issue> <opção> [nota]`. O
   gancho do relentless grava a decisão, troca `human:pending` por `human:decided` e devolve a issue
   para `state:todo`. O gancho acha o repositório pelo `gh repo view`, que neste checkout resolve para
-  `lipedesign/openGym` (`gh repo set-default`).
+  `lipedesign/HexGym` (`gh repo set-default`).
 - Um passo do founder (um clique, uma instalação) também é um pedido, com a opção 1 "feito".
 - Uma issue que volta de um `/decide` não começa de novo. Com código, ela é retomada pelo estado do
   PR. Sem código, pelo último passo comentado: numa Tarefa sem código, o orquestrador comenta cada
@@ -93,7 +93,7 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 
 - O orquestrador cria a worktree antes de chamar o implementador, porque o `relentless:implementer`
   diz `origin/main` e `--type feat`:
-  `worktree-create.sh --repo lipedesign/openGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
+  `worktree-create.sh --repo lipedesign/HexGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
 - O merge segue a nota anterior: `merge-if-ready.sh --dry-run` saindo com 0 (uma linha `ADRs:`,
   `review:approved` e o veredito no commit atual; no modo `human`, o dry-run sai antes de olhar a
   CI, e não confere se o PR está aberto), o PR aberto e sem conflito (`state` igual a `OPEN` e
@@ -256,7 +256,7 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - `pretool-protect-worktree-write.sh` (linha 9): só barra escrita fora da worktree quando o checkout
   tem `.relentless/worktree.json` ou o ambiente tem `RELENTLESS_ROLE=implementer` ou
   `RELENTLESS_WORKTREE`.
-- Neste checkout, `gh repo set-default --view` imprime `lipedesign/openGym`, e o repositório tem
+- Neste checkout, `gh repo set-default --view` imprime `lipedesign/HexGym`, e o repositório tem
   `delete_branch_on_merge` ligado.
 - `updateProjectV2View` com `filter` testado sem mudar nada na visão "Pede você", em 01/11/2026.
 - `lib/human-decision.sh` (usado pelo `decide.sh` e pelo gancho do `/decide`): o comentário da
@@ -267,7 +267,7 @@ por quê. O plano da fase 0 e a seção 9.1 da especificação mudam junto com e
 - `merge-if-ready.sh`, linhas 600 a 614: no modo `human`, o `--dry-run` sai antes do `finish_ci`,
   sem olhar a CI (o `finish_ci` só vem na linha 616).
 - `wait-ci.sh`, linha 106: lê só a última execução da branch (`gh run list --branch … --limit 1`).
-- Em 01/11/2026, num PR sem nenhum check, `gh pr checks 30 -R lipedesign/openGym --required` e o
+- Em 01/11/2026, num PR sem nenhum check, `gh pr checks 30 -R lipedesign/HexGym --required` e o
   mesmo com `--json name,bucket` imprimiram "no checks reported" e saíram com 1; e
   `required_status_checks` de `develop` respondeu 404, "Required status checks not enabled".
 - `pretool-reviewer-isolation.sh`, linhas 131 e 132: lê o papel de `RELENTLESS_ROLE` e de

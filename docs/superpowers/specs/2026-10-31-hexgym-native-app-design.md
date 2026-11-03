@@ -63,9 +63,10 @@ O projeto fracassa, mesmo funcionando, se:
 ## 5. Restrições
 
 - **Licença do código.** O openGym é AGPL-3.0, e o HexGym também. O código do fork fica público em
-  `github.com/lipedesign/openGym`. O NOTICE.md do openGym traz uma permissão extra (seção 7 da AGPL)
-  para distribuir o app por lojas de apps, desde que o código continue disponível; o fork mantém
-  essa permissão e o NOTICE.md.
+  `github.com/lipedesign/HexGym`, que se chamava `lipedesign/openGym` até 01/11/2026 (o endereço
+  antigo leva ao novo). O NOTICE.md do openGym traz uma permissão extra (seção 7 da AGPL) para
+  distribuir o app por lojas de apps, desde que o código continue disponível; o fork mantém essa
+  permissão e o NOTICE.md.
 - **Mídias de exercício (fotos e animações).** São licenciadas pela Gym visual ao openGym, fora da
   AGPL. Um fork não comercial pode manter as mídias de 180 px sem modificação, junto com o aviso do
   NOTICE.md. Por isso:
@@ -411,7 +412,7 @@ separada.
 
 ### 9.1 O pipeline no GitHub e o agente
 
-Todo o trabalho passa pelo GitHub do fork (`lipedesign/openGym`), num caminho só, e é feito por
+Todo o trabalho passa pelo GitHub do fork (`lipedesign/HexGym`), num caminho só, e é feito por
 agentes de IA com o tech lead orquestrando. O founder acompanha pelo quadro e entra nas decisões
 que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por AI".
 

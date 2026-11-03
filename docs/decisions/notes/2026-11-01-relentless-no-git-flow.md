@@ -23,13 +23,13 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 
 - **Base `develop`.** Onde o relentless diz `origin/main`, leia `origin/develop`. A worktree sai assim,
   com `<checkout>` sendo o checkout principal (nesta máquina, `/Users/lipe/Developer/MyGym`):
-  `worktree-create.sh --repo lipedesign/openGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
+  `worktree-create.sh --repo lipedesign/HexGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
   O branch fica `feature/<n>-<nome>`, e o PR vai para `develop` com `Closes #<n>`.
 - **Squash nas features.** Enquanto a CI não roda nos PRs (issue #3), o `merge-if-ready.sh` vai com
   `--dry-run`: ele confere `review:approved`, o commit revisado, a linha `ADRs:` e os ADRs aceitos, e
   sai sem esperar a CI. Sem o `--dry-run`, no modo `human`, ele espera a CI antes de comentar que o PR
   está pronto e, sem nenhum check, desiste com o código 3. O merge é
-  `gh pr merge <PR> -R lipedesign/openGym --squash`, feito pelo tech lead ou pelo Lipe. Depois da #3,
+  `gh pr merge <PR> -R lipedesign/HexGym --squash`, feito pelo tech lead ou pelo Lipe. Depois da #3,
   quem faz o merge confere no próprio PR os checks obrigatórios (`tests-ok` e, com a #9,
   `hexgym-ok`), porque o `wait-ci.sh` aceita a última execução verde de qualquer workflow.
 - **Sem `merge:auto` por enquanto.** O 1.4.8 não lê o `allow_issue_override`, então a etiqueta
