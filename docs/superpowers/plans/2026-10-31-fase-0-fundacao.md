@@ -258,6 +258,7 @@ Run: `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --stat
 Expected: a #3 e a #10 com `human:pending` e `state:blocked`; o épico com `epic` e `state:in-progress`; as outras com `state:todo`, menos a que já tiver um PR aberto, que segue com o estado dela. Pelas linhas `Depende de:`, as prontas para a primeira onda são a #11 e a #16; a #23 espera a #21.
 
 Depois: um comentário na #15 com a saída dos passos 11 a 13 (`comment-agent.sh`); `"$S/worktree-cleanup.sh" --path /Users/lipe/Developer/MyGym/.claude/worktrees/15-relentless --repo lipedesign/HexGym` e `git branch -D feature/15-relentless`; e, na conversa, os dois pedidos para o Lipe, cada um com o comando `/decide`, e o aviso da #23.
+
 ---
 
 ### Task 2: Os workflows herdados e o check obrigatório
@@ -319,9 +320,9 @@ Expected: nenhuma linha no primeiro; `["CLOSED",["state:done"]]` no segundo.
 
 - [ ] **Step 1: Save the current lists**
 
-O ledger é `.superpowers/sdd/2026-10-31-fase-0-fundacao/`, fora do git (`.gitignore:20`).
+As listas ficam em `.relentless/review/issue-11/`, fora do git (`.relentless/.gitignore`), a mesma pasta do pedido do passo 4.
 
-Run: `mkdir -p .superpowers/sdd/2026-10-31-fase-0-fundacao`, `git ls-remote --heads origin > .superpowers/sdd/2026-10-31-fase-0-fundacao/heads-antes.txt` e `gh label list -R lipedesign/HexGym --limit 100 --json name,description,color > .superpowers/sdd/2026-10-31-fase-0-fundacao/etiquetas-antes.json`
+Run: `mkdir -p .relentless/review/issue-11`, `git ls-remote --heads origin > .relentless/review/issue-11/heads-antes.txt` e `gh label list -R lipedesign/HexGym --limit 100 --json name,description,color > .relentless/review/issue-11/etiquetas-antes.json`
 
 - [ ] **Step 2: Move the type labels to the relentless ones**
 
@@ -336,7 +337,7 @@ Expected: os dois números iguais: toda issue com a velha já tem a nova.
 
 - [ ] **Step 4: Ask the founder about the inherited branches**
 
-Os SHAs vêm do `git`, que lê o upstream sem `gh`: `git ls-remote --heads origin` e `git ls-remote --heads upstream` (o remoto `upstream` não tem push). Cada outra branch com o SHA igual nos dois vai para `.superpowers/sdd/2026-10-31-fase-0-fundacao/branches-iguais.txt`, com o SHA; a diferente, ou ausente no upstream, fica, e o motivo vai no pedido. O pedido, no formato do `core/templates/decision-request.md` do relentless, em português, com a lista: 1. Apagar as branches listadas, que existem iguais no openGym (recomendada); 2. Manter todas. Ele sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue 11 --body-file .relentless/review/issue-11/decisao.md`, e o orquestrador segue em outras issues.
+Os SHAs vêm do `git`, que lê o upstream sem `gh`: `git ls-remote --heads origin` e `git ls-remote --heads upstream` (o remoto `upstream` não tem push). Cada outra branch com o SHA igual nos dois vai para `.relentless/review/issue-11/branches-iguais.txt`, com o SHA; a diferente, ou ausente no upstream, fica, e o motivo vai no pedido. O pedido, no formato do `core/templates/decision-request.md` do relentless, em português, com a lista: 1. Apagar as branches listadas, que existem iguais no openGym (recomendada); 2. Manter todas. Ele sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue 11 --body-file .relentless/review/issue-11/decisao.md`, e o orquestrador segue em outras issues.
 
 Run: `gh issue view 11 -R lipedesign/HexGym --json labels --jq '[.labels[].name]'`
 Expected: `human:pending` e `state:blocked` entre as etiquetas.

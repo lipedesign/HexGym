@@ -127,14 +127,15 @@ trabalho. Nada disso chegou a existir: a Tarefa 1 não tinha começado.
     `awk -v` da 1.4.8 perdia as quebras de linha no macOS);
   - `wait-ci.sh` julga os checks do commit do PR pelo nome e, de cada workflow, a execução mais nova
     nesse commit (saídas: 0 verde, 1 vermelho, 3 pendente, 4 sem cota);
-  - `merge-if-ready.sh` lê o `allow_issue_override` (sem a chave, vale `true`) e faz o merge com
-    `gh pr merge --merge`;
+  - `merge-if-ready.sh` lê o `allow_issue_override` pelo `lib/common.sh`, que ele carrega (sem a
+    chave, vale `true`), e faz o merge com `gh pr merge --merge`;
   - `worktree-create.sh` usa `--base main` quando não recebe outra;
   - `build-review-bundle.sh` (linha 19) lê o diff com `gh pr diff` e, se o comando falha, segue sem
     ele;
-  - `run-isolated-review.sh` sempre monta o pacote pelo `build-review-bundle.sh`, exporta
-    `RELENTLESS_ROLE` e `CLAUDE_AGENT` para os ganchos de isolamento e roda o
-    `claude -p --agent relentless:reviewer` com a lista de comandos do revisor.
+  - `run-isolated-review.sh`, em toda rodada que chama o revisor, monta o pacote pelo
+    `build-review-bundle.sh`, exporta `RELENTLESS_ROLE` e `CLAUDE_AGENT` para os ganchos de
+    isolamento e roda o `claude -p --agent relentless:reviewer` com a lista de comandos do revisor
+    (com `--from-output`, ele só aplica um veredito já salvo).
 - Em 03/11/2026, a `main` do relentless (commit `191463b`) já tinha dois commits depois da tag
   `v1.4.11`, os PRs #27 e #28 de lá (o "corte mínimo"), e o `plugin.json` dela ainda dizia 1.4.11.
   Atualizar o plugin pela ponta do marketplace traria esse código com o número da 1.4.11.

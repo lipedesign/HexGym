@@ -70,7 +70,7 @@ os dois divergem, valem as notas `docs/decisions/notes/2026-11-01-relentless-no-
 - A CI é o `test.yml` (`tests-ok`) e, a partir da #9, o `hexgym.yml` (`hexgym-ok`). O
   `relentless-ci.yml` não fica no repositório.
 - O orquestrador é o do relentless, como ele vem. O HexGym não tem skill, agente nem script que
-  refaça o laço dele: só a configuração em `.relentless/config.json`, os modelos de issue e de PR e
+  faça o papel dele: só a configuração em `.relentless/config.json`, os modelos de issue e de PR e
   as regras de `docs/decisions/`. O critério de aceite é a Task do plano que a linha `Plano:` da
   issue aponta, e toda espera pelo founder é um pedido de decisão que ele responde com `/decide`.
   Nenhuma onda roda aqui antes de a Tarefa 1 (#15) terminar.
