@@ -1,12 +1,10 @@
 # Fase 0 do HexGym (Fundação): plano de implementação
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
->
-> No HexGym, quem executa é o orquestrador (Task 1, skill `hexgym-orquestrador`), em cima do relentless (nota `docs/decisions/notes/2026-11-01-orquestrador-sobre-o-relentless.md`). Cada Task é uma issue do milestone "Fase 0: Fundação", sub-issue do épico da fase, e um PR para `develop`: uma worktree e uma branch por Task, o critério de aceite da issue é a Task deste plano, a revisão isolada do relentless é a revisão do PR, e o merge em `develop` faz o papel do superpowers:finishing-a-development-branch. Os títulos ficam "Task N" porque o `scripts/hexgym/context.mjs` procura esse nome.
+> **Quem executa:** o orquestrador do relentless, como ele vem (nota `docs/decisions/notes/2026-11-03-um-orquestrador-so.md`), a partir do fim da Task 1, que liga o relentless no HexGym. Cada Task é uma issue do milestone "Fase 0: Fundação", sub-issue do épico da fase, e um PR para `develop`: uma worktree e uma branch por Task, o critério de aceite da issue é a Task deste plano (a linha `Plano:` da issue), e a revisão isolada do relentless é a revisão do PR. Os títulos ficam "Task N" porque é assim que a linha `Plano:` das issues aponta para eles. Os passos usam caixas de seleção (`- [ ]`).
 
 **Objetivo:** deixar o fork pronto para o trabalho feito por agentes e o HexGym abrindo no simulador e no iPhone do founder, ainda sem telas, com o motor do openGym rodando no JavaScriptCore, o documento de dados no App Group e um build interno no TestFlight.
 
-**Arquitetura:** o motor é o código de `frontend/src/lib`, juntado num script só (`HexEngine`) pelo Vite que o frontend já tem e rodado num único `JSContext` dentro de um `actor` Swift (pacote `HexEngine`). O documento de dados é o mesmo `gym_state_v1` do openGym, guardado como JSON no App Group por outro `actor` (pacote `HexStore`, que não está na lista da seção 8.7: decisão do tech lead, para a gravação ter testes próprios, sem o motor). O app SwiftUI liga os dois e mostra o estado numa tela provisória. O orquestrador é uma skill do Claude Code em cima do relentless, com três scripts Node sem dependências (o quadro, a brief e o pacote de revisão, e as checagens); a CI chama as mesmas checagens.
+**Arquitetura:** o motor é o código de `frontend/src/lib`, juntado num script só (`HexEngine`) pelo Vite que o frontend já tem e rodado num único `JSContext` dentro de um `actor` Swift (pacote `HexEngine`). O documento de dados é o mesmo `gym_state_v1` do openGym, guardado como JSON no App Group por outro `actor` (pacote `HexStore`, que não está na lista da seção 8.7: decisão do tech lead, para a gravação ter testes próprios, sem o motor). O app SwiftUI liga os dois e mostra o estado numa tela provisória. O trabalho é tocado pelo orquestrador do relentless, como ele vem; o HexGym só acrescenta as checagens (`scripts/hexgym/check.mjs`, Node sem dependências), que o relentless e a CI chamam.
 
 **Tecnologias:** Node 22, com o Vite e o Vitest do frontend; Swift (`swift-tools-version: 6.2`), SwiftUI, JavaScriptCore e Swift Testing; Xcode 27; `gh` e GitHub Actions.
 
@@ -25,13 +23,13 @@ Valem para toda Task. Os valores vêm da especificação e do levantamento de 31
 - **Texto para o usuário:** simples e humano, sem travessão; português do Brasil e inglês.
 - **Mídias de exercício:** nenhuma entra no app nesta fase. Nunca abrir, converter ou passar por ferramenta de IA as fotos e animações da Gym visual, e nada novo em `catalogue/media/`.
 - **Prints e vídeo dos PRs:** ficam em `docs/hexgym/prints/<issue>/`, no commit do próprio PR, e o corpo do PR os mostra por `https://github.com/lipedesign/HexGym/blob/<sha>/docs/hexgym/prints/<issue>/<arquivo>?raw=true`. O vídeo é do simulador (`xcrun simctl io <udid> recordVideo --codec h264`), com até 15 s e menos de 5 MB. Nenhum print ou vídeo mostra as imagens ou animações da Gym visual.
-- **Repositório:** nunca mexer no upstream (`DuarteSantos8/openGym`) nem no espelho do GitLab, e nenhum `gh` aponta para ele: para ler o upstream, o `git` com o remoto `upstream`, que não tem push. Todo `gh` mira o fork: `-R lipedesign/HexGym`, `repos/lipedesign/HexGym/` no `gh api`, `--owner lipedesign` no Project, `--project-id PVT_kwHOAYVuVc4Bpo0b` no `gh project item-edit`, que não aceita dono, ou, no `gh api graphql`, só os IDs do Project 6 que estão em `scripts/hexgym/project.json` (o `updateProjectV2View` das visões). O único repositório novo é o `lipedesign/hexgym-corpo` da Task 15, com `gh repo create`, quando o `/decide 10` escolhe essa opção. Nada em `data/`.
+- **Repositório:** nunca mexer no upstream (`DuarteSantos8/openGym`) nem no espelho do GitLab, e nenhum `gh` aponta para ele: para ler o upstream, o `git` com o remoto `upstream`, que não tem push. Todo `gh` mira o fork: `-R lipedesign/HexGym`, `repos/lipedesign/HexGym/` no `gh api` e, no `gh api graphql`, só os IDs das visões do Project 6 (o `updateProjectV2View`): "Fase atual" é `PVTV_lAHOAYVuVc4Bpo0bzgMV7KM`, e "Pede você", `PVTV_lAHOAYVuVc4Bpo0bzgMV7Lo`. O único repositório novo é o `lipedesign/hexgym-corpo` da Task 15, com `gh repo create`, quando o `/decide 10` escolhe essa opção. Nada em `data/`.
 - **IDs:** `app.hexgym`, `app.hexgym.widgets`, `app.hexgym.watchkitapp`, `app.hexgym.watchkitapp.widgets`; App Group `group.app.hexgym`; esquema de URL `hexgym://`; time `MPAGLMK4Q2`.
 - **Alvos:** `HexGym`, `HexGymWidgets`, `HexGymWatch` e `HexGymWatchWidgets`, com pastas sincronizadas e sem gerador de projeto.
 - **Motor:** um `JSContext` só, dentro de um `actor`, nunca na thread principal; o script gerado é versionado, e o `--check` falha quando ele está velho.
 - **Mudanças no código do openGym:** pequenas, com teste, cada uma num commit que possa ser proposto ao openGym; `cd frontend && npm test` e as checagens de locale (`node scripts/check-locales.mjs && node scripts/check-source-strings.mjs --strict`, em `frontend/`) continuam verdes.
 - **Git Flow:** `feature/<número>-<nome>` a partir de `develop`; PR para `develop` com `Closes #<número>`; squash nas features; merge normal em release, sync e hotfix.
-- **Estado das issues:** só o orquestrador troca a etiqueta `state:*`, e sempre pelo `set-state.sh` do relentless. A exceção é o `board.mjs sync`, que dá `state:todo` à issue aberta sem nenhuma `state:*` (uma issue criada fora dos formulários): é o estado inicial, e ele não troca nenhum outro. `human:pending` só entra pelo `request-decision.sh` e só sai pelo `/decide` do founder.
+- **Estado das issues:** só o orquestrador troca a etiqueta `state:*`, e sempre pelo `set-state.sh` do relentless, inclusive o `state:todo` de uma issue aberta sem nenhuma (criada fora dos formulários). `human:pending` só entra pelo `request-decision.sh` e só sai pelo `/decide` do founder.
 - **Arquivos em `.claude/`:** o `.gitignore` do openGym ignora a pasta inteira; arquivo novo ali entra com `git add -f`.
 - **Commits:** terminam com a linha `Co-Authored-By:` do agente que escreveu.
 
@@ -49,9 +47,6 @@ O que a especificação implica, nenhuma Task testaria sozinha e mais pode morde
 
 ```
 scripts/hexgym/                  ferramentas do HexGym (Node 22, sem dependências)
-  project.json                   IDs do repositório, do Project e das colunas
-  board.mjs                      o quadro: espelha as etiquetas state:* no Project, fase atual, próxima issue e a espera pelos checks
-  context.mjs                    a brief e o pacote do revisor, a partir da Task do plano, e o QA no corpo do PR
   check.mjs                      as checagens por parte; a CI chama o mesmo script
   xcode.mjs                      qual Xcode usar e qual simulador
   engine-load.mjs                teste de carga do motor no jsc, sem JIT
@@ -74,7 +69,6 @@ apple/
     Sources/HexEngine/           o ator e, em Resources/, o script gerado e o host.js
     Tests/HexEngineTests/        os testes Swift e, em Cases/, os casos gravados
   Packages/HexStore/             o documento de dados no App Group
-.claude/skills/hexgym-orquestrador/SKILL.md
 .github/workflows/hexgym.yml
 .github/README.md, .github/CONTRIBUTING.md, .github/SECURITY.md
 docs/hexgym/prints/              os prints e os vídeos dos PRs, uma pasta por issue
@@ -85,7 +79,7 @@ docs/superpowers/.gitignore      deixa o git ver os planos (o openGym ignora doc
 
 | Task | Issue | O que entrega | Depende de | Quem faz |
 |---|---|---|---|---|
-| 1 | #15 | O orquestrador em cima do relentless | | tech lead |
+| 1 | #15 | O relentless ligado no HexGym | | tech lead |
 | 2 | #3 | Workflows herdados desligados e `tests-ok` obrigatório | | orquestrador, depois do clique do founder na aba Actions e do `/decide 3` |
 | 3 | #11 | Branches e etiquetas herdadas | 1 | orquestrador, com o `/decide 11` do founder para apagar as branches |
 | 4 | #16 | O motor sem React | 1 | orquestrador |
@@ -102,7 +96,7 @@ docs/superpowers/.gitignore      deixa o git ver os planos (o openGym ignora doc
 | 15 | #10 | Cópia dos arquivos do corpo e procedência da referência | 1 | orquestrador, depois das respostas do founder |
 | 16 | #25 | Versão 0.1.0 | todas as outras, menos a 15 | orquestrador, com a aprovação do founder |
 
-Cada issue leva duas linhas que o orquestrador lê: `Depende de: #a, #b` (ou `nenhuma`) e `Plano: docs/superpowers/plans/2026-10-31-fase-0-fundacao.md, Task N`. O tech lead criou as issues novas junto com o PR deste plano, já com as duas linhas, e acrescentou as duas no fim das Notas da #3, da #8, da #9, da #10 e da #11. A #14 é este plano e fecha com o PR dele; a #3 fecha com a Task 2, depois do clique do founder. Na Task 1, cada issue da fase ganha uma etiqueta `state:*` e vira sub-issue do épico da fase; o `board.mjs` lê as duas linhas, e o `context.mjs` usa a Task como critério de aceite.
+Cada issue leva duas linhas que o orquestrador lê: `Depende de: #a, #b` (ou `nenhuma`) e `Plano: docs/superpowers/plans/2026-10-31-fase-0-fundacao.md, Task N`. O tech lead criou as issues novas junto com o PR deste plano, já com as duas linhas, e acrescentou as duas no fim das Notas da #3, da #8, da #9, da #10 e da #11. A #14 é este plano e fecha com o PR dele; a #3 fecha com a Task 2, depois do clique do founder. Na Task 1, cada issue da fase ganha uma etiqueta `state:*` e vira sub-issue do épico da fase. O orquestrador do relentless lê as duas linhas como diz a nota de 03/11: a `Depende de:` faz o papel da `Blocked by:` dele, e a Task da linha `Plano:` é o critério de aceite.
 
 Ficam fora desta fase, de propósito: o WatchCore em `apple/` (fase 4), o pacote `HexDesign` (fase 1), o `session-controller.js` (fase 3), as traduções do openGym em JSON (fase 2), o HealthKit, a sincronização com servidor e a medição num iPhone real com histórico grande (seção 8.13), que espera as telas que fazem esses cálculos (fases 3 e 5); nesta fase, a medida é a do `jsc` sem JIT, na Task 6.
 
@@ -112,337 +106,46 @@ E duas coisas que a revisão do plano achou e ficam para depois, de propósito. 
 
 ---
 
-### Task 1: O orquestrador em cima do relentless
+### Task 1: O relentless ligado no HexGym
 
-**Issue:** #15. **Quem faz:** o tech lead, à mão. É a única Task que não passa pelo orquestrador, porque é ela que cria o orquestrador. As decisões por trás dela estão em `docs/decisions/notes/2026-11-01-orquestrador-sobre-o-relentless.md`.
+**Issue:** #15. **Quem faz:** o tech lead, à mão, pelos passos do orquestrador do relentless. É esta Task que deixa o HexGym pronto para ele, então ela não espera uma onda. As decisões por trás dela estão em `docs/decisions/notes/2026-11-03-um-orquestrador-so.md`.
 
 **Files:**
-- Create: `scripts/hexgym/project.json`
-- Create: `scripts/hexgym/board.mjs`, `scripts/hexgym/board.test.mjs`
-- Create: `scripts/hexgym/context.mjs`, `scripts/hexgym/context.test.mjs`
 - Create: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs`
-- Create: `scripts/hexgym/README.md`
-- Create: `.claude/skills/hexgym-orquestrador/SKILL.md`
-- Modify: `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/1-tarefa.yml`, `.github/ISSUE_TEMPLATE/2-bug.yml`, `.relentless/config.json`
+- Modify: `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/1-tarefa.yml`, `.github/ISSUE_TEMPLATE/2-bug.yml`, `.relentless/config.json`, `docs/decisions/notes/2026-11-01-relentless-no-git-flow.md`
+- Fora do git: o `.claude/settings.json` do checkout e o de cada worktree que já existir, com o marketplace do relentless fixado na tag da versão (passo 1)
 
 **Interfaces:**
-- Consumes: o relentless 1.4.8, ativado neste projeto. `S` é a pasta dos scripts dele: `S="$(claude plugin list --json | jq -r '.[] | select(.id == "relentless@relentless") | .installPath')/core/scripts"`. A skill usa `set-state.sh`, `request-decision.sh`, `worktree-create.sh`, `worktree-cleanup.sh`, `fill-qa-section.sh`, `run-isolated-review.sh`, `merge-if-ready.sh`, `comment-agent.sh`, `create-issue.sh`, `create-epic.sh`, `add-sub-issue.sh`, `check-milestone-outcomes.sh`, `close-epic.sh` e `write-status-snapshot.sh`, e os agentes `relentless:implementer`, `relentless:qa`, `relentless:reviewer` e `relentless:documenter`.
+- Consumes: o relentless na última versão publicada (a tag `v1.4.11` em 03/11/2026), ativado só neste projeto. `S` é a pasta dos scripts dele: `S="$(claude plugin list --json | jq -r '.[] | select(.id == "relentless@relentless") | .installPath')/core/scripts"`. Os scripts desta Task: `set-state.sh`, `worktree-create.sh`, `wait-ci.sh`, `fill-qa-section.sh`, `run-isolated-review.sh`, `merge-if-ready.sh`, `request-decision.sh`, `comment-agent.sh`, `create-epic.sh`, `add-sub-issue.sh`, `check-milestone-outcomes.sh` e `worktree-cleanup.sh`, mais o agente `relentless:qa`.
 - Produces:
-  - `node scripts/hexgym/board.mjs phase` imprime `{"number":1,"title":"Fase 0: Fundação"}`: o primeiro milestone aberto na ordem de `project.json`.
-  - `node scripts/hexgym/board.mjs sync` espelha as etiquetas `state:*` nas colunas do Project 6, como diz a nota, põe no Project a issue que falta e dá `state:todo` à issue aberta sem `state:*`. Só mexe nas issues dos milestones de `phases`.
-  - `node scripts/hexgym/board.mjs next` imprime `{"number","title","url","state","resume","plan","task"}` e sai com 0: a de menor número em `state:review`, depois a de menor número em `state:in-progress` (as duas com `resume: true`, e contam também as fechadas de qualquer fase de `phases`: o merge fechou a issue e falta o fim do passo 9 da skill, ou o passo 13 da Task da versão fechou o milestone antes do `state:done` dela), depois a pronta de menor número. Nunca devolve um épico. Sem nada, imprime `null`, lista no stderr cada issue da fase que espera e o motivo, e sai com 3.
-  - `node scripts/hexgym/board.mjs checks --pr <n> --names <a,b> [--wait <segundos>]` lê o `gh pr checks <n> -R lipedesign/HexGym --json name,bucket,link` a cada 30 s, por até `--wait` segundos (480 sem ele, abaixo dos 10 minutos da ferramenta Bash), e imprime um objeto JSON com cada nome e o pior `bucket` dele, ou `ausente`. A leitura de um job das Actions (o `link` com `/actions/runs/<execução>/job/`) só conta com a execução terminada e não criada antes do último `reopened` do PR (no mesmo segundo, conta). Para isso, numa leitura com algum job, o `checks` lê também o `gh run view <execução> -R lipedesign/HexGym --json status,createdAt` de cada execução e as datas dos `reopened` (`gh api 'repos/lipedesign/HexGym/issues/<n>/events?per_page=100' --paginate --jq '.[] | select(.event == "reopened") | .created_at'`). Com a execução fora de `completed`, como logo depois de um `rerun`, a leitura vale `pending`; com ela criada antes do último `reopened`, a leitura não conta, e o nome sem outra fica `ausente`. Assim, o check velho que a lista ainda traz até o job novo começar não decide nada. Sai com 0 quando todos estão em `pass` ou `skipping`, com 1 quando algum está em `fail` ou `cancel`, com 3 quando a espera acaba com algum ainda pendente ou ausente, e com 4 quando o próprio `gh` falha em três leituras seguidas.
-  - `node scripts/hexgym/board.mjs board` imprime a fase atual por coluna e a lista "Pede você".
-  - `node scripts/hexgym/context.mjs brief --issue <n> [--out <arquivo>]` e `node scripts/hexgym/context.mjs review --pr <n> --issue <n> [--out <arquivo>]`: a brief do implementador e o pacote do revisor, os dois com a Task do plano e as decisões do founder na issue, e o pacote com o diff do `git` local. Sem `--out`, imprimem no stdout.
-  - `node scripts/hexgym/context.mjs qa --pr <n> --file <arquivo>` troca a seção `## QA / dogfood result` do corpo do PR pelo QA do arquivo, com os títulos `#` e `##` dele, fora dos blocos de código, passados a `###` e um bloco deixado aberto fechado no fim, e grava com `gh pr edit`.
-  - `check.mjs` exporta `PARTS` (objeto `parte → [{ name, cmd, args, cwd?, env? }]`, na ordem em que rodam), `planChecks(parts: string[]) → check[]` e `runChecks(checks, run) → { ok: boolean, failed?: string }`. CLI: `node scripts/hexgym/check.mjs [parte ...] [--list]`, e sem parte roda todas. As Tasks seguintes acrescentam partes ao `PARTS`.
-  - A skill `hexgym-orquestrador`.
+  - `check.mjs` exporta `PARTS` (objeto `parte → [{ name, cmd, args, cwd?, env? }]`, na ordem em que rodam), `planChecks(parts: string[]) → check[]` e `runChecks(checks, run) → { ok: boolean, failed?: string }`. CLI: `node scripts/hexgym/check.mjs [parte ...] [--list]`, e sem parte roda todas. As Tasks seguintes acrescentam partes ao `PARTS`. É o `checks.test` do `.relentless/config.json`, e o QA e a CI chamam o mesmo comando.
+  - O modelo de PR com a seção `## QA / dogfood result`, que o `fill-qa-section.sh` preenche.
+  - A fase 0 pronta para o orquestrador do relentless: o milestone com a seção Outcome, o épico, cada issue da fase como sub-issue dele e com uma etiqueta `state:*`, e as esperas da #3 e da #10 como pedidos de decisão.
 
-`scripts/hexgym/project.json`, com os valores reais do Project 6:
+- [ ] **Step 1: Pin the relentless to its latest published version, only in this project**
 
-```json
-{
-  "repo": "lipedesign/HexGym",
-  "owner": "lipedesign",
-  "projectNumber": 6,
-  "projectId": "PVT_kwHOAYVuVc4Bpo0b",
-  "statusFieldId": "PVTSSF_lAHOAYVuVc4Bpo0bzhoDhPg",
-  "status": {
-    "todo": { "name": "A fazer", "id": "f75ad846" },
-    "ready": { "name": "Pronto para começar", "id": "813d5271" },
-    "doing": { "name": "Em andamento", "id": "47fc9ee4" },
-    "review": { "name": "Em revisão", "id": "2256ca28" },
-    "done": { "name": "Feito", "id": "98236657" }
-  },
-  "stateColumns": { "state:in-progress": "doing", "state:review": "review", "state:done": "done" },
-  "waitLabels": ["human:pending", "state:blocked"],
-  "epicLabel": "epic",
-  "phases": [1, 2, 3, 4, 5, 6, 7, 8],
-  "phasePlans": { "1": "docs/superpowers/plans/2026-10-31-fase-0-fundacao.md" },
-  "reviewExclude": [
-    "apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js",
-    "apple/Packages/HexEngine/Tests/HexEngineTests/Cases/"
-  ],
-  "views": { "phase": "PVTV_lAHOAYVuVc4Bpo0bzgMV7KM", "all": "PVTV_lAHOAYVuVc4Bpo0bzgMV7Lk", "askYou": "PVTV_lAHOAYVuVc4Bpo0bzgMV7Lo" }
-}
-```
+No checkout principal (`/Users/lipe/Developer/MyGym`). A `main` do relentless já tem mudanças sem versão (o "corte mínimo"), com o número da última versão no `plugin.json`. A atualização copia o que está no clone do marketplace, que segue a branch padrão quando a declaração não tem `ref`, e o `claude plugin update` não troca uma cópia que já tem o mesmo número de versão: a primeira cópia da 1.4.11 é a que fica. Por isso, o marketplace é fixado na tag da última versão publicada (`v1.4.11`, commit `ee722b8`, em 03/11/2026; as tags saem de `git ls-remote --tags https://github.com/marcelusfernandes/relentless`) antes de qualquer atualização:
 
-- [ ] **Step 1: Take the issue and its worktree**
+1. No `.claude/settings.json` do checkout, a fonte do relentless em `extraKnownMarketplaces` ganha `"ref": "v1.4.11"`, ao lado de `"source": "github"` e `"repo"`. O mesmo vale para o `.claude/settings.json` de cada worktree que já existir (`git worktree list`), porque o `worktree-create.sh` só copia o arquivo (pelo `.worktreeinclude`) quando a worktree nasce.
+2. `claude plugin marketplace list --json` mostra o relentless com `"ref": "v1.4.11"`. Se não mostrar, uma sessão nova do Claude Code e a mesma conferência.
+3. `claude plugin marketplace update relentless`, e o `git -C ~/.claude/plugins/marketplaces/relentless rev-parse HEAD` dá o commit da tag. Se não der, a Task para aqui, sem o `plugin update`.
+4. `claude plugin update relentless@relentless --scope project`, da raiz do checkout, e uma sessão nova do Claude Code, porque os ganchos e os agentes da versão nova valem a partir dela.
 
-`"$S/set-state.sh" --repo lipedesign/HexGym --issue 15 --state in-progress` e `"$S/worktree-create.sh" --repo lipedesign/HexGym --workdir /Users/lipe/Developer/MyGym --issue 15 --slug orquestrador --type feature --base develop --path /Users/lipe/Developer/MyGym/.claude/worktrees/15-orquestrador`. Os passos 2 a 18 rodam nessa worktree, até o merge; os 19 a 21, na raiz do checkout, depois do `git pull --ff-only`.
+A correção local de `.claude/relentless-compat/` não é reaplicada: a 1.4.10 trouxe as mesmas correções (PRs #23 e #24 do relentless). Se a última versão publicada já for o corte mínimo (o `.relentless/config.json` dele ganha `base`, `merge_methods` e `layers`), a Task para antes do item 1: o tech lead relê o `agents/orchestrator.md` dela e acerta esta Task e a nota `2026-11-03-um-orquestrador-so.md` num PR.
 
-Run: `gh issue view 15 -R lipedesign/HexGym --json labels --jq '[.labels[].name]'` e `git ls-remote --heads origin feature/15-orquestrador`
+Run: `claude plugin list --json | jq '.[] | select(.id == "relentless@relentless") | {version, scope, projectPath}'`, `jq -r '.plugins["relentless@relentless"][] | select(.projectPath == "/Users/lipe/Developer/MyGym") | .gitCommitSha' ~/.claude/plugins/installed_plugins.json` e `grep -c 'ENVIRON\["QA"\]' "$S/fill-qa-section.sh"`
+Expected: `"version": "1.4.11"`, `"scope": "project"` e `"projectPath": "/Users/lipe/Developer/MyGym"`; `ee722b806536f9b031c28e1591a9bdecae7b1dbe`, o commit da tag; e `1`.
+
+- [ ] **Step 2: Take the issue and its worktree**
+
+`"$S/set-state.sh" --repo lipedesign/HexGym --issue 15 --state in-progress` e `"$S/worktree-create.sh" --repo lipedesign/HexGym --workdir /Users/lipe/Developer/MyGym --issue 15 --slug relentless --type feature --base develop --path /Users/lipe/Developer/MyGym/.claude/worktrees/15-relentless`. Os passos 3 a 10 rodam nessa worktree, até o merge; os 11 a 13, na raiz do checkout, depois do `git pull --ff-only`.
+
+Run: `gh issue view 15 -R lipedesign/HexGym --json labels --jq '[.labels[].name]'` e `git ls-remote --heads origin feature/15-relentless`
 Expected: `state:in-progress` entre as etiquetas, e a branch no remoto.
 
-- [ ] **Step 2: Write the failing tests for `board.mjs`**
+- [ ] **Step 3: Write the failing tests for `check.mjs`**
 
-Em `scripts/hexgym/board.test.mjs`, com `node:test` e `node:assert/strict`. Um `fakeGh(fixtures)` responde a `issue list`, `project item-list`, `api .../milestones`, `project item-add`, `project item-edit`, `issue edit`, `pr checks`, `run view` e `api .../events` a partir dos fixtures e guarda cada chamada em `calls`; sem `milestones`, responde `[ms(1, 'open')]`. O `pr checks` responde com `fixtures.checks`, uma resposta por leitura, e a última se repete (sem `checks`, `[]`); um `null` lança um erro com `no checks reported` no `stderr`, como o `gh` faz num PR sem nenhum check, e um `{ error }` lança um erro com essa mensagem no `stderr` e nada no `stdout`, como uma falha da API. O `run view <id>` responde com `fixtures.runs[i][id]`, `{ status, createdAt }`, em que `i` é a leitura do `pr checks` em curso, a primeira com 0, e a última se repete (sem a execução nos fixtures, `{ status: 'completed', createdAt: '2026-11-02T09:00:00Z' }`); o `api .../events` responde com as datas de `fixtures.reopened`, uma por linha, como sai do `--jq` (sem ele, nada). Um `{ error }` no lugar da execução, em `runs[i][id]`, ou no lugar das datas, em `reopened`, lança o erro como no `pr checks`. `run(argv, gh)` chama `main(argv, { gh, out, err, sleep, now })` com um relógio falso, em que o `sleep(ms)` só avança o `now()`, e devolve `{ code, stdout, stderr, json, slept }`, com `slept` o total esperado. Os fixtures: `open(n, state, { labels = [], body = '', milestone = 1, status = 'A fazer' } = {})` é uma issue aberta com a etiqueta `state:<state>` (nenhuma quando `state` é `null`) mais `labels`, e `status` é a coluna dela no Project, `null` quando ela não está lá; `closed(n, { milestone = 1, status = 'Feito', labels = [] } = {})`, uma fechada, com `labels`; `ms(n, state)`, um milestone. O fake dá a cada issue do Project o item `PVTI_<n>`, e o `item-add` devolve `{"id":"PVTI_<n>"}`. `statusEdits(calls)` junta as chamadas de `item-edit` num objeto `número → opção`, com o número lido do `--id`.
-
-```js
-test('parseMeta reads the dependencies and the plan task', () => {
-  assert.deepEqual(
-    parseMeta('Depende de: #15, #16\nPlano: docs/superpowers/plans/2026-10-31-fase-0-fundacao.md, Task 5'),
-    { deps: [15, 16], plan: 'docs/superpowers/plans/2026-10-31-fase-0-fundacao.md', task: 5 })
-  assert.deepEqual(parseMeta('Blocked by: #3'), { deps: [3], plan: null, task: null })
-  assert.deepEqual(parseMeta('Depende de: nenhuma'), { deps: [], plan: null, task: null })
-  assert.deepEqual(parseMeta(''), { deps: [], plan: null, task: null })
-})
-
-test('phase is the first open milestone in config order', async () => {
-  const r = await run(['phase'], fakeGh({ milestones: [ms(1, 'closed'), ms(2, 'open'), ms(3, 'open')] }))
-  assert.equal(r.json.number, 2)
-})
-
-test('next resumes review before in-progress, then takes the lowest ready todo', async () => {
-  const r = await run(['next'], fakeGh({ issues: [open(16, 'todo'), open(20, 'in-progress'), open(23, 'review'), open(21, 'review')] }))
-  assert.equal(r.json.number, 21); assert.equal(r.json.state, 'review'); assert.equal(r.json.resume, true)
-  const r2 = await run(['next'], fakeGh({ issues: [open(16, 'todo'), open(15, 'todo', { body: 'Plano: docs/p.md, Task 1' })] }))
-  assert.equal(r2.json.number, 15); assert.equal(r2.json.resume, false); assert.equal(r2.json.task, 1)
-})
-
-test('next skips waits, epics and unmet dependencies, and says why', async () => {
-  const r = await run(['next'], fakeGh({ issues: [
-    open(15, 'blocked', { labels: ['human:pending'] }), open(16, 'in-progress', { labels: ['epic'] }),
-    open(17, 'todo', { body: 'Depende de: #99' }), open(18, 'blocked'), open(99, 'todo', { milestone: 2 })] }))
-  assert.equal(r.code, 3); assert.equal(r.stdout.trim(), 'null')
-  assert.match(r.stderr, /#15.*human:pending/); assert.match(r.stderr, /#17.*espera #99/); assert.match(r.stderr, /#18.*state:blocked/)
-  assert.doesNotMatch(r.stderr, /#16/)
-})
-
-test('next ignores closed issues and other milestones, but resumes a closed one still in review or in progress, even from a closed phase', async () => {
-  const r = await run(['next'], fakeGh({ issues: [closed(14), open(30, 'todo', { milestone: 2 })] }))
-  assert.equal(r.code, 3)
-  const r2 = await run(['next'], fakeGh({ issues: [open(16, 'todo'), closed(19, { labels: ['state:review'] }),
-    closed(20, { labels: ['state:in-progress'], milestone: 2 })] }))
-  assert.equal(r2.json.number, 19); assert.equal(r2.json.state, 'review'); assert.equal(r2.json.resume, true)
-  const r3 = await run(['next'], fakeGh({ milestones: [ms(1, 'closed'), ms(2, 'open')],
-    issues: [closed(25, { labels: ['state:in-progress'] }), open(30, 'todo', { milestone: 2 })] }))
-  assert.equal(r3.json.number, 25); assert.equal(r3.json.state, 'in-progress'); assert.equal(r3.json.resume, true)
-})
-
-test('sync mirrors the state labels on the board and leaves blocked cards alone', async () => {
-  const gh = fakeGh({ issues: [closed(14, { status: 'Em revisão' }), open(15, 'todo'),
-    open(16, 'todo', { body: 'Depende de: #17', status: 'Pronto para começar' }), open(17, 'in-progress'), open(18, 'review', { status: null }),
-    open(19, 'blocked', { status: 'Em andamento' }), open(20, 'todo', { status: 'Pronto para começar' })] })
-  await run(['sync'], gh)
-  assert.deepEqual(statusEdits(gh.calls), { 14: '98236657', 15: '813d5271', 16: 'f75ad846', 17: '47fc9ee4', 18: '2256ca28' })
-  assert.deepEqual(gh.calls.find(c => c[1] === 'item-add'),
-    ['project', 'item-add', '6', '--owner', 'lipedesign', '--url', 'https://github.com/lipedesign/HexGym/issues/18', '--format', 'json'])
-})
-
-test('sync gives state:todo to an open issue without a state label', async () => {
-  const gh = fakeGh({ issues: [open(30, null)] })
-  await run(['sync'], gh)
-  assert.ok(gh.calls.some(c => c.join(' ') === 'issue edit 30 -R lipedesign/HexGym --add-label state:todo'))
-  assert.deepEqual(statusEdits(gh.calls), { 30: '813d5271' })
-})
-
-test('board shows the phase by column and what waits for the founder', async () => {
-  const r = await run(['board'], fakeGh({ issues: [open(15, 'in-progress'), open(10, 'blocked', { labels: ['human:pending'] }), open(26, 'todo', { milestone: 7 })] }))
-  assert.match(r.stdout, /Em andamento[\s\S]*#15/); assert.match(r.stdout, /Pede você[\s\S]*#10/); assert.doesNotMatch(r.stdout, /#26/)
-})
-
-test('checks waits by name until each one passes, and a missing check counts as pending', async () => {
-  const gh = fakeGh({ checks: [null, [{ name: 'tests-ok', bucket: 'pending' }],
-    [{ name: 'tests-ok', bucket: 'pass' }, { name: 'hexgym-ok', bucket: 'skipping' }, { name: 'outro', bucket: 'pending' }]] })
-  const r = await run(['checks', '--pr', '40', '--names', 'tests-ok,hexgym-ok'], gh)
-  assert.equal(r.code, 0); assert.deepEqual(r.json, { 'tests-ok': 'pass', 'hexgym-ok': 'skipping' }); assert.equal(r.slept, 60000)
-  assert.deepEqual(gh.calls[0], ['pr', 'checks', '40', '-R', 'lipedesign/HexGym', '--json', 'name,bucket,link'])
-})
-
-test('checks stops at a fail or cancel, and gives up with 3 when the wait ends', async () => {
-  const r = await run(['checks', '--pr', '40', '--names', 'tests-ok,hexgym-ok'],
-    fakeGh({ checks: [[{ name: 'tests-ok', bucket: 'pending' }, { name: 'hexgym-ok', bucket: 'cancel' }]] }))
-  assert.equal(r.code, 1); assert.deepEqual(r.json, { 'tests-ok': 'pending', 'hexgym-ok': 'cancel' }); assert.equal(r.slept, 0)
-  const r2 = await run(['checks', '--pr', '40', '--names', 'hexgym-ok', '--wait', '60'], fakeGh({ checks: [[{ name: 'hexgym-ok', bucket: 'pending' }]] }))
-  assert.equal(r2.code, 3); assert.deepEqual(r2.json, { 'hexgym-ok': 'pending' }); assert.equal(r2.slept, 60000)
-})
-
-test('checks counts a job only when its run is finished and not older than the last reopen', async () => {
-  const job = (bucket, run) => ({ name: 'tests-ok', bucket, link: `https://github.com/lipedesign/HexGym/actions/runs/${run}/job/${run}0` })
-  const done = createdAt => ({ status: 'completed', createdAt })
-  const gh = fakeGh({ checks: [[job('fail', 7)], [job('pass', 7)]],
-    runs: [{ 7: { status: 'queued', createdAt: '2026-11-02T10:00:00Z' } }, { 7: done('2026-11-02T10:00:00Z') }] })
-  const r = await run(['checks', '--pr', '40', '--names', 'tests-ok'], gh)
-  assert.equal(r.code, 0); assert.deepEqual(r.json, { 'tests-ok': 'pass' }); assert.equal(r.slept, 30000)
-  assert.deepEqual(gh.calls.find(c => c[0] === 'run'), ['run', 'view', '7', '-R', 'lipedesign/HexGym', '--json', 'status,createdAt'])
-  assert.deepEqual(gh.calls.find(c => c[0] === 'api'),
-    ['api', 'repos/lipedesign/HexGym/issues/40/events?per_page=100', '--paginate', '--jq', '.[] | select(.event == "reopened") | .created_at'])
-  const reopened = ['2026-11-02T09:00:00Z', '2026-11-02T10:05:00Z']
-  const r2 = await run(['checks', '--pr', '40', '--names', 'tests-ok', '--wait', '60'],
-    fakeGh({ checks: [[job('fail', 7)]], runs: [{ 7: done('2026-11-02T10:00:00Z') }], reopened }))
-  assert.equal(r2.code, 3); assert.deepEqual(r2.json, { 'tests-ok': 'ausente' }); assert.equal(r2.slept, 60000)
-  const r3 = await run(['checks', '--pr', '40', '--names', 'tests-ok'],
-    fakeGh({ checks: [[job('fail', 8)]], runs: [{ 8: done('2026-11-02T10:05:00Z') }], reopened }))
-  assert.equal(r3.code, 1); assert.deepEqual(r3.json, { 'tests-ok': 'fail' }); assert.equal(r3.slept, 0)
-})
-
-test('checks reads again after a gh error, and stops with 4 after three in a row', async () => {
-  const bad = { error: 'HTTP 502: Bad Gateway' }
-  const old = [{ name: 'tests-ok', bucket: 'pass', link: 'https://github.com/lipedesign/HexGym/actions/runs/7/job/70' }]
-  const r = await run(['checks', '--pr', '40', '--names', 'tests-ok'], fakeGh({ checks: [bad, [{ name: 'tests-ok', bucket: 'pass' }]] }))
-  assert.equal(r.code, 0); assert.deepEqual(r.json, { 'tests-ok': 'pass' }); assert.equal(r.slept, 30000)
-  const r2 = await run(['checks', '--pr', '40', '--names', 'tests-ok'], fakeGh({ checks: [bad] }))
-  assert.equal(r2.code, 4); assert.deepEqual(r2.json, { 'tests-ok': 'ausente' }); assert.equal(r2.slept, 60000)
-  assert.match(r2.stderr, /HTTP 502/)
-  const r3 = await run(['checks', '--pr', '40', '--names', 'tests-ok'], fakeGh({ checks: [old], reopened: bad }))
-  assert.equal(r3.code, 4); assert.deepEqual(r3.json, { 'tests-ok': 'ausente' }); assert.equal(r3.slept, 60000)
-  assert.match(r3.stderr, /HTTP 502/)
-  const r4 = await run(['checks', '--pr', '40', '--names', 'tests-ok'], fakeGh({ checks: [old], runs: [{ 7: bad }] }))
-  assert.equal(r4.code, 4); assert.deepEqual(r4.json, { 'tests-ok': 'ausente' }); assert.equal(r4.slept, 60000)
-  assert.match(r4.stderr, /HTTP 502/)
-})
-
-test('no gh call names another repository', async () => {
-  const gh = fakeGh({ issues: [open(15, 'todo'), open(30, null, { status: null })],
-    checks: [[{ name: 'tests-ok', bucket: 'pass', link: 'https://github.com/lipedesign/HexGym/actions/runs/7/job/70' }]] })
-  for (const argv of [['phase'], ['next'], ['sync'], ['board'], ['checks', '--pr', '40', '--names', 'tests-ok', '--wait', '0']]) await run(argv, gh)
-  assert.ok(gh.calls.length >= 6)
-  for (const call of gh.calls) {
-    const line = call.join(' ')
-    assert.ok(call.includes('lipedesign/HexGym') || line.includes('--owner lipedesign') || line.includes('--project-id PVT_kwHOAYVuVc4Bpo0b')
-      || call.some(a => a.startsWith('repos/lipedesign/HexGym/')), line)
-    assert.ok(!line.includes('DuarteSantos8'), line)
-  }
-})
-```
-
-- [ ] **Step 3: Run the tests to verify they fail**
-
-Run: `node --test scripts/hexgym/board.test.mjs`
-Expected: FAIL, `Cannot find module` para `./board.mjs`.
-
-- [ ] **Step 4: Implement `scripts/hexgym/board.mjs`**
-
-Exporta `parseMeta(body: string) → { deps, plan, task }`, `currentPhase(milestones, config) → { number, title } | null`, `columnFor(issue, { issues, config, phase }) → 'todo' | 'ready' | 'doing' | 'review' | 'done' | null` (`null`: o cartão fica onde está), `pickNext({ issues, config, phase }) → { pick, waiting: string[] }`, `syncPlan({ issues, items, config, phase }) → { labels: number[], add: number[], edits: { [n]: string } }`, `checkState(rows: { name, bucket, link }[], names: string[], runs: { [execução]: { status, createdAt } } = {}, reopenedAt: string | null = null) → { state: 'pass' | 'pending' | 'fail', seen: { [nome]: string } }` e `main(argv, { gh, out, err, sleep, now }) → Promise<number>`. Os dados vêm de três chamadas: `gh issue list -R lipedesign/HexGym --state all --limit 500 --json number,title,state,labels,milestone,body,url`, `gh project item-list 6 --owner lipedesign --limit 500 --format json` (o número em `.items[].content.number`, a coluna em `.items[].status`) e `gh api 'repos/lipedesign/HexGym/milestones?state=all&per_page=100'`. Um `gh(args) → string` padrão usa `execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })`, e o `sleep(ms)` e o `now()` padrão são um `setTimeout` numa promessa e o `Date.now`. Uma issue aberta sem `state:*` conta como `state:todo`; com mais de um, fica de fora e o stderr avisa. Uma dependência conta como fechada se a issue estiver fechada, de qualquer milestone. Uma issue fechada de um milestone de `phases` com `state:review` ou `state:in-progress` entra na retomada como as abertas, mesmo de uma fase já fechada; as outras fechadas ficam de fora. Os motivos no stderr: `#<n>: espera a decisão do founder (human:pending), /decide <n> <opção>`, `#<n>: bloqueada (state:blocked)` e `#<n>: espera #<dep>`. No `board`, a issue bloqueada aparece na coluna em que está no Project. No `checks`, a leitura de um job das Actions (a execução é o número em `/actions/runs/<n>/job/` do `link`) vale `pending` com a execução fora de `completed` e fica de fora com ela criada antes do `reopenedAt`, a data mais nova dos `reopened` (no mesmo segundo, conta); a leitura sem execução no `link` vale como veio. Cada nome vale o pior `bucket` das leituras que ficam (`fail` e `cancel`; depois `pending` e o nome sem nenhuma, que sai como `ausente`; depois `pass` e `skipping`); um `gh pr checks` que sai com erro e `no checks reported` no `stderr` conta como nenhum check, e um que sai com erro e um JSON no `stdout` vale pelo JSON. Uma leitura em que o `gh` sai com erro, sem JSON no `stdout` e sem o `no checks reported`, ou em que o `run view` ou o `api` dos eventos sai com erro, não muda o que já foi visto; com três assim seguidas, o `checks` para, imprime o que viu e sai com 4, com o erro no `stderr`. Ele lê de novo a cada 30 s enquanto algum falta, e para quando mais 30 s passariam do `--wait`. Saídas: 0 ok, 2 uso errado, 3 nada pronto (no `checks`: 1 check vermelho, 3 ainda pendente, 4 o `gh` falhou).
-
-- [ ] **Step 5: Run the tests to verify they pass**
-
-Run: `node --test scripts/hexgym/board.test.mjs`
-Expected: PASS, 13 testes.
-
-- [ ] **Step 6: Write the failing tests for `context.mjs`**
-
-Em `scripts/hexgym/context.test.mjs`. Um `fakeGh({ issue, pr })` responde a `issue view`, `pr view` e `pr edit`; um `fakeGit(files, diff = '')` responde a `show origin/develop:<caminho>` com `files[caminho]` e falha quando ele não existe, ao `fetch` sem saída e ao `diff` com `diff`; os dois guardam as chamadas em `calls`. `run(argv, { gh, git })` chama `main(argv, { gh, git, out, err })`. `issue(n, body, { milestone = 1, comments = [] } = {})` é uma issue com o título `Issue <n>`, e cada comentário é `{ body }`. `sec(caminho)` é uma seção de diff (`diff --git a/<caminho> b/<caminho>`, `---`, `+++` e um trecho de uma linha). `EXCLUDE` é o `reviewExclude` de `project.json`, e `PHASE0` é o caminho deste plano. Os testes que gravam arquivos usam uma pasta nova de `mkdtempSync(join(tmpdir(), 'hexgym-'))`. O plano de teste:
-
-```js
-const PLAN = ['# Plano', '## Restrições globais (Global Constraints)', '- regra', '### detalhe', '- mais',
-  '## Foco da revisão (Review Focus)', '1. foco', '## Mapa dos arquivos', '---', '### Task 1: Um', 'passo um', '---',
-  '### Task 2: Dois', 'passo dois', '```yaml', '---', 'a: 1', '---', '```', '### Task 10: Dez', 'passo dez'].join('\n')
-
-test('extractTask takes a task up to the next task or rule, outside code blocks', () => {
-  assert.equal(extractTask(PLAN, 1), '### Task 1: Um\npasso um')
-  assert.equal(extractTask(PLAN, 2), '### Task 2: Dois\npasso dois\n```yaml\n---\na: 1\n---\n```')
-  assert.equal(extractTask(PLAN, 10), '### Task 10: Dez\npasso dez')
-  assert.throws(() => extractTask(PLAN, 9), /Task 9 não está no plano/)
-})
-
-test('extractSection stops at the next heading of the same level', () => {
-  assert.equal(extractSection(PLAN, 'Restrições globais'), '## Restrições globais (Global Constraints)\n- regra\n### detalhe\n- mais')
-  assert.equal(extractSection(PLAN, 'Nada'), null)
-})
-
-test('filterDiff drops lockfiles and generated files and lists them', () => {
-  const r = filterDiff([sec('frontend/package-lock.json'), sec('scripts/hexgym/board.mjs'),
-    sec('apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js'), sec('apple/Packages/HexEngine/Tests/HexEngineTests/Cases/utc.json')].join(''), EXCLUDE)
-  assert.equal(r.diff, sec('scripts/hexgym/board.mjs'))
-  assert.deepEqual(r.excluded, ['frontend/package-lock.json', 'apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js',
-    'apple/Packages/HexEngine/Tests/HexEngineTests/Cases/utc.json'])
-})
-
-test('brief joins the constraints, the review focus and the task of the issue', async () => {
-  const git = fakeGit({ 'docs/p.md': PLAN })
-  const r = await run(['brief', '--issue', '16'], { gh: fakeGh({ issue: issue(16, 'Plano: docs/p.md, Task 2') }), git })
-  assert.match(r.stdout, /## Restrições globais[\s\S]*## Foco da revisão[\s\S]*### Task 2: Dois/)
-  assert.doesNotMatch(r.stdout, /Task 1: Um|Task 10|Decisões do founder/)
-  assert.deepEqual(git.calls[0], ['show', 'origin/develop:docs/p.md'])
-})
-
-test('brief and review bring the founder decisions of the issue, in order', async () => {
-  const comments = [{ body: '<!-- relentless:decision-request -->\nOnde guardar a cópia?' }, { body: 'um comentário qualquer' },
-    { body: '<!-- relentless:decision option="1" -->\nChose **option 1** — a imagem é um desenho meu' }]
-  const gh = fakeGh({ issue: issue(10, 'Plano: docs/p.md, Task 2', { comments }), pr: { number: 41, title: 't', body: '', headRefOid: 'abc', baseRefName: 'develop' } })
-  for (const argv of [['brief', '--issue', '10'], ['review', '--pr', '41', '--issue', '10']]) {
-    const r = await run(argv, { gh, git: fakeGit({ 'docs/p.md': PLAN }) })
-    assert.match(r.stdout, /## Decisões do founder nesta issue[\s\S]*Onde guardar a cópia\?[\s\S]*um desenho meu/)
-    assert.doesNotMatch(r.stdout, /um comentário qualquer/)
-  }
-})
-
-test('an issue without a plan line brings its own body with the phase plan sections', async () => {
-  const r = await run(['brief', '--issue', '40'], { gh: fakeGh({ issue: issue(40, 'Origem: achado durante revisão da PR #39') }), git: fakeGit({ [PHASE0]: PLAN }) })
-  assert.match(r.stdout, /Origem: achado durante revisão da PR #39/); assert.match(r.stdout, /## Restrições globais/); assert.doesNotMatch(r.stdout, /### Task/)
-})
-
-test('an issue whose milestone has no plan fails with exit 2', async () => {
-  const r = await run(['brief', '--issue', '12'], { gh: fakeGh({ issue: issue(12, '', { milestone: 3 }) }), git: fakeGit({}) })
-  assert.equal(r.code, 2); assert.match(r.stderr, /não há plano para o milestone 3/)
-})
-
-test('review builds the bundle with the relentless headings and without the generated files', async () => {
-  const gh = fakeGh({ issue: issue(16, 'Plano: docs/p.md, Task 2'), pr: { number: 40, title: 'O motor sem React', body: 'Closes #16', headRefOid: 'abc123', baseRefName: 'develop' } })
-  const git = fakeGit({ 'docs/p.md': PLAN }, sec('apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js') + sec('frontend/src/lib/x.js'))
-  const r = await run(['review', '--pr', '40', '--issue', '16'], { gh, git })
-  for (const h of ['## Issue (acceptance criteria)', '## PR body (for QA / dogfood section only)', '## Diff (lockfiles excluded)'])
-    assert.ok(r.stdout.includes(h), h)
-  assert.match(r.stdout, /abc123/); assert.match(r.stdout, /### Task 2: Dois/); assert.match(r.stdout, /\+\+\+ b\/frontend\/src\/lib\/x\.js/)
-  assert.match(r.stdout, /Arquivos fora da leitura[\s\S]*hexengine\.js/); assert.doesNotMatch(r.stdout, /diff --git a\/apple/)
-  assert.deepEqual(git.calls.filter(c => c[0] !== 'show'), [['fetch', 'origin'], ['diff', 'origin/develop...abc123']])
-})
-
-test('--out creates the folder and writes the file instead of the stdout', async () => {
-  const out = join(mkdtempSync(join(tmpdir(), 'hexgym-')), 'issue-16', 'brief.md')
-  const r = await run(['brief', '--issue', '16', '--out', out], { gh: fakeGh({ issue: issue(16, 'Plano: docs/p.md, Task 2') }), git: fakeGit({ 'docs/p.md': PLAN }) })
-  assert.equal(r.code, 0); assert.equal(r.stdout, ''); assert.match(readFileSync(out, 'utf8'), /### Task 2: Dois/)
-})
-
-test('patchQa replaces the QA section up to the next ## heading, demotes the QA headings and closes an open code block', () => {
-  const body = ['Closes #16', '## Como foi testado', '- [x] testes', '## QA / dogfood result', '<!-- O orquestrador preenche -->', '## Para o founder ver', 'nada'].join('\n')
-  const qa = ['## QA', 'verde', '# Mais', '### Passo 1', '```md', '## no bloco', '```'].join('\n')
-  const once = patchQa(body, qa)
-  assert.equal(once, ['Closes #16', '## Como foi testado', '- [x] testes', '## QA / dogfood result', '', '### QA', 'verde', '### Mais',
-    '### Passo 1', '```md', '## no bloco', '```', '', '## Para o founder ver', 'nada'].join('\n'))
-  assert.equal(patchQa(once, qa), once)
-  assert.equal(patchQa(patchQa(body, 'velho\n## Velho'), qa), once)
-  assert.equal(patchQa('Closes #16', 'verde'), 'Closes #16\n\n## QA / dogfood result\n\nverde')
-  const cortado = patchQa(body, 'log\n```\ncortado')
-  assert.equal(cortado, ['Closes #16', '## Como foi testado', '- [x] testes', '## QA / dogfood result', '', 'log', '```', 'cortado', '```', '',
-    '## Para o founder ver', 'nada'].join('\n'))
-  assert.equal(patchQa(cortado, qa), once)
-})
-
-test('qa writes the new body next to the QA file and saves it with gh pr edit', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hexgym-')); writeFileSync(join(dir, 'qa.md'), 'verde\n')
-  const gh = fakeGh({ pr: { number: 40, title: 't', body: 'Closes #16\n## QA / dogfood result\n## Para o founder ver', headRefOid: 'abc' } })
-  const r = await run(['qa', '--pr', '40', '--file', join(dir, 'qa.md')], { gh, git: fakeGit({}) })
-  assert.equal(r.code, 0)
-  assert.deepEqual(gh.calls.at(-1), ['pr', 'edit', '40', '-R', 'lipedesign/HexGym', '--body-file', join(dir, 'body.md')])
-  assert.equal(readFileSync(join(dir, 'body.md'), 'utf8'), 'Closes #16\n## QA / dogfood result\n\nverde\n\n## Para o founder ver')
-})
-
-test('no gh call names another repository', async () => {
-  const gh = fakeGh({ issue: issue(16, 'Plano: docs/p.md, Task 2'), pr: { number: 40, title: 't', body: '', headRefOid: 'abc', baseRefName: 'develop' } })
-  for (const argv of [['brief', '--issue', '16'], ['review', '--pr', '40', '--issue', '16']]) await run(argv, { gh, git: fakeGit({ 'docs/p.md': PLAN }) })
-  assert.ok(gh.calls.length >= 3)
-  for (const call of gh.calls) { assert.ok(call.includes('lipedesign/HexGym'), call.join(' ')); assert.ok(!call.join(' ').includes('DuarteSantos8')) }
-})
-```
-
-- [ ] **Step 7: Run the tests to verify they fail**
-
-Run: `node --test scripts/hexgym/context.test.mjs`
-Expected: FAIL, `Cannot find module` para `./context.mjs`.
-
-- [ ] **Step 8: Implement `scripts/hexgym/context.mjs`**
-
-Exporta `extractSection(md, title) → string | null` (da linha de título que começa com `title` até antes do próximo título do mesmo nível ou acima), `extractTask(plan, n) → string` (de `### Task <n>:` até antes do próximo `### Task` ou de uma linha `---`), `filterDiff(diff, exclude) → { diff, excluded }`, `buildBrief({ issue, requirement, constraints, focus, decisions }) → string`, `buildBundle({ issue, pr, requirement, constraints, focus, decisions, diff, excluded }) → string`, `patchQa(body, qa) → string` e `main(argv, { gh, git, out, err }) → Promise<number>`. Nos dois `build`, `issue` é `{ number, title, body }`, `pr` é `{ number, title, body, headRefOid, baseRefName }`, `requirement` é a Task (ou o corpo da issue), `constraints` e `focus` são as duas seções do plano (ou `null`), `decisions` é a lista dos comentários de decisão, e `diff` e `excluded` são a saída do `filterDiff`. As duas extrações ignoram o que está dentro de bloco de código e tiram as linhas em branco do fim. O `filterDiff` corta o diff nas linhas `diff --git` e lê o caminho do `b/`; tira os lockfiles que o `build-review-bundle.sh` do relentless tira (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`, `go.sum`), pelo nome, em qualquer pasta, e os caminhos de `reviewExclude`, iguais ou, quando terminam em `/`, pelo começo. Os dados vêm de `gh issue view <n> -R lipedesign/HexGym --json number,title,body,milestone,url,comments` e `gh pr view <n> -R lipedesign/HexGym --json number,title,body,headRefOid,baseRefName`; o diff, de `git fetch origin` e `git diff origin/<baseRefName>...<headRefOid>`, porque a API do GitHub recusa o diff de um PR grande (HTTP 406), e o script do motor tem uns 2 MB. O `gh` e o `git` padrão usam `execFileSync` com `encoding: 'utf8'` e `maxBuffer` de 64 MB (o padrão do Node é 1 MB). O plano vem de `git show origin/develop:<plano>`: o requisito é o que está em `develop`, não o que está no checkout. O plano e a Task saem da linha `Plano:` (o `parseMeta` do `board.mjs`); sem ela, o plano é o de `phasePlans[<milestone>]`, e o requisito é o corpo da issue. As decisões do founder são os comentários da issue com `<!-- relentless:decision-request -->` (o pedido) ou `<!-- relentless:decision option=` (a resposta do `/decide`), na ordem, numa seção `## Decisões do founder nesta issue`, que só aparece quando há algum. A brief: `# Brief: <título> (#<n>)`, as seções "Restrições globais" e "Foco da revisão", a Task (ou o corpo da issue) e as decisões. O pacote: `# Review bundle: PR #<pr>, issue #<n>` com o commit (`headRefOid`), e os títulos do `build-review-bundle.sh`: `## Issue (acceptance criteria)` (o título e o corpo da issue, a Task, as Restrições globais, o Foco da revisão e as decisões), `## PR body (for QA / dogfood section only)` e `## Diff (lockfiles excluded)` (a lista "Arquivos fora da leitura", com os lockfiles e os arquivos gerados, e o diff num bloco `diff`). Com `--out`, cria a pasta e grava o arquivo. O `qa --pr <n> --file <arquivo>` lê o corpo com `gh pr view <n> -R lipedesign/HexGym --json body`, aplica o `patchQa` com o texto do arquivo, grava o resultado em `body.md`, na pasta do arquivo, e chama `gh pr edit <n> -R lipedesign/HexGym --body-file <pasta>/body.md`. O `patchQa` acha a linha que começa com `## QA / dogfood result` e troca tudo até antes do próximo título `## ` pelo título, uma linha em branco e o QA, com uma linha em branco antes do título seguinte; as linhas `# ` e `## ` do QA que estão fora de bloco de código passam a `### `; as linhas em branco das pontas saem; e, depois disso, um bloco que o QA deixa aberto ganha no fim uma linha de três crases. As duas buscas no corpo também ignoram o que está dentro de bloco de código; sem o título, a seção vai no fim do corpo, depois de uma linha em branco. Com o mesmo QA, rodar de novo dá o mesmo corpo. Saídas: 0 ok, 2 uso errado, Task que não existe ou milestone sem plano.
-
-- [ ] **Step 9: Run the tests to verify they pass**
-
-Run: `node --test scripts/hexgym/context.test.mjs`
-Expected: PASS, 12 testes.
-
-- [ ] **Step 10: Write the failing tests for `check.mjs`**
+Em `scripts/hexgym/check.test.mjs`, com `node:test` e `node:assert/strict`:
 
 ```js
 test('the scripts part runs the node tests of scripts/hexgym', () => {
@@ -463,91 +166,63 @@ test('runChecks stops at the first failure', async () => {
 
 O teste "unknown part" lista as partes que existirem no `PARTS`; as Tasks que acrescentam partes atualizam a mensagem esperada.
 
-- [ ] **Step 11: Run the tests to verify they fail**
+- [ ] **Step 4: Run the tests to verify they fail**
 
 Run: `node --test scripts/hexgym/check.test.mjs`
 Expected: FAIL, `Cannot find module` para `./check.mjs`.
 
-- [ ] **Step 12: Implement `scripts/hexgym/check.mjs`**
+- [ ] **Step 5: Implement `scripts/hexgym/check.mjs`**
 
 `PARTS = { scripts: [{ name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] }] }`. O `PARTS` fica escrito sempre nesta ordem, e cada Task põe a sua parte no lugar dela: `scripts`, `engine`, `load`, `packages`, `app`. O `run` padrão usa `spawn` com `stdio: 'inherit'`, `cwd` relativo à raiz do repositório e `env` somado ao `process.env`. O `args` e o `env` podem ser um valor ou uma função que devolve o valor; a função só é chamada quando aquela checagem vai rodar, e o `--list` mostra `(calculado ao rodar)` no lugar, para uma parte que precisa do Xcode não quebrar as outras nem o `--list` numa máquina sem ele. A CLI imprime `▶ <nome>` antes de cada checagem e, no fim, `ok` ou `falhou: <nome>`, saindo com 1 na falha. `--list` imprime os comandos e não roda nada.
 
-- [ ] **Step 13: Run the tests to verify they pass**
+- [ ] **Step 6: Run the tests to verify they pass**
 
 Run: `node scripts/hexgym/check.mjs scripts`
-Expected: PASS nos três arquivos de teste e `ok` no fim.
+Expected: PASS nos quatro testes e `ok` no fim.
 
-- [ ] **Step 14: Write `.claude/skills/hexgym-orquestrador/SKILL.md`**
+- [ ] **Step 7: Adjust the PR model, the issue forms and the relentless config**
 
-Frontmatter:
-
-```yaml
----
-name: hexgym-orquestrador
-description: Use para tocar o trabalho do HexGym no fork lipedesign/HexGym, como "segue a fase", "pega a próxima issue" ou "roda o orquestrador". Faz o papel do orquestrador do relentless com as regras do HexGym, leva a próxima issue pronta da fase até o merge em develop, com QA e revisão isolada, e para nas decisões do founder.
----
-```
-
-O corpo tem estas seções, nesta ordem:
-
-1. **Antes de tudo:** rodar da raiz do checkout, na `develop`; `gh auth status`; `git fetch origin`; `gh repo set-default --view` imprime `lipedesign/HexGym` (o `/decide` depende disso); achar `S` como nas Interfaces da Task 1; ler o `agents/orchestrator.md` do relentless, o `docs/decisions/` e as Restrições globais do plano da fase. Onde o `orchestrator.md` e a skill divergem, vale a skill.
-2. **O que muda em relação ao relentless:** um resumo da nota `2026-11-01-orquestrador-sobre-o-relentless.md` (base `develop`; o orquestrador cria a worktree; a Task do plano é o critério de aceite; o revisor roda pelo Agent tool e o veredito entra pelo `--from-output`; squash pelo tech lead depois do `merge-if-ready.sh --dry-run`; o quadro espelha as etiquetas; o QA vai no comentário pelo `fill-qa-section.sh --no-patch-body` e no corpo pelo `context.mjs qa`; o merge lê os checks pelo nome e espera por eles no primeiro plano, com limite (`board.mjs checks`); o implementador roda o `wait-ci.sh` uma vez só; uma issue de cada vez), com o link para ela.
-3. **O laço:**
-   1. `node scripts/hexgym/board.mjs sync` e `node scripts/hexgym/board.mjs next`. Uma retomada (`resume: true`) vai direto ao passo 2, mesmo de uma fase já fechada. Antes de qualquer outra issue, e também com a saída 3, `node scripts/hexgym/board.mjs phase`: se o milestone dessa fase não tem épico (`gh issue list -R lipedesign/HexGym --milestone "<título>" --label epic --state all --json number --jq length` dá `0`), o começo de fase da seção 6 vem antes, e o `next` roda de novo; sem o plano da fase no `phasePlans` do `project.json`, dizer ao Lipe, na conversa, que o próximo passo é o plano dessa fase, e parar, sem pegar issue. Saída 3: dizer ao Lipe, na conversa, o que espera, com o comando de cada pedido (`/decide <issue> <opção>`), e parar.
-   2. **Retomar.** Com `resume: true`, ou com `resume: false` e a etiqueta `human:decided`, uma branch `feature/<n>-*` ou um PR aberto, a issue já foi começada ou voltou de um `/decide`: ler antes o último pedido de decisão dela e a resposta (o comentário do `/decide`). Tarefa sem código e Task da versão (seções 4 e 6): `set-state --state in-progress` e o passo seguinte ao último comentado, ou o mesmo passo, quando o pedido que voltou foi aberto porque ele não deu certo (seção 4), salvo o que a própria Task disser para a resposta que veio; com todos comentados, o fim da seção 4. Issue fechada, com o PR já em `develop`: o fim do passo 9, na raiz do checkout, a partir do que ainda não tem comentário (o do merge e o de cada passo "After the merge"), e, com todos comentados, a limpeza, o `set-state --state done` e o `board.mjs sync`. Com código, seguir pelo estado do PR e acertar a etiqueta com `set-state.sh`: a resposta pede mudança, passo 8; `review:approved` com o veredito no commit atual, passo 9 (os portões e os passos do orquestrador ainda sem comentário nesse commit); PR sem veredito no commit atual, passo 6, ou o 8 quando o último veredito pediu mudanças; branch sem PR, passo 5, na mesma worktree; nem branch nem PR, passo 3. A Task que o plano dá ao tech lead, o orquestrador não toca: avisa o Lipe e para.
-   3. **Pegar a issue.** Task sem código: seção 4. Task da versão, a última do plano: seção 6. Com código: `"$S/set-state.sh" --repo lipedesign/HexGym --issue <n> --state in-progress`; a worktree com o `worktree-create.sh`, como na nota (`--type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`); na worktree, `npm ci && npm ci --prefix frontend`; se nenhum outro PR está aberto para `develop` (`gh pr list -R lipedesign/HexGym --state open --base develop --json number --jq length` dá `0`), as linhas de `.claude/hexgym/log-pendente.jsonl` no fim do `docs/decisions/log.jsonl` da worktree, num commit "Registro do orquestrador até #<n>", e o arquivo pendente vazio (com outro PR aberto, as linhas esperam: seção 7); `board.mjs sync`.
-   4. **A brief:** `node scripts/hexgym/context.mjs brief --issue <n> --out .relentless/review/issue-<n>/brief.md`.
-   5. **Implementar** com o `relentless:implementer` (modelo na seção 10). O pedido diz: a worktree já existe, e ele não cria outra; a brief é o critério de aceite, e as Restrições globais valem para tudo; os commits usam a mensagem que a Task pede, sem o `check-commit-msg.sh`; arquivo novo em `.claude/` entra com `git add -f`; antes de reportar, `node scripts/hexgym/check.mjs` nas partes que tocou; o PR sai com `gh pr create -R lipedesign/HexGym --base develop`, o título da issue e o corpo do modelo de PR, com `Closes #<n>` e a linha `ADRs:` (com `none`, o motivo entre os parênteses, que o `merge-if-ready.sh` exige); o `wait-ci.sh` roda uma vez só: com a saída 3 (pendente, e sempre até a #3), ele reporta sem esperar mais, porque quem confere a CI é o portão do merge (passo 9); nunca mexe no upstream nem abre as mídias da Gym visual. Ele para e reporta o PR, o commit e as checagens.
-   6. **QA** com o `relentless:qa`, na worktree, com a brief e o PR: `node scripts/hexgym/check.mjs` nas partes da Task e, quando a Task tem tela, o app no simulador, com os prints e o vídeo das Restrições globais. A saída vai para `.relentless/review/<pr>/qa.md`, e o orquestrador publica em duas partes: o comentário com `"$S/fill-qa-section.sh" --repo lipedesign/HexGym --pr <pr> --body-file .relentless/review/<pr>/qa.md --no-patch-body`, e a seção do corpo com `node scripts/hexgym/context.mjs qa --pr <pr> --file .relentless/review/<pr>/qa.md` (o `fill-qa-section.sh` troca o corpo com `awk -v`, que o awk do macOS recusa quando o texto tem quebra de linha). O pedido diz que ele só reporta as lacunas no arquivo, sem abrir issues (o `qa.md` do relentless, linha 14, manda abrir): quem abre o acompanhamento é o orquestrador, pela seção 8. QA vermelho volta para o implementador (passo 8). Verde: `set-state --state review` e `board.mjs sync`.
-   7. **Revisão isolada:** `node scripts/hexgym/context.mjs review --pr <pr> --issue <n> --out .relentless/review/<pr>/bundle.md`; o `relentless:reviewer` (modelo na seção 10) recebe só o caminho do pacote e a regra da última linha (`Verdict: approved` ou `Verdict: changes_requested`); a resposta inteira vai para `.relentless/review/<pr>/agent-out.md`; o `headRefOid` do PR tem que ser o do pacote (se mudou, refazer o pacote e a revisão); e `"$S/run-isolated-review.sh" --repo lipedesign/HexGym --pr <pr> --issue <n> --workdir <checkout> --from-output .relentless/review/<pr>/agent-out.md`. O pedido ao revisor lembra que ele só lê: pelo Agent tool, a lista de comandos do `reviewer.md` não vale. O `agent-out.md` é a fonte dos achados, porque o comentário do veredito só os leva com `changes_requested`: com `approved`, só as linhas `[minor]` e `[nit]` dele vão num comentário no PR (`comment-agent.sh`), sem os marcadores do começo do arquivo e antes do `run-isolated-review.sh` (a última linha do `agent-out.md` já diz o veredito): o `merge-if-ready.sh` toma como veredito o último comentário em que o texto `relentless:review-verdict` aparece, em qualquer parte do corpo, e um sem o commit trava o merge. Assim, o do veredito fica por último, mesmo que um ponto menor cite o marcador. O que fica para depois vira issue (seção 8).
-   8. **Correções:** com `changes_requested` (o script já volta a issue para `state:in-progress`), o implementador recebe o `agent-out.md` inteiro, corrige cada ponto e responde no PR, e o QA e a revisão rodam de novo (passos 6 e 7). Rodadas 1 a 3 com o mesmo implementador; 4 e 5 com um novo, em `opus`. Depois da quinta, um pedido de decisão (seção 5), com os pontos abertos e as opções.
-   9. **Merge.** Primeiro, os portões, no commit atual. O `"$S/merge-if-ready.sh" --repo lipedesign/HexGym --pr <pr> --issue <n> --dry-run` sai com 0 (no modo `human`, ele não olha a CI); com 1, a mensagem dele diz o que falta: a linha `ADRs:` sem motivo volta ao implementador, que acerta o corpo do PR, e o veredito velho ou sem o commit volta ao QA e à revisão (passos 6 e 7), nunca a um `human:pending` posto à mão, como manda o `orchestrator.md` (linha 46). O `gh pr view <pr> -R lipedesign/HexGym --json state,mergeable` dá `OPEN` e `MERGEABLE` (`UNKNOWN` quer dizer que o GitHub ainda calcula: perguntar de novo; `CONFLICTING`: o implementador traz o `origin/develop` para a branch com merge, sem rebase, e o PR volta ao passo 6). Um PR `CLOSED` é o fechar e reabrir de mais abaixo, parado no meio, só quando, dos comentários `Fechando e reabrindo o PR no commit <sha7>` e `PR reaberto no commit <sha7>` na issue, o mais novo é o primeiro. Aí, `gh pr reopen <pr> -R lipedesign/HexGym`, depois o comentário `PR reaberto no commit <sha7>`, como no fechar e reabrir, e perguntar de novo. Fora disso, ou com a reabertura falhando, o PR fechou por outra razão (à mão, ou com a branch apagada), e vai um pedido de decisão (seção 5), sem reabrir. E, depois da #3, o `node scripts/hexgym/board.mjs checks --pr <pr> --names tests-ok` (depois da Task 11, `--names tests-ok,hexgym-ok`) sai com 0. Os checks vão pelo nome porque o `wait-ci.sh` só olha a última execução da branch, e o `--required` falha quando a proteção não exige nenhum. O `checks` roda no primeiro plano, pela ferramenta Bash com `timeout` de 600000 ms, e nunca em segundo plano (`orchestrator.md`, linha 48). Saída 3, ainda pendente: chamar de novo, até 12 vezes seguidas no mesmo commit, cerca de uma hora e meia, o que cobre os jobs do macOS; se a décima segunda chamada ainda sair com 3, o check travou: um comentário na issue com o estado de cada check e o link da execução (`gh pr checks <pr> -R lipedesign/HexGym --json name,bucket,link`, ou, quando a lista não traz o check, como logo depois de um `rerun`, `gh run list -R lipedesign/HexGym --commit <sha> --json databaseId,workflowName,status,url`), e um pedido de decisão (seção 5). Saída 3 com um nome `ausente` e nenhuma execução do workflow dele nesse commit (`gh run list -R lipedesign/HexGym --commit <sha> --workflow <arquivo> --json databaseId --jq length` dá `0`; o `tests-ok` vem do `test.yml`, e o `hexgym-ok`, do `hexgym.yml`): o PR abriu antes de o workflow existir em `develop` ou de as Actions rodarem por evento, como um que esperou um `/decide`, e nada vai rodar sozinho. Fechar e reabrir o PR dispara o `pull_request` com a base atual, sem mudar o commit nem o veredito, e vale uma vez por commit. Numa chamada só, ligados por `&&`: o comentário na issue começando por `Fechando e reabrindo o PR no commit <sha7>` (`comment-agent.sh`; é por ele que o portão reconhece um PR fechado no meio, e não à mão, porque o `gh` usa a conta do founder), `gh pr close <pr> -R lipedesign/HexGym` e `gh pr reopen <pr> -R lipedesign/HexGym`. Depois, um comentário na issue dizendo por quê, começando por `PR reaberto no commit <sha7>` (é por ele que a retomada sabe que já reabriu; uma queda antes dele só faz reabrir de novo), e a contagem das 12 recomeça. Saída 4, o `gh` falhou em três leituras seguidas: chamar de novo, contando nas 12; na segunda seguida, `gh auth status`, e, com a sessão vencida, dizer ao Lipe na conversa e parar, porque sem o `gh` nem o pedido de decisão sai; com a sessão válida e a décima segunda chamada ainda com 4, a API do GitHub não responde: o mesmo aviso, e parar. Saída 1: ler o log do job que o `checks` contou, o da execução terminada e não criada antes do último `reopened` (a execução e o job estão no `link` do `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket,link`; no PR de `main` para `develop`, a lista traz também os do `push`); com a causa no código, comentar na issue o passo, o fim do log e a causa provável (`comment-agent.sh`) e voltar ao implementador (passo 8); job cancelado ou com falha fora do código (o runner, a rede), `gh run rerun <execução> --failed -R lipedesign/HexGym` uma vez por execução: só com ela na tentativa 1 (`gh run view <execução> -R lipedesign/HexGym --json attempt --jq .attempt` dá `1`) e sem o comentário `Execução <id> rodada de novo no commit <sha7>`; fora disso, a falha repetiu, e vai um pedido de decisão. Depois do `rerun`, um comentário na issue começando por `Execução <id> rodada de novo no commit <sha7>`, e a contagem das 12 recomeça. O `checks` seguinte é o de sempre, com os mesmos nomes: o check velho que a lista ainda traz depois de um `rerun` ou de um PR reaberto não conta (Interfaces da Task 1). Como o estado de cada execução vem do GitHub, o `checks` não depende desses comentários: eles só evitam um segundo `rerun` da mesma execução e um segundo fechar e reabrir no mesmo commit, e mostram ao portão um PR fechado no meio desse fechar e reabrir. Com os portões abertos, os passos que a Task dá ao orquestrador antes do merge (como o 3 da Task 11, os 6 a 8 da Task 13 e o 4 da Task 14), na worktree: um comentário na issue por passo, como na seção 4, começando por `Passo <m> da Task <n>, commit <sha7>` (num passo que é um pedido de decisão, é o contexto do pedido que começa assim); o passo já comentado nesse commit não roda de novo, a não ser que a Task mande refazê-lo (vale o último comentário de cada passo, e um pedido aberto porque o passo não deu certo não conta como comentário dele: seção 4). Um commit novo depois deles volta ao QA e à revisão (passos 6 e 7) e refaz esses passos, e o passo que espera um `/decide` volta pela retomada, que passa pelos portões de novo. Então `gh pr merge <pr> -R lipedesign/HexGym --squash --match-head-commit <sha> --subject "<título do PR> (#<pr>)" --body-file <arquivo>`, com o corpo dizendo o que entrou, o QA, a revisão e `Closes #<n>`. O merge fecha a issue, e o resto deste passo corre com ela fechada, na raiz do checkout, nesta ordem: `git pull --ff-only`; um comentário na issue com o PR e o commit do merge (`comment-agent.sh`); os passos da Task cujo título começa com "After the merge", cada um com o seu comentário, como na seção 4; a limpeza, com `"$S/worktree-cleanup.sh" --path <worktree> --repo lipedesign/HexGym` e `git branch -D feature/<n>-<nome>`, o que ainda existir; e, por último, `set-state --state done` e `board.mjs sync`. Uma decisão que um passo depois do merge peça vai numa issue nova (seção 8): numa issue fechada, o pedido não aparece na visão "Pede você", e a resposta não volta pelo `next`.
-   10. Voltar ao passo 1.
-4. **Tarefa sem código** (como as Tasks 2, 3 e 12), sem worktree: `set-state --state in-progress` e os passos da Task, cada um conferido, com um comentário na issue por passo feito (`comment-agent.sh`, começando por `Passo <m> da Task <n>` e com a prova, a saída dos comandos). O pedido de decisão que o próprio passo manda fazer (como o 7 da Task 16) conta como esse passo, com o contexto começando por `Passo <m> da Task <n>`, e é pelo último passo comentado que a Task retoma. Um pedido aberto porque um passo não deu certo (um check vermelho ou travado, um conflito, a assinatura, um envio) não conta: ele diz no contexto qual passo falhou, e, depois do `/decide`, esse passo roda de novo, com a resposta. No fim, `gh issue close <n> -R lipedesign/HexGym`, `set-state --state done` e `board.mjs sync`. Numa Task do founder (como a 12), o primeiro passo do orquestrador é o pedido de decisão com a lista do que o founder faz, e, depois do `/decide`, ele só roda os passos de conferência: o que a Task diz que é do founder, ele nunca faz.
-5. **Quando parar e chamar o founder:** a lista da nota (a do relentless mais as paradas da seção 9.1). O pedido vai em português, no formato de `core/templates/decision-request.md` ("Pergunta", "Contexto", "Opções" com `### 1. …`, "Recomendação", com os dois marcadores do modelo), salvo em `.relentless/review/issue-<n>/decisao.md`, e sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue <n> --body-file <arquivo>`. Na conversa, a pergunta numa linha e o comando `/decide <n> <opção>`. Depois, seguir em outra issue. Nunca responder por ele, nem rodar `/decide` ou `decide.sh`.
-6. **Começo e fim de fase.** Começo, quando o `phase` aponta uma fase sem épico (passo 1 do laço): o plano dela, aprovado pelo founder, já está em `develop` e no `phasePlans` (sem ele, o passo 1 para antes); o milestone ganha `## Outcome`, o épico sai do `create-epic.sh`, cada issue da fase vira sub-issue dele (a que veio da fase anterior com `orphan:ok` perde a etiqueta), e o `check-milestone-outcomes.sh --allow-pending` sai com 0, como no passo 20 da Task 1 da fase 0. Fim: a Task da versão, a última do plano (como a 16 da fase 0), não segue o laço da seção 3. Ela tem a própria worktree, `release/<versão>` a partir de `origin/develop`, e entra em `main` com merge normal; o orquestrador faz os passos dela na ordem, com um comentário na issue por passo, como na seção 4, e retoma pelo último comentado. Os merges dela passam pelos portões do passo 9 (o PR aberto e `MERGEABLE` e o `board.mjs checks`, com o `rerun` de uma falha fora do código), e ali um check vermelho ou travado, ou um conflito, vira pedido de decisão, que não conta como o passo: ele roda de novo depois do `/decide` (seção 4). Com a causa no código, a correção vai por uma issue da fase, pelo laço: no PR da versão, a Task recomeça do primeiro passo, como num pedido de mudanças do founder; no PR de volta para `develop`, só esse merge se refaz, com o PR reaberto. Se o founder pede mudanças no pedido de fim de fase, cada mudança vira uma issue da fase (seção 8), feita pelo laço em `develop`, e nada entra direto na branch da release: a issue da versão volta a `state:todo`, espera essas issues pela linha `Depende de:` e, quando elas fecham, recomeça do primeiro passo, com a `develop` trazida para a branch da release. Nela vêm o `check-milestone-outcomes.sh` sem `--allow-pending`; o resumo da fase, com `"$S/write-status-snapshot.sh" --repo lipedesign/HexGym --milestone <n> --workdir <worktree> --out <worktree>/docs/status/m<n>-<nome>-status.md` e o `relentless:documenter` só nesse arquivo, sem alinhar o README nem abrir issues (os passos 4 e 5 do `documenter.md`); o `close-epic.sh`; e nada entra em `main` sem o `/decide` do founder.
-7. **O registro:** cada `set-state`, veredito, merge e `/decide` vira uma linha em `.claude/hexgym/log-pendente.jsonl`, com os campos que o `orchestrator.md` pede para o `docs/decisions/log.jsonl`. As linhas entram na próxima issue com código (passo 3), só quando nenhum outro PR está aberto para `develop`, e nunca num PR em revisão: elas vão no fim do arquivo, e dois PRs abertos que acrescentam no fim entram em conflito.
-8. **Regras do repositório:** as Restrições globais do plano; release, hotfix e o PR de sync entram com merge normal, nunca squash; nada em `data/` nem em `catalogue/media/`; o achado que fica para depois vira uma issue no milestone da fase, sub-issue do épico (`"$S/create-issue.sh" … --parent <épico>`), com a linha `Origem: achado durante <revisão|QA|CI> da PR #<n>`, e entra na linha `Depende de:` da issue da Task da versão, para a versão esperar por ele. O que pode esperar a fase seguinte vai para o milestone dela, com `orphan:ok` e fora dessa linha, até o épico daquela fase o adotar (seção 6).
-9. **Quando a sessão perde o fio:** o GitHub é o registro: as etiquetas, os comentários de QA e de veredito nos PRs e os pedidos de decisão. O `next` retoma o que estava em revisão ou em andamento, inclusive a issue que o merge fechou e que ainda não chegou a `state:done`, mesmo de uma fase já fechada (a da versão, no passo 13 dela).
-10. **Modelos:** implementador `sonnet`, ou `opus` quando a Task pede desenho (o projeto Xcode, o script do motor, o pacote HexEngine) e da quarta rodada em diante; QA `sonnet`; revisor `opus` em código, `sonnet` quando o PR é só documentação; sempre passar o modelo de forma explícita.
-
-Cada seção é um título `## `, e os passos do laço são uma lista numerada.
-
-Run: `sed -n '2,3p' .claude/skills/hexgym-orquestrador/SKILL.md && grep -c '^## ' .claude/skills/hexgym-orquestrador/SKILL.md`
-Expected: `name: hexgym-orquestrador`, a linha `description:` do frontmatter acima e `10`.
-
-- [ ] **Step 15: Adjust the PR model, the issue forms and the relentless config**
-
-- `.github/pull_request_template.md`: todos os títulos passam a `##`, e entra a seção `## QA / dogfood result` entre `## Como foi testado` e `## Para o founder ver`, com o comentário "O orquestrador preenche com o `context.mjs qa`.". O último item do checklist passa a ser "Revisão isolada aprovada (`review:approved`) no último commit do PR". O `context.mjs qa` troca a seção até o próximo `## `: com um título `###` depois dela, o resto do corpo iria junto.
+- `.github/pull_request_template.md`: todos os títulos passam a `##`, e entra a seção `## QA / dogfood result` entre `## Como foi testado` e `## Para o founder ver`, com o comentário "O orquestrador preenche com o `fill-qa-section.sh` do relentless.". O último item do checklist passa a ser "Revisão isolada aprovada (`review:approved`) no último commit do PR". O `fill-qa-section.sh` troca a seção até o próximo `## `: com um título `###` depois dela, o resto do corpo iria junto.
 - `.github/ISSUE_TEMPLATE/1-tarefa.yml` ganha `labels: ["state:todo"]`, e o `2-bug.yml` passa a `labels: ["bug", "state:todo"]`.
-- `.relentless/config.json`: `checks.test` passa a `node scripts/hexgym/check.mjs`, e `checks.install` a `npm ci && npm ci --prefix frontend`.
+- `.relentless/config.json`: `checks.test` passa a `node scripts/hexgym/check.mjs`, `checks.install` a `npm ci && npm ci --prefix frontend`, e `merge.allow_issue_override` a `false` (nota de 03/11).
 
-Run: `ruby -ryaml -e 'ARGV.each { |f| YAML.load_file(f) }' .github/ISSUE_TEMPLATE/1-tarefa.yml .github/ISSUE_TEMPLATE/2-bug.yml && jq -e '.checks.test == "node scripts/hexgym/check.mjs"' .relentless/config.json && grep -c '^## ' .github/pull_request_template.md`
+Run: `ruby -ryaml -e 'ARGV.each { |f| YAML.load_file(f) }' .github/ISSUE_TEMPLATE/1-tarefa.yml .github/ISSUE_TEMPLATE/2-bug.yml && jq -e '.checks.test == "node scripts/hexgym/check.mjs" and .merge.allow_issue_override == false' .relentless/config.json && grep -c '^## ' .github/pull_request_template.md`
 Expected: `true` e `5` (os cinco títulos do modelo de PR).
 
-- [ ] **Step 16: Write `scripts/hexgym/README.md`**
+- [ ] **Step 8: Bring the Git Flow note to the pinned version**
 
-Uma tabela de duas colunas, no formato do `scripts/README.md` do openGym, com cada script de `scripts/hexgym/` e o que ele faz, mais uma linha dizendo que a skill `hexgym-orquestrador` usa o `board.mjs`, o `context.mjs` e o `check.mjs`, junto com os scripts do relentless.
+Em `docs/decisions/notes/2026-11-01-relentless-no-git-flow.md`, com a versão do passo 1:
+- no Contexto, a versão passa a ser a do passo 1, e sai a linha do `wait-ci.sh`, que a versão nova trocou pelos checks do commit do PR;
+- no "Squash nas features", a frase do `wait-ci.sh` que "aceita a última execução verde de qualquer workflow" dá lugar aos portões da nota `2026-11-03-um-orquestrador-so.md`;
+- o "Sem `merge:auto` por enquanto" passa a dizer que o `merge.allow_issue_override` fica `false` e a etiqueta não vale, porque o merge automático do relentless é `gh pr merge --merge`;
+- sai a linha da correção do macOS (`.claude/relentless-compat/`), e entra uma dizendo que o marketplace fica fixado na tag da versão e que trocar de versão é fixar a tag nova, reler o `agents/orchestrator.md` e acertar as notas.
 
-- [ ] **Step 17: Commit**
+Run: `grep -c 'relentless-compat\|qualquer workflow\|1\.4\.8' docs/decisions/notes/2026-11-01-relentless-no-git-flow.md`
+Expected: `0`.
+
+- [ ] **Step 9: Commit**
 
 ```bash
-git add scripts/hexgym .github/pull_request_template.md .github/ISSUE_TEMPLATE/1-tarefa.yml .github/ISSUE_TEMPLATE/2-bug.yml .relentless/config.json
-git add -f .claude/skills/hexgym-orquestrador/SKILL.md
-git commit -m "Orquestrador do HexGym em cima do relentless: o quadro, a brief, as checagens e a skill"
+git add scripts/hexgym .github/pull_request_template.md .github/ISSUE_TEMPLATE/1-tarefa.yml .github/ISSUE_TEMPLATE/2-bug.yml .relentless/config.json docs/decisions/notes/2026-11-01-relentless-no-git-flow.md
+git commit -m "O relentless ligado no HexGym: as checagens, os modelos e a configuração"
 ```
 
-- [ ] **Step 18: Take the pull request through the new loop, by hand**
+- [ ] **Step 10: Take the pull request through the relentless steps**
 
-O tech lead faz os passos 5 a 9 do laço da skill que acabou de escrever, no lugar do implementador no passo 5: `gh pr create -R lipedesign/HexGym --base develop`, com o título da issue e o corpo do modelo de PR, `Closes #15` e `ADRs: none (ferramentas dos agentes; as decisões estão em docs/decisions/notes/2026-11-01-orquestrador-sobre-o-relentless.md)`; o QA com o `relentless:qa`; o pacote do `context.mjs review`, que tem que trazer esta Task inteira; a revisão com o `relentless:reviewer` em `opus`; as rodadas de correção; e o passo 9 até o `gh pr merge` (o que vem depois do merge são os passos 19 a 21 desta Task).
+O tech lead faz o que o `agents/orchestrator.md` dá ao implementador, ao QA e ao orquestrador, com as regras da nota de 03/11:
 
-Expected: o PR entra em `develop` em squash, com a seção de QA preenchida e o comentário do veredito `review:approved` no último commit dele.
+1. `gh pr create -R lipedesign/HexGym --base develop --title "O relentless ligado no HexGym"`, com o corpo do modelo de PR, `Closes #15` e `ADRs: none (configuração do relentless; a decisão está em docs/decisions/notes/2026-11-03-um-orquestrador-so.md)`. Depois, o `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr>` uma vez: até a #3, ele sai com 3, e valem os outros portões.
+2. O QA com o `relentless:qa`, na worktree, com a issue e esta Task, e nunca o raciocínio de quem implementou: `node scripts/hexgym/check.mjs`, o `--list` e o `Run` do passo 7. A saída vai para `.relentless/review/<pr>/qa.md`, sem nenhuma linha começando com `## `, e entra no PR com `"$S/fill-qa-section.sh" --repo lipedesign/HexGym --pr <pr> --body-file .relentless/review/<pr>/qa.md`. Então `"$S/set-state.sh" --repo lipedesign/HexGym --issue 15 --state review`.
+3. A revisão isolada, de dentro da worktree e em primeiro plano: `"$S/run-isolated-review.sh" --repo lipedesign/HexGym --pr <pr> --issue 15 --workdir /Users/lipe/Developer/MyGym/.claude/worktrees/15-relentless`. Com `changes_requested`: a linha do `docs/decisions/log.jsonl` que o `orchestrator.md` pede, as correções na mesma worktree, um commit por rodada, e os itens 2 e 3 de novo.
+4. O merge: o `"$S/merge-if-ready.sh" --repo lipedesign/HexGym --pr <pr> --issue 15 --dry-run` sai com 0, o `gh pr view <pr> -R lipedesign/HexGym --json state,mergeable` dá `OPEN` e `MERGEABLE`, e então `gh pr merge <pr> -R lipedesign/HexGym --squash --match-head-commit <sha>`.
 
-- [ ] **Step 19: After the merge, turn the waits into decision requests**
+Expected: o PR entra em `develop` em squash, com a seção de QA preenchida no corpo e o comentário do veredito `review:approved` no último commit dele.
 
-Na raiz do checkout, depois do `git pull --ff-only`. Para a #3 e a #10, um pedido no formato da seção 5 da skill e `"$S/request-decision.sh" --repo lipedesign/HexGym --issue <n> --body-file .relentless/review/issue-<n>/decisao.md`:
+- [ ] **Step 11: After the merge, turn the waits into decision requests**
 
-- **#3:** o clique em "I understand my workflows, go ahead and enable them", na aba Actions do fork, e a mudança na proteção das duas branches para exigir o `tests-ok` agora (os passos 4 e 5 da Task 2) e o `hexgym-ok` quando a CI do HexGym existir (o passo 4 da Task 11), uma parada do relentless. O contexto avisa que o passo 1 da Task 2 abre um PR de teste em rascunho, que fecha sem merge. 1. Cliquei, e pode mudar a proteção (recomendada); 2. Cliquei, mas a proteção fica como está (o orquestrador confere os dois checks antes de cada merge, mas o GitHub não barra um merge com check vermelho).
+Na raiz do checkout, depois do `git pull --ff-only`. Para a #3 e a #10, um pedido em português no formato do `core/templates/decision-request.md` do relentless ("Pergunta", "Contexto", "Opções" com `### 1. …`, "Recomendação", com os dois marcadores do modelo), com o que cada opção muda, o que afeta, os riscos e o custo de voltar atrás, como pede o `orchestrator.md`. Ele vai salvo em `.relentless/review/issue-<n>/decisao.md` e sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue <n> --body-file .relentless/review/issue-<n>/decisao.md`:
+
+- **#3:** o clique em "I understand my workflows, go ahead and enable them", na aba Actions do fork, e a mudança na proteção das duas branches para exigir o `tests-ok` agora (os passos 4 e 5 da Task 2) e o `hexgym-ok` quando a CI do HexGym existir (o passo 4 da Task 11), uma parada do relentless. O contexto avisa que o passo 1 da Task 2 abre um PR de teste em rascunho, que fecha sem merge, e que a branch dele (`ci/3-eventos`) e a do passo 5 da Task 11 (`teste/hexgym-ok-vermelho`) saem no fim de cada Task: apagar branch é parada do relentless, e as duas opções autorizam essas duas. 1. Cliquei, e pode mudar a proteção (recomendada); 2. Cliquei, mas a proteção fica como está (o orquestrador confere os dois checks antes de cada merge, mas o GitHub não barra um merge com check vermelho).
 - **#10:** onde guardar a cópia de `scripts/hexbody/work/` (281 MB). 1. Um repositório privado, `lipedesign/hexgym-corpo` (recomendada); 2. O iCloud Drive; 3. O Google Drive. A procedência da imagem `ref/referencia-corpo.jpg` não é uma opção: vai na nota do `/decide` (`/decide 10 <opção> <como a imagem foi feita>`).
 
 A #23 (Task 12) não ganha pedido agora: o item 2 da lista do founder abre o projeto Xcode, que só existe depois da Task 9 (#21). O pedido dela sai quando ela ficar pronta, como primeiro passo da Task 12; agora, só um comentário na #23 (`comment-agent.sh`) dizendo que os itens 1, 3, 4 e 5 já podem ser feitos.
@@ -556,12 +231,12 @@ Depois, `gh label delete "decisão do founder" -R lipedesign/HexGym --yes`, `gh 
 
 ```bash
 gh api graphql -f query='mutation($v:ID!,$f:String!){updateProjectV2View(input:{viewId:$v,filter:$f}){projectV2View{name filter}}}' \
-  -f v="$(jq -r .views.askYou scripts/hexgym/project.json)" -f f='label:"human:pending","state:blocked" is:open'
+  -f v=PVTV_lAHOAYVuVc4Bpo0bzgMV7Lo -f f='label:"human:pending","state:blocked" is:open'
 ```
 
 Expected: a #3 e a #10 com `human:pending` e `state:blocked`, atribuídas a `lipedesign`; nenhuma das duas etiquetas velhas em `gh label list -R lipedesign/HexGym`; e a visão "Pede você" com o filtro novo.
 
-- [ ] **Step 20: After the merge, give the phase its outcome and its epic**
+- [ ] **Step 12: After the merge, give the phase its outcome, its epic and a state on every issue**
 
 A seção Outcome no milestone, mantendo o texto dele:
 
@@ -570,19 +245,19 @@ d="$(gh api repos/lipedesign/HexGym/milestones/1 --jq .description)"
 gh api -X PATCH repos/lipedesign/HexGym/milestones/1 -f description="$(printf '## Outcome\n\n%s' "$d")"
 ```
 
-O épico: `"$S/create-epic.sh" --repo lipedesign/HexGym --title "Fase 0: Fundação" --milestone 1 --outcome "<a linha Entrega do milestone>" --exit-criterion "<a linha O founder vê>" --plan docs/superpowers/plans/2026-10-31-fase-0-fundacao.md` e `"$S/set-state.sh" --repo lipedesign/HexGym --issue <épico> --state in-progress`. Cada issue do milestone, aberta ou fechada, vira sub-issue dele: `"$S/add-sub-issue.sh" --repo lipedesign/HexGym --parent <épico> --child <n>` para cada número de `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --state all --limit 100 --json number,labels --jq '.[] | select(.labels | map(.name) | index("epic") | not) | .number'`.
+O épico: `"$S/create-epic.sh" --repo lipedesign/HexGym --title "Fase 0: Fundação" --milestone 1 --outcome "<a linha Entrega do milestone>" --exit-criterion "<a linha O founder vê>" --plan docs/superpowers/plans/2026-10-31-fase-0-fundacao.md` e `"$S/set-state.sh" --repo lipedesign/HexGym --issue <épico> --state in-progress`. Cada issue do milestone, aberta ou fechada, vira sub-issue dele: `"$S/add-sub-issue.sh" --repo lipedesign/HexGym --parent <épico> --child <n>` para cada número de `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --state all --limit 100 --json number,labels --jq '.[] | select(.labels | map(.name) | index("epic") | not) | .number'`. E cada issue aberta do milestone sem nenhuma `state:*` ganha `state:todo`, com `"$S/set-state.sh" --repo lipedesign/HexGym --issue <n> --state todo` para cada número de `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --state open --limit 100 --json number,labels --jq '.[] | select([.labels[].name | select(startswith("state:"))] | length == 0) | .number'`.
 
-Run: `"$S/check-milestone-outcomes.sh" --repo lipedesign/HexGym --milestone 1 --allow-pending`
-Expected: sai com 0.
+Run: `"$S/check-milestone-outcomes.sh" --repo lipedesign/HexGym --milestone 1 --allow-pending` e `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --state open --limit 100 --json number,labels --jq '[.[] | select([.labels[].name | select(startswith("state:"))] | length != 1) | .number]'`
+Expected: o primeiro sai com 0, e o segundo dá `[]`.
 
-- [ ] **Step 21: After the merge, close the Task against the real board**
+- [ ] **Step 13: After the merge, close the Task against the real board**
 
 `"$S/set-state.sh" --repo lipedesign/HexGym --issue 15 --state done`, e então:
 
-Run: `node scripts/hexgym/board.mjs sync && node scripts/hexgym/board.mjs next && node scripts/hexgym/board.mjs board`
-Expected: o `next` devolve a #11 (Task 3) com `"resume":false` e `"task":3`: com a Task 1 fechada, a #11 e a #16 são as prontas, a #3 e a #10 esperam o `/decide`, e a #23 espera a #21. O `board` mostra a #3 e a #10 em "Pede você" e o épico em "Em andamento".
+Run: `gh issue list -R lipedesign/HexGym --milestone "Fase 0: Fundação" --state open --limit 100 --json number,labels --jq '.[] | "#\(.number) \([.labels[].name | select(startswith("state:") or startswith("human:") or . == "epic")] | join(" "))"'`
+Expected: a #3 e a #10 com `human:pending` e `state:blocked`; o épico com `epic` e `state:in-progress`; as outras com `state:todo`, menos a que já tiver um PR aberto, que segue com o estado dela. Pelas linhas `Depende de:`, as prontas para a primeira onda são a #11 e a #16; a #23 espera a #21.
 
-Depois: um comentário na #15 com a saída dos passos 19 a 21 (`comment-agent.sh`); `"$S/worktree-cleanup.sh" --path /Users/lipe/Developer/MyGym/.claude/worktrees/15-orquestrador --repo lipedesign/HexGym` e `git branch -D feature/15-orquestrador`; e, na conversa, os dois pedidos para o Lipe, cada um com o comando `/decide`, e o aviso da #23.
+Depois: um comentário na #15 com a saída dos passos 11 a 13 (`comment-agent.sh`); `"$S/worktree-cleanup.sh" --path /Users/lipe/Developer/MyGym/.claude/worktrees/15-relentless --repo lipedesign/HexGym` e `git branch -D feature/15-relentless`; e, na conversa, os dois pedidos para o Lipe, cada um com o comando `/decide`, e o aviso da #23.
 
 ---
 
@@ -592,9 +267,9 @@ Depois: um comentário na #15 com a saída dos passos 19 a 21 (`comment-agent.sh
 
 - [ ] **Step 1: Confirm the fork's Actions run on events**
 
-O `"enabled":true` de `gh api repos/lipedesign/HexGym/actions/permissions` e os workflows como `active` não provam que eles rodam. Os nove apareceram às 23:48:32Z de 31/10, dois segundos depois do merge do #7 em `develop`: foi o merge que registrou os arquivos. Em 01/11/2026, a abertura do PR #28, um commit novo nele e um push numa branch `ci-*` não dispararam nada, e o `workflow_dispatch` do `test.yml` rodou e passou. Num fork, o GitHub só roda por evento depois que o dono clica em "I understand my workflows, go ahead and enable them", na aba Actions. O clique é do founder: a #3 fica com o pedido de decisão da Task 1 (`human:pending`) até ele responder `/decide 3 <opção>`. As duas opções autorizam o PR de teste deste passo; só a opção 1 autoriza os passos 4 e 5 desta Task e o passo 4 da Task 11, que mudam a proteção das branches (uma parada do relentless). Um pedido por falha deste passo repete essas duas opções, com o clique feito, e a proteção segue a última resposta a um pedido com elas (passo 4).
+O `"enabled":true` de `gh api repos/lipedesign/HexGym/actions/permissions` e os workflows como `active` não provam que eles rodam. Os nove apareceram às 23:48:32Z de 31/10, dois segundos depois do merge do #7 em `develop`: foi o merge que registrou os arquivos. Em 01/11/2026, a abertura do PR #28, um commit novo nele e um push numa branch `ci-*` não dispararam nada, e o `workflow_dispatch` do `test.yml` rodou e passou. Num fork, o GitHub só roda por evento depois que o dono clica em "I understand my workflows, go ahead and enable them", na aba Actions. O clique é do founder: a #3 fica com o pedido de decisão da Task 1 (`human:pending`) até ele responder `/decide 3 <opção>`. As duas opções autorizam o PR de teste deste passo e apagar as branches de teste dela e da Task 11 (apagar branch é uma parada do relentless); só a opção 1 autoriza os passos 4 e 5 desta Task e o passo 4 da Task 11, que mudam a proteção das branches (uma parada do relentless). Um pedido por falha deste passo repete essas duas opções, com o clique feito, e a proteção segue a última resposta a um pedido com elas (passo 4).
 
-O teste usa um PR em rascunho com um commit vazio, criado sem mexer no checkout: `c=$(git commit-tree 'origin/develop^{tree}' -p origin/develop -m "Teste dos eventos da CI (#3)" -m "<a linha Co-Authored-By>")`, `git push origin "$c:refs/heads/ci/3-eventos"` e `gh pr create -R lipedesign/HexGym --draft --base develop --head ci/3-eventos --title "Teste dos eventos da CI" --body "Só para a #3. Fecha sem merge."`. Na volta, o que já existe fica: com o PR aberto (`gh pr list -R lipedesign/HexGym --head ci/3-eventos --state open --json number --jq length` dá `1`), seguir com ele, e, se ele ainda não tem a execução do `Run` abaixo, fechar e reabrir o PR (`gh pr close <pr> -R lipedesign/HexGym` e `gh pr reopen <pr> -R lipedesign/HexGym`), porque nada mais dispara um evento num PR que já existe; com a branch e sem o PR aberto (`git ls-remote --exit-code origin refs/heads/ci/3-eventos` sai com 0), só o `gh pr create`. O evento leva alguns segundos: depois do `gh pr create` ou do `gh pr reopen`, o `node scripts/hexgym/board.mjs checks --pr <pr> --names tests-ok --wait 120` espera por ele antes do `Run` (com `ausente` no fim, nada rodou).
+O teste usa um PR em rascunho com um commit vazio, criado sem mexer no checkout: `c=$(git commit-tree 'origin/develop^{tree}' -p origin/develop -m "Teste dos eventos da CI (#3)" -m "<a linha Co-Authored-By>")`, `git push origin "$c:refs/heads/ci/3-eventos"` e `gh pr create -R lipedesign/HexGym --draft --base develop --head ci/3-eventos --title "Teste dos eventos da CI" --body "Só para a #3. Fecha sem merge."`. Na volta, o que já existe fica: com o PR aberto (`gh pr list -R lipedesign/HexGym --head ci/3-eventos --state open --json number --jq length` dá `1`), seguir com ele, e, se ele ainda não tem a execução do `Run` abaixo, fechar e reabrir o PR (`gh pr close <pr> -R lipedesign/HexGym` e `gh pr reopen <pr> -R lipedesign/HexGym`), porque nada mais dispara um evento num PR que já existe; com a branch e sem o PR aberto (`git ls-remote --exit-code origin refs/heads/ci/3-eventos` sai com 0), só o `gh pr create`. O evento leva alguns segundos: depois do `gh pr create` ou do `gh pr reopen`, o `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr> --timeout-sec 120` espera por ele antes do `Run` (saindo com 3 e sem o `tests-ok` em `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket`, nada rodou).
 
 Run: `gh run list -R lipedesign/HexGym --workflow test.yml --branch ci/3-eventos --event pull_request --limit 1` e `gh api repos/lipedesign/HexGym/actions/workflows --jq '.workflows[] | "\(.state) \(.path)"'`
 Expected: uma execução do `Tests` com evento `pull_request`, no PR de teste, e os sete do passo 2 ainda `disabled_manually`.
@@ -605,12 +280,12 @@ Expected: uma execução do `Tests` com evento `pull_request`, no PR de teste, e
 
 - [ ] **Step 3: See `tests-ok` pass on a pull request**
 
-Run: `node scripts/hexgym/board.mjs checks --pr <pr> --names tests-ok`, no PR de teste do passo 1, com a execução vinda do `pull_request` (a do `workflow_dispatch` não prova que o check chega sozinho), e de novo enquanto sair com 3, como no passo 9 do laço da skill.
-Expected: sai com 0 e imprime `{"tests-ok":"pass"}`.
+Run: `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr>`, de novo enquanto sair com 3, e `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket`, no PR de teste do passo 1, com a execução vinda do `pull_request` (a do `workflow_dispatch` não prova que o check chega sozinho).
+Expected: o `wait-ci.sh` sai com 0, e o `tests-ok` está em `pass`.
 
 - [ ] **Step 4: Require `tests-ok` on both branches**
 
-Só com a opção 1 na última resposta a um pedido da #3 com as opções da proteção: o do passo 19 da Task 1 ou um pedido por falha do passo 1, que as repete. A resposta a um pedido é o comentário do `/decide` (com `relentless:decision option=`) entre ele e o pedido seguinte, e a de outro pedido da #3, como o de um check travado no passo 3, não muda a proteção. Com a 2, os passos 4 e 5 ficam de fora, e o comentário do passo 6 diz isso. Hoje `required_status_checks` é nulo nas duas, então vai um `PUT` da proteção inteira, com os valores atuais mais o check. Salvar antes a saída de `gh api repos/lipedesign/HexGym/branches/<branch>/protection`. Depois, `gh api -X PUT repos/lipedesign/HexGym/branches/develop/protection --input <arquivo>`, com:
+Só com a opção 1 na última resposta a um pedido da #3 com as opções da proteção: o do passo 11 da Task 1 ou um pedido por falha do passo 1, que as repete. A resposta a um pedido é o comentário do `/decide` (com `relentless:decision option=`) entre ele e o pedido seguinte, e a de outro pedido da #3, como o de um check travado no passo 3, não muda a proteção. Com a 2, os passos 4 e 5 ficam de fora, e o comentário do passo 6 diz isso. Hoje `required_status_checks` é nulo nas duas, então vai um `PUT` da proteção inteira, com os valores atuais mais o check. Salvar antes a saída de `gh api repos/lipedesign/HexGym/branches/<branch>/protection`. Depois, `gh api -X PUT repos/lipedesign/HexGym/branches/develop/protection --input <arquivo>`, com:
 
 ```json
 {
@@ -632,7 +307,7 @@ Expected: `[{"context":"tests-ok","app_id":15368}]` nas duas, `strict` falso em 
 
 - [ ] **Step 6: Close the issue**
 
-`gh pr close <pr> -R lipedesign/HexGym --delete-branch`, no PR de teste; um comentário na #3 com o que foi feito e a saída dos passos 3 e 5 (`comment-agent.sh`); `gh issue close 3 -R lipedesign/HexGym`; `"$S/set-state.sh" --repo lipedesign/HexGym --issue 3 --state done`; e `node scripts/hexgym/board.mjs sync`.
+`gh pr close <pr> -R lipedesign/HexGym --delete-branch`, no PR de teste (a resposta ao pedido da #3 autorizou apagar a branch dele); um comentário na #3 com o que foi feito e a saída dos passos 3 e 5 (`comment-agent.sh`); `gh issue close 3 -R lipedesign/HexGym`; e `"$S/set-state.sh" --repo lipedesign/HexGym --issue 3 --state done`.
 
 Run: `git ls-remote --heads origin ci/3-eventos` e `gh issue view 3 -R lipedesign/HexGym --json state,labels --jq '[.state, (.labels | map(.name) | map(select(startswith("state:"))))]'`
 Expected: nenhuma linha no primeiro; `["CLOSED",["state:done"]]` no segundo.
@@ -641,13 +316,13 @@ Expected: nenhuma linha no primeiro; `["CLOSED",["state:done"]]` no segundo.
 
 ### Task 3: As branches e as etiquetas herdadas
 
-**Issue:** #11. **Sem código.** As etiquetas seguem a nota `docs/decisions/notes/2026-11-01-orquestrador-sobre-o-relentless.md`. Apagar branch é uma parada do relentless: as branches herdadas só saem depois do `/decide 11` do founder.
+**Issue:** #11. **Sem código.** As etiquetas seguem a seção 9.1 da especificação. Apagar branch é uma parada do relentless: as branches herdadas só saem depois do `/decide 11` do founder.
 
 - [ ] **Step 1: Save the current lists**
 
-O ledger é `.superpowers/sdd/2026-10-31-fase-0-fundacao/`, fora do git (`.gitignore:20`).
+As listas ficam em `.relentless/review/issue-11/`, fora do git (`.relentless/.gitignore`), a mesma pasta do pedido do passo 4.
 
-Run: `mkdir -p .superpowers/sdd/2026-10-31-fase-0-fundacao`, `git ls-remote --heads origin > .superpowers/sdd/2026-10-31-fase-0-fundacao/heads-antes.txt` e `gh label list -R lipedesign/HexGym --limit 100 --json name,description,color > .superpowers/sdd/2026-10-31-fase-0-fundacao/etiquetas-antes.json`
+Run: `mkdir -p .relentless/review/issue-11`, `git ls-remote --heads origin > .relentless/review/issue-11/heads-antes.txt` e `gh label list -R lipedesign/HexGym --limit 100 --json name,description,color > .relentless/review/issue-11/etiquetas-antes.json`
 
 - [ ] **Step 2: Move the type labels to the relentless ones**
 
@@ -662,7 +337,7 @@ Expected: os dois números iguais: toda issue com a velha já tem a nova.
 
 - [ ] **Step 4: Ask the founder about the inherited branches**
 
-Os SHAs vêm do `git`, que lê o upstream sem `gh`: `git ls-remote --heads origin` e `git ls-remote --heads upstream` (o remoto `upstream` não tem push). Cada outra branch com o SHA igual nos dois vai para `.superpowers/sdd/2026-10-31-fase-0-fundacao/branches-iguais.txt`, com o SHA; a diferente, ou ausente no upstream, fica, e o motivo vai no pedido. O pedido, no formato da seção 5 da skill, com a lista: 1. Apagar as branches listadas, que existem iguais no openGym (recomendada); 2. Manter todas. Ele sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue 11 --body-file .relentless/review/issue-11/decisao.md`, e o orquestrador segue em outras issues.
+Os SHAs vêm do `git`, que lê o upstream sem `gh`: `git ls-remote --heads origin` e `git ls-remote --heads upstream` (o remoto `upstream` não tem push). Cada outra branch com o SHA igual nos dois vai para `.relentless/review/issue-11/branches-iguais.txt`, com o SHA; a diferente, ou ausente no upstream, fica, e o motivo vai no pedido. O pedido, no formato do `core/templates/decision-request.md` do relentless, em português, com a lista: 1. Apagar as branches listadas, que existem iguais no openGym (recomendada); 2. Manter todas. Ele sai com `"$S/request-decision.sh" --repo lipedesign/HexGym --issue 11 --body-file .relentless/review/issue-11/decisao.md`, e o orquestrador segue em outras issues.
 
 Run: `gh issue view 11 -R lipedesign/HexGym --json labels --jq '[.labels[].name]'`
 Expected: `human:pending` e `state:blocked` entre as etiquetas.
@@ -678,7 +353,7 @@ Expected: só `main`, `develop`, as branches de PR aberto e as que ficaram com m
 
 - [ ] **Step 7: Close the issue**
 
-Um comentário na #11 com o que saiu, o que ficou e por quê (`comment-agent.sh`), `gh issue close 11 -R lipedesign/HexGym`, `"$S/set-state.sh" --repo lipedesign/HexGym --issue 11 --state done` e `node scripts/hexgym/board.mjs sync`.
+Um comentário na #11 com o que saiu, o que ficou e por quê (`comment-agent.sh`), `gh issue close 11 -R lipedesign/HexGym` e `"$S/set-state.sh" --repo lipedesign/HexGym --issue 11 --state done`.
 
 ---
 
@@ -842,6 +517,7 @@ git commit -m "Plans: the printable plan in lib/plan-print.js, so plan-share.js 
   - o `banner` `// Gerado por scripts/build-hexgym-engine.mjs a partir do openGym <versão>, com <n> módulos. Não edite à mão.`
 - A CLI grava `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js`. Com `--check`, só compara (arquivo que falta conta como velho) e sai com 1 e `apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js está desatualizado. Rode: node scripts/build-hexgym-engine.mjs`, como os outros `--check` do repositório.
 - `apple/.gitattributes` marca `Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js` e `Packages/HexEngine/Tests/HexEngineTests/Cases/*.json` (Task 7) com `linguist-generated=true`, para o GitHub dobrar esses diffs.
+- O script gerado pode passar do limite do diff de PR do GitHub (20.000 linhas ou 300 arquivos). Se o `gh pr diff <pr> -R lipedesign/HexGym > /dev/null` falhar, o corpo do PR avisa o revisor e manda ler os arquivos por `gh api --method GET 'repos/lipedesign/HexGym/pulls/<pr>/files' --paginate`, e o QA mostra o `node scripts/build-hexgym-engine.mjs --check` passando (nota `2026-11-03-um-orquestrador-so.md`).
 
 - [ ] **Step 1: Write the failing tests for `values.js`, `polyfills.js` and `runtime.js`**
 
@@ -1744,7 +1420,7 @@ O workflow, com os mesmos pins de ação do `test.yml` e do `ios.yml`:
 
 - [ ] **Step 1: Write the workflow**
 
-Seguindo a lista acima. O QA continua rodando o `check.mjs` na worktree (passo 6 da skill), e o portão do merge, depois desta Task, passa a exigir também o `hexgym-ok` com `pass`, pelo nome (passo 9 do laço).
+Seguindo a lista acima. O QA continua rodando o `check.mjs` na worktree, e o portão do merge, depois desta Task, passa a exigir também o `hexgym-ok` com `pass`, pelo nome (nota `2026-11-03-um-orquestrador-so.md`).
 
 - [ ] **Step 2: Commit**
 
@@ -1755,10 +1431,10 @@ git commit -m "CI do HexGym num workflow próprio, com o resumo hexgym-ok"
 
 - [ ] **Step 3: See it pass on this pull request**
 
-Passo do orquestrador antes do merge (passo 9 do laço da skill), depois dos portões. As saídas 3 e 1 seguem a regra dos portões: com a 3, chamar de novo; com a 1, voltar ao implementador com o log.
+Passo do orquestrador antes do merge, depois do `merge-if-ready.sh --dry-run`. As saídas do `wait-ci.sh` seguem o `orchestrator.md`: com a 3, chamar de novo; com a 1, o log do job num comentário na issue e a volta ao implementador, na mesma worktree.
 
-Run: `node scripts/hexgym/board.mjs checks --pr <pr> --names changes,scripts,engine,packages,app,hexgym-ok`
-Expected: sai com 0, com os seis em `pass` (o PR mexe em `.github/workflows/hexgym.yml`, então os filtros ligam tudo).
+Run: `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr>` e `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket`
+Expected: o `wait-ci.sh` sai com 0, e os seis (`changes`, `scripts`, `engine`, `packages`, `app` e `hexgym-ok`) estão em `pass` (o PR mexe em `.github/workflows/hexgym.yml`, então os filtros ligam tudo).
 
 - [ ] **Step 4: After the merge, require `hexgym-ok`**
 
@@ -1769,10 +1445,10 @@ Expected: os dois checks, nas duas branches.
 
 - [ ] **Step 5: After the merge, see it block a broken test**
 
-Numa worktree própria, com a branch `teste/hexgym-ok-vermelho` a partir de `origin/develop` (`git worktree add -b teste/hexgym-ok-vermelho .claude/worktrees/9-hexgym-ok-vermelho origin/develop`): trocar uma asserção de `scripts/hexgym/check.test.mjs` para falhar, um commit, `git push -u origin teste/hexgym-ok-vermelho` e um PR para `develop`, fora do rascunho. Na volta, o que já existe fica: com o PR aberto (`gh pr list -R lipedesign/HexGym --head teste/hexgym-ok-vermelho --state open --json number --jq length` dá `1`), seguir com ele; com ele já fechado (a mesma busca com `--state closed` dá `1`), falta só a limpeza, e o comentário leva o `checks` lido desse PR; senão, só o que falta, na worktree que já existe.
+Numa worktree própria, com a branch `teste/hexgym-ok-vermelho` a partir de `origin/develop` (`git worktree add -b teste/hexgym-ok-vermelho .claude/worktrees/9-hexgym-ok-vermelho origin/develop`): trocar uma asserção de `scripts/hexgym/check.test.mjs` para falhar, um commit, `git push -u origin teste/hexgym-ok-vermelho` e um PR para `develop`, fora do rascunho. Na volta, o que já existe fica: com o PR aberto (`gh pr list -R lipedesign/HexGym --head teste/hexgym-ok-vermelho --state open --json number --jq length` dá `1`), seguir com ele; com ele já fechado (a mesma busca com `--state closed` dá `1`), falta só a limpeza, e o comentário leva os checks lidos desse PR; senão, só o que falta, na worktree que já existe.
 
-Run: `node scripts/hexgym/board.mjs checks --pr <pr> --names hexgym-ok`, de novo enquanto sair com 3, como nos portões (o `hexgym-ok` só sai depois dos jobs do macOS), e `gh pr view <pr> -R lipedesign/HexGym --json mergeStateStatus`
-Expected: saída 1 com `{"hexgym-ok":"fail"}`, e `BLOCKED` (sem o check obrigatório, seria `UNSTABLE`). Fechar o PR sem merge e limpar, o que ainda existir: `git worktree remove .claude/worktrees/9-hexgym-ok-vermelho`, `gh pr close <pr> -R lipedesign/HexGym --delete-branch` e `git branch -D teste/hexgym-ok-vermelho`. A branch de teste é do próprio orquestrador, desta Task, e apagar essa não é parada (nota `2026-11-01-orquestrador-sobre-o-relentless.md`).
+Run: `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr>`, de novo enquanto sair com 3 (o `hexgym-ok` só sai depois dos jobs do macOS), `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket` e `gh pr view <pr> -R lipedesign/HexGym --json mergeStateStatus`
+Expected: o `wait-ci.sh` sai com 1, o `hexgym-ok` está em `fail`, e `BLOCKED` (sem o check obrigatório, seria `UNSTABLE`). Fechar o PR sem merge e limpar, o que ainda existir: `git worktree remove .claude/worktrees/9-hexgym-ok-vermelho`, `gh pr close <pr> -R lipedesign/HexGym --delete-branch` e `git branch -D teste/hexgym-ok-vermelho`. Apagar a branch de teste é uma parada do relentless, já autorizada pela resposta ao pedido da #3 (passo 11 da Task 1).
 
 ---
 
@@ -1811,7 +1487,7 @@ Expected: `existe`. Só a existência: o conteúdo nunca é lido nem impresso.
 
 - [ ] **Step 5: Close the issue**
 
-Um comentário na #23 com o que foi conferido (`comment-agent.sh`), `gh issue close 23 -R lipedesign/HexGym`, `"$S/set-state.sh" --repo lipedesign/HexGym --issue 23 --state done` e `node scripts/hexgym/board.mjs sync`.
+Um comentário na #23 com o que foi conferido (`comment-agent.sh`), `gh issue close 23 -R lipedesign/HexGym` e `"$S/set-state.sh" --repo lipedesign/HexGym --issue 23 --state done`.
 
 ---
 
@@ -1891,7 +1567,7 @@ git add scripts/hexgym/testflight.mjs scripts/hexgym/testflight.test.mjs apple/E
 git commit -m "TestFlight a partir desta máquina, com a chave da API ou a conta do Xcode"
 ```
 
-Os passos 6 a 8 são do orquestrador antes do merge, no passo 9 do laço da skill, depois dos portões: com a revisão aprovada no commit atual, na worktree da Task, onde a árvore está limpa (o script só roda assim). O passo 6 sai uma vez só na issue, porque a parada é o primeiro envio; quando um commit novo passa de novo pelo QA e pela revisão, os passos 7 e 8 rodam outra vez, e o número do build, que é a data e a hora, já é outro.
+Os passos 6 a 8 são do orquestrador antes do merge, depois dos portões (o `merge-if-ready.sh --dry-run` e os checks pelo nome, nota `2026-11-03-um-orquestrador-so.md`): com a revisão aprovada no commit atual, na worktree da Task, onde a árvore está limpa (o script só roda assim). O passo 6 sai uma vez só na issue, porque a parada é o primeiro envio; quando um commit novo passa de novo pelo QA e pela revisão, os passos 7 e 8 rodam outra vez, e o número do build, que é a data e a hora, já é outro.
 
 - [ ] **Step 6: Ask the founder before the first upload**
 
@@ -1904,7 +1580,7 @@ Expected: o export termina com `** EXPORT SUCCEEDED **` e o build aparece no Tes
 
 - [ ] **Step 8: The founder opens it on his iPhone**
 
-Um segundo pedido na #24: o founder instala pelo app TestFlight, do grupo "Founder", e responde se o HexGym abriu com a linha "Documento criado". 1. Abriu; 2. Não abriu (o que apareceu, na nota do `/decide`). É o "o app abre no iPhone dele" da seção 9. Com a 2, o PR não entra, e o orquestrador investiga pela nota: com a causa no código, volta às correções (passo 8 do laço); com uma causa fora do código (o envio, a assinatura, o TestFlight), comenta a causa e refaz os passos 7 e 8 no mesmo commit, com um envio novo e um pedido novo; sem causa achada, um pedido de decisão com o que viu, que não conta como este passo, com duas opções: 1. Refazer os passos 7 e 8 no mesmo commit, com um envio novo; 2. Voltar às correções (o que mudar, na nota do `/decide`). A Task segue pela opção que veio. O PR só entra com um "Abriu" a um pedido deste passo no commit atual.
+Um segundo pedido na #24: o founder instala pelo app TestFlight, do grupo "Founder", e responde se o HexGym abriu com a linha "Documento criado". 1. Abriu; 2. Não abriu (o que apareceu, na nota do `/decide`). É o "o app abre no iPhone dele" da seção 9. Com a 2, o PR não entra, e o orquestrador investiga pela nota: com a causa no código, volta ao implementador, na mesma worktree; com uma causa fora do código (o envio, a assinatura, o TestFlight), comenta a causa e refaz os passos 7 e 8 no mesmo commit, com um envio novo e um pedido novo; sem causa achada, um pedido de decisão com o que viu, que não conta como este passo, com duas opções: 1. Refazer os passos 7 e 8 no mesmo commit, com um envio novo; 2. Voltar às correções (o que mudar, na nota do `/decide`). A Task segue pela opção que veio. O PR só entra com um "Abriu" a um pedido deste passo no commit atual.
 
 ---
 
@@ -1919,7 +1595,7 @@ Um segundo pedido na #24: o founder instala pelo app TestFlight, do grupo "Found
 Em português, simples, sem travessão:
 
 - **README:** a versão curta entrou pela #32 e já diz o que é o HexGym (o app nativo de academia para iPhone e Apple Watch), que é um fork do openGym, com link para `https://github.com/DuarteSantos8/openGym`, com o mesmo motor e os mesmos dados; a licença AGPL-3.0 e o `NOTICE.md`, com a exceção das lojas de apps; a regra das mídias de exercício da seção 5; o estado (fase 0) e o link para o documento de design. Esta tarefa acrescenta como compilar (Xcode 27.2, `node scripts/hexgym/check.mjs`) e o link para o quadro, avisando que o quadro é privado, e atualiza o estado. Não chama "HexGym" de marca registrada: a pesquisa no INPI e no USPTO está pendente (seção 11).
-- **CONTRIBUTING:** o caminho de uma issue até o merge (seção 9.1), o Git Flow, o checklist do PR e o orquestrador em cima do relentless.
+- **CONTRIBUTING:** o caminho de uma issue até o merge (seção 9.1), o Git Flow, o checklist do PR e o relentless, que orquestra o trabalho dos agentes.
 - **SECURITY:** como avisar de uma falha sem abrir issue pública, pelo "Report a vulnerability" da aba Security. Ligar esse relato privado é uma configuração do repositório: o ok vem no mesmo pedido do texto (passo 4), e o orquestrador liga depois do merge (passo 5).
 
 - [ ] **Step 1: Finish the README and write the other two files**
@@ -1938,7 +1614,7 @@ Expected: vazio.
 
 - [ ] **Step 4: Founder review**
 
-Passo do orquestrador antes do merge (passo 9 do laço da skill, depois dos portões), com a revisão aprovada no commit atual: o founder lê o texto que vai entrar. Parada da seção 9.1: o texto é a página de entrada do projeto. Um pedido de decisão na #8, com o link dos três arquivos nesse commit: 1. Aprovar o texto e ligar o relato privado de falhas (recomendada); 2. Aprovar o texto sem ligar o relato; 3. Mudar o texto (o que mudar, na nota do `/decide`). Enquanto ele não responde, o orquestrador segue em outras issues; com a opção 3, as mudanças voltam ao implementador (passo 8 do laço), o QA e a revisão rodam de novo, e este passo sai outra vez, com um pedido para o commit novo.
+Passo do orquestrador antes do merge, depois dos portões, com a revisão aprovada no commit atual: o founder lê o texto que vai entrar. Parada da seção 9.1: o texto é a página de entrada do projeto. Um pedido de decisão na #8, com o link dos três arquivos nesse commit: 1. Aprovar o texto e ligar o relato privado de falhas (recomendada); 2. Aprovar o texto sem ligar o relato; 3. Mudar o texto (o que mudar, na nota do `/decide`). Enquanto ele não responde, o orquestrador segue em outras issues; com a opção 3, as mudanças voltam ao implementador, na mesma worktree, o QA e a revisão rodam de novo, e este passo sai outra vez, com um pedido para o commit novo.
 
 - [ ] **Step 5: After the merge, turn on private reporting**
 
@@ -1950,7 +1626,7 @@ Expected: `true` com a opção 1, e `false` com a 2.
 - [ ] **Step 6: After the merge, verify what GitHub shows**
 
 Run: `gh api repos/lipedesign/HexGym/community/profile --jq '.files.readme.html_url, .files.contributing.html_url'` e abrir `https://github.com/lipedesign/HexGym/security/policy`
-Expected: as duas URLs em `.github/`, e a política do HexGym na aba Security. Se o GitHub mostrar o `SECURITY.md` da raiz, registrar no comentário deste passo e abrir uma issue da fase (seção 8 da skill) com o pedido de decisão ao founder sobre mudar o da raiz: a #8 já fechou com o merge.
+Expected: as duas URLs em `.github/`, e a política do HexGym na aba Security. Se o GitHub mostrar o `SECURITY.md` da raiz, registrar no comentário deste passo e abrir uma issue da fase (sub-issue do épico, com a linha `Origem:`) com o pedido de decisão ao founder sobre mudar o da raiz: a #8 já fechou com o merge.
 
 ---
 
@@ -1963,7 +1639,7 @@ Expected: as duas URLs em `.github/`, e a política do HexGym na aba Security. S
 
 - [ ] **Step 1: Get the two answers**
 
-A issue só fica pronta depois do `/decide 10`, e as duas respostas estão na seção "Decisões do founder nesta issue" da brief. Se a nota não disser como a imagem foi feita, o implementador para e reporta, e o orquestrador pergunta de novo, com outro pedido.
+A issue só fica pronta depois do `/decide 10`, e as duas respostas estão no comentário do `/decide` na issue (com `relentless:decision option=`), que o orquestrador passa ao implementador junto com o critério de aceite. Se a nota não disser como a imagem foi feita, o implementador para e reporta, e o orquestrador pergunta de novo, com outro pedido.
 
 - [ ] **Step 2: Make the copy**
 
@@ -1989,7 +1665,7 @@ git commit -m "Onde ficam os arquivos de origem do corpo e de onde vem a referê
 
 ### Task 16: A versão 0.1.0
 
-**Issue:** #25. Depende de todas as outras, menos a 15 (o passo 1 decide a #10), e de cada acompanhamento que entrar na fase (seção 8 da skill). É a Task da versão: o orquestrador segue os passos dela, como diz a seção 6 da skill, e não o laço.
+**Issue:** #25. Depende de todas as outras, menos a 15 (o passo 1 decide a #10), e de cada acompanhamento que entrar na fase (nota `2026-11-03-um-orquestrador-so.md`). É a Task da versão: o orquestrador faz os passos dela na ordem, com um comentário na issue por passo, e retoma pelo último comentado (a mesma nota); ela não é uma feature.
 
 - [ ] **Step 1: Check that the phase is done**
 
@@ -2020,11 +1696,11 @@ Na worktree da release, depois dos commits: `node scripts/hexgym/testflight.mjs`
 
 Parada da seção 9.1, fim de fase: um pedido de decisão na #25, com os prints, o vídeo, o build, o link do PR e o commit dele: 1. Aprovar a versão 0.1.0 (recomendada); 2. Pedir mudanças (o que mudar, na nota do `/decide`). Nada segue sem a resposta dele.
 
-Com a 2, cada mudança vira uma issue da fase (seção 8 da skill), na linha `Depende de:` desta, e é feita pelo laço, em `develop`: nada entra direto na branch da release. Um comentário na #25 lista as issues, `"$S/set-state.sh" --repo lipedesign/HexGym --issue 25 --state todo` faz a #25 esperar por elas, e o PR da versão fica aberto. Quando elas fecham, o `next` devolve a #25, e a Task recomeça no passo 1, com um pedido novo no passo 7.
+Com a 2, cada mudança vira uma issue da fase (sub-issue do épico, com a linha `Origem:`), na linha `Depende de:` desta, feita pelo caminho de sempre, em `develop`: nada entra direto na branch da release. Um comentário na #25 lista as issues, `"$S/set-state.sh" --repo lipedesign/HexGym --issue 25 --state todo` faz a #25 esperar por elas, e o PR da versão fica aberto. Quando elas fecham, a #25 fica pronta de novo, e a Task recomeça no passo 1, com um pedido novo no passo 7.
 
 - [ ] **Step 8: Merge the release**
 
-Depois do `/decide 25 1`. Se o PR já entrou (`gh pr view <pr> -R lipedesign/HexGym --json state --jq .state` dá `MERGED`), falta só o comentário deste passo. Os portões, como no passo 9 do laço da skill: o `gh pr view <pr> -R lipedesign/HexGym --json state,mergeable` dá `OPEN` e `MERGEABLE`, e o `node scripts/hexgym/board.mjs checks --pr <pr> --names tests-ok,hexgym-ok` sai com 0, chamado de novo enquanto sair com 3, como no passo 9 do laço (o limite de 12 chamadas, o PR reaberto quando um check não tem execução, a saída 4 e o `gh run rerun --failed` uma vez por execução, num job cancelado ou com falha fora do código); um check vermelho ou travado, ou um conflito, vira um pedido de decisão na #25, que não conta como este passo (seção 4 da skill): depois do `/decide`, o passo 8 roda de novo, com a resposta. Com a causa no código, a recomendação do pedido é corrigir pelo laço, e, com ela, a Task segue o caminho da opção 2 do passo 7 (uma issue da fase, a #25 em `state:todo` e o recomeço no passo 1, com um pedido novo no passo 7), sem rodar este passo de novo, que só leria o mesmo check vermelho. Então `gh pr merge <pr> -R lipedesign/HexGym --merge --match-head-commit <sha>`, com o commit que o founder aprovou.
+Depois do `/decide 25 1`. Se o PR já entrou (`gh pr view <pr> -R lipedesign/HexGym --json state --jq .state` dá `MERGED`), falta só o comentário deste passo. Os portões: o `gh pr view <pr> -R lipedesign/HexGym --json state,mergeable` dá `OPEN` e `MERGEABLE`, o `"$S/wait-ci.sh" --repo lipedesign/HexGym --pr <pr>` sai com 0, chamado de novo enquanto sair com 3, e o `gh pr checks <pr> -R lipedesign/HexGym --json name,bucket` traz o `tests-ok` e o `hexgym-ok` em `pass` (nota `2026-11-03-um-orquestrador-so.md`, que diz também o que fazer com um check travado ou sem execução); um check vermelho ou travado, ou um conflito, vira um pedido de decisão na #25, que não conta como este passo: depois do `/decide`, o passo 8 roda de novo, com a resposta. Com a causa no código, a recomendação do pedido é corrigir por uma issue da fase, e, com ela, a Task segue o caminho da opção 2 do passo 7 (uma issue da fase, a #25 em `state:todo` e o recomeço no passo 1, com um pedido novo no passo 7), sem rodar este passo de novo, que só leria o mesmo check vermelho. Então `gh pr merge <pr> -R lipedesign/HexGym --merge --match-head-commit <sha>`, com o commit que o founder aprovou.
 
 - [ ] **Step 9: Tag the version**
 
@@ -2035,7 +1711,7 @@ Expected: a versão "HexGym 0.1.0", com a tag `v0.1.0`.
 
 - [ ] **Step 10: Bring it back to develop**
 
-`git fetch origin`. Se `git merge-base --is-ancestor origin/main origin/develop` sai com 0, a `develop` já tem a versão, e falta só o comentário deste passo. Senão, o PR de `main` para `develop`, quando ainda não há um aberto (`gh pr list -R lipedesign/HexGym --base develop --head main --json number --jq length` dá `0`): `gh pr create -R lipedesign/HexGym --base develop --head main --title "Versão 0.1.0 de volta para develop" --body "Traz a versão 0.1.0 (tag v0.1.0) de volta para develop, com merge normal."`. Os mesmos portões do passo 8 (um pedido aberto por eles também faz este passo rodar de novo depois do `/decide`), com uma diferença: a versão já saiu, e a correção de uma causa no código não recomeça a Task. Ela vai por uma issue da fase pelo laço, na linha `Depende de:` desta, com a #25 em `state:todo`, e, quando a issue fecha, o passo 10 roda de novo, com o PR fechado e reaberto antes dos portões (`gh pr close <pr> -R lipedesign/HexGym && gh pr reopen <pr> -R lipedesign/HexGym`), para os checks rodarem com a `develop` nova. Essa reabertura vale a cada issue de correção que fecha, e não uma vez por commit, como a do passo 9 do laço: a cabeça do PR é a de `main`, que não muda entre uma correção e outra, e reabrir de novo depois de uma queda não estraga nada, porque o `checks` não conta as execuções criadas antes do último `reopened`. Então `gh pr merge <pr> -R lipedesign/HexGym --merge --match-head-commit <sha>`.
+`git fetch origin`. Se `git merge-base --is-ancestor origin/main origin/develop` sai com 0, a `develop` já tem a versão, e falta só o comentário deste passo. Senão, o PR de `main` para `develop`, quando ainda não há um aberto (`gh pr list -R lipedesign/HexGym --base develop --head main --json number --jq length` dá `0`): `gh pr create -R lipedesign/HexGym --base develop --head main --title "Versão 0.1.0 de volta para develop" --body "Traz a versão 0.1.0 (tag v0.1.0) de volta para develop, com merge normal."`. Os mesmos portões do passo 8 (um pedido aberto por eles também faz este passo rodar de novo depois do `/decide`), com uma diferença: a versão já saiu, e a correção de uma causa no código não recomeça a Task. Ela vai por uma issue da fase, na linha `Depende de:` desta, com a #25 em `state:todo`, e, quando a issue fecha, o passo 10 roda de novo, com o PR fechado e reaberto antes dos portões (`gh pr close <pr> -R lipedesign/HexGym && gh pr reopen <pr> -R lipedesign/HexGym`), para os checks rodarem com a `develop` nova. Essa reabertura vale a cada issue de correção que fecha, e não uma vez por commit, como a da nota de 03/11: a cabeça do PR é a de `main`, que não muda entre uma correção e outra, e reabrir de novo depois de uma queda não estraga nada, porque o `wait-ci.sh` julga, de cada workflow, a execução mais nova no commit. Então `gh pr merge <pr> -R lipedesign/HexGym --merge --match-head-commit <sha>`.
 
 - [ ] **Step 11: Remove the release worktree**
 
@@ -2043,7 +1719,7 @@ Na raiz do checkout: `git pull --ff-only`, `git worktree remove .claude/worktree
 
 - [ ] **Step 12: Close the issue and the epic**
 
-Primeiro, com a #25 ainda aberta, o que pode pedir uma decisão: o `"$S/check-milestone-outcomes.sh" --repo lipedesign/HexGym --milestone 1`, sem `--allow-pending` e antes de fechar o milestone, porque o script só lê os abertos, sai com 0, e nenhuma sub-issue do épico está aberta fora a #25 (`gh api 'repos/lipedesign/HexGym/issues/<épico>/sub_issues?per_page=100' --jq '[.[] | select(.state == "open" and .number != 25) | .number]'` dá `[]`). Então, porque um PR para `main` não fecha a issue sozinho: `gh issue close 25 -R lipedesign/HexGym` e `"$S/close-epic.sh" --repo lipedesign/HexGym --epic <épico>`, que só fecha o épico com todas as sub-issues fechadas. Um pedido de decisão deste passo depois do `gh issue close 25` sai com a #25 reaberta antes (`gh issue reopen 25 -R lipedesign/HexGym`): fechada, ela não aparece em "Pede você", e, depois do `/decide`, o `next` não a devolve.
+Primeiro, com a #25 ainda aberta, o que pode pedir uma decisão: o `"$S/check-milestone-outcomes.sh" --repo lipedesign/HexGym --milestone 1`, sem `--allow-pending` e antes de fechar o milestone, porque o script só lê os abertos, sai com 0, e nenhuma sub-issue do épico está aberta fora a #25 (`gh api 'repos/lipedesign/HexGym/issues/<épico>/sub_issues?per_page=100' --jq '[.[] | select(.state == "open" and .number != 25) | .number]'` dá `[]`). Então, porque um PR para `main` não fecha a issue sozinho: `gh issue close 25 -R lipedesign/HexGym` e `"$S/close-epic.sh" --repo lipedesign/HexGym --epic <épico>`, que só fecha o épico com todas as sub-issues fechadas. Um pedido de decisão deste passo depois do `gh issue close 25` sai com a #25 reaberta antes (`gh issue reopen 25 -R lipedesign/HexGym`): fechada, ela não aparece em "Pede você".
 
 Run: `gh issue view 25 -R lipedesign/HexGym --json state --jq .state` e o mesmo para o épico
 Expected: `CLOSED` nos dois. O comentário deste passo leva o PR, a tag, o build e a saída do `check-milestone-outcomes.sh`.
@@ -2054,10 +1730,10 @@ Expected: `CLOSED` nos dois. O comentário deste passo leva o PR, a tag, o build
 
 ```bash
 gh api graphql -f query='mutation($v:ID!,$f:String!){updateProjectV2View(input:{viewId:$v,filter:$f}){projectV2View{name filter}}}' \
-  -f v="$(jq -r .views.phase scripts/hexgym/project.json)" -f f='milestone:"Fase 1: Design system"'
+  -f v=PVTV_lAHOAYVuVc4Bpo0bzgMV7KM -f f='milestone:"Fase 1: Design system"'
 ```
 
-Run: `node scripts/hexgym/board.mjs phase`
-Expected: a Fase 1. A página do design ganha o resultado da fase.
+Run: `gh api 'repos/lipedesign/HexGym/milestones?state=open' --jq 'sort_by(.number) | .[0].title'`
+Expected: `Fase 1: Design system`. A página do design ganha o resultado da fase.
 
-Por último, o comentário deste passo, `"$S/set-state.sh" --repo lipedesign/HexGym --issue 25 --state done` e `node scripts/hexgym/board.mjs sync`. Até aqui, a #25 fica em `state:in-progress`: fechada e com essa etiqueta, o `next` a retoma, mesmo com o milestone 1 já fechado, se a sessão cair depois do passo 12. Uma falha neste passo não vira pedido de decisão, porque a #25 reaberta num milestone fechado não voltaria pelo `next`: fechar o milestone e trocar o filtro se repetem sem problema, então o passo roda de novo, e, sem o `gh`, o aviso vai ao Lipe na conversa.
+Por último, o comentário deste passo e `"$S/set-state.sh" --repo lipedesign/HexGym --issue 25 --state done`. Até aqui, a #25 fica em `state:in-progress`: fechada e com essa etiqueta, ela mostra que a versão não terminou, e quem retoma a acha pela etiqueta (`gh issue list -R lipedesign/HexGym --state all --label state:in-progress`), mesmo com o milestone 1 já fechado, se a sessão cair depois do passo 12. Uma falha neste passo não vira pedido de decisão: fechar o milestone e trocar o filtro se repetem sem problema, então o passo roda de novo, e, sem o `gh`, o aviso vai ao Lipe na conversa.

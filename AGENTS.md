@@ -61,7 +61,7 @@ See plugin `docs/harness-profiles.md` and plugin `AGENTS.md` doctrine.
 O bloco acima é do relentless, e o bootstrap o reescreve igual. Este fork segue o Git Flow da seção
 9.1 do documento de design (`docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md`). Onde
 os dois divergem, valem as notas `docs/decisions/notes/2026-11-01-relentless-no-git-flow.md` e
-`docs/decisions/notes/2026-11-01-orquestrador-sobre-o-relentless.md`. O essencial:
+`docs/decisions/notes/2026-11-03-um-orquestrador-so.md`. O essencial:
 
 - A base é `develop`: worktree e branch `feature/<número>-<nome>` saem de `origin/develop`, e o PR
   vai para `develop`. Onde o relentless diz `origin/main`, leia `origin/develop`.
@@ -69,7 +69,8 @@ os dois divergem, valem as notas `docs/decisions/notes/2026-11-01-relentless-no-
   sync com o openGym entram com merge normal.
 - A CI é o `test.yml` (`tests-ok`) e, a partir da #9, o `hexgym.yml` (`hexgym-ok`). O
   `relentless-ci.yml` não fica no repositório.
-- O orquestrador é a skill `hexgym-orquestrador`, que a Tarefa 1 (#15) cria em cima do
-  `orchestrator.md` do relentless: o estado é a etiqueta `state:*`, o quadro do Project só espelha,
-  o critério de aceite é a Task do plano, e toda espera pelo founder é um pedido de decisão que ele
-  responde com `/decide`. Nenhuma onda roda aqui antes de a Tarefa 1 entrar em `develop`.
+- O orquestrador é o do relentless, como ele vem. O HexGym não tem skill, agente nem script que
+  faça o papel dele: só a configuração em `.relentless/config.json`, os modelos de issue e de PR e
+  as regras de `docs/decisions/`. O critério de aceite é a Task do plano que a linha `Plano:` da
+  issue aponta, e toda espera pelo founder é um pedido de decisão que ele responde com `/decide`.
+  Nenhuma onda roda aqui antes de a Tarefa 1 (#15) terminar.

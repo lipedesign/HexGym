@@ -416,20 +416,21 @@ Todo o trabalho passa pelo GitHub do fork (`lipedesign/HexGym`), num caminho só
 agentes de IA com o tech lead orquestrando. O founder acompanha pelo quadro e entra nas decisões
 que são dele. Nas palavras do founder: "no final do dia vai ser tudo feito por AI".
 
-A base é o relentless, um plugin do Claude Code ativado só neste projeto, com os agentes
-(implementador, QA, revisor isolado, documentador) e as regras de cada passo. Onde ele e este
-documento divergem, valem as decisões em `docs/decisions/`: o Git Flow abaixo, o squash nas
-features e a Task do plano como critério de aceite.
+A base é o relentless, um plugin do Claude Code ativado só neste projeto, com o orquestrador, os
+agentes (implementador, QA, revisor isolado, documentador) e as regras de cada passo. O HexGym usa o
+orquestrador do relentless como ele vem, sem outro por cima. Onde o relentless e este documento
+divergem, valem as decisões em `docs/decisions/`: o Git Flow abaixo, o squash nas features e a Task
+do plano como critério de aceite.
 
 **Onde o trabalho mora**
 
 - **Project "HexGym"** no GitHub ([quadro](https://github.com/users/lipedesign/projects/6), privado),
   com cinco colunas: A fazer, Pronto para começar, Em andamento, Em revisão, Feito. Três visões: Fase
   atual (o quadro do milestone em andamento; o filtro troca quando a fase muda), Todas as fases e
-  Pede você (o que está aberto com `human:pending` ou `state:blocked`). As colunas seguem as
-  etiquetas `state:*` das issues: o agente troca a etiqueta, e o quadro só espelha. Um cartão movido à
-  mão volta para a coluna da etiqueta na rodada seguinte; a exceção é Feito, porque pôr uma issue em
-  Feito fecha a issue.
+  Pede você (o que está aberto com `human:pending` ou `state:blocked`). O estado que vale é a
+  etiqueta `state:*` da issue, que o cartão mostra. As colunas andam pelas automações do próprio
+  Project, já ligadas (a issue que entra, o PR ligado a ela, a issue fechada e o PR com merge), e
+  nenhum script espelha as etiquetas nelas. Pôr uma issue em Feito fecha a issue.
 - **Um milestone por fase** (fases 0 a 6), mais um para o primeiro TestFlight externo, cada um com
   as issues da fase.
 - **Issues pequenas:** cada uma cabe num PR. O modelo de tarefa pede o que fazer, por quê, como saber
@@ -448,7 +449,7 @@ features e a Task do plano como critério de aceite.
 **O caminho de uma issue**
 
 ```
-issue (state:todo, Pronto para começar)
+issue (state:todo)
   → worktree e branch feature/<número>-<nome>, a partir de develop
   → código e testes → PR para develop, com "Closes #<número>"
   → QA (checagens e o app rodando) → revisão isolada de outro agente
