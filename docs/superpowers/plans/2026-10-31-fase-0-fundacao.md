@@ -1626,12 +1626,12 @@ Um segundo pedido na #24: o founder instala pelo app TestFlight, do grupo "Found
 **Issue:** #8.
 
 **Files:**
-- Modify: `.github/README.md` (a versão curta entrou antes, pela #32)
+- Modify: `.github/README.md` (a versão curta entrou antes, pela #32, e a visual, com as imagens em `.github/readme/`, pela #53)
 - Create: `.github/CONTRIBUTING.md`, `.github/SECURITY.md`
 
 Em português, simples, sem travessão:
 
-- **README:** a versão curta entrou pela #32 e já diz o que é o HexGym (o app nativo de academia para iPhone e Apple Watch), que é um fork do openGym, com link para `https://github.com/DuarteSantos8/openGym`, com o mesmo motor e os mesmos dados; a licença AGPL-3.0 e o `NOTICE.md`, com a exceção das lojas de apps; a regra das mídias de exercício da seção 5; o estado (fase 0) e o link para o documento de design. Esta tarefa acrescenta como compilar (Xcode 27.2, `node scripts/hexgym/check.mjs`) e o link para o quadro, avisando que o quadro é privado, e atualiza o estado. Não chama "HexGym" de marca registrada: a pesquisa no INPI e no USPTO está pendente (seção 11).
+- **README:** a versão curta entrou pela #32, e a #53 deu a ela a cara visual: a capa e as imagens do conceito de design em `.github/readme/` (WebP, tiradas da página da proposta visual), o aviso de que o app está em construção, a tabela das fases com o estado e o link de cada marco, e a seção "Como é feito". O README já diz o que é o HexGym (o app nativo de treino de força para iPhone e Apple Watch), que é um fork do openGym, com link para `https://github.com/DuarteSantos8/openGym`, com o mesmo motor e os mesmos dados; a licença AGPL-3.0 e o `NOTICE.md`, com a exceção das lojas de apps; a regra das mídias de exercício da seção 5; o estado e o link para o documento de design. Esta tarefa acrescenta como compilar (Xcode 27.2, `node scripts/hexgym/check.mjs`) e o link para o quadro, avisando que o quadro é privado, e atualiza o estado no aviso e na tabela das fases, sem tirar as imagens. Não chama "HexGym" de marca registrada: a pesquisa no INPI e no USPTO está pendente (seção 11).
 - **CONTRIBUTING:** o caminho de uma issue até o merge (seção 9.1), o Git Flow, o checklist do PR e o relentless, que orquestra o trabalho dos agentes.
 - **SECURITY:** como avisar de uma falha sem abrir issue pública, pelo "Report a vulnerability" da aba Security. Ligar esse relato privado é uma configuração do repositório: o ok vem no mesmo pedido do texto (passo 4), e o orquestrador liga depois do merge (passo 5).
 
