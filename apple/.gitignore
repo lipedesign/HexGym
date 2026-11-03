@@ -1,0 +1,6 @@
+# O que o Xcode e o SwiftPM gravam ao abrir e compilar os pacotes e o projeto.
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/

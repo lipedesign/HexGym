@@ -75,8 +75,8 @@ O projeto fracassa, mesmo funcionando, se:
   - nunca passa as mídias por nenhuma ferramenta de IA, nem para gerar imagem ou vídeo;
   - um uso comercial exigiria licença própria da Gym visual.
   As mídias somam 215 MB (6.554 fotos webp e 6.554 animações mp4).
-- **Plataforma.** iOS 26 e watchOS 26 como mínimo. Xcode 27 beta, em `/Applications/Xcode-beta.app`
-  (usado via `DEVELOPER_DIR`).
+- **Plataforma.** iOS 26 e watchOS 26 como mínimo. Xcode 27.2 estável, em `/Applications/Xcode.app`
+  (usado via `DEVELOPER_DIR`). Até ele chegar, o `swift` das Command Line Tools, só para os pacotes.
 - **O Watch não roda JavaScript.** O SDK do watchOS não tem JavaScriptCore; o do iPhone, do Mac e da
   Apple TV têm. Isso pesa na arquitetura (seção 8).
 - **Poucas dependências.** O openGym trata isso como regra. No HexGym, nenhum pacote Swift de

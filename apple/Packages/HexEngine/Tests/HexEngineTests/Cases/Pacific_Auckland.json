@@ -1,0 +1,3828 @@
+{
+  "zone": "Pacific/Auckland",
+  "cases": [
+    {
+      "name": "documento novo em pt-BR",
+      "fn": "frontend/src/lib/state-core.js#freshState",
+      "args": [
+        "pt-BR"
+      ],
+      "result": {
+        "returned": {
+          "unit": "kg",
+          "restSec": 90,
+          "restPauseSec": 15,
+          "sound": true,
+          "soundOnSilent": false,
+          "vibrateOnSilent": false,
+          "timerFlash": false,
+          "timedSetOvertime": false,
+          "keepAwake": true,
+          "lang": "en",
+          "theme": "dark",
+          "accent": "lime",
+          "body": "male",
+          "targetW": null,
+          "rateGoal": null,
+          "bodyweight": [],
+          "routines": [],
+          "week": {},
+          "dayPlan": {},
+          "dayNotes": {},
+          "measurements": [],
+          "measurementEnabled": null,
+          "customMeasurements": [],
+          "queue": null,
+          "rotation": null,
+          "scheduleMode": null,
+          "exWeights": {},
+          "workouts": [],
+          "active": null,
+          "customEx": [],
+          "gifSize": "mini",
+          "heatmapMetric": "time",
+          "volumeWarmups": false,
+          "workoutView": "cards",
+          "collapseCompleted": false,
+          "exerciseView": "list",
+          "wc": {
+            "steppers": true,
+            "setShortcuts": false,
+            "pairButtons": false,
+            "exerciseButtons": false,
+            "exerciseChips": true,
+            "muscleMap": true,
+            "swipeSets": true
+          },
+          "hints": {},
+          "reminder": {
+            "on": false,
+            "time": "08:00",
+            "tz": null,
+            "nudge": false,
+            "tone": "friendly"
+          },
+          "effort": null,
+          "autoBackup": false,
+          "equipProfiles": [],
+          "activeEquipId": null,
+          "equipFilterOn": false,
+          "exNotes": {},
+          "exAliases": {},
+          "favEx": [],
+          "weekStart": 1,
+          "wdec": 1,
+          "speedUnit": null,
+          "barWeights": {},
+          "plates": {},
+          "loadKind": {},
+          "dbLoad": {},
+          "dumbbells": {},
+          "stackWeights": {},
+          "gymCards": [],
+          "lastGymCardId": null,
+          "checkIn": true,
+          "showWeightCard": true,
+          "weighIn": false,
+          "connStatus": true,
+          "shareMap": true,
+          "connLocal": true,
+          "startFrom": "plan",
+          "lastFrom": "routine",
+          "enParens": {},
+          "enOnly": {},
+          "logRef": "last",
+          "balanceTemplate": "poliquin",
+          "balanceOverrides": {},
+          "langAuto": true
+        },
+        "args": [
+          "pt-BR"
+        ]
+      }
+    },
+    {
+      "name": "documento novo em ar-EG",
+      "fn": "frontend/src/lib/state-core.js#freshState",
+      "args": [
+        "ar-EG"
+      ],
+      "result": {
+        "returned": {
+          "unit": "kg",
+          "restSec": 90,
+          "restPauseSec": 15,
+          "sound": true,
+          "soundOnSilent": false,
+          "vibrateOnSilent": false,
+          "timerFlash": false,
+          "timedSetOvertime": false,
+          "keepAwake": true,
+          "lang": "ar",
+          "theme": "dark",
+          "accent": "lime",
+          "body": "male",
+          "targetW": null,
+          "rateGoal": null,
+          "bodyweight": [],
+          "routines": [],
+          "week": {},
+          "dayPlan": {},
+          "dayNotes": {},
+          "measurements": [],
+          "measurementEnabled": null,
+          "customMeasurements": [],
+          "queue": null,
+          "rotation": null,
+          "scheduleMode": null,
+          "exWeights": {},
+          "workouts": [],
+          "active": null,
+          "customEx": [],
+          "gifSize": "mini",
+          "heatmapMetric": "time",
+          "volumeWarmups": false,
+          "workoutView": "cards",
+          "collapseCompleted": false,
+          "exerciseView": "list",
+          "wc": {
+            "steppers": true,
+            "setShortcuts": false,
+            "pairButtons": false,
+            "exerciseButtons": false,
+            "exerciseChips": true,
+            "muscleMap": true,
+            "swipeSets": true
+          },
+          "hints": {},
+          "reminder": {
+            "on": false,
+            "time": "08:00",
+            "tz": null,
+            "nudge": false,
+            "tone": "friendly"
+          },
+          "effort": null,
+          "autoBackup": false,
+          "equipProfiles": [],
+          "activeEquipId": null,
+          "equipFilterOn": false,
+          "exNotes": {},
+          "exAliases": {},
+          "favEx": [],
+          "weekStart": 1,
+          "wdec": 1,
+          "speedUnit": null,
+          "barWeights": {},
+          "plates": {},
+          "loadKind": {},
+          "dbLoad": {},
+          "dumbbells": {},
+          "stackWeights": {},
+          "gymCards": [],
+          "lastGymCardId": null,
+          "checkIn": true,
+          "showWeightCard": true,
+          "weighIn": false,
+          "connStatus": true,
+          "shareMap": true,
+          "connLocal": true,
+          "startFrom": "plan",
+          "lastFrom": "routine",
+          "enParens": {},
+          "enOnly": {},
+          "logRef": "last",
+          "balanceTemplate": "poliquin",
+          "balanceOverrides": {},
+          "langAuto": true
+        },
+        "args": [
+          "ar-EG"
+        ]
+      }
+    },
+    {
+      "name": "cópia salva com uma chave desconhecida e sem lang",
+      "fn": "frontend/src/lib/state-core.js#stateFromSaved",
+      "args": [
+        {
+          "chaveDoFuturo": {
+            "x": [
+              1,
+              2
+            ]
+          },
+          "unit": "lb",
+          "restSec": 120
+        },
+        "ar-EG"
+      ],
+      "result": {
+        "returned": {
+          "unit": "lb",
+          "restSec": 120,
+          "restPauseSec": 15,
+          "sound": true,
+          "soundOnSilent": false,
+          "vibrateOnSilent": false,
+          "timerFlash": false,
+          "timedSetOvertime": false,
+          "keepAwake": true,
+          "lang": "ar",
+          "theme": "dark",
+          "accent": "lime",
+          "body": "male",
+          "targetW": null,
+          "rateGoal": null,
+          "bodyweight": [],
+          "routines": [],
+          "week": {},
+          "dayPlan": {},
+          "dayNotes": {},
+          "measurements": [],
+          "measurementEnabled": null,
+          "customMeasurements": [],
+          "queue": null,
+          "rotation": null,
+          "scheduleMode": null,
+          "exWeights": {},
+          "workouts": [],
+          "active": null,
+          "customEx": [],
+          "gifSize": "full",
+          "heatmapMetric": "time",
+          "volumeWarmups": false,
+          "workoutView": "cards",
+          "collapseCompleted": false,
+          "exerciseView": "list",
+          "wc": {
+            "steppers": true,
+            "setShortcuts": false,
+            "pairButtons": false,
+            "exerciseButtons": false,
+            "exerciseChips": true,
+            "muscleMap": true,
+            "swipeSets": true
+          },
+          "hints": {},
+          "reminder": {
+            "on": false,
+            "time": "08:00",
+            "tz": null,
+            "nudge": false,
+            "tone": "friendly"
+          },
+          "effort": null,
+          "autoBackup": false,
+          "equipProfiles": [],
+          "activeEquipId": null,
+          "equipFilterOn": false,
+          "exNotes": {},
+          "exAliases": {},
+          "favEx": [],
+          "weekStart": 1,
+          "wdec": 1,
+          "speedUnit": null,
+          "barWeights": {},
+          "plates": {},
+          "loadKind": {},
+          "dbLoad": {},
+          "dumbbells": {},
+          "stackWeights": {},
+          "gymCards": [],
+          "lastGymCardId": null,
+          "checkIn": true,
+          "showWeightCard": true,
+          "weighIn": true,
+          "connStatus": true,
+          "shareMap": true,
+          "connLocal": true,
+          "startFrom": "plan",
+          "lastFrom": "routine",
+          "enParens": {},
+          "enOnly": {},
+          "logRef": "last",
+          "balanceTemplate": "poliquin",
+          "balanceOverrides": {},
+          "chaveDoFuturo": {
+            "x": [
+              1,
+              2
+            ]
+          }
+        },
+        "args": [
+          {
+            "chaveDoFuturo": {
+              "x": [
+                1,
+                2
+              ]
+            },
+            "unit": "lb",
+            "restSec": 120
+          },
+          "ar-EG"
+        ]
+      }
+    },
+    {
+      "name": "dia do começo da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1792837800000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-24",
+        "args": [
+          {
+            "$date": 1792837800000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do fim da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1792842000000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-25",
+        "args": [
+          {
+            "$date": 1792842000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do começo da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1792845000000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-25",
+        "args": [
+          {
+            "$date": 1792845000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do fim da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1792852200000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-25",
+        "args": [
+          {
+            "$date": 1792852200000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do começo da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1774701000000
+        }
+      ],
+      "result": {
+        "returned": "2026-03-29",
+        "args": [
+          {
+            "$date": 1774701000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do fim da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1774708200000
+        }
+      ],
+      "result": {
+        "returned": "2026-03-29",
+        "args": [
+          {
+            "$date": 1774708200000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do começo da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1775305800000
+        }
+      ],
+      "result": {
+        "returned": "2026-04-05",
+        "args": [
+          {
+            "$date": 1775305800000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do fim da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1775316600000
+        }
+      ],
+      "result": {
+        "returned": "2026-04-05",
+        "args": [
+          {
+            "$date": 1775316600000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do começo da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1790429400000
+        }
+      ],
+      "result": {
+        "returned": "2026-09-27",
+        "args": [
+          {
+            "$date": 1790429400000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do fim da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#isoOf",
+      "args": [
+        {
+          "$date": 1790433000000
+        }
+      ],
+      "result": {
+        "returned": "2026-09-27",
+        "args": [
+          {
+            "$date": 1790433000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 1, que cruza a meia-noite, começando no domingo",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-10-24",
+        0
+      ],
+      "result": {
+        "returned": "2026-10-18",
+        "args": [
+          "2026-10-24",
+          0
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 1, que cruza a meia-noite, começando na segunda",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-10-24",
+        1
+      ],
+      "result": {
+        "returned": "2026-10-19",
+        "args": [
+          "2026-10-24",
+          1
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 2, da volta do horário de verão em Zurique, começando no domingo",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-10-25",
+        0
+      ],
+      "result": {
+        "returned": "2026-10-25",
+        "args": [
+          "2026-10-25",
+          0
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 2, da volta do horário de verão em Zurique, começando na segunda",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-10-25",
+        1
+      ],
+      "result": {
+        "returned": "2026-10-19",
+        "args": [
+          "2026-10-25",
+          1
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 3, da ida do horário de verão em Zurique, começando no domingo",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-03-29",
+        0
+      ],
+      "result": {
+        "returned": "2026-03-29",
+        "args": [
+          "2026-03-29",
+          0
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 3, da ida do horário de verão em Zurique, começando na segunda",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-03-29",
+        1
+      ],
+      "result": {
+        "returned": "2026-03-23",
+        "args": [
+          "2026-03-29",
+          1
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 4, da volta do horário de verão em Auckland, começando no domingo",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-04-05",
+        0
+      ],
+      "result": {
+        "returned": "2026-04-05",
+        "args": [
+          "2026-04-05",
+          0
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 4, da volta do horário de verão em Auckland, começando na segunda",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-04-05",
+        1
+      ],
+      "result": {
+        "returned": "2026-03-30",
+        "args": [
+          "2026-04-05",
+          1
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 5, da ida do horário de verão em Auckland, começando no domingo",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-09-27",
+        0
+      ],
+      "result": {
+        "returned": "2026-09-27",
+        "args": [
+          "2026-09-27",
+          0
+        ]
+      }
+    },
+    {
+      "name": "semana do dia da sessão 5, da ida do horário de verão em Auckland, começando na segunda",
+      "fn": "frontend/src/lib/format.js#weekKey",
+      "args": [
+        "2026-09-27",
+        1
+      ],
+      "result": {
+        "returned": "2026-09-21",
+        "args": [
+          "2026-09-27",
+          1
+        ]
+      }
+    },
+    {
+      "name": "tempo da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/format.js#fmtAgo",
+      "args": [
+        1792837800000,
+        1792842000000
+      ],
+      "result": {
+        "returned": "1 hour ago",
+        "args": [
+          1792837800000,
+          1792842000000
+        ]
+      }
+    },
+    {
+      "name": "tempo da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#fmtAgo",
+      "args": [
+        1792845000000,
+        1792852200000
+      ],
+      "result": {
+        "returned": "2 hours ago",
+        "args": [
+          1792845000000,
+          1792852200000
+        ]
+      }
+    },
+    {
+      "name": "tempo da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/format.js#fmtAgo",
+      "args": [
+        1774701000000,
+        1774708200000
+      ],
+      "result": {
+        "returned": "2 hours ago",
+        "args": [
+          1774701000000,
+          1774708200000
+        ]
+      }
+    },
+    {
+      "name": "tempo da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#fmtAgo",
+      "args": [
+        1775305800000,
+        1775316600000
+      ],
+      "result": {
+        "returned": "3 hours ago",
+        "args": [
+          1775305800000,
+          1775316600000
+        ]
+      }
+    },
+    {
+      "name": "tempo da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/format.js#fmtAgo",
+      "args": [
+        1790429400000,
+        1790433000000
+      ],
+      "result": {
+        "returned": "1 hour ago",
+        "args": [
+          1790429400000,
+          1790433000000
+        ]
+      }
+    },
+    {
+      "name": "treino terminado da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/finish-workout.js#buildCompletedWorkout",
+      "args": [
+        {
+          "id": "treino-1",
+          "d": "2026-10-24",
+          "start": 1792837800000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "name": "Supino e agachamento",
+          "bw": null,
+          "cur": 0,
+          "entries": [
+            {
+              "id": "0025",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792838640000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792839480000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1"
+            },
+            {
+              "id": "0043",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792840320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792841160000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1"
+            }
+          ],
+          "workoutView": "cards"
+        },
+        {
+          "end": 1792842000000
+        }
+      ],
+      "ignore": [
+        "returned.id"
+      ],
+      "result": {
+        "returned": {
+          "d": "2026-10-24",
+          "start": 1792837800000,
+          "end": 1792842000000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "routineId": "rotina-1",
+          "name": "Supino e agachamento",
+          "bw": null,
+          "entries": [
+            {
+              "id": "0025",
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792838640000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792839480000
+                }
+              ],
+              "topW": 60,
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              }
+            },
+            {
+              "id": "0043",
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792840320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792841160000
+                }
+              ],
+              "topW": 100,
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              }
+            }
+          ],
+          "prs": []
+        },
+        "args": [
+          {
+            "id": "treino-1",
+            "d": "2026-10-24",
+            "start": 1792837800000,
+            "routineIds": [
+              "rotina-1"
+            ],
+            "name": "Supino e agachamento",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792838640000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792839480000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1"
+              },
+              {
+                "id": "0043",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792840320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792841160000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1"
+              }
+            ],
+            "workoutView": "cards"
+          },
+          {
+            "end": 1792842000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "treino terminado da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/finish-workout.js#buildCompletedWorkout",
+      "args": [
+        {
+          "id": "treino-2",
+          "d": "2026-10-25",
+          "start": 1792845000000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "name": "Supino e agachamento",
+          "bw": null,
+          "cur": 0,
+          "entries": [
+            {
+              "id": "0025",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792846440000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792847880000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1"
+            },
+            {
+              "id": "0043",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792849320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792850760000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1"
+            }
+          ],
+          "workoutView": "cards"
+        },
+        {
+          "end": 1792852200000
+        }
+      ],
+      "ignore": [
+        "returned.id"
+      ],
+      "result": {
+        "returned": {
+          "d": "2026-10-25",
+          "start": 1792845000000,
+          "end": 1792852200000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "routineId": "rotina-1",
+          "name": "Supino e agachamento",
+          "bw": null,
+          "entries": [
+            {
+              "id": "0025",
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792846440000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1792847880000
+                }
+              ],
+              "topW": 60,
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              }
+            },
+            {
+              "id": "0043",
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792849320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1792850760000
+                }
+              ],
+              "topW": 100,
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              }
+            }
+          ],
+          "prs": []
+        },
+        "args": [
+          {
+            "id": "treino-2",
+            "d": "2026-10-25",
+            "start": 1792845000000,
+            "routineIds": [
+              "rotina-1"
+            ],
+            "name": "Supino e agachamento",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792846440000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792847880000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1"
+              },
+              {
+                "id": "0043",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792849320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792850760000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1"
+              }
+            ],
+            "workoutView": "cards"
+          },
+          {
+            "end": 1792852200000
+          }
+        ]
+      }
+    },
+    {
+      "name": "treino terminado da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/finish-workout.js#buildCompletedWorkout",
+      "args": [
+        {
+          "id": "treino-3",
+          "d": "2026-03-29",
+          "start": 1774701000000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "name": "Supino e agachamento",
+          "bw": null,
+          "cur": 0,
+          "entries": [
+            {
+              "id": "0025",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1774702440000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1774703880000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1"
+            },
+            {
+              "id": "0043",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1774705320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1774706760000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1"
+            }
+          ],
+          "workoutView": "cards"
+        },
+        {
+          "end": 1774708200000
+        }
+      ],
+      "ignore": [
+        "returned.id"
+      ],
+      "result": {
+        "returned": {
+          "d": "2026-03-29",
+          "start": 1774701000000,
+          "end": 1774708200000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "routineId": "rotina-1",
+          "name": "Supino e agachamento",
+          "bw": null,
+          "entries": [
+            {
+              "id": "0025",
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1774702440000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1774703880000
+                }
+              ],
+              "topW": 60,
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              }
+            },
+            {
+              "id": "0043",
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1774705320000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1774706760000
+                }
+              ],
+              "topW": 100,
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              }
+            }
+          ],
+          "prs": []
+        },
+        "args": [
+          {
+            "id": "treino-3",
+            "d": "2026-03-29",
+            "start": 1774701000000,
+            "routineIds": [
+              "rotina-1"
+            ],
+            "name": "Supino e agachamento",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1774702440000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1774703880000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1"
+              },
+              {
+                "id": "0043",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1774705320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1774706760000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1"
+              }
+            ],
+            "workoutView": "cards"
+          },
+          {
+            "end": 1774708200000
+          }
+        ]
+      }
+    },
+    {
+      "name": "treino terminado da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/finish-workout.js#buildCompletedWorkout",
+      "args": [
+        {
+          "id": "treino-4",
+          "d": "2026-04-05",
+          "start": 1775305800000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "name": "Supino e agachamento",
+          "bw": null,
+          "cur": 0,
+          "entries": [
+            {
+              "id": "0025",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1775307960000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1775310120000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1"
+            },
+            {
+              "id": "0043",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1775312280000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1775314440000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1"
+            }
+          ],
+          "workoutView": "cards"
+        },
+        {
+          "end": 1775316600000
+        }
+      ],
+      "ignore": [
+        "returned.id"
+      ],
+      "result": {
+        "returned": {
+          "d": "2026-04-05",
+          "start": 1775305800000,
+          "end": 1775316600000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "routineId": "rotina-1",
+          "name": "Supino e agachamento",
+          "bw": null,
+          "entries": [
+            {
+              "id": "0025",
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1775307960000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1775310120000
+                }
+              ],
+              "topW": 60,
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              }
+            },
+            {
+              "id": "0043",
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1775312280000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1775314440000
+                }
+              ],
+              "topW": 100,
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              }
+            }
+          ],
+          "prs": []
+        },
+        "args": [
+          {
+            "id": "treino-4",
+            "d": "2026-04-05",
+            "start": 1775305800000,
+            "routineIds": [
+              "rotina-1"
+            ],
+            "name": "Supino e agachamento",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1775307960000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1775310120000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1"
+              },
+              {
+                "id": "0043",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1775312280000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1775314440000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1"
+              }
+            ],
+            "workoutView": "cards"
+          },
+          {
+            "end": 1775316600000
+          }
+        ]
+      }
+    },
+    {
+      "name": "treino terminado da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/finish-workout.js#buildCompletedWorkout",
+      "args": [
+        {
+          "id": "treino-5",
+          "d": "2026-09-27",
+          "start": 1790429400000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "name": "Supino e agachamento",
+          "bw": null,
+          "cur": 0,
+          "entries": [
+            {
+              "id": "0025",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1790430120000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1790430840000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1"
+            },
+            {
+              "id": "0043",
+              "sg": {
+                "$undefined": true
+              },
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "plan": {
+                "policy": "linear",
+                "kind": "first",
+                "why": [
+                  "Nothing logged yet, so this session sets the baseline."
+                ]
+              },
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1790431560000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1790432280000
+                }
+              ],
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1"
+            }
+          ],
+          "workoutView": "cards"
+        },
+        {
+          "end": 1790433000000
+        }
+      ],
+      "ignore": [
+        "returned.id"
+      ],
+      "result": {
+        "returned": {
+          "d": "2026-09-27",
+          "start": 1790429400000,
+          "end": 1790433000000,
+          "routineIds": [
+            "rotina-1"
+          ],
+          "routineId": "rotina-1",
+          "name": "Supino e agachamento",
+          "bw": null,
+          "entries": [
+            {
+              "id": "0025",
+              "sets": [
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1790430120000
+                },
+                {
+                  "w": 60,
+                  "r": 8,
+                  "done": true,
+                  "at": 1790430840000
+                }
+              ],
+              "topW": 60,
+              "target": {
+                "id": "0025",
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 8,
+                "weight": 60
+              }
+            },
+            {
+              "id": "0043",
+              "sets": [
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1790431560000
+                },
+                {
+                  "w": 100,
+                  "r": 5,
+                  "done": true,
+                  "at": 1790432280000
+                }
+              ],
+              "topW": 100,
+              "target": {
+                "id": "0043",
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              },
+              "rid": "rotina-1",
+              "planned": {
+                "sets": 2,
+                "reps": 5,
+                "weight": 100
+              }
+            }
+          ],
+          "prs": []
+        },
+        "args": [
+          {
+            "id": "treino-5",
+            "d": "2026-09-27",
+            "start": 1790429400000,
+            "routineIds": [
+              "rotina-1"
+            ],
+            "name": "Supino e agachamento",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1790430120000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1790430840000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1"
+              },
+              {
+                "id": "0043",
+                "sg": {
+                  "$undefined": true
+                },
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1790431560000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1790432280000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1"
+              }
+            ],
+            "workoutView": "cards"
+          },
+          {
+            "end": 1790433000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do treino só com o começo da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/history.js#workoutDay",
+      "args": [
+        {
+          "start": 1792837800000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-24",
+        "args": [
+          {
+            "start": 1792837800000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do treino só com o começo da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/history.js#workoutDay",
+      "args": [
+        {
+          "start": 1792845000000
+        }
+      ],
+      "result": {
+        "returned": "2026-10-25",
+        "args": [
+          {
+            "start": 1792845000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do treino só com o começo da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/history.js#workoutDay",
+      "args": [
+        {
+          "start": 1774701000000
+        }
+      ],
+      "result": {
+        "returned": "2026-03-29",
+        "args": [
+          {
+            "start": 1774701000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do treino só com o começo da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/history.js#workoutDay",
+      "args": [
+        {
+          "start": 1775305800000
+        }
+      ],
+      "result": {
+        "returned": "2026-04-05",
+        "args": [
+          {
+            "start": 1775305800000
+          }
+        ]
+      }
+    },
+    {
+      "name": "dia do treino só com o começo da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/history.js#workoutDay",
+      "args": [
+        {
+          "start": 1790429400000
+        }
+      ],
+      "result": {
+        "returned": "2026-09-27",
+        "args": [
+          {
+            "start": 1790429400000
+          }
+        ]
+      }
+    },
+    {
+      "name": "meio-dia do treino só com o dia da sessão 1, que cruza a meia-noite",
+      "fn": "frontend/src/lib/history.js#workoutAt",
+      "args": [
+        {
+          "d": "2026-10-24"
+        }
+      ],
+      "result": {
+        "returned": 1792796400000,
+        "args": [
+          {
+            "d": "2026-10-24"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meio-dia do treino só com o dia da sessão 2, da volta do horário de verão em Zurique",
+      "fn": "frontend/src/lib/history.js#workoutAt",
+      "args": [
+        {
+          "d": "2026-10-25"
+        }
+      ],
+      "result": {
+        "returned": 1792882800000,
+        "args": [
+          {
+            "d": "2026-10-25"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meio-dia do treino só com o dia da sessão 3, da ida do horário de verão em Zurique",
+      "fn": "frontend/src/lib/history.js#workoutAt",
+      "args": [
+        {
+          "d": "2026-03-29"
+        }
+      ],
+      "result": {
+        "returned": 1774738800000,
+        "args": [
+          {
+            "d": "2026-03-29"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meio-dia do treino só com o dia da sessão 4, da volta do horário de verão em Auckland",
+      "fn": "frontend/src/lib/history.js#workoutAt",
+      "args": [
+        {
+          "d": "2026-04-05"
+        }
+      ],
+      "result": {
+        "returned": 1775347200000,
+        "args": [
+          {
+            "d": "2026-04-05"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meio-dia do treino só com o dia da sessão 5, da ida do horário de verão em Auckland",
+      "fn": "frontend/src/lib/history.js#workoutAt",
+      "args": [
+        {
+          "d": "2026-09-27"
+        }
+      ],
+      "result": {
+        "returned": 1790463600000,
+        "args": [
+          {
+            "d": "2026-09-27"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fadiga dos cinco treinos 36 h depois do último",
+      "fn": "frontend/src/lib/recovery.js#fatigueOf",
+      "args": [
+        [
+          {
+            "id": "treino-3",
+            "d": "2026-03-29",
+            "routineIds": [
+              "rotina-1"
+            ],
+            "routineId": "rotina-1",
+            "name": "Supino e agachamento",
+            "bw": null,
+            "entries": [
+              {
+                "id": "0025",
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1774702440000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1774703880000
+                  }
+                ],
+                "topW": 60,
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                }
+              },
+              {
+                "id": "0043",
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1774705320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1774706760000
+                  }
+                ],
+                "topW": 100,
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              }
+            ],
+            "prs": []
+          },
+          {
+            "id": "treino-4",
+            "d": "2026-04-05",
+            "routineIds": [
+              "rotina-1"
+            ],
+            "routineId": "rotina-1",
+            "name": "Supino e agachamento",
+            "bw": null,
+            "entries": [
+              {
+                "id": "0025",
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1775307960000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1775310120000
+                  }
+                ],
+                "topW": 60,
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                }
+              },
+              {
+                "id": "0043",
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1775312280000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1775314440000
+                  }
+                ],
+                "topW": 100,
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              }
+            ],
+            "prs": []
+          },
+          {
+            "id": "treino-5",
+            "d": "2026-09-27",
+            "routineIds": [
+              "rotina-1"
+            ],
+            "routineId": "rotina-1",
+            "name": "Supino e agachamento",
+            "bw": null,
+            "entries": [
+              {
+                "id": "0025",
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1790430120000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1790430840000
+                  }
+                ],
+                "topW": 60,
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                }
+              },
+              {
+                "id": "0043",
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1790431560000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1790432280000
+                  }
+                ],
+                "topW": 100,
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              }
+            ],
+            "prs": []
+          },
+          {
+            "id": "treino-1",
+            "d": "2026-10-24",
+            "routineIds": [
+              "rotina-1"
+            ],
+            "routineId": "rotina-1",
+            "name": "Supino e agachamento",
+            "bw": null,
+            "entries": [
+              {
+                "id": "0025",
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792838640000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792839480000
+                  }
+                ],
+                "topW": 60,
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                }
+              },
+              {
+                "id": "0043",
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792840320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792841160000
+                  }
+                ],
+                "topW": 100,
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              }
+            ],
+            "prs": []
+          },
+          {
+            "id": "treino-2",
+            "d": "2026-10-25",
+            "routineIds": [
+              "rotina-1"
+            ],
+            "routineId": "rotina-1",
+            "name": "Supino e agachamento",
+            "bw": null,
+            "entries": [
+              {
+                "id": "0025",
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792846440000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1792847880000
+                  }
+                ],
+                "topW": 60,
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                }
+              },
+              {
+                "id": "0043",
+                "sets": [
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792849320000
+                  },
+                  {
+                    "w": 100,
+                    "r": 5,
+                    "done": true,
+                    "at": 1792850760000
+                  }
+                ],
+                "topW": 100,
+                "target": {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                },
+                "rid": "rotina-1",
+                "planned": {
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              }
+            ],
+            "prs": []
+          }
+        ],
+        1793012400000
+      ],
+      "result": {
+        "returned": {
+          "trapezius": 0,
+          "deltoids": 0.0604234771933192,
+          "chest": 0.20806974017040547,
+          "upper-back": 0,
+          "serratus": 0,
+          "biceps": 0,
+          "triceps": 0.0604234771933192,
+          "forearm": 0,
+          "abs": 0.0604234771933192,
+          "obliques": 0.0604234771933192,
+          "lower-back": 0.11153297471252455,
+          "gluteal": 0.28991176000318064,
+          "quadriceps": 0.28991176000318064,
+          "hamstring": 0.11153297471252455,
+          "adductors": 0.28991176000318064,
+          "hip-flexors": 0,
+          "calves": 0.11153297471252455,
+          "tibialis": 0
+        },
+        "args": [
+          [
+            {
+              "id": "treino-3",
+              "d": "2026-03-29",
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1774702440000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1774703880000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                },
+                {
+                  "id": "0043",
+                  "sets": [
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1774705320000
+                    },
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1774706760000
+                    }
+                  ],
+                  "topW": 100,
+                  "target": {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                }
+              ],
+              "prs": []
+            },
+            {
+              "id": "treino-4",
+              "d": "2026-04-05",
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1775307960000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1775310120000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                },
+                {
+                  "id": "0043",
+                  "sets": [
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1775312280000
+                    },
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1775314440000
+                    }
+                  ],
+                  "topW": 100,
+                  "target": {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                }
+              ],
+              "prs": []
+            },
+            {
+              "id": "treino-5",
+              "d": "2026-09-27",
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1790430120000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1790430840000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                },
+                {
+                  "id": "0043",
+                  "sets": [
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1790431560000
+                    },
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1790432280000
+                    }
+                  ],
+                  "topW": 100,
+                  "target": {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                }
+              ],
+              "prs": []
+            },
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                },
+                {
+                  "id": "0043",
+                  "sets": [
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1792840320000
+                    },
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1792841160000
+                    }
+                  ],
+                  "topW": 100,
+                  "target": {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                }
+              ],
+              "prs": []
+            },
+            {
+              "id": "treino-2",
+              "d": "2026-10-25",
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792846440000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792847880000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                },
+                {
+                  "id": "0043",
+                  "sets": [
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1792849320000
+                    },
+                    {
+                      "w": 100,
+                      "r": 5,
+                      "done": true,
+                      "at": 1792850760000
+                    }
+                  ],
+                  "topW": 100,
+                  "target": {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                }
+              ],
+              "prs": []
+            }
+          ],
+          1793012400000
+        ]
+      }
+    },
+    {
+      "name": "carimbo de uma série mudada",
+      "fn": "frontend/src/lib/sync-merge.js#stampChange",
+      "args": [
+        {
+          "_ts": 1792842000000,
+          "workouts": [
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "start": 1792837800000,
+              "end": 1792842000000,
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                }
+              ],
+              "prs": [],
+              "_ts": 1792842000000
+            }
+          ]
+        },
+        {
+          "_ts": 1792842000000,
+          "workouts": [
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "start": 1792837800000,
+              "end": 1792842000000,
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 6,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                }
+              ],
+              "prs": [],
+              "_ts": 1792845600000
+            }
+          ]
+        },
+        1792845600000
+      ],
+      "result": {
+        "returned": 1792845600000,
+        "args": [
+          {
+            "_ts": 1792842000000,
+            "workouts": [
+              {
+                "id": "treino-1",
+                "d": "2026-10-24",
+                "start": 1792837800000,
+                "end": 1792842000000,
+                "routineIds": [
+                  "rotina-1"
+                ],
+                "routineId": "rotina-1",
+                "name": "Supino e agachamento",
+                "bw": null,
+                "entries": [
+                  {
+                    "id": "0025",
+                    "sets": [
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792838640000
+                      },
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792839480000
+                      }
+                    ],
+                    "topW": 60,
+                    "target": {
+                      "id": "0025",
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    },
+                    "rid": "rotina-1",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    }
+                  }
+                ],
+                "prs": [],
+                "_ts": 1792842000000
+              }
+            ]
+          },
+          {
+            "_ts": 1792842000000,
+            "workouts": [
+              {
+                "id": "treino-1",
+                "d": "2026-10-24",
+                "start": 1792837800000,
+                "end": 1792842000000,
+                "routineIds": [
+                  "rotina-1"
+                ],
+                "routineId": "rotina-1",
+                "name": "Supino e agachamento",
+                "bw": null,
+                "entries": [
+                  {
+                    "id": "0025",
+                    "sets": [
+                      {
+                        "w": 60,
+                        "r": 6,
+                        "done": true,
+                        "at": 1792838640000
+                      },
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792839480000
+                      }
+                    ],
+                    "topW": 60,
+                    "target": {
+                      "id": "0025",
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    },
+                    "rid": "rotina-1",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    }
+                  }
+                ],
+                "prs": [],
+                "_ts": 1792845600000,
+                "_f": {
+                  "entries": 1792845600000
+                }
+              }
+            ]
+          },
+          1792845600000
+        ]
+      }
+    },
+    {
+      "name": "mesclagem de duas cópias que mudaram campos diferentes",
+      "fn": "frontend/src/lib/sync-merge.js#mergeStates",
+      "args": [
+        {
+          "_ts": 1792845600000,
+          "restSec": 120,
+          "routines": [
+            {
+              "id": "rotina-1",
+              "name": "Supino e agachamento",
+              "ex": [
+                {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              ],
+              "_ts": 1792837800000
+            }
+          ],
+          "workouts": [
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "start": 1792837800000,
+              "end": 1792842000000,
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                }
+              ],
+              "prs": [],
+              "_ts": 1792842000000
+            }
+          ],
+          "edited": {
+            "restSec": 1792845600000
+          }
+        },
+        {
+          "_ts": 1792849200000,
+          "restSec": 90,
+          "routines": [
+            {
+              "id": "rotina-1",
+              "name": "Supino e agachamento",
+              "ex": [
+                {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              ],
+              "_ts": 1792837800000
+            }
+          ],
+          "workouts": [
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "start": 1792837800000,
+              "end": 1792842000000,
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                }
+              ],
+              "prs": [],
+              "_ts": 1792849200000,
+              "note": "ombro doeu",
+              "_f": {
+                "note": 1792849200000
+              }
+            }
+          ]
+        }
+      ],
+      "result": {
+        "returned": {
+          "_ts": 1792849200000,
+          "restSec": 120,
+          "routines": [
+            {
+              "id": "rotina-1",
+              "name": "Supino e agachamento",
+              "ex": [
+                {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100
+                }
+              ],
+              "_ts": 1792837800000
+            }
+          ],
+          "workouts": [
+            {
+              "id": "treino-1",
+              "d": "2026-10-24",
+              "start": 1792837800000,
+              "end": 1792842000000,
+              "routineIds": [
+                "rotina-1"
+              ],
+              "routineId": "rotina-1",
+              "name": "Supino e agachamento",
+              "bw": null,
+              "entries": [
+                {
+                  "id": "0025",
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792838640000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1792839480000
+                    }
+                  ],
+                  "topW": 60,
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "rotina-1",
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  }
+                }
+              ],
+              "prs": [],
+              "_ts": 1792849200000,
+              "note": "ombro doeu",
+              "_f": {
+                "note": 1792849200000
+              }
+            }
+          ],
+          "bodyweight": [],
+          "exWeights": {},
+          "edited": {
+            "restSec": 1792845600000
+          }
+        },
+        "args": [
+          {
+            "_ts": 1792845600000,
+            "restSec": 120,
+            "routines": [
+              {
+                "id": "rotina-1",
+                "name": "Supino e agachamento",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                ],
+                "_ts": 1792837800000
+              }
+            ],
+            "workouts": [
+              {
+                "id": "treino-1",
+                "d": "2026-10-24",
+                "start": 1792837800000,
+                "end": 1792842000000,
+                "routineIds": [
+                  "rotina-1"
+                ],
+                "routineId": "rotina-1",
+                "name": "Supino e agachamento",
+                "bw": null,
+                "entries": [
+                  {
+                    "id": "0025",
+                    "sets": [
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792838640000
+                      },
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792839480000
+                      }
+                    ],
+                    "topW": 60,
+                    "target": {
+                      "id": "0025",
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    },
+                    "rid": "rotina-1",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    }
+                  }
+                ],
+                "prs": [],
+                "_ts": 1792842000000
+              }
+            ],
+            "edited": {
+              "restSec": 1792845600000
+            }
+          },
+          {
+            "_ts": 1792849200000,
+            "restSec": 90,
+            "routines": [
+              {
+                "id": "rotina-1",
+                "name": "Supino e agachamento",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100
+                  }
+                ],
+                "_ts": 1792837800000
+              }
+            ],
+            "workouts": [
+              {
+                "id": "treino-1",
+                "d": "2026-10-24",
+                "start": 1792837800000,
+                "end": 1792842000000,
+                "routineIds": [
+                  "rotina-1"
+                ],
+                "routineId": "rotina-1",
+                "name": "Supino e agachamento",
+                "bw": null,
+                "entries": [
+                  {
+                    "id": "0025",
+                    "sets": [
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792838640000
+                      },
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1792839480000
+                      }
+                    ],
+                    "topW": 60,
+                    "target": {
+                      "id": "0025",
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    },
+                    "rid": "rotina-1",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    }
+                  }
+                ],
+                "prs": [],
+                "_ts": 1792849200000,
+                "note": "ombro doeu",
+                "_f": {
+                  "note": 1792849200000
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "1RM de 100 x 5",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        100,
+        5
+      ],
+      "result": {
+        "returned": 116.7,
+        "args": [
+          100,
+          5
+        ]
+      }
+    },
+    {
+      "name": "1RM de 60 x 12",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        60,
+        12
+      ],
+      "result": {
+        "returned": 84,
+        "args": [
+          60,
+          12
+        ]
+      }
+    },
+    {
+      "name": "1RM de 140 x 1",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        140,
+        1
+      ],
+      "result": {
+        "returned": 140,
+        "args": [
+          140,
+          1
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula epley",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "epley"
+      ],
+      "result": {
+        "returned": 101.3,
+        "args": [
+          80,
+          8,
+          "epley"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula brzycki",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "brzycki"
+      ],
+      "result": {
+        "returned": 99.3,
+        "args": [
+          80,
+          8,
+          "brzycki"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula lombardi",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "lombardi"
+      ],
+      "result": {
+        "returned": 98.5,
+        "args": [
+          80,
+          8,
+          "lombardi"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula oconner",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "oconner"
+      ],
+      "result": {
+        "returned": 96,
+        "args": [
+          80,
+          8,
+          "oconner"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula mayhew",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "mayhew"
+      ],
+      "result": {
+        "returned": 101,
+        "args": [
+          80,
+          8,
+          "mayhew"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula wathan",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "wathan"
+      ],
+      "result": {
+        "returned": 102.1,
+        "args": [
+          80,
+          8,
+          "wathan"
+        ]
+      }
+    },
+    {
+      "name": "1RM de 80 x 8 pela fórmula lander",
+      "fn": "frontend/src/lib/onerm.js#estimate1RM",
+      "args": [
+        80,
+        8,
+        "lander"
+      ],
+      "result": {
+        "returned": 100.1,
+        "args": [
+          80,
+          8,
+          "lander"
+        ]
+      }
+    }
+  ]
+}

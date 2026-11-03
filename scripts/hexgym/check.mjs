@@ -29,6 +29,19 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const SELF = fs.realpathSync(fileURLToPath(import.meta.url))
 const ROOT = path.join(path.dirname(SELF), '..', '..')
 
+// Os módulos que moram ao lado deste arquivo, importados pelo caminho de verdade dele: pelo mesmo
+// link, um import comum os procuraria ao lado do link. Nenhum dos dois roda nada ao ser importado,
+// e o developerDir só é chamado quando uma checagem da parte packages vai rodar.
+const sibling = name => import(pathToFileURL(path.join(path.dirname(SELF), name)).href)
+const { developerDir } = await sibling('xcode.mjs')
+const { TIME_ZONES } = await sibling('engine-cases.mjs')
+
+// O ambiente de uma rodada do swift test do HexEngine: o swift do xcode.mjs (o Xcode completo ou,
+// sem ele, as Command Line Tools) e o fuso, no TZ do processo e no HEXGYM_CASES, que diz ao
+// RecordedCasesTests quais casos gravados rodar.
+const swiftIn = zone => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }), TZ: zone, HEXGYM_CASES: zone })
+const HEXENGINE = ['test', '--package-path', 'apple/Packages/HexEngine']
+
 // Sempre nesta ordem, e cada Task põe a sua parte no lugar dela:
 // scripts, engine, load, packages, app.
 // Cada parte mostra quantos testes rodou, e a que não rodou nenhum falha. O spawnCheck conta os
@@ -37,22 +50,37 @@ const ROOT = path.join(path.dirname(SELF), '..', '..')
 //   - o node --test, por um segundo reporter, tap (por isso, a checagem não leva --test-reporter);
 //   - o Vitest (npx vitest), por um segundo reporter, json (por isso, a checagem não leva --reporter
 //     nem --outputFile, e o config dela não escolhe reporters);
+//   - o swift test, pelo XUnit do --xunit-output (por isso, a checagem não leva --xunit-output): cada
+//     <testcase> sem <skipped>, <failure> nem <error> dentro, e um teste pulado não conta;
 //   - qualquer outro comando, pelo arquivo que o spawnCheck passa em HEXGYM_CHECK_COUNT_FILE, onde
 //     ele grava quantos testes passaram no formato do fim do tap (# pass <n>). É o que o
 //     engine-load.mjs faz, com as metas que conferiu e que passaram.
-// Um comando que não grava nada (o build --check, o swift test ou o xcodebuild, por exemplo) conta
-// zero, e a parte dele precisa de outra checagem que conte, ou de ensinar o spawnCheck a contar.
+// Um comando que não grava nada (os --check e o xcodebuild, por exemplo) conta zero, e a parte dele
+// precisa de outra checagem que conte, ou de ensinar o spawnCheck a contar.
 export const PARTS = {
   scripts: [
     { name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] },
   ],
   engine: [
     { name: 'script do motor em dia', cmd: 'node', args: ['scripts/build-hexgym-engine.mjs', '--check'] },
+    { name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] },
     { name: 'testes do script do motor', cmd: 'node', args: ['--test', 'apple/Packages/HexEngine/JS/*.test.mjs'] },
     { name: 'testes do lib contra o script', cmd: 'npx', args: ['vitest', 'run', '--config', 'vitest.hexengine.config.js'], cwd: 'frontend' },
   ],
   load: [
     { name: 'teste de carga do motor no jsc', cmd: 'node', args: ['scripts/hexgym/engine-load.mjs'] },
+  ],
+  // Todos os testes do HexEngine no primeiro fuso, com os casos gravados dele, e os casos gravados de
+  // novo em cada outro fuso. Só a primeira rodada compila: as outras rodam o que ela compilou
+  // (--skip-build), porque o swift test refaz parte da compilação a cada chamada, mesmo sem mudança,
+  // e com as Command Line Tools cada compilação dos testes pode falhar ao acaso (o plugin do
+  // TestingMacros que fica de fora, issue #19). O env é uma função: sem o swift, só esta parte falha.
+  packages: [
+    { name: `HexEngine, com os casos gravados em ${TIME_ZONES[0]}`, cmd: 'swift', args: [...HEXENGINE], env: () => swiftIn(TIME_ZONES[0]) },
+    ...TIME_ZONES.slice(1).map(zone => ({
+      name: `HexEngine, casos gravados em ${zone}`, cmd: 'swift',
+      args: [...HEXENGINE, '--skip-build', '--filter', 'RecordedCasesTests'], env: () => swiftIn(zone),
+    })),
   ],
 }
 
@@ -156,13 +184,53 @@ function passedVitest(file) {
   return Number.isInteger(passed) && passed >= 0 ? passed : 0
 }
 
+// Um swift test: o swift com o test como primeiro argumento.
+function isSwiftTest(cmd, args) {
+  return path.basename(cmd) === 'swift' && args[0] === 'test'
+}
+
+// O swift test com o --xunit-output no arquivo. O Swift Testing grava ali o resultado em XUnit, e a
+// tela continua a de sempre.
+function withXunitFile(args, file) {
+  return [args[0], '--xunit-output', file, ...args.slice(1)]
+}
+
+// Os <testcase> que passaram num XUnit: os que não têm <skipped>, <failure> nem <error> dentro. Um
+// <testcase .../> fechado nele mesmo passou; um que não fecha não conta.
+function passedCases(xml) {
+  let passed = 0
+  for (const m of xml.matchAll(/<testcase\b((?:[^>"']|"[^"]*"|'[^']*')*)>/g)) {
+    if (m[1].trimEnd().endsWith('/')) {
+      passed++
+      continue
+    }
+    const from = m.index + m[0].length, to = xml.indexOf('</testcase>', from)
+    if (to >= 0 && !/<(skipped|failure|error)\b/.test(xml.slice(from, to))) passed++
+  }
+  return passed
+}
+
+// Quantos testes passaram no swift test, somados os XUnit que ele gravou na pasta da checagem: o
+// arquivo do --xunit-output e, com o XCTest de um Xcode completo rodando junto, o do Swift Testing
+// ao lado dele, com -swift-testing no nome. Sem nenhum, zero.
+function passedXunit(dir) {
+  let names
+  try {
+    names = fs.readdirSync(dir).filter(n => n.endsWith('.xml')).sort()
+  } catch (err) {
+    console.error(`não deu para ler quantos testes rodaram: ${err.message}`)
+    return 0
+  }
+  return names.reduce((sum, name) => sum + passedCases(report(path.join(dir, name)) ?? ''), 0)
+}
+
 // Roda uma checagem e devolve o código de saída. Um args ou env que não sai, ou um comando
 // que nem começa, conta como falha dessa checagem, com o motivo no stderr. O count recebe quantos
 // testes passaram, pelo arquivo que a ferramenta gravou numa pasta própria em os.tmpdir(), que sai
-// quando a checagem acaba: o tap do node --test, o json do Vitest ou, para qualquer outro comando,
-// o arquivo de COUNT_FILE. Só esse outro comando recebe a variável: um node --test ou um Vitest
-// aberto aqui não a herda de quem chamou o check.mjs, e nenhum processo dentro deles grava a conta
-// de outra checagem.
+// quando a checagem acaba: o tap do node --test, o json do Vitest, o XUnit do swift test ou, para
+// qualquer outro comando, o arquivo de COUNT_FILE. Só esse outro comando recebe a variável: um
+// node --test, um Vitest ou um swift test aberto aqui não a herda de quem chamou o check.mjs, e
+// nenhum processo dentro deles grava a conta de outra checagem.
 export async function spawnCheck(check, count = () => {}) {
   let args, env, cwd, tmp, passed
   try {
@@ -177,6 +245,9 @@ export async function spawnCheck(check, count = () => {}) {
     } else if (isVitest(check.cmd, args)) {
       args = withJsonFile(args, path.join(tmp, 'vitest.json'), await vitestScreen(cwd, env))
       passed = () => passedVitest(path.join(tmp, 'vitest.json'))
+    } else if (isSwiftTest(check.cmd, args)) {
+      args = withXunitFile(args, path.join(tmp, 'xunit.xml'))
+      passed = () => passedXunit(tmp)
     } else {
       env[COUNT_FILE] = path.join(tmp, 'count')
       passed = () => passedTests(path.join(tmp, 'count'))
