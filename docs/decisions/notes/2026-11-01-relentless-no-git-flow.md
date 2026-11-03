@@ -62,7 +62,8 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   `.github/PULL_REQUEST_TEMPLATE.md` ao lado do `pull_request_template.md` do HexGym, e esse
   arquivo novo sai.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
-  features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
+  branches que saem dela desde o PR #29 (squash `9075a2c`), que trouxe os ganchos, e a `main` só
+  depois da primeira versão. Eles só guardam a `main` e
   recusam push forçado em qualquer branch. A
   `develop` e a `main` ficam guardadas também pela proteção do GitHub (PR obrigatório, também para
   admin, sem push forçado e sem apagar).
