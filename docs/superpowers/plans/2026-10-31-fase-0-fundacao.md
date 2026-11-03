@@ -118,7 +118,7 @@ E duas coisas que a revisão do plano achou e ficam para depois, de propósito. 
 **Interfaces:**
 - Consumes: o relentless na última versão publicada (a tag `v1.4.11` em 03/11/2026), ativado só neste projeto. `S` é a pasta dos scripts dele: `S="$(claude plugin list --json | jq -r '.[] | select(.id == "relentless@relentless") | .installPath')/core/scripts"`. Os scripts desta Task: `set-state.sh`, `worktree-create.sh`, `wait-ci.sh`, `fill-qa-section.sh`, `run-isolated-review.sh`, `merge-if-ready.sh`, `request-decision.sh`, `comment-agent.sh`, `create-epic.sh`, `add-sub-issue.sh`, `check-milestone-outcomes.sh` e `worktree-cleanup.sh`, mais o agente `relentless:qa`.
 - Produces:
-  - `check.mjs` exporta `PARTS` (objeto `parte → [{ name, cmd, args, cwd?, env? }]`, na ordem em que rodam), `planChecks(parts: string[]) → check[]` e `runChecks(checks, run) → { ok: boolean, failed?: string }`. CLI: `node scripts/hexgym/check.mjs [parte ...] [--list]`, e sem parte roda todas. As Tasks seguintes acrescentam partes ao `PARTS`. É o `checks.test` do `.relentless/config.json`, e o QA e a CI chamam o mesmo comando.
+  - `check.mjs` exporta `PARTS` (objeto `parte → [{ name, cmd, args, cwd?, env? }]`, na ordem em que rodam), `planChecks(parts: string[]) → check[]`, `runChecks(checks, run) → { ok: boolean, failed?: string }` e `runParts(parts, run) → { ok: boolean, failed?: string, part?: string, tests?: number }`. Uma parte só passa se as checagens dela passam e se, somadas, rodaram pelo menos um teste (issue #44): o `node --test` é contado sozinho, pelo `tap` que o `spawnCheck` grava num arquivo, e qualquer outro comando conta zero até ensinar o `spawnCheck` a contar os testes dele. CLI: `node scripts/hexgym/check.mjs [parte ...] [--list]`, e sem parte roda todas. As Tasks seguintes acrescentam partes ao `PARTS`. É o `checks.test` do `.relentless/config.json`, e o QA e a CI chamam o mesmo comando.
   - O modelo de PR com a seção `## QA / dogfood result`, que o `fill-qa-section.sh` preenche.
   - A fase 0 pronta para o orquestrador do relentless: o milestone com a seção Outcome, o épico, cada issue da fase como sub-issue dele e com uma etiqueta `state:*`, e as esperas da #3 e da #10 como pedidos de decisão.
 
@@ -173,7 +173,7 @@ Expected: FAIL, `Cannot find module` para `./check.mjs`.
 
 - [ ] **Step 5: Implement `scripts/hexgym/check.mjs`**
 
-`PARTS = { scripts: [{ name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] }] }`. O `PARTS` fica escrito sempre nesta ordem, e cada Task põe a sua parte no lugar dela: `scripts`, `engine`, `load`, `packages`, `app`. O `run` padrão usa `spawn` com `stdio: 'inherit'`, `cwd` relativo à raiz do repositório e `env` somado ao `process.env`. O `args` e o `env` podem ser um valor ou uma função que devolve o valor; a função só é chamada quando aquela checagem vai rodar, e o `--list` mostra `(calculado ao rodar)` no lugar, para uma parte que precisa do Xcode não quebrar as outras nem o `--list` numa máquina sem ele. A CLI imprime `▶ <nome>` antes de cada checagem e, no fim, `ok` ou `falhou: <nome>`, saindo com 1 na falha. `--list` imprime os comandos e não roda nada.
+`PARTS = { scripts: [{ name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] }] }`. O `PARTS` fica escrito sempre nesta ordem, e cada Task põe a sua parte no lugar dela: `scripts`, `engine`, `load`, `packages`, `app`. O `run` padrão usa `spawn` com `stdio: 'inherit'`, `cwd` relativo à raiz do repositório e `env` somado ao `process.env`. O `args` e o `env` podem ser um valor ou uma função que devolve o valor; a função só é chamada quando aquela checagem vai rodar, e o `--list` mostra `(calculado ao rodar)` no lugar, para uma parte que precisa do Xcode não quebrar as outras nem o `--list` numa máquina sem ele. A CLI imprime `▶ <nome>` antes de cada checagem e, no fim, `ok` ou `falhou: <nome>`, saindo com 1 na falha. Uma parte que, somadas as checagens, não rodou nenhum teste também falha (issue #44): o stderr diz qual parte, e o fim é `falhou: <parte> (nenhum teste)`. `--list` imprime os comandos e não roda nada.
 
 - [ ] **Step 6: Run the tests to verify they pass**
 
@@ -773,7 +773,7 @@ Expected: PASS nos dois testes e a tabela dentro das metas. A tabela vai no PR, 
 
 - [ ] **Step 10: Add the checks**
 
-Em `PARTS.engine`, depois dos testes do script: `{ name: 'testes do lib contra o script', cmd: 'npx', args: ['vitest', 'run', '--config', 'vitest.hexengine.config.js'], cwd: 'frontend' }`. Parte nova `load`: `node scripts/hexgym/engine-load.mjs`. Atualizar a mensagem do teste "unknown part".
+Em `PARTS.engine`, depois dos testes do script: `{ name: 'testes do lib contra o script', cmd: 'npx', args: ['vitest', 'run', '--config', 'vitest.hexengine.config.js'], cwd: 'frontend' }`. Parte nova `load`: `node scripts/hexgym/engine-load.mjs`. Como diz a Task 1, cada checagem nova precisa mostrar ao `check.mjs` quantos testes rodou: o Vitest, para a conta da `engine` incluir os testes dele, e o `engine-load.mjs`, senão a parte `load`, que só tem ele, conta zero e falha. Atualizar a mensagem do teste "unknown part".
 
 Run: `node scripts/hexgym/check.mjs scripts engine load`
 Expected: `ok`.
@@ -996,7 +996,7 @@ Expected: FAIL na conferência do fuso.
 
 - [ ] **Step 14: Add the checks**
 
-Em `PARTS.engine`: `{ name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] }`. `PARTS.packages`: `swift test --package-path apple/Packages/HexEngine` com `TZ` e `HEXGYM_CASES` no primeiro fuso de `TIME_ZONES`, e uma rodada com `--filter RecordedCasesTests` para cada outro fuso. O `env` de cada uma é uma função que devolve `{ DEVELOPER_DIR: developerDir(), TZ, HEXGYM_CASES }`. Atualizar a mensagem do teste "unknown part".
+Em `PARTS.engine`: `{ name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] }`. `PARTS.packages`: `swift test --package-path apple/Packages/HexEngine` com `TZ` e `HEXGYM_CASES` no primeiro fuso de `TIME_ZONES`, e uma rodada com `--filter RecordedCasesTests` para cada outro fuso. O `env` de cada uma é uma função que devolve `{ DEVELOPER_DIR: developerDir(), TZ, HEXGYM_CASES }`. Como diz a Task 1, as rodadas do `swift test` precisam mostrar ao `check.mjs` quantos testes rodaram, senão a parte `packages`, que só tem elas, conta zero e falha (a `engine` segue contada pelo `node --test` dela). Atualizar a mensagem do teste "unknown part".
 
 Run: `node scripts/hexgym/check.mjs scripts engine packages`
 Expected: `ok`.
@@ -1138,7 +1138,7 @@ Expected: PASS, 14 testes.
 
 - [ ] **Step 5: Add HexStore to the `packages` check**
 
-Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: ['test', '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir() }) }`.
+Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: ['test', '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir() }) }`. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore.
 
 Run: `node scripts/hexgym/check.mjs packages`
 Expected: `ok`.
@@ -1243,7 +1243,7 @@ Expected: `hasAlpha: no`.
 1. `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination "generic/platform=iOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build`
 2. `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGymWatch -destination "generic/platform=watchOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build`
 
-Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
+Como diz a Task 1, uma checagem que roda testes precisa mostrar ao `check.mjs` quantos rodou, e os dois builds não rodam nenhum: sem uma checagem assim, a parte `app` conta zero e falha. Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
 
 - [ ] **Step 5: Run the checks**
 
@@ -1371,7 +1371,7 @@ Expected: FAIL, `pickSimulator is not a function` e `cannot find 'AppModel' in s
 
 - [ ] **Step 5: Add the test run to the `app` part**
 
-Terceira checagem de `PARTS.app`: `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`.
+Terceira checagem de `PARTS.app`: `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`. Como diz a Task 1, essa checagem precisa mostrar ao `check.mjs` quantos testes rodou, senão a parte `app`, em que só ela roda testes, conta zero e falha.
 
 - [ ] **Step 6: Run the checks**
 
