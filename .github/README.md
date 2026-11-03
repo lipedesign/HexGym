@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="/.github/readme/hero.webp" alt="HexGym: mesmo motor, outra experiência">
+  <img src="/.github/readme/hero.webp" alt="HexGym: mesmo motor, outra experiência. App nativo de treino de força. Um fork do openGym para iPhone e Apple Watch, feito em SwiftUI: as regras de treino são as mesmas, mudam o visual, o movimento e a marca. Selo: conceito de design, o app está em construção. Ao lado, o conceito da tela do treino no iPhone: Push A aos 24:10, supino reto na série 2 de 4, 80 kg por 8 repetições com o carimbo de recorde, a última vez com 77,5 kg por 8, que subiu pela progressão, e o descanso de 1:30, com o desenvolvimento a seguir.">
 </h1>
 
 <p align="center">
@@ -20,13 +20,13 @@
 
 O HexGym é um fork do [openGym](https://github.com/DuarteSantos8/openGym), o app open source de treino de força. Ele segue as mesmas regras de treino do openGym (exercícios, progressão de carga, 1RM estimado, recuperação e sincronização), guarda os dados no mesmo formato e recebe as melhorias quando o openGym evolui. O que muda é a experiência: as telas, o movimento, o Apple Watch, os widgets e os recursos nativos do iPhone.
 
-![Três pilares. 5.632: o motor do openGym, inteiro, com os exercícios, a progressão de carga, o 1RM estimado, a recuperação e a sincronização, recebendo o que o openGym evoluir. 100%: nativo de verdade, em SwiftUI do começo ao fim, com Liquid Glass, Dynamic Island, Live Activity, widgets, Apple Watch, Siri e vibrações. 1: uma marca e um design system próprios, com tipografia, cores, espaçamento, componentes e movimento, construídos antes das telas e documentados em público.](/.github/readme/pilares.webp)
+![Três pilares. 5.632, o motor do openGym, inteiro: os 5.632 exercícios, a progressão de carga, o 1RM estimado, a recuperação e a sincronização seguem as regras do openGym, e quando ele evolui, o HexGym recebe. 100%, nativo de verdade: SwiftUI do começo ao fim, com Liquid Glass, Dynamic Island, Live Activity, widgets, Apple Watch, Siri e vibrações; quando a Apple oferece um recurso, ele é usado em vez de imitado. 1, marca e design system próprios: tipografia, cores, espaçamento, componentes e movimento num sistema único, construído antes das telas e documentado em público.](/.github/readme/pilares.webp)
 
 ## A cara do app
 
 Quatro temas para a mesma tela inicial, com o Ultravioleta como padrão. Em todos eles, três cores têm papel fixo: o recorde é sempre ouro, o erro é sempre vermelho, e o esforço aparece sempre com número, não só com cor.
 
-![A tela inicial nos quatro temas: Ultravioleta, o padrão, Giz & Ferro, Ciano Glacial e Cobre Forjado. Cada uma mostra o treino do dia, Push A, o botão de começar o treino, o peso da semana e a sequência de semanas. Abaixo, as três regras: recorde sempre em ouro, erro sempre em vermelho, esforço sempre com número, além da cor.](/.github/readme/temas.webp)
+![A tela inicial em quatro iPhones, um por tema: Ultravioleta, o padrão, Giz & Ferro, Ciano Glacial e Cobre Forjado. Cada tela mostra a data, terça-feira, 3 de novembro, a saudação Olá, Lipe, o treino de hoje, Push A, com um boneco de peito e ombros acesos na cor do tema, peito, ombros e tríceps em 55 minutos, o botão Começar treino, o peso de 78,4 kg, 0,3 kg a menos na semana, a semana 3 de 4, com 4 semanas seguidas, e o treino de amanhã, Pull A. Embaixo, as três regras: recorde sempre em ouro, erro sempre em vermelho, esforço sempre com número, além da cor.](/.github/readme/temas.webp)
 
 O descanso entre as séries vai aparecer também fora do app, na Dynamic Island do iPhone e no Apple Watch.
 
@@ -36,7 +36,7 @@ O descanso entre as séries vai aparecer também fora do app, na Dynamic Island 
 
 Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight externo, para os amigos, leva o iPhone e o Apple Watch juntos.
 
-![As fases em ordem: 0, Fundação; 1, Design system; 2, Biblioteca e rotinas; 3, Treino no iPhone; 4, Apple Watch; o primeiro TestFlight externo; 5, O resto do openGym; 6, Mais do iPhone; e, depois, Mac e Apple TV.](/.github/readme/fases.webp)
+![As fases em ordem: 0, Fundação; 1, Design system; 2, Biblioteca e rotinas; 3, Treino no iPhone; 4, Apple Watch; TF, o primeiro TestFlight externo; 5, O resto do openGym; 6, Mais do iPhone; e, depois, Mac e Apple TV. A legenda separa as fases até o primeiro TestFlight, o TestFlight para os amigos, com iPhone e Apple Watch juntos, e as fases depois dele.](/.github/readme/fases.webp)
 
 | Fase | O que entra | Estado |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight ex
 
 ## Como é feito
 
-- O app é escrito em SwiftUI. As regras de treino continuam em JavaScript, em `frontend/src/lib`, como no openGym: um script junta esses módulos num arquivo só, o HexEngine, que o app vai rodar pelo JavaScriptCore. Assim os dois apps usam o mesmo código e os mesmos testes, e as atualizações do openGym chegam junto.
+- O app vai ser escrito em SwiftUI. As regras de treino continuam em JavaScript, em `frontend/src/lib`, como no openGym: um script junta esses módulos num arquivo só, o HexEngine, que o app vai rodar pelo JavaScriptCore. Assim os dois apps vão usar o mesmo código e os mesmos testes, e as atualizações do openGym vão chegar junto.
 - O trabalho anda por issues, com um [marco por fase](https://github.com/lipedesign/HexGym/milestones), e segue o Git Flow: tudo entra na `develop` por pull request, e cada fase termina numa versão na `main`.
 - O código é escrito com o [Claude Code](https://claude.com/claude-code) e o plugin [relentless](https://github.com/marcelusfernandes/relentless). Cada pull request passa por QA e por uma revisão isolada antes do merge, e as decisões que duram ficam em [`docs/decisions`](https://github.com/lipedesign/HexGym/tree/develop/docs/decisions).
 - O [documento de design](https://github.com/lipedesign/HexGym/blob/develop/docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md) diz o que o HexGym vai ser, as fases e as decisões tomadas até aqui.

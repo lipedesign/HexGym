@@ -71,6 +71,7 @@ apple/
   Packages/HexStore/             o documento de dados no App Group
 .github/workflows/hexgym.yml
 .github/README.md, .github/CONTRIBUTING.md, .github/SECURITY.md
+.github/readme/                  as imagens do README, do conceito de design (WebP, pela #53)
 docs/hexgym/prints/              os prints e os vídeos dos PRs, uma pasta por issue
 docs/superpowers/.gitignore      deixa o git ver os planos (o openGym ignora docs/superpowers/plans/); entra com este plano
 ```
