@@ -1,4 +1,6 @@
 # Arquivos gerados, para o GitHub dobrar o diff deles: o script do motor
 # (node scripts/build-hexgym-engine.mjs) e os casos gravados no Node para os testes do Xcode.
-Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js linguist-generated=true
+# O script vai também com -diff, e o diff o mostra como binário: o pacote do revisor do
+# relentless leva o gh pr diff inteiro, e os 2,4 MB dele não cabem.
+Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js linguist-generated=true -diff
 Packages/HexEngine/Tests/HexEngineTests/Cases/*.json linguist-generated=true

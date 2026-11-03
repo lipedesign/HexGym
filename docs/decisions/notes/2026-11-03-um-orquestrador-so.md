@@ -92,13 +92,19 @@ trabalho. Nada disso chegou a existir: a Tarefa 1 não tinha começado.
 - **Achado que fica para depois:** uma issue no milestone da fase, sub-issue do épico, com a linha
   `Origem:` do relentless, e na linha `Depende de:` da issue da versão, para a versão esperar por
   ela. O que pode esperar a fase seguinte vai para o milestone dela, com `orphan:ok`.
-- **PR que passa do limite do diff do GitHub** (20.000 linhas ou 300 arquivos, como o do script
-  gerado do motor, na Task 5): o `gh pr diff` responde 406, e o pacote do revisor do relentless vai
-  sem diff. O corpo do PR avisa o revisor e manda ler os arquivos pelo
+- **Arquivo gerado grande** (como o script do motor, na Task 5): vai com `-diff` no
+  `.gitattributes`, ao lado do `linguist-generated=true`, para o git e o GitHub o mostrarem como
+  binário. O pacote do revisor do relentless leva o `gh pr diff` inteiro no stdin do revisor, e foi
+  o PR #45 que mostrou isso: o `gh pr diff` dele não deu 406 e veio com 2,49 MB, 2,45 MB deles do
+  `hexengine.js`. O revisor não vê o conteúdo do arquivo, e o QA mostra a prova dele: o tamanho em
+  bytes, o número de linhas, o sha256, os módulos que entraram e o `--check` passando.
+- **PR que passa mesmo do limite do diff do GitHub** (20.000 linhas ou 300 arquivos): o
+  `gh pr diff` responde 406, e o pacote do revisor do relentless vai sem diff. O corpo do PR avisa
+  o revisor e manda ler os arquivos pelo
   `gh api --method GET 'repos/lipedesign/HexGym/pulls/<pr>/files' --paginate`, em que o GitHub
   deixa sem o patch os arquivos muito grandes, e o QA mostra o `--check` do arquivo gerado passando.
-  Fazer o pacote cair nessa lista quando o `gh pr diff` falha é uma mudança para propor ao
-  relentless, com o ok do founder.
+  Duas mudanças ficam para propor ao relentless, com o ok do founder: o pacote do revisor deixar de
+  fora os arquivos gerados e, quando o `gh pr diff` falha, ler essa lista.
 - **Quadro:** o Project 6 anda pelas automações do próprio GitHub, já ligadas (issue adicionada, PR
   ligado à issue, issue fechada, PR com merge), e cada cartão mostra a etiqueta `state:*`. Nenhum
   script espelha as etiquetas nas colunas. A visão "Pede você" filtra
