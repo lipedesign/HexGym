@@ -19,16 +19,17 @@ O founder aceitou as quatro recomendações da página das decisões da fase 1 (
 3. **Alto contraste:** os valores da Task 1, com o botão do Ultravioleta mais claro (#8A88FF) e rótulo preto. Os cinzas vêm do sistema. O Display P3 mais vivo vale só no brilho, e o Giz fica sem ele.
 4. **Participação:** cada componente chega com prints no PR, e com vídeo do simulador quando houver simulador. Com a delegação do founder de 03/11/2026, nenhum componente espera aprovação dele: cada escolha visual que este plano faz além das quatro acima vem marcada como "escolha recomendada, com a delegação do Lipe de 03/11/2026", e a issue da Task repete a marca. A sessão da fase 1 atualiza a página depois de cada merge. O que o founder pedir para mudar depois vira uma Task normal.
 
-As escolhas recomendadas deste plano: a escala de texto, o espaçamento e os raios, os movimentos e os hápticos, os nomes dos temas em inglês, o botão principal, as entradas do treino, os segmentos, o carimbo, o anel de descanso, o brilho no alto contraste e no Watch, o vidro tingido, o zoom com Reduzir Movimento, a Coroa Digital e o ícone do app. Cada Task diz as suas.
+As escolhas recomendadas deste plano: a escala de texto, o logotipo com `gym` no peso 200, o espaçamento e os raios, os movimentos e os hápticos, os nomes dos temas em inglês, o botão principal, as entradas do treino, os segmentos, o carimbo, o anel de descanso, o brilho no alto contraste e no Watch, o vidro tingido, o zoom com Reduzir Movimento, a organização da galeria e o botão que a abre, o botão compacto de 44 pt no Watch, a Coroa Digital e o ícone do app. Cada Task diz as suas.
 
 ## Restrições globais (Global Constraints)
 
 Valem para toda Task. Os valores vêm da especificação, das decisões de 03/11/2026 e das sondas feitas em 03/11/2026 com o `swift` 6.4 das Command Line Tools (macOS 27.2, SDK MacOSX27.0).
 
 - **Plataforma:** iOS 26 e watchOS 26 como mínimo. O pacote declara `platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)]`: o macOS existe só para o `swift test` rodar no Mac. Nenhuma API só do iOS 27 ou do watchOS 27. O que precisa do SDK do iPhone ou do Watch (a galeria, o Watch, o ícone) espera o Xcode 27.2 (#23) e o projeto (#21 e #22), e roda com `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs)`. Nada com o Xcode-beta.
-- **O comando do pacote:** `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test --package-path apple/Packages/HexDesign`, com as mesmas flags que a #19 puser na rodada do HexEngine na parte `packages` do `check.mjs`. O `--swift` (da #19) cai nas Command Line Tools enquanto não há Xcode completo. O `swift test` delas às vezes perde o plugin `TestingMacros` (6 falhas em 13 rodadas), e `-Xswiftc -load-plugin-library -Xswiftc /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib` resolve (comentário de 03/11 na #19): se a #19 usar essas flags, o comando do pacote leva as mesmas. Os passos dizem "o comando do pacote" e, quando for o caso, o `--filter`. Até a Task 8, o HexDesign não está em parte nenhuma do `check.mjs`, então o QA roda o comando do pacote além do `node scripts/hexgym/check.mjs`.
+- **O comando do pacote:** `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexDesign`. As duas opções vêm da #19: o `--swift` cai nas Command Line Tools enquanto não há Xcode completo, e o `--swift-test-flags` dá as flags que carregam o plugin `TestingMacros`, que o `swift test` delas às vezes perde (6 falhas em 13 rodadas), e não dá nada com o Xcode completo. Se a #19 entrar com outro nome para essas opções, vale o da #19. Os passos dizem "o comando do pacote" e, quando for o caso, o `--filter`. Até a Task 8, o HexDesign não está em parte nenhuma do `check.mjs`, então o QA roda o comando do pacote além do `node scripts/hexgym/check.mjs`.
 - **O que o `swift` das Command Line Tools não tem:** XCTest (só há Swift Testing); os macros `@Entry` e `#Preview` (faltam os plugins `SwiftUIMacros` e `PreviewsMacros`), então as chaves de ambiente são `EnvironmentKey` escritas à mão e não há `#Preview`; e o `xcstringstool`, então o `.xcstrings` quebra o build e os textos do pacote ficam em `Resources/Strings/<idioma>.lproj/<tabela>.strings` e `.stringsdict`, uma tabela por assunto (o `defaultLocalization` é `en`). O `@Observable` funciona. No Mac, o Dynamic Type não muda tamanho (`@ScaledMetric` e `Font.custom(_:size:relativeTo:)` dão o mesmo valor em `.large` e em `.accessibility3`): a escala é testada como função pura no Mac, e na tela, no simulador (Task 10).
-- **Arquivos que a fase 0 está mexendo:** `scripts/hexgym/check.mjs` e `scripts/hexgym/xcode.mjs` (na #19 e na #20) e o projeto Xcode (na #21 e na #22). Uma Task daqui que precise mexer neles entra com `Depende de:` da issue da fase 0 que mexe ali, em vez de correr junto.
+- **Arquivos que a fase 0 está mexendo:** `scripts/hexgym/check.mjs` e `scripts/hexgym/xcode.mjs` (na #19, na #20 e na #22) e o projeto Xcode (na #21 e na #22). Uma Task daqui que precise mexer neles entra com `Depende de:` da issue da fase 0 que mexe ali, em vez de correr junto. A exceção é a Task 8: ela espera a #20, mas não a #22, que precisa do Xcode 27.2 (#23) e cria a parte `app`, longe da `packages`. A Task 8 não começa com a #22 em andamento, e se a #22 entrar em `develop` no meio dela, a Task 8 faz `git merge origin/develop` antes do QA.
+- **Os blocos de interface:** mostram só as assinaturas, e os corpos são de quem implementa. `{ get }` e `{ get set }` dizem se uma propriedade calculada é só de leitura ou também de escrita; fora de um protocolo, o Swift não compila essa forma, então ela não é para colar.
 - **Poucas dependências:** nenhum pacote Swift de terceiros e nenhuma dependência npm nova. A Barlow Condensed é recurso, não dependência: os arquivos vêm de um commit fixado do `google/fonts`, conferidos pelo hash (Task 2).
 - **Cores:** sempre em Display P3 (`Color(.displayP3, ...)`), com os valores aprovados em sRGB convertidos para o mesmo ponto (Task 1); o P3 mais vivo só no brilho, e nunca no Giz. Recorde sempre em ouro; erro sempre `Color.red`, o systemRed; os cinzas do sistema (`.secondary`, e `.tertiary` só em decoração e em estado desligado); esforço sempre com número ou rótulo, além da cor.
 - **Claro e escuro:** o primeiro TestFlight é só escuro (`UIUserInterfaceStyle = Dark` desde a fase 0). Os valores claros existem e são testados, para onde o iOS força claro (widgets, tela bloqueada) e para um modo claro depois.
@@ -47,9 +48,9 @@ Valem para toda Task. Os valores vêm da especificação, das decisões de 03/11
 O que a especificação implica, nenhuma Task testaria sozinha e mais pode morder quem usa o app. Cada linha ganhou um teste na Task dona do código.
 
 1. **Nomes em outras escritas** (os exercícios vêm em 20 idiomas, com ru, uk, ar, zh, ko, th, hi e bn): o cirílico e o grego saem na SF Pro Compressed, no peso do estilo; as outras escritas saem na fonte do sistema, nunca num quadrado vazio; o latim fica na Barlow; e da direita para a esquerda, os segmentos acendem a partir da direita. Testes nas Tasks 2 e 6.
-2. **O maior tamanho de texto (AX5) e o Texto em Negrito:** os números crescem até o teto do estilo, as entradas do treino empilham, nada é cortado, e o negrito sobe um peso. Testes nas Tasks 2, 5 e 10.
+2. **O maior tamanho de texto (AX5) e o Texto em Negrito:** os números crescem até o teto do estilo, as entradas do treino empilham, nada é cortado, e o negrito sobe um peso. Testes nas Tasks 2, 5 e 10, e os prints em AX5 da Task 10 mostram que nada é cortado.
 3. **Números grandes e descansos longos** (1000 kg, 2000 lb, 59:59 virando 1:00:00): dígitos tabulares, então nada pula de largura. Testes nas Tasks 2, 5 e 6.
-4. **Reduzir Movimento, Reduzir Transparência e Aumentar Contraste, cada um sozinho e os três juntos:** nada se move, o brilho apaga ou fica parado, as cores viram as de alto contraste, e nenhuma função se perde. Testes nas Tasks 3, 4, 6 e 7.
+4. **Reduzir Movimento, Reduzir Transparência e Aumentar Contraste, cada um sozinho e os três juntos:** nada se move, o brilho apaga ou fica parado, as cores viram as de alto contraste, e nenhuma função se perde. Testes nas Tasks 3, 4, 5, 6 e 7.
 5. **Carga fora da grade e o idioma do aparelho** (141,3 kg; 141,25 kg; 317,5 lb; vírgula e ponto): a carga aparece como foi registrada, com até duas casas e sem zero à direita, e o VoiceOver diz a unidade. Teste na Task 5.
 
 ## Mapa dos arquivos
@@ -76,11 +77,14 @@ apple/Packages/HexDesign/                 o design system (iPhone e Watch; o Mac
 apple/HexGym/Gallery/                     a galeria no iPhone (Task 10)
 apple/HexGymTests/DynamicTypeTests.swift  o Dynamic Type no simulador (Task 10)
 apple/HexGymWatch/Gallery/                a galeria no Watch (Task 11)
+apple/HexGymWatch/Localizable.xcstrings   os textos da galeria do Watch (Task 11)
 scripts/hexgym/app-icon.swift             o ícone (Task 12), no lugar do placeholder-icon.swift
 scripts/hexgym/app-icon.test.mjs
 docs/hexgym/design-system/                a documentação pública (Task 9)
 docs/hexgym/prints/                       os prints e os vídeos dos PRs, uma pasta por issue
 ```
+
+Arquivos da fase 0 que mudam aqui: `scripts/hexgym/check.mjs` e `check.test.mjs` (Task 8); `apple/HexGym.xcodeproj/project.pbxproj`, `scripts/hexgym/project-format.test.mjs`, `apple/HexGym/Localizable.xcstrings` e os arquivos do app que mostram o logotipo (Task 10); `apple/HexGymWatch/HexGymWatchApp.swift` (Tasks 10 e 11); e os `AppIcon.appiconset` do iPhone e do Watch (Task 12). Saem `apple/Shared/Wordmark.swift` (Task 10) e `scripts/hexgym/placeholder-icon.swift` (Task 12).
 
 ## Ordem e dependências
 
@@ -95,9 +99,9 @@ docs/hexgym/prints/                       os prints e os vídeos dos PRs, uma pa
 | 7 | Da Apple, com a marca: o cartão de vidro, os botões secundários e a transição | 2, 3, 4 |
 | 8 | O HexDesign na checagem | 1, #20 |
 | 9 | A documentação pública | 5, 6, 7 |
-| 10 | A galeria no iPhone | 5, 6, 7, 8, #22 |
+| 10 | A galeria no iPhone | 5, 6, 7, 8, 9, #22 |
 | 11 | O design system no Watch | 10 |
-| 12 | O ícone do app | 1, #21 |
+| 12 | O ícone do app | 1, #21, #22 |
 | 13 | A versão 0.2.0 | todas as outras, #25 |
 
 Cada issue leva, no fim das Notas, as duas linhas que o orquestrador lê: `Depende de: #a, #b` (ou `nenhuma`) e `Plano: docs/superpowers/plans/2026-11-03-fase-1-design-system.md, Task N`. A sessão da fase 1 cria as issues depois do merge deste plano, com o modelo Tarefa, as etiquetas `design-system`, a do tipo e `state:todo`, o critério de aceite de cada Task copiado no corpo (o revisor isolado só lê o corpo) e a marca das escolhas recomendadas; cada uma vira sub-issue do épico da fase e entra no Project 6. Nas linhas `Depende de:`, o número da Task vira o da issue. A #31 fecha como substituída por este plano, e o que a Task 16 da fase 0 passar para cá (com `orphan:ok`) vira sub-issue do épico da fase 1.
@@ -110,7 +114,7 @@ Ficam fora desta fase, de propósito: as telas de verdade (fases 2 a 4); o modo 
 
 ### Task 1: O pacote HexDesign e as cores
 
-**Depende de:** #19, que cria o `xcode.mjs --swift` e o `apple/.gitignore`.
+**Depende de:** #19, que cria o `xcode.mjs --swift`, o `--swift-test-flags` e o `apple/.gitignore`.
 
 **Files:**
 - Create: `apple/Packages/HexDesign/Package.swift`
@@ -119,7 +123,7 @@ Ficam fora desta fase, de propósito: as telas de verdade (fases 2 a 4); o modo 
 - Create: `docs/hexgym/prints/<issue>/cores.png`
 
 **Interfaces:**
-- Consumes: `node scripts/hexgym/xcode.mjs --swift` (#19).
+- Consumes: `node scripts/hexgym/xcode.mjs --swift` e `--swift-test-flags` (#19).
 - Produces:
 
 ```swift
@@ -178,7 +182,7 @@ extension Color {
 
 - [ ] **Step 1: Write `Package.swift` and the failing tests**
 
-`Package.swift`: `swift-tools-version: 6.2`; nome `HexDesign`; `defaultLocalization: "en"`; as três plataformas das Restrições globais; produto `.library` `HexDesign`; alvo `HexDesign`, ainda sem recursos; alvo de teste `HexDesignTests`. O `Support/Render.swift` como diz a interface. Os arquivos de teste usam `import Testing`, `import SwiftUI` e `@testable import HexDesign` (as Tasks seguintes testam alguns internos). Em `ColorTests.swift`:
+`Package.swift`: `swift-tools-version: 6.2`; nome `HexDesign`; `defaultLocalization: "en"`; as três plataformas das Restrições globais; produto `.library` `HexDesign`; alvo `HexDesign`, ainda sem recursos; alvo de teste `HexDesignTests`. Os dois arquivos de `Color/` entram só com `import SwiftUI`, para o alvo não ficar vazio: sem eles, o `swift test` para em `target 'HexDesign' referenced in product 'HexDesign' is empty`, antes do erro esperado. O `Support/Render.swift` como diz a interface. Os arquivos de teste usam `import Testing`, `import SwiftUI` e `@testable import HexDesign` (as Tasks seguintes testam alguns internos). Em `ColorTests.swift`:
 
 ```swift
 @Test func contrastFollowsWCAG() {
@@ -278,7 +282,7 @@ git commit -m "O pacote HexDesign com as cores dos quatro temas, o alto contrast
 **Files:**
 - Create: `Sources/HexDesign/Type/HexFonts.swift`, `Type/HexTextStyle.swift`, `Type/HexWordmark.swift`
 - Create: `Sources/HexDesign/Resources/Fonts/BarlowCondensed-ExtraLight.ttf`, `BarlowCondensed-Medium.ttf`, `BarlowCondensed-Bold.ttf`, `BarlowCondensed-ExtraBold.ttf`, `OFL.txt`
-- Modify: `Package.swift` (o alvo `HexDesign` ganha `resources: [.copy("Resources/Fonts")]`)
+- Modify: `Package.swift` (o alvo `HexDesign` ganha `resources: [.copy("Resources/Fonts")]`; a Task 4 junta as tabelas de texto, e a forma final, com as duas, é `resources: [.copy("Resources/Fonts"), .process("Resources/Strings")]`: das duas, a que entrar depois deixa o arquivo assim)
 - Test: `Tests/HexDesignTests/TypeTests.swift`
 - Create: `docs/hexgym/prints/<issue>/tipografia.png`, `logotipo.png`
 
@@ -412,7 +416,7 @@ Expected: FAIL, `cannot find 'HexFonts' in scope`.
 - [ ] **Step 5: Run them to verify they pass**
 
 Run: o comando do pacote
-Expected: PASS, os 8 testes da Task 1 e os 7 desta, e os prints pulados.
+Expected: PASS, com os 7 testes novos, e os prints pulados.
 
 - [ ] **Step 6: Take the prints**
 
@@ -461,9 +465,15 @@ public enum HexMotion: CaseIterable, Sendable {
 public enum HexBreathing { public static let scale: ClosedRange<CGFloat> = 0.95...1.05; public static let period: Double = 4 }
 
 public enum HexPlatform: Sendable { case phone, watch; public static var current: HexPlatform }   // .watch só no watchOS
+public enum HexFeedback: Equatable, Sendable {      // a tabela num tipo nosso, que guarda o peso do impacto
+  case selection, success, warning, error, increase, decrease, start
+  case impact(weight: Weight, intensity: Double)
+  public enum Weight: Equatable, Sendable { case light, medium, heavy }
+}
 public enum HexHaptic: CaseIterable, Sendable {
   case increase, decrease, setLogged, record, restDone, error
-  public func feedback(on platform: HexPlatform = .current) -> SensoryFeedback
+  public func kind(on platform: HexPlatform = .current) -> HexFeedback          // a tabela
+  public func feedback(on platform: HexPlatform = .current) -> SensoryFeedback  // só traduz o kind, para o .sensoryFeedback das views
 }
 ```
 
@@ -486,7 +496,7 @@ public enum HexHaptic: CaseIterable, Sendable {
 | `restDone` | `.warning` | `.start` |
 | `error` | `.error` | `.error` |
 
-A documentação da Apple diz que `.increase` e `.decrease` só tocam no watchOS e no visionOS, e `.start` só no watchOS: por isso o iPhone usa outros.
+A documentação da Apple diz que `.increase` e `.decrease` só tocam no watchOS e no visionOS, e `.start` só no watchOS: por isso o iPhone usa outros. No Mac, o `SensoryFeedback` não guarda o peso do impacto (`.impact(weight: .heavy, intensity: 1) == .impact(weight: .light, intensity: 1)` dá verdadeiro, sonda de 03/11), então a tabela mora no `HexFeedback`, que guarda, e o teste confere o `kind`; o `feedback(on:)` só traduz.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -505,8 +515,9 @@ A documentação da Apple diz que `.increase` e `.decrease` só tocam no watchOS
   #expect(HexMotion.change.animation(reduceMotion: false) == .spring(duration: 0.35, bounce: 0.1))
 }
 @Test func hapticsMatchTheTable() {
-  #expect(HexHaptic.allCases.map { $0.feedback(on: .phone) } == [.selection, .selection, .success, .impact(weight: .heavy, intensity: 1), .warning, .error])
-  #expect(HexHaptic.allCases.map { $0.feedback(on: .watch) } == [.increase, .decrease, .success, .impact(weight: .heavy, intensity: 1), .start, .error])
+  #expect(HexHaptic.allCases.map { $0.kind(on: .phone) } == [.selection, .selection, .success, .impact(weight: .heavy, intensity: 1), .warning, .error])
+  #expect(HexHaptic.allCases.map { $0.kind(on: .watch) } == [.increase, .decrease, .success, .impact(weight: .heavy, intensity: 1), .start, .error])
+  #expect(HexHaptic.allCases.map { $0.feedback(on: .watch) } == [.increase, .decrease, .success, .impact(weight: .heavy, intensity: 1), .start, .error])   // a tradução
 }
 ```
 
@@ -540,8 +551,8 @@ git commit -m "Espaçamento, movimento e háptico do HexDesign, com Reduzir Movi
 **Files:**
 - Create: `Sources/HexDesign/Theme/ThemeStore.swift`, `Theme/HexEnvironment.swift`
 - Create: `Sources/HexDesign/Resources/Strings/en.lproj/Theme.strings`, `Sources/HexDesign/Resources/Strings/pt-BR.lproj/Theme.strings`
-- Modify: `Package.swift` (os recursos do alvo ganham `.process("Resources/Strings")`)
-- Test: `Tests/HexDesignTests/ThemeTests.swift`
+- Modify: `Package.swift` (os recursos do alvo ganham `.process("Resources/Strings")`; com a Task 2, a forma final é `resources: [.copy("Resources/Fonts"), .process("Resources/Strings")]`: das duas, a que entrar depois deixa o arquivo assim)
+- Test: `Tests/HexDesignTests/ThemeTests.swift`, `Tests/HexDesignTests/Support/Locales.swift`
 
 **Interfaces:**
 - Consumes: `HexTheme`, `HexPalette.resolve` e `HexSurface` (Task 1).
@@ -587,7 +598,7 @@ enum HexStrings {                                    // interno: os textos do pa
 
 - [ ] **Step 1: Write the failing tests**
 
-Cada teste usa um `UserDefaults(suiteName: "hexdesign-<UUID>")` só dele, apagado no fim com `removePersistentDomain(forName:)`; `fresh()` cria um. `br` e `en` são `Locale(identifier: "pt-BR")` e `Locale(identifier: "en_US")`:
+Cada teste usa um `UserDefaults(suiteName: "hexdesign-<UUID>")` só dele, apagado no fim com `removePersistentDomain(forName:)`; `fresh()` cria um. `br` e `en` ficam em `Support/Locales.swift`, para as Tasks 5 e 6 usarem também: `let br = Locale(identifier: "pt-BR")` e `let en = Locale(identifier: "en_US")`:
 
 ```swift
 @Test func aFreshDeviceStartsOnUltraviolet() { #expect(ThemeStore(defaults: fresh()).load() == .ultraviolet) }
@@ -661,7 +672,7 @@ git commit -m "O tema do HexDesign: a escolha guardada no aparelho e a troca ao 
 public struct HexPrimaryButtonStyle: ButtonStyle {
   public enum Size: Sendable { case regular, large; public var minHeight: CGFloat }   // 56 e 72
   public init(size: Size = .regular)
-  public static func pressedEffect(reduceMotion: Bool) -> PressedEffect
+  nonisolated public static func pressedEffect(reduceMotion: Bool) -> PressedEffect
 }
 public struct PressedEffect: Equatable, Sendable { public let scale: CGFloat; public let opacity: Double }
 extension ButtonStyle where Self == HexPrimaryButtonStyle {
@@ -670,7 +681,7 @@ extension ButtonStyle where Self == HexPrimaryButtonStyle {
 }
 public struct RollingNumber: View {
   public init(value: Double, text: String, style: HexTextStyle = .number)   // value dá o sentido da rolagem; text é o que aparece
-  public static func transition(for value: Double, reduceMotion: Bool) -> ContentTransition
+  nonisolated public static func transition(for value: Double, reduceMotion: Bool) -> ContentTransition
 }
 public enum WeightUnit: String, Sendable { case kg, lb }
 public enum EffortScale: String, Sendable { case rpe, rir }
@@ -687,6 +698,8 @@ public struct RepsInput: View { public init(value: Int, onStep: @escaping (StepD
 public struct EffortInput: View { public init(value: Double?, scale: EffortScale, onStep: @escaping (StepDirection) -> Void) }
 public enum WorkoutInputLayout { public static func axis(for size: DynamicTypeSize) -> Axis }   // .vertical nos de acessibilidade
 ```
+
+As funções estáticas dos tipos que são `View` ou `ButtonStyle` levam `nonisolated`: esses protocolos põem o tipo no ator principal, e os testes que chamam essas funções não rodam nele (sem o `nonisolated`, o build dá o aviso "call to main actor-isolated static method"). O mesmo vale na Task 6.
 
 **Como funcionam:**
 - **Botão principal:** largura toda, altura mínima do `Size` (as duas passam de `HexTarget.minimum`), raio `HexRadius.button` contínuo, fundo `fill` e rótulo `onFill` da paleta do ambiente, rótulo em `headline` (`.regular`) ou `title` (`.large`). Apertado: escala 0,97 com o movimento `tap`, ou só opacidade 0,8 com Reduzir Movimento (`pressedEffect`). Desligado (`isEnabled` falso): opacidade 0,4. O alto contraste já vem pela paleta: no Ultravioleta, #8A88FF com rótulo preto.
@@ -707,7 +720,7 @@ public enum WorkoutInputLayout { public static func axis(for size: DynamicTypeSi
 
 - [ ] **Step 1: Write the failing tests**
 
-Em `WorkoutInputTests.swift`, com `br` e `en` como na Task 4:
+Em `WorkoutInputTests.swift`, com o `br` e o `en` de `Support/Locales.swift` (Task 4):
 
 ```swift
 @Test func loadsShowWhatWasLogged() {                                     // Foco da revisão 5
@@ -798,17 +811,17 @@ git commit -m "O botão principal, o número que rola e as entradas de carga, re
 - Create: `docs/hexgym/prints/<issue>/segmentos.png`, `carimbo.png`, `anel.png`, `brilho.png`
 
 **Interfaces:**
-- Consumes: `RollingNumber` (Task 5); `HexMotion`, `HexBreathing` e `HexHaptic` (Task 3); `hexPalette`, `HexStrings` e `HexSurface` (Tasks 1 e 4).
+- Consumes: `RollingNumber` (Task 5); `hexFont` (Task 2); `HexMotion`, `HexBreathing`, `HexHaptic`, `HexSpacing` e `HexRadius` (Task 3); `hexPalette`, `HexStrings` e `HexSurface` (Tasks 1 e 4).
 - Produces:
 
 ```swift
 public struct SlantedSegments: View {
   public init(total: Int, done: Int)
-  public static func spokenValue(total: Int, done: Int, locale: Locale = .current) -> String
+  nonisolated public static func spokenValue(total: Int, done: Int, locale: Locale = .current) -> String
 }
 public struct RecordStamp: View {
   public init(isShown: Bool)
-  public static func startScale(reduceMotion: Bool) -> CGFloat
+  nonisolated public static func startScale(reduceMotion: Bool) -> CGFloat
 }
 public struct RestRing: View { public init(total: Int, remaining: Int) }    // em segundos
 public enum RestRingModel {
@@ -846,7 +859,7 @@ public struct GlowSpec: Equatable, Sendable {
 
 - [ ] **Step 1: Write the failing tests**
 
-Em `ProgressTests.swift`, com `br` e `en` como na Task 4:
+Em `ProgressTests.swift`, com o `br` e o `en` de `Support/Locales.swift` (Task 4):
 
 ```swift
 @MainActor @Test func segmentsLightFromTheStartOfTheLine() {             // Foco da revisão 1
@@ -1003,18 +1016,24 @@ git commit -m "Da Apple, com a marca: o cartão de vidro tingido, os botões sec
 
 ### Task 8: O HexDesign na checagem
 
-**Depende de:** 1 e #20. A #19 cria a parte `packages`, e a #20 põe o HexStore nela: esta Task mexe no mesmo lugar e entra depois das duas. Se a #22 (que cria a parte `app`) entrar enquanto esta Task corre, `git merge origin/develop` na branch antes do QA.
+**Depende de:** 1 e #20. A #19 cria a parte `packages`, e a #20 põe o HexStore nela: esta Task mexe no mesmo lugar e entra depois das duas. Ela não espera a #22, que precisa do Xcode 27.2 e cria a parte `app` (a exceção das Restrições globais): não começa com a #22 em andamento, e se a #22 entrar em `develop` enquanto esta Task corre, `git merge origin/develop` na branch antes do QA.
 
 **Files:**
 - Modify: `scripts/hexgym/check.mjs`, `scripts/hexgym/check.test.mjs`
 
 **Interfaces:**
-- Consumes: a parte `packages` como a #19 e a #20 deixarem, com a rodada do HexStore e o jeito de contar os testes do `swift test`.
+- Consumes: a parte `packages` como a #19 e a #20 deixarem: o `developerDir({ swiftOnly: true })` e o `swiftTestFlags(dir)` do `xcode.mjs` (#19), a rodada do HexStore (#20) e a contagem dos testes pelo XUnit que o `spawnCheck` pede ao `swift test` (`--xunit-output`, #19).
 - Produces: a parte `packages` com uma rodada do HexDesign depois da do HexStore. Daqui em diante, o `node scripts/hexgym/check.mjs` cobre o pacote, e o QA das Tasks seguintes não roda mais o comando do pacote à parte.
 
 - [ ] **Step 1: Write the failing test**
 
-Em `check.test.mjs`: a parte `packages` tem uma checagem do `swift test` com `--package-path apple/Packages/HexDesign`, depois da do HexStore, com os mesmos argumentos a mais e o mesmo `env` da rodada do HexStore (o `DEVELOPER_DIR` de `developerDir({ swiftOnly: true })` e o arquivo da contagem). O teste segue o formato que os testes da #19 e da #20 usam para as rodadas delas.
+Em `check.test.mjs`, o teste `test('the packages part runs HexDesign after HexStore, with the same flags and env')`: na parte `packages`, a checagem `HexDesign` vem logo depois da `HexStore`, e o `args()` e o `env()` dela são os da `HexStore` com `apple/Packages/HexDesign` no lugar de `apple/Packages/HexStore`. O teste segue o formato que os testes da #19 e da #20 usam para as rodadas delas. A rodada nova, no `check.mjs`, como a da #20:
+
+```js
+{ name: 'HexDesign', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexDesign'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }
+```
+
+Se a #19 e a #20 entrarem com outra forma, a rodada do HexDesign copia a do HexStore.
 
 - [ ] **Step 2: Run it to verify it fails**
 
@@ -1069,8 +1088,13 @@ Cada número e cada valor vem do código e dos testes das Tasks 1 a 7, nunca de 
 
 - [ ] **Step 3: Check the links and the text**
 
-Run: `grep -rn -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" docs/hexgym/design-system` (o travessão e o meio-travessão, em UTF-8) e, para cada `](` dos arquivos, o caminho relativo existe
-Expected: nenhum travessão, e nenhum link quebrado.
+Run: `grep -rn -e "$(printf '\342\200\224')" -e "$(printf '\342\200\223')" docs/hexgym/design-system` (o travessão e o meio-travessão, em UTF-8) e, para os links, este comando, que confere cada `](caminho)` relativo dos arquivos:
+
+```bash
+node -e 'const fs=require("fs"),path=require("path");const d="docs/hexgym/design-system";let bad=0;for(const f of fs.readdirSync(d).filter(n=>n.endsWith(".md"))){for(const m of fs.readFileSync(path.join(d,f),"utf8").matchAll(/\]\(([^)\s]+)\)/g)){const p=m[1].split("#")[0];if(p&&!/^[a-z]+:/i.test(p)&&!fs.existsSync(path.join(d,p))){console.log(f+": "+m[1]);bad=1}}}process.exit(bad)'
+```
+
+Expected: o `grep` sem nenhuma linha, e o `node` sai com 0, sem nenhum link quebrado escrito.
 
 - [ ] **Step 4: Commit**
 
@@ -1083,7 +1107,7 @@ git commit -m "A documentação pública do design system"
 
 ### Task 10: A galeria no iPhone
 
-**Depende de:** 5, 6, 7, 8 e #22 (o projeto e o app da fase 0, que já pedem o Xcode 27.2 da #23).
+**Depende de:** 5, 6, 7, 8, 9 e #22 (o projeto e o app da fase 0, que já pedem o Xcode 27.2 da #23). A 9 vem antes porque esta Task completa o `componentes.md` dela.
 
 **Escolhas recomendadas, com a delegação do Lipe de 03/11/2026:** a organização da galeria (as três camadas lado a lado no topo, depois o tema, as cores, a tipografia, os componentes e o movimento) e o botão de entrada na tela provisória.
 
@@ -1095,7 +1119,8 @@ git commit -m "A documentação pública do design system"
 - Modify: `apple/HexGym/Localizable.xcstrings` (os textos da galeria, em pt-BR e en)
 - Create: `apple/HexGymTests/DynamicTypeTests.swift`
 - Modify: `scripts/hexgym/project-format.test.mjs`
-- Create: `docs/hexgym/prints/<issue>/` (prints e vídeo) e os prints do simulador em `docs/hexgym/design-system/imagens/`, citados no `componentes.md`
+- Create: `docs/hexgym/prints/<issue>/` (prints e vídeo) e os prints do simulador em `docs/hexgym/design-system/imagens/`
+- Modify: `docs/hexgym/design-system/componentes.md` (os prints do simulador, citados em cada componente)
 
 **Interfaces:**
 - Consumes: tudo das Tasks 1 a 7; o projeto (#21), o `AppModel`, a tela provisória e a parte `app` do `check.mjs` (#22).
@@ -1170,6 +1195,7 @@ git commit -m "A galeria do design system no iPhone, com as três camadas e a tr
 - Modify: `Sources/HexDesign/Components/HexPrimaryButton.swift` (o tamanho `.compact`), `Components/WorkoutInput.swift` (a Coroa Digital, em `#if os(watchOS)`)
 - Test: `Tests/HexDesignTests/WatchTests.swift`
 - Create: `apple/HexGymWatch/Gallery/WatchGalleryView.swift` e as seções dela
+- Create: `apple/HexGymWatch/Localizable.xcstrings` (os textos da galeria do Watch, em pt-BR e en)
 - Modify: `apple/HexGymWatch/HexGymWatchApp.swift` (o `ThemeModel` e a entrada da galeria) e `docs/hexgym/design-system/componentes.md` (a versão do Watch de cada componente)
 - Create: `docs/hexgym/prints/<issue>/` (prints e vídeo do Watch)
 
@@ -1226,7 +1252,7 @@ git commit -m "O design system no Watch: a Coroa Digital nas entradas e a galeri
 
 ### Task 12: O ícone do app
 
-**Depende de:** 1 e #21, que cria o `placeholder-icon.swift` e os `AppIcon`.
+**Depende de:** 1, #21 e #22. A #21 cria o `placeholder-icon.swift` e os `AppIcon`, e a #22 cria a parte `app` do `check.mjs`, que o passo 4 roda.
 
 **Escolhas recomendadas, com a delegação do Lipe de 03/11/2026:** o ícone abaixo, que é o "ícone de verdade" que a Task 9 da fase 0 deixou para a fase 1.
 
@@ -1294,7 +1320,7 @@ git commit -m "O ícone do HexGym: o hexágono inclinado com o brilho do Ultravi
 
 - **Os nomes:** versão `0.2.0`, branch `release/0.2.0`, worktree `.claude/worktrees/release-0.2.0`, milestone "Fase 1: Design system" (número 2), resumo `docs/status/m2-design-system-status.md` (`--milestone 2`), PR "Versão 0.2.0: o design system", tag `v0.2.0` com o título "HexGym 0.2.0", e o PR de volta "Versão 0.2.0 de volta para develop".
 - **Passo 1:** o que sobrar aberto sai do épico da fase 1 e vai para o milestone "Fase 2: Biblioteca e rotinas", com `orphan:ok`.
-- **Passo 2:** na branch da release, um commit "Versão 0.2.0" com `MARKETING_VERSION = 0.2.0` e `CURRENT_PROJECT_VERSION` um acima do último build enviado ao TestFlight, nos quatro alvos.
+- **Passo 2:** na branch da release, um commit "Versão 0.2.0" com `MARKETING_VERSION = 0.2.0` nos quatro alvos. O número do build não muda no projeto: o `testflight.mjs` (#24) põe a data e a hora em UTC no passo 5.
 - **Passo 3:** prints das duas galerias, a do iPhone e a do Watch, e um vídeo da troca de tema ao vivo e do zoom de "Começar treino".
 - **Passo 5:** o build interno no TestFlight, com `node scripts/hexgym/testflight.mjs` (#24).
 - **Passo 7:** o pedido de decisão vai nesta issue: 1. Aprovar a versão 0.2.0 (recomendada); 2. Pedir mudanças. É a parada de fim de fase da seção 9.1, que a delegação de 03/11 não tira do founder.
