@@ -56,9 +56,11 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   e os valores do `.relentless/config.json` que já existem ficam como estão, e o `relentless-ci.yml`
   só vem no primeiro bootstrap, quando ainda não há `.relentless/config.json`. Ele reescreve só o
   que é dele: os ganchos de `.relentless/githooks` e os blocos `relentless:start` do `AGENTS.md` e
-  do `CLAUDE.md`. O texto do HexGym fica fora desses blocos. No Linux, onde o disco diferencia
-  maiúsculas de minúsculas, ele também cria um `.github/PULL_REQUEST_TEMPLATE.md` ao lado do
-  `pull_request_template.md` do HexGym, e esse arquivo novo sai.
+  do `CLAUDE.md`. O texto do HexGym fica fora desses blocos. Rode com `--harness claude`: sem ele,
+  o bootstrap também cria o `.codex/config.toml` e os `.codex/agents/*.toml`, que o HexGym não usa.
+  No Linux, onde o disco diferencia maiúsculas de minúsculas, ele também cria um
+  `.github/PULL_REQUEST_TEMPLATE.md` ao lado do `pull_request_template.md` do HexGym, e esse
+  arquivo novo sai.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
   features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
   recusam push forçado em qualquer branch. A
