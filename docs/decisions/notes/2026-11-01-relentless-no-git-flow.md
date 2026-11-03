@@ -1,7 +1,7 @@
 # 2026-11-01: o relentless no Git Flow do HexGym
 
 - **Data:** 2026-11-01 (America/Sao_Paulo)
-- **Origem:** issue #15 (Tarefa 1 da fase 0, o orquestrador)
+- **Origem:** issue #15 (Tarefa 1 da fase 0)
 
 ## Contexto
 
@@ -40,10 +40,11 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 - **CI:** o `test.yml` (job `tests-ok`) e, a partir da #9, o `hexgym.yml` (job `hexgym-ok`). O
   `relentless-ci.yml` não fica no repositório. Os `checks` de `.relentless/config.json` passam a
   chamar o `scripts/hexgym/check.mjs` na Tarefa 1 (#15).
-- **Etiquetas e modelos:** a revisão da #15 casou as nossas com as do relentless, e mudou a Task 3
-  (#11) junto. Ver `2026-11-01-orquestrador-sobre-o-relentless.md`.
-- **Nenhuma onda do relentless antes da Tarefa 1 (#15) entrar em `develop`.** É ela que dá ao
-  milestone a seção Outcome e o épico e faz o quadro do Project 6 acompanhar as etiquetas `state:*`.
+- **Etiquetas e modelos:** a revisão da #15 casou as nossas com as do relentless e mudou a Task 3
+  (#11) junto (PR #30). A lista que vale está na seção 9.1 da especificação.
+- **Nenhuma onda do relentless antes de a Tarefa 1 (#15) terminar.** É ela que atualiza o plugin,
+  põe o `check.mjs` nos `checks` e dá à fase 0 a seção Outcome, o épico e uma etiqueta `state:*` em
+  cada issue (nota `2026-11-03-um-orquestrador-so.md`).
 - **Título do PR** em português, simples, dizendo o que muda, porque vira o commit do squash. O
   prefixo de conventional commits não é exigido.
 - **Linha `ADRs:`** no corpo do PR, uma vez só. O modelo de PR já traz.
