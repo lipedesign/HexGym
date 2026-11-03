@@ -1,6 +1,6 @@
 name: Bug
 description: Algo no HexGym não funciona como deveria.
-labels: ["bug"]
+labels: ["bug", "state:todo"]
 projects: ["lipedesign/6"]
 body:
   - type: textarea

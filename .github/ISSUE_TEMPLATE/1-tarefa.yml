@@ -1,5 +1,6 @@
 name: Tarefa
 description: Um pedaço de trabalho que cabe num PR.
+labels: ["state:todo"]
 projects: ["lipedesign/6"]
 body:
   - type: markdown

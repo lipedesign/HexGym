@@ -5,7 +5,7 @@
 
 ## Contexto
 
-O HexGym passa a usar o relentless (1.4.8) como base do trabalho feito por agentes. O plugin fica
+O HexGym passa a usar o relentless (1.4.11) como base do trabalho feito por agentes. O plugin fica
 ativado só neste projeto, em `.claude/settings.json`, que o git não vê.
 
 O relentless supõe um repositório com `main` como base:
@@ -13,8 +13,7 @@ O relentless supõe um repositório com `main` como base:
 - o `worktree-segura` e os agentes dizem `origin/main`;
 - o `worktree-create.sh` usa `--base main` quando não recebe outra;
 - o `merge-if-ready.sh` faz o merge com `gh pr merge --merge`;
-- o bootstrap grava o `relentless-ci.yml`, que falha de propósito quando não acha comando de teste;
-- o `wait-ci.sh` olha só a última execução de workflow do branch.
+- o primeiro bootstrap grava o `relentless-ci.yml`, que falha de propósito quando não acha comando de teste.
 
 O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md`:
 `develop` é a branch padrão e integra o trabalho, e `main` só recebe versões.
@@ -25,16 +24,16 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   com `<checkout>` sendo o checkout principal (nesta máquina, `/Users/lipe/Developer/MyGym`):
   `worktree-create.sh --repo lipedesign/HexGym --workdir <checkout> --issue <n> --slug <nome> --type feature --base develop --path <checkout>/.claude/worktrees/<n>-<nome>`.
   O branch fica `feature/<n>-<nome>`, e o PR vai para `develop` com `Closes #<n>`.
-- **Squash nas features.** Enquanto a CI não roda nos PRs (issue #3), o `merge-if-ready.sh` vai com
-  `--dry-run`: ele confere `review:approved`, o commit revisado, a linha `ADRs:` e os ADRs aceitos, e
-  sai sem esperar a CI. Sem o `--dry-run`, no modo `human`, ele espera a CI antes de comentar que o PR
-  está pronto e, sem nenhum check, desiste com o código 3. O merge é
-  `gh pr merge <PR> -R lipedesign/HexGym --squash`, feito pelo tech lead ou pelo Lipe. Depois da #3,
-  quem faz o merge confere no próprio PR os checks obrigatórios (`tests-ok` e, com a #9,
-  `hexgym-ok`), porque o `wait-ci.sh` aceita a última execução verde de qualquer workflow.
-- **Sem `merge:auto` por enquanto.** O 1.4.8 não lê o `allow_issue_override`, então a etiqueta
-  `merge:auto` numa issue vale sempre. Ela só entra depois da #3 e quando o relentless souber fazer
-  squash.
+- **Squash nas features.** O `merge-if-ready.sh` vai com `--dry-run`: ele confere `review:approved`,
+  o commit revisado, a linha `ADRs:` e os ADRs aceitos, e sai sem esperar a CI. Sem o `--dry-run`, no
+  modo `human`, ele espera a CI antes de comentar que o PR está pronto e, sem nenhum check, desiste
+  com o código 3. O merge é `gh pr merge <PR> -R lipedesign/HexGym --squash --match-head-commit <sha>`,
+  feito pelo tech lead ou pelo Lipe, com os portões da nota `2026-11-03-um-orquestrador-so.md`
+  abertos: o `--dry-run` sai com 0, o PR está `OPEN` e `MERGEABLE`, e a CI passa (até a #3, nenhum
+  check roda nos PRs, e valem os dois primeiros).
+- **Sem `merge:auto`.** O `merge.allow_issue_override` fica `false` no `.relentless/config.json`, e a
+  etiqueta `merge:auto` numa issue não vale, porque o merge automático do relentless é
+  `gh pr merge --merge`, e as features entram em squash.
 - **Merge normal, nunca squash:** `release/*` e `hotfix/*` em `main`, o PR de `main` para `develop` e
   o sync `sync/opengym-<data>` (seção 8.11).
 - **CI:** o `test.yml` (job `tests-ok`) e, a partir da #9, o `hexgym.yml` (job `hexgym-ok`). O
@@ -53,14 +52,15 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 ## Doutrina para quem escreve
 
 - Leia `docs/decisions/` antes de planejar ou implementar.
-- O bootstrap, rodado de novo, desfaz ajustes deste repositório:
-  - regrava o `.github/ISSUE_TEMPLATE/config.yml`, os três modelos de issue dele (o `epic.yml` volta
-    com o YAML quebrado do original) e o `relentless-ci.yml`;
-  - reescreve `stack`, `package_manager`, `checks` e `merge.default` do `.relentless/config.json`;
-  - volta a cor e a descrição das 26 etiquetas dele (a `bug` perde a descrição em português).
-
-  Depois dele, volte os arquivos com `git restore` e a descrição "Tipo: algo não funciona como
-  deveria" com `gh label edit`, e apague o `relentless-ci.yml`.
+- O bootstrap, rodado de novo, só acrescenta o que falta. Os modelos de issue e de PR, as etiquetas
+  e os valores do `.relentless/config.json` que já existem ficam como estão, e o `relentless-ci.yml`
+  só vem no primeiro bootstrap, quando ainda não há `.relentless/config.json`. Ele reescreve só o
+  que é dele: os ganchos de `.relentless/githooks` e os blocos `relentless:start` do `AGENTS.md` e
+  do `CLAUDE.md`. O texto do HexGym fica fora desses blocos. Rode com `--harness claude`: sem ele,
+  o bootstrap também cria o `.codex/config.toml` e os `.codex/agents/*.toml`, que o HexGym não usa.
+  No Linux, onde o disco diferencia maiúsculas de minúsculas, ele também cria um
+  `.github/PULL_REQUEST_TEMPLATE.md` ao lado do `pull_request_template.md` do HexGym, e esse
+  arquivo novo sai.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
   features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
   recusam push forçado em qualquer branch. A
@@ -73,16 +73,18 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
   openGym e o bloco do relentless.
 - O `.worktreeinclude` leva o `.claude/settings.json` para cada worktree nova, para o relentless
   continuar ativado nela.
-- O relentless 1.4.8 não roda no bash 3.2 do macOS sem a correção guardada em
-  `.claude/relentless-compat/`, nesta máquina e fora do git. Depois de atualizar o plugin, siga o
-  README de lá.
+- O marketplace do relentless fica fixado na tag da versão (`"ref": "v1.4.11"` na fonte dele, no
+  `.claude/settings.json`), porque a `main` de lá traz mudanças ainda sem versão. Trocar de versão é
+  fixar a tag nova, reler o `agents/orchestrator.md` dela e acertar as notas.
 
 ## Evidência
 
 - `bootstrap.sh --apply` em 01/11/2026: 19 etiquetas novas (de 21 para 40), `.relentless/config.json`
   com `merge.default` em `human` e o decisor Lipe (`lipedesign`), e `core.hooksPath` em
   `.relentless/githooks`.
-- Com a correção, as suítes do próprio relentless passam no bash 3.2: 176 de 176 testes.
+- Em 01/11, com a correção local para o bash 3.2 do macOS, as suítes do próprio relentless
+  passaram: 176 de 176 testes. A correção foi para o original (PR #23 do relentless) e saiu na
+  1.4.10.
 - A revisão do agente revisor do relentless no PR #29 achou o YAML quebrado do `epic.yml` (o Psych
   recusa a linha 14) e a espera pela CI no `merge-if-ready.sh` sem `--dry-run` (`wait-ci.sh` sai com 3
   no PR, que não tem checks).

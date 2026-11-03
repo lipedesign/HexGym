@@ -10,7 +10,7 @@
   },
   "merge": {
     "default": "human",
-    "allow_issue_override": true
+    "allow_issue_override": false
   },
   "rulesets": {
     "apply": false
@@ -21,10 +21,10 @@
   "stack": "node",
   "package_manager": "npm",
   "checks": {
-    "install": "npm ci",
+    "install": "npm ci && npm ci --prefix frontend",
     "lint": "",
     "typecheck": "",
-    "test": "",
+    "test": "node scripts/hexgym/check.mjs",
     "build": ""
   }
 }
