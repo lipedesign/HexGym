@@ -13,7 +13,7 @@ O relentless supõe um repositório com `main` como base:
 - o `worktree-segura` e os agentes dizem `origin/main`;
 - o `worktree-create.sh` usa `--base main` quando não recebe outra;
 - o `merge-if-ready.sh` faz o merge com `gh pr merge --merge`;
-- o bootstrap grava o `relentless-ci.yml`, que falha de propósito quando não acha comando de teste.
+- o primeiro bootstrap grava o `relentless-ci.yml`, que falha de propósito quando não acha comando de teste.
 
 O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md`:
 `develop` é a branch padrão e integra o trabalho, e `main` só recebe versões.
@@ -52,14 +52,13 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 ## Doutrina para quem escreve
 
 - Leia `docs/decisions/` antes de planejar ou implementar.
-- O bootstrap, rodado de novo, desfaz ajustes deste repositório:
-  - regrava o `.github/ISSUE_TEMPLATE/config.yml`, os três modelos de issue dele (o `epic.yml` volta
-    com o YAML quebrado do original) e o `relentless-ci.yml`;
-  - reescreve `stack`, `package_manager`, `checks` e `merge.default` do `.relentless/config.json`;
-  - volta a cor e a descrição das 26 etiquetas dele (a `bug` perde a descrição em português).
-
-  Depois dele, volte os arquivos com `git restore` e a descrição "Tipo: algo não funciona como
-  deveria" com `gh label edit`, e apague o `relentless-ci.yml`.
+- O bootstrap, rodado de novo, só acrescenta o que falta. Os modelos de issue e de PR, as etiquetas
+  e os valores do `.relentless/config.json` que já existem ficam como estão, e o `relentless-ci.yml`
+  só vem no primeiro bootstrap, quando ainda não há `.relentless/config.json`. Ele reescreve só o
+  que é dele: os ganchos de `.relentless/githooks` e os blocos `relentless:start` do `AGENTS.md` e
+  do `CLAUDE.md`. O texto do HexGym fica fora desses blocos. No Linux, onde o disco diferencia
+  maiúsculas de minúsculas, ele também cria um `.github/PULL_REQUEST_TEMPLATE.md` ao lado do
+  `pull_request_template.md` do HexGym, e esse arquivo novo sai.
 - Os ganchos de git valem no checkout cujo branch já traz `.relentless/githooks`: a `develop` e as
   features a partir deste PR, e a `main` só depois da primeira versão. Eles só guardam a `main` e
   recusam push forçado em qualquer branch. A
@@ -81,7 +80,9 @@ O fork segue o Git Flow da seção 9.1 de `docs/superpowers/specs/2026-10-31-hex
 - `bootstrap.sh --apply` em 01/11/2026: 19 etiquetas novas (de 21 para 40), `.relentless/config.json`
   com `merge.default` em `human` e o decisor Lipe (`lipedesign`), e `core.hooksPath` em
   `.relentless/githooks`.
-- Com a correção, as suítes do próprio relentless passam no bash 3.2: 176 de 176 testes.
+- Em 01/11, com a correção local para o bash 3.2 do macOS, as suítes do próprio relentless
+  passaram: 176 de 176 testes. A correção foi para o original (PR #23 do relentless) e saiu na
+  1.4.10.
 - A revisão do agente revisor do relentless no PR #29 achou o YAML quebrado do `epic.yml` (o Psych
   recusa a linha 14) e a espera pela CI no `merge-if-ready.sh` sem `--dry-run` (`wait-ci.sh` sai com 3
   no PR, que não tem checks).
