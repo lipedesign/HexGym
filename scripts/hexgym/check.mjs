@@ -16,7 +16,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
+// O caminho de verdade deste arquivo, sem links. Chamado por um link simbólico com
+// --preserve-symlinks-main, o import.meta.url fica com o caminho do link: o ROOT sairia de
+// fora do repositório, e o isMain() não se reconheceria.
+const SELF = fs.realpathSync(fileURLToPath(import.meta.url))
+const ROOT = path.join(path.dirname(SELF), '..', '..')
 
 // Sempre nesta ordem, e cada Task põe a sua parte no lugar dela:
 // scripts, engine, load, packages, app.
@@ -114,9 +118,10 @@ async function main(argv) {
   return result.ok ? 0 : 1
 }
 
+// Chamado como script, e não importado: as duas pontas passam pelo realpath.
 function isMain() {
   try {
-    return Boolean(process.argv[1]) && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
+    return Boolean(process.argv[1]) && fs.realpathSync(process.argv[1]) === SELF
   } catch {
     return false
   }
