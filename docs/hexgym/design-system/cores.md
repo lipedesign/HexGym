@@ -72,14 +72,18 @@ Os números que os testes conferem um a um (`contrastFollowsWCAG`):
 - #8B7BFF no preto: 6,37;
 - branco no #6F5CFF: 4,52, o mesmo nos dois sentidos.
 
-Os pares com pouca folga, para quem pensar em mudar uma cor (contas com a mesma fórmula do pacote):
+Os pares com pouca folga, para quem pensar em mudar uma cor. O critério: todos os pares que o `everyPairMeetsItsRule` confere e que ficam menos de 0,1 acima da regra deles, do menor para o maior. Nenhum par da regra 3 fica tão perto. As contas usam a mesma fórmula do pacote.
 
-| Par | Contraste | Regra |
-|---|---|---|
-| branco no #6F5CFF (o botão do Ultravioleta) | 4,52 | 4,5 |
-| #F5976C no #242426 (o Cobre com alto contraste) | 7,03 | 7 |
-| #ABA5FF no #242426 (o Ultravioleta com alto contraste) | 7,05 | 7 |
-| preto no #8A88FF (o botão do Ultravioleta com alto contraste) | 7,05 | 7 |
+| Par | Tema e modo | Contraste | Regra |
+|---|---|---|---|
+| branco no #6F5CFF | Ultravioleta, escuro: o rótulo do botão | 4,52 | 4,5 |
+| #F5976C no #242426 | Cobre, escuro com alto contraste: o destaque no cartão | 7,03 | 7 |
+| #973D00 no branco, e o branco no #973D00 | Cobre, claro com alto contraste: o destaque e o rótulo do botão | 7,04 | 7 |
+| preto no #8A88FF | Ultravioleta, escuro com alto contraste: o rótulo do botão | 7,05 | 7 |
+| #ABA5FF no #242426 | Ultravioleta, escuro com alto contraste: o destaque no cartão | 7,05 | 7 |
+| #765200 no branco, e o branco no #765200 | todos os temas, claro com alto contraste: o recorde e o texto dele | 7,05 | 7 |
+| #5339DB no branco, e o branco no #5339DB | Ultravioleta, claro com alto contraste: o destaque e o rótulo do botão | 7,06 | 7 |
+| #005F84 no branco, e o branco no #005F84 | Ciano, claro com alto contraste: o destaque e o rótulo do botão | 7,07 | 7 |
 
 Quem mudar uma cor e passar da regra vê o teste cair.
 

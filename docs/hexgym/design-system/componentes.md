@@ -64,7 +64,7 @@ RepsInput(value: 8) { direção in }
 EffortInput(value: 8.5, scale: .rpe) { direção in }   // value: nil para o esforço vazio
 ```
 
-- **O valor:** o rótulo vai no `caption`, em cinza (`.secondary`); o valor vai num [número que rola](#o-número-que-rola), no `number`, em branco; a unidade vai no `unit`, no destaque do tema: KG, LB, RPE ou RIR (o `unit` é em caixa alta). As repetições não têm unidade.
+- **O valor:** o rótulo vai no `caption`, em cinza (`.secondary`); o valor vai num [número que rola](#o-número-que-rola), no `number`, na cor primária do sistema (branco no escuro); a unidade vai no `unit`, no destaque do tema: KG, LB, RPE ou RIR (o `unit` é em caixa alta). As repetições não têm unidade.
 - **Os botões − e +:** 56 pt, raio de 10 pt (`HexRadius.chip`), os símbolos `minus` e `plus` do SF Symbols no destaque do tema, sobre o cartão do sistema (#1C1C1E, ou #242426 com alto contraste), que é um dos fundos onde o texto na cor do tema pode ficar. Cada toque toca o háptico `decrease` ou `increase` e chama o `onStep` com `.down` ou `.up`. Apertados, eles fazem o mesmo que o botão principal.
 - **A entrada não decide o passo:** quem usa a entrada aplica o passo pelo motor (as regras do openGym) e passa o valor novo.
 
@@ -212,7 +212,7 @@ RestRing(total: 120, remaining: 90)   // em segundos
 TelaQualquer().background { BreathingGlow() }
 ```
 
-- **Forma:** um gradiente radial que sai do meio do alto da tela e vai até 60% da largura. Começa na cor do brilho do tema, em Display P3, com a opacidade do tema, e some até zero. Quando o tema tem cor de apoio (Ciano e Cobre), o gradiente passa por ela no meio do caminho, a meia força.
+- **Forma:** um gradiente radial que sai do meio do alto da tela e vai até 60% da largura. Começa na cor do brilho do tema, em Display P3, com a opacidade do tema, e some até zero. Quando o tema tem cor de apoio (Ciano e Cobre), o gradiente passa por ela no ponto 0,55 do raio, com metade da opacidade do brilho, e dali some até zero.
 - **A respiração:** a escala vai e volta entre 95% e 105%, a partir do alto, num ciclo de 4 s, com o movimento `breathe`.
 - **Fica atrás de tudo:** cobre a tela toda, inclusive as áreas seguras, não recebe toque e não aparece para o VoiceOver.
 - O brilho com metade da força no alto contraste, apagado com Reduzir Transparência e parado no Watch são escolhas recomendadas, com a delegação do Lipe de 03/11/2026.
