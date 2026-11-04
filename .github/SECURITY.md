@@ -6,7 +6,7 @@ Este arquivo diz como avisar de uma falha de segurança no HexGym sem que ela fi
 
 Não abra uma issue, não comente num pull request e não conte a falha em nenhum lugar público: as issues e os pull requests deste repositório são abertos a qualquer pessoa.
 
-Use o relato privado do GitHub: na aba [Security](https://github.com/lipedesign/HexGym/security) do repositório, clique em "Report a vulnerability". Pelo GitHub, o relato fica visível só para você e para quem cuida do repositório, e é nele que a correção é conversada.
+Use o relato privado do GitHub: na aba [Security](https://github.com/lipedesign/HexGym/security) do repositório, clique em "Report a vulnerability", que pede uma conta do GitHub. Pelo GitHub, o relato fica visível só para você e para quem cuida do repositório, e é nele que a correção é conversada.
 
 ## O que ajuda no relato
 

@@ -15,7 +15,7 @@
 </p>
 
 > [!NOTE]
-> Em construção, e ainda não há app para baixar. Na fundação (fase 0), o app já existe no Xcode e traz o motor do openGym: ele abre no simulador com o motor carregado e cria ou abre o documento de dados, ainda sem telas. O que falta nela depende do founder: a CI, o registro do app no App Store Connect, o TestFlight e a versão 0.1.0. No design system (fase 1), as cores, a tipografia, o movimento, os componentes e a [documentação](/docs/hexgym/design-system/README.md) já entraram, e faltam a galeria dentro do app, a versão do Apple Watch e o ícone. As imagens desta página mostram o conceito de design, feito em HTML, e não o app rodando.
+> Em construção, e ainda não há app para baixar. Na fundação (fase 0), o app já existe no Xcode e traz o motor do openGym: ele abre no simulador com o motor carregado e cria ou abre o documento de dados, ainda sem telas. O que falta nela espera o dono do projeto, como a CI, o registro do app no App Store Connect e o TestFlight, antes da versão 0.1.0. No design system (fase 1), as cores, a tipografia, o movimento, os componentes e a [documentação](/docs/hexgym/design-system/README.md) já entraram, e faltam a galeria dentro do app, a versão do Apple Watch e o ícone. As imagens desta página mostram o conceito de design, feito em HTML, e não o app rodando.
 
 ## O que é
 
@@ -41,7 +41,7 @@ Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight ex
 
 | Fase | O que entra | Estado |
 | --- | --- | --- |
-| [0. Fundação](https://github.com/lipedesign/HexGym/milestone/1) | O repositório e o jeito de trabalhar, o projeto do Xcode e o motor do openGym rodando no iPhone, ainda sem telas | Em andamento: falta o que depende do founder |
+| [0. Fundação](https://github.com/lipedesign/HexGym/milestone/1) | O repositório e o jeito de trabalhar, o projeto do Xcode e o motor do openGym rodando no iPhone, ainda sem telas | Em andamento: falta o que espera o dono do projeto |
 | [1. Design system](https://github.com/lipedesign/HexGym/milestone/2) | As cores dos quatro temas, tipografia, espaçamento, movimento e vibrações, os componentes próprios e uma galeria dentro do app | Em andamento: faltam a galeria, o Watch e o ícone |
 | [2. Biblioteca e rotinas](https://github.com/lipedesign/HexGym/milestone/3) | A primeira abertura, os 5.632 exercícios com busca, filtros e arte própria, e a criação de rotinas e planos | A fazer |
 | [3. Treino no iPhone](https://github.com/lipedesign/HexGym/milestone/4) | A tela inicial, o treino com séries, carga e descanso, a Live Activity na Dynamic Island, o recorde, a progressão e o histórico | A fazer |
@@ -64,7 +64,7 @@ Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight ex
 
 Hoje o app compila e abre no simulador do iPhone, ainda sem telas, e o app do Watch compila ao lado dele. Para isso, é preciso um Mac com:
 
-- o Xcode 27.2, o estável, em `/Applications/Xcode.app`, e um simulador de iPhone com iOS 26 ou mais novo. O Xcode beta não serve: a Apple não aceita no TestFlight externo um build feito com ele, e os scripts do HexGym nunca o escolhem;
+- o Xcode 27.2, o estável, em `/Applications/Xcode.app`, e um simulador de iPhone com iOS 26 ou mais novo. O Xcode beta não serve: a Apple não aceita no TestFlight externo um build feito com ele, e os scripts do HexGym não o escolhem sozinhos, só quando ele já vem no `DEVELOPER_DIR` do ambiente;
 - o Node 22, a versão que o openGym usa.
 
 Depois de clonar, na pasta do repositório:
@@ -87,7 +87,7 @@ O `npm ci` instala o que o frontend do openGym usa, e a parte do motor precisa d
 
 Uma parte roda sozinha pelo nome, como `node scripts/hexgym/check.mjs app`, e o `node scripts/hexgym/check.mjs --list` mostra os comandos sem rodar nada.
 
-Os comandos do HexGym escolhem o Xcode pelo `DEVELOPER_DIR`, e não pelo `xcode-select`, que pode apontar para outro. O `node scripts/hexgym/xcode.mjs` diz qual Xcode eles usam. Para compilar o app à mão, sem assinatura:
+Os comandos do HexGym passam o Xcode pelo `DEVELOPER_DIR`: o do ambiente, se houver, senão o `/Applications/Xcode.app`, e o `xcode-select` só conta quando nenhum dos dois existe. O `node scripts/hexgym/xcode.mjs` diz qual Xcode eles usam. Para compilar o app à mão, sem assinatura:
 
 ```bash
 DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs) xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination "generic/platform=iOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build

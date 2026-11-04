@@ -13,7 +13,7 @@ Achou um problema? Abra uma issue pelo modelo de bug. Para uma falha de seguran�
 ## Antes de começar
 
 - Leia [`docs/decisions`](/docs/decisions/README.md). Um ADR muda como o sistema é feito ou o que ele promete, e fica proposto até o founder decidir. Uma nota registra o que já é feito de propósito, como o [relentless no Git Flow](/docs/decisions/notes/2026-11-01-relentless-no-git-flow.md) e [um orquestrador só](/docs/decisions/notes/2026-11-03-um-orquestrador-so.md).
-- Cada fase tem um plano em [`docs/superpowers/plans`](/docs/superpowers/plans), escrito antes de a fase começar. Cada Task do plano vira uma issue.
+- Cada fase ganha um plano em [`docs/superpowers/plans`](/docs/superpowers/plans), escrito antes de ela começar. Cada Task do plano vira uma issue.
 
 ## Uma issue
 
@@ -39,10 +39,10 @@ fim da fase → release/<versão>, a partir de develop → build interno no Test
 1. **Uma worktree por implementador.** Cada issue ganha uma worktree própria e a branch `feature/<número>-<nome>`, sempre a partir da `origin/develop` mais nova, nunca de outra feature. A branch no GitHub marca que a issue tem dono.
 2. **Código e testes.** O comando de teste é o `node scripts/hexgym/check.mjs` (veja "Como compilar" no [README](/.github/README.md)). Mudança no código que veio do openGym é pequena, com teste, num commit que possa ser proposto ao openGym, e o `cd frontend && npm test` continua verde.
 3. **O pull request.** Vai para `develop`, pelo modelo, com `Closes #<número>` e a linha `ADRs:`.
-4. **QA.** O orquestrador roda as checagens e o app e preenche a seção "QA / dogfood result" do pull request.
+4. **QA.** O agente de QA roda as checagens e o app, e o orquestrador põe o resultado na seção "QA / dogfood result" do pull request.
 5. **Revisão isolada.** Outro agente, que não viu a conversa de quem escreveu, lê a issue, a Task e o diff, e dá o veredito. O que ele apontar volta ao implementador, na mesma worktree, e o QA e a revisão rodam de novo. A aprovação vale para o último commit e aparece como `review:approved`.
 6. **CI verde.** Hoje nenhum check roda nos pull requests: as Actions do fork ligam com a issue #3, e o workflow do HexGym vem com a #9. Até lá, o que garante um pull request é a revisão isolada.
-7. **Merge em `develop`, em squash.** O tech lead ou o founder faz o merge quando os portões abrem. O título do pull request vira o commit do squash. A issue fecha, ganha `state:done` e vai para Feito no quadro.
+7. **Merge em `develop`, em squash.** O tech lead ou o founder faz o merge quando a revisão aprovou o último commit, a linha `ADRs:` está certa, o pull request não tem conflito e a CI passou. O `merge-if-ready.sh --dry-run` do relentless confere a revisão e a linha `ADRs:`, e também que um ADR aceito no pull request veio do `/decide` do founder; o conflito e a CI, quem faz o merge confere. O título do pull request vira o commit do squash. A issue fecha, ganha `state:done` e vai para Feito no quadro.
 
 ## Git Flow
 
