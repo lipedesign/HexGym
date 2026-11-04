@@ -59,8 +59,9 @@ struct ThemeColors {
   static func of(_ theme: HexTheme) -> ThemeColors {
     switch theme {
     case .ultraviolet:
+      // #71: com alto contraste, o accent sobe para #ABA5FF, que chega a 7 também no cardIncreased.
       ThemeColors(
-        accent: HexRGB(0x8B7BFF), accentIncreased: HexRGB(0xA29BFF),
+        accent: HexRGB(0x8B7BFF), accentIncreased: HexRGB(0xABA5FF),
         fill: HexRGB(0x6F5CFF), onFill: .white, fillIncreased: HexRGB(0x8A88FF), onFillIncreased: .black,
         light: HexRGB(0x5B45E6), lightIncreased: HexRGB(0x5339DB), support: nil,
         glow: HexP3(red: 0.4221, green: 0.3535, blue: 0.9822, opacity: 0.85), watchAccent: HexRGB(0x9D8CFF))
@@ -78,8 +79,9 @@ struct ThemeColors {
         light: HexRGB(0x00739E), lightIncreased: HexRGB(0x005F84), support: HexRGB(0x5E6BFF),
         glow: HexP3(red: 0.2302, green: 0.6551, blue: 0.8761, opacity: 0.8), watchAccent: nil)
     case .copper:
+      // #71: com alto contraste, o accent sobe para #F5976C, que chega a 7 também no cardIncreased.
       ThemeColors(
-        accent: HexRGB(0xF2895A), accentIncreased: HexRGB(0xF48B5C),
+        accent: HexRGB(0xF2895A), accentIncreased: HexRGB(0xF5976C),
         fill: HexRGB(0xF2895A), onFill: .black, fillIncreased: HexRGB(0xF2895A), onFillIncreased: .black,
         light: HexRGB(0xB0521F), lightIncreased: HexRGB(0x973D00), support: HexRGB(0x8EA4BF),
         glow: HexP3(red: 0.8374, green: 0.3918, blue: 0.1830, opacity: 0.8), watchAccent: nil)
