@@ -32,22 +32,38 @@ python3 -I scripts/hexbody/regions/run_tests.py                        # os test
 ```
 
 O `--check` sai com 1 quando um JSON não bate com o que sairia do catálogo, e diz o arquivo e o
-exercício (ou a região). Quando o catálogo muda, rode o gerador e commite os dois JSON junto. O
-`--report` imprime as contagens das notas da pesquisa. O `--out <pasta>` troca a pasta dos dois
-JSON, e só os testes do `--check` usam.
+exercício, com o id e o nome (ou a região). Quando o catálogo muda, rode o gerador e commite os
+dois JSON junto. O `--report` imprime as contagens das notas da pesquisa. O `--out <pasta>` troca
+a pasta dos dois JSON, e só os testes do `--check` usam.
 
 A parte `scripts` do `node scripts/hexgym/check.mjs` roda o `--check` ("regiões em dia") e os
 testes ("testes do gerador de regiões"). O workflow do HexGym da issue #9, quando entrar, roda o
 `check.mjs` e, com ele, as duas rodadas.
 
+## As regras por nome
+
+Depois do catálogo, duas levas de regras pelo nome do exercício mudam o primário e o secundário:
+as da v2 (panturrilha sentada, cabeça longa do tríceps, rosca martelo e inversa, abdução, pescoço)
+e as da tabela "A evidência confirma o banco inclinado e derruba o abdômen inferior" do relatório
+(issue #13: o banco inclinado, reto e declinado, o desenvolvimento, a elevação lateral, o
+deltoide posterior, o encolhimento, a elevação em "Y", os oblíquos, a prancha lateral com
+abdução, o agachamento, a adução e a elevação de pernas). Cada regra da tabela troca o primário e
+o secundário pelos dela, e só o agachamento guarda os secundários que já tinha; as regiões que o
+texto nomeia uma a uma (manguito, braquial, glúteo médio) ficam no secundário. Uma regra só vale
+quando o primário é o grupo que ela espera, então um exercício com outro alvo, ou que junta dois
+movimentos (a flexão com remada, o agachamento com desenvolvimento), fica como estava. A flexão
+inclinada ou declinada não é o banco e fica fora das regras do peito. Cada regra tem um teste com
+exercícios reais do catálogo.
+
 ## A ênfase
 
 A ênfase são as sub-regiões que o texto livre nomeia dentro de um grupo que está inteiro no
-primário (o alvo "pectorals" com o secundário "upper chest" dá `upperChest`). Ela sai depois das
-regras por nome, só com as regiões que estão no primário, e é descartada quando cobre todas as
-regiões de um grupo do primário ou quando fica igual ao primário, porque aí não diz nada a mais.
-Nas abduções sentadas (0597 e 3006, e os desenhos 3611 e 3005), o glúteo máximo, que as regras
-mandam para o secundário, fica fora da ênfase.
+primário (o alvo "pectorals" com o secundário "upper chest" dá `upperChest`). Ela sai do primário
+de depois das regras por nome (o braquial na rosca martelo, por exemplo), nunca com o abdômen
+baixo, que não acende sozinho, e é descartada quando cobre todas as regiões de um grupo do
+primário ou quando fica igual ao primário, porque aí não diz nada a mais. Nas abduções sentadas
+(0597 e 3006, e os desenhos 3611 e 3005), o glúteo máximo, que as regras mandam para o
+secundário, fica fora da ênfase.
 
 ## De onde veio
 

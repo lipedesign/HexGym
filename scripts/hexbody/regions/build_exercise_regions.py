@@ -33,10 +33,10 @@ Precedência, igual à do app (frontend/src/lib/muscles.js, weightsOf):
 Campos extras opcionais:
   "emphasis": sub-regiões que o texto livre nomeia dentro de um grupo que está inteiro no
               primário (ex.: alvo "pectorals" + secundário "upper chest" -> ["upperChest"]).
-              Sai depois das regras por nome, só com regiões do primário, e é descartada
-              quando cobre todas as regiões de um grupo do primário ou quando fica igual ao
-              primário, porque aí não diz nada a mais. É uma dica de ênfase, não muda
-              primary/secondary.
+              Sai do primário de depois das regras por nome (as da v2 e as da pesquisa, #13),
+              nunca com o abdômen baixo, e é descartada quando cobre todas as regiões de um
+              grupo do primário ou quando fica igual ao primário, porque aí não diz nada a
+              mais. É uma dica de ênfase, não muda primary/secondary.
   "variantOf": o id é um desenho (figura feminina) de outro exercício; regiões copiadas dele.
 """
 import argparse
@@ -231,12 +231,15 @@ def v2_name_rules(e, p, s):
     stretch = 'stretch' in n or e.get('category') == 'stretching'
     if re.search(r'abduct', n) and 'gluteusMedius' in p and 'gluteal' in p:
         p.discard('gluteal'); s.add('gluteal')                         # abdução: médio, não máximo
-    if re.search(r'seated.*calf|calf.*seated', n) and not stretch and 'calves' in p:
-        p.discard('calves'); p.add('soleus'); s.add('calves')          # joelho dobrado: sóleo
+    # Joelho dobrado: sóleo. "sitting" e "toe raise" entraram na #13 (o 9509, lever sitting toe raise).
+    if re.search(r'(seated|sitting).*(calf|toe raise)|calf.*(seated|sitting)', n) and not stretch and 'calves' in p:
+        p.discard('calves'); p.add('soleus'); s.add('calves')
     if e['target'] == 'triceps' and re.search(r'overhead|french|behind (the )?head|above head', n) and not stretch:
         if 'triceps' in p:
             p.discard('triceps'); p.add('tricepsLongHead'); s.add('triceps')
-    if re.search(r'\bcurl', n) and not re.search(r'wrist|leg|hamstring|calf|nordic|toe', n):
+    # A rosca de perna fica fora pelo "leg curl", não por "leg" solto: as roscas com toalha presa
+    # nas pernas (3830, 3850, 3851 e 3831) são roscas de braço (#13).
+    if re.search(r'\bcurl', n) and not re.search(r'wrist|\bleg curl|hamstring|calf|nordic|toe', n):
         if 'hammer' in n:
             p |= {'brachialis', 'forearm'}
         elif re.search(r'reverse', n):
@@ -254,6 +257,136 @@ def v2_name_rules(e, p, s):
         elif ext:
             p.clear(); p.add('neckBack'); s.clear(); s.add('upperTrapezius')
     s -= p
+    return p, s
+
+
+# ---------------------------------------------------------------- regras por nome da pesquisa
+
+# A tabela "A evidência confirma o banco inclinado e derruba o abdômen inferior" do relatório
+# (docs/research/reports/Sistema muscular para o HexGym.md), como a issue #13 a fixou. Cada regra
+# troca o primário e o secundário pelos da tabela; só o agachamento guarda os secundários que já
+# tinha. As regiões que o texto do catálogo nomeia uma a uma (V2_BY_NAME_ONLY: o manguito no face
+# pull, por exemplo) ficam no secundário. Cada regra só vale quando o primário é o grupo que ela
+# espera: um exercício com outro alvo, ou que junta dois movimentos, fica como estava.
+CHEST = frozenset(G['chest'])
+HEADS = frozenset(V2_HEADS)
+TRAPS = frozenset(G['trapezius'])
+UPPER_BACK = frozenset(G['upper-back'])
+ABS = frozenset(G['abs'])
+LEGS = frozenset(G['quadriceps'] + G['adductors'] + ['gluteal'])
+
+CHEST_MOVE = re.compile(r'bench press|chest press|floor press|\bpress\b|\bpress[- ]?ups?\b|push[- ]?ups?\b'
+                        r'|\bfly\b|\bflyes?\b|\bflys\b|cross[- ]?over|pec (deck|dec)\b')
+CHEST_FLY = re.compile(r'\bfly\b|\bflyes?\b|\bflys\b|cross[- ]?over|pec (deck|dec)\b')
+PUSH_UP = re.compile(r'push[- ]?ups?\b|\bpress[- ]?ups?\b')
+CHEST_COMBO = re.compile(r'\bto\b|\band\b|\bplus\b|jump|\bclap|plyo|burpee|\bwalk|\btaps?\b|crawl|\brows?\b|rotation'
+                         r'|twist|spider|archer|pike|hindu|\bdive|depth|superman|plank|\bdips?\b|pull|lunge|\bjack'
+                         r'|kick|toe touch|raise|thrust|bridge|tuck|bird dog|child pose')
+# O cabo de baixo para cima, de cima para baixo, e o nome que já diz a parte: ficam fora da regra do reto.
+CHEST_ANGLED = re.compile(r'upper chest|lower chest|low chest|\blow (fly|crossover)|\bhigh (fly|crossover)')
+INCLINE, DECLINE = re.compile(r'\bincline\b'), re.compile(r'\bdecline\b')
+ANGLE = re.compile(r'(\d+)\s*(?:°|degrees?)')
+OVERHEAD_PRESS = re.compile(r'shoulders? press|overhead press|military press|arnold press|push press|pike press'
+                            r'|behind (the )?neck press|bradford|\bz press|viking press|strict press|landmine (\w+ )*press')
+OVERHEAD_COMBO = re.compile(r'clean|thruster|lunge|squat|\bto\b|\band\b|devil|bottoms up|external rotation|cuban'
+                            r'|side bend|plank|incline|kick|face down')
+LATERAL_RAISE = re.compile(r'lateral raises?|side raises?|side lateral|lateral delt raise')
+LATERAL_COMBO = re.compile(r'rear|front|plank|\bto\b|\band\b|lunge|squat')
+REAR_DELT = re.compile(r'rear delt|rear deltoid|reverse fly|reverse flye|rear fly|rear lateral|face pull|reverse pec')
+REAR_COMBO = re.compile(r'plank|\bto\b|\band\b|wake up|lunge|step')
+SHRUG = re.compile(r'\bshrugs?\b')
+# Encolhimento para baixo ou para trás (nas paralelas, pendurado, invertido, reverso) não é o trapézio superior.
+SHRUG_OTHER = re.compile(r'inverted|parallel bars|hanging|reverse|horizontal')
+Y_RAISE = re.compile(r'\by[- ]?(raises?|lateral raises?|elevation)\b')
+ROTATION = re.compile(r'\btwists?\b|russian twist|wood ?chop|woodchopper|\bchop\b|(torso|trunk) rotation')
+ROTATION_COMBO = re.compile(r'crunch|sit[- ]?up|jackknife|raise|push|squat|lunge|single leg|leg lift|\brows?\b|press|step'
+                            r'|jump|toe touch')
+SIDE_PLANK = re.compile(r'side plank|side bridge|lateral (side )?plank')
+SIDE_PLANK_ABDUCTION = re.compile(r'abduct|leg (raise|lift)|raised leg|clam|glute raise|\bstar\b')
+SIDE_PLANK_COMBO = re.compile(r'push|\brows?\b|\bfly\b|raise|pull|adduct|reach')
+SQUAT = re.compile(r'\bsquats?\b')
+SQUAT_COMBO = re.compile(r'split|bulgarian|single|one[- ]leg|one arm|pistol|sissy|hack|skater|cossack|curtsey|shrimp'
+                         r'|lunge|jump|plyo|thrust|jack|jerk|clean|snatch|get up|press|\brows?\b|curl|raise|deadlift'
+                         r'|good morning|wood ?chop|twist|hold|walk|hop|kick|punch|reach|rotation|step|\bto\b|\band\b'
+                         r'|with|burpee|wall|ball|pulse|lateral|side|shuffle|abduct|knees?\)|on knees|kneeling|tip toe'
+                         r'|pull|hip flexion|reverse squat')
+SQUAT_MACHINES = {'leverage machine', 'sled machine', 'assisted'}
+HIP_ADDUCTION = re.compile(r'\badduct(ion|ors?)\b')
+ADDUCTION_COMBO = re.compile(r'plank|squat|press|thrust|scapular|shoulder|\barm\b|wrist')
+LEG_RAISE = re.compile(r'\b(leg|legs|knee|knees)[- ](hip )?raises?\b|leg-hip raise|reverse crunch|toes to bar'
+                       r'|knees to elbows|\bleg lift')
+LEG_RAISE_COMBO = re.compile(r'oblique|twist|side|plank|press|military|step|lunge|squat|curl|push|circle|dragon'
+                             r'|(?<!reverse )crunch|\bto\b(?! bar| elbows)')
+
+
+def incline_level(n):
+    """'baixo' (até cerca de 30°) ou 'alto' (45° ou mais) pelo nome; None sem "incline" ou entre os dois.
+    Sem ângulo no nome é 'baixo', a não ser que o nome diga "shoulders press": aí o banco está alto."""
+    if not INCLINE.search(n):
+        return None
+    m = ANGLE.search(n)
+    if m:
+        angle = int(m.group(1))
+        return 'alto' if angle >= 45 else 'baixo' if angle <= 30 else None
+    return 'alto' if re.search(r'shoulders? press', n) else 'baixo'
+
+
+def research_name_rules(e, p, s):
+    """As regras por nome do relatório da pesquisa (issue #13). Mudam primário e secundário.
+    Rodam depois das regras da v2 e antes da ênfase."""
+    n = e['name'].lower()
+    if 'stretch' in n or e.get('category') in ('stretching', 'mobility'):
+        return p, s
+    keep = s & V2_BY_NAME_ONLY   # o que o texto nomeia uma a uma fica, se a regra não puser no primário
+
+    def rule(primary, secondary):
+        return set(primary), (set(secondary) | keep) - set(primary)
+
+    level = incline_level(n)
+    # Peito: o banco decide a parte. Supino e flexão levam o tríceps; o crucifixo não.
+    if level == 'alto' and p in (CHEST, HEADS) and (CHEST_MOVE.search(n) or OVERHEAD_PRESS.search(n)) \
+            and not CHEST_COMBO.search(n) and not PUSH_UP.search(n):
+        return rule({'frontDeltoid'}, {'upperChest'} | (set() if CHEST_FLY.search(n) else {'triceps'}))
+    if p == CHEST and CHEST_MOVE.search(n) and not CHEST_COMBO.search(n) and not CHEST_ANGLED.search(n):
+        fly = bool(CHEST_FLY.search(n))
+        if INCLINE.search(n) or DECLINE.search(n):
+            # A flexão inclinada ou declinada não é o banco, e entre 30° e 45° não há regra: ficam como estavam.
+            tri = set() if fly else {'triceps'}
+            if PUSH_UP.search(n):
+                return p, s
+            if level == 'baixo':
+                return rule({'upperChest'}, {'frontDeltoid'} | tri)
+            if DECLINE.search(n) and not INCLINE.search(n):
+                return rule({'lowerChest', 'chest'}, {'frontDeltoid'} | tri)
+            return p, s
+        tri = set() if fly else {'triceps', 'tricepsLongHead'}
+        return rule({'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'} | tri)   # sai o lateral e o posterior
+    # Ombro e trapézio.
+    if p == HEADS and OVERHEAD_PRESS.search(n) and not OVERHEAD_COMBO.search(n):
+        return rule({'frontDeltoid'}, {'deltoids', 'triceps', 'upperTrapezius'})
+    if p in (HEADS, UPPER_BACK, TRAPS) and Y_RAISE.search(n):
+        return rule({'lowerTrapezius'}, {'deltoids'})
+    if p == HEADS and LATERAL_RAISE.search(n) and not LATERAL_COMBO.search(n):
+        return rule({'deltoids'}, {'rearDeltoid', 'upperTrapezius'})
+    if p in (HEADS, UPPER_BACK) and REAR_DELT.search(n) and not REAR_COMBO.search(n):
+        return rule({'rearDeltoid'}, {'rhomboids', 'trapezius'})
+    if p == TRAPS and SHRUG.search(n) and not SHRUG_OTHER.search(n):
+        return rule({'upperTrapezius'}, set())
+    # Tronco: a prancha lateral com abdução vai para o glúteo médio; sem abdução, e as rotações, oblíquos.
+    if SIDE_PLANK.search(n) and SIDE_PLANK_ABDUCTION.search(n) and p in (ABS, {'gluteusMedius'}):
+        return rule({'gluteusMedius'}, {'gluteal', 'obliques'})
+    if p == ABS and ((SIDE_PLANK.search(n) and not SIDE_PLANK_COMBO.search(n))
+                     or (ROTATION.search(n) and not ROTATION_COMBO.search(n))):
+        return rule({'obliques'}, {'upperAbs'})
+    if p == ABS and LEG_RAISE.search(n) and not LEG_RAISE_COMBO.search(n):
+        return rule({'hipFlexors', 'upperAbs', 'lowerAbs'}, set())   # o abdômen baixo nunca sozinho
+    # Pernas.
+    if p and p <= LEGS and p & (LEGS - set(G['adductors'])) and SQUAT.search(n) and not SQUAT_COMBO.search(n) \
+            and e.get('category') in ('strength', 'calisthenics', 'olympic') and e.get('equipment') not in SQUAT_MACHINES:
+        legs = {'outerQuad', 'innerQuad', 'gluteal', 'adductors'}
+        return legs, (s | p | {'quadriceps'}) - legs   # o reto femoral só no secundário
+    if p == {'adductors'} and HIP_ADDUCTION.search(n) and not ADDUCTION_COMBO.search(n):
+        return rule({'adductors'}, set())
     return p, s
 
 
@@ -329,8 +462,8 @@ def regions_of_terms(terms):
 
 
 def emphasis_of(primary, sub_terms):
-    """Sub-regiões nomeadas dentro de grupos que estão inteiros no primário. São só candidatas:
-    a ênfase que fica sai de kept_emphasis, depois das regras por nome."""
+    """Sub-regiões nomeadas dentro de grupos que estão inteiros no primário. Roda com o primário
+    de depois das regras por nome; a ênfase que fica sai de kept_emphasis."""
     out = set()
     for t in sub_terms:
         regs = set(TERM_REGIONS[t])
@@ -340,11 +473,14 @@ def emphasis_of(primary, sub_terms):
     return out
 
 
+NEVER_EMPHASIS = {'lowerAbs'}   # o abdômen baixo nunca acende sozinho, nem como ênfase (relatório, #13)
+
+
 def kept_emphasis(emph, primary):
     """A ênfase com o primário que já passou pelas regras por nome: só as regiões que estão nele,
-    e nenhuma quando ela cobre todas as regiões de um grupo do primário ou fica igual ao
-    primário, porque aí não diz nada a mais. Só tira: as regras nunca criam ênfase."""
-    out = emph & primary   # daqui em diante, um grupo inteiro na ênfase também está inteiro no primário
+    sem o abdômen baixo, e nenhuma quando ela cobre todas as regiões de um grupo do primário ou
+    fica igual ao primário, porque aí não diz nada a mais."""
+    out = (emph & primary) - NEVER_EMPHASIS   # um grupo inteiro na ênfase também está inteiro no primário
     if out == primary or any(set(rr) <= out for rr in G.values()):
         return set()
     return out
@@ -354,8 +490,7 @@ def from_freetext(e, extra):
     sec_terms = list(dict.fromkeys(e['secondaryMuscles'] + extra))
     primary = set(TERM_REGIONS[e['target']])
     secondary = regions_of_terms(sec_terms) - primary
-    emph = emphasis_of(primary, [t for t in sec_terms if is_subpart(t)])
-    return primary, secondary, emph
+    return primary, secondary, [t for t in sec_terms if is_subpart(t)]
 
 
 def refine_group(group, text_terms):
@@ -383,8 +518,7 @@ def from_musclemap(e, extra):
     for g in sg:
         secondary |= refine_group(g, text_terms)
     secondary -= primary
-    emph = emphasis_of(primary, [t for t in text_terms if is_subpart(t)])
-    return primary, secondary, emph
+    return primary, secondary, [t for t in text_terms if is_subpart(t)]
 
 
 def from_bodypart(e):
@@ -410,17 +544,19 @@ def build():
     for id_, e in exercises.items():
         extra = [t for t in additions.get(id_, []) if t not in e['secondaryMuscles']]
         if e.get('muscleMap'):
-            p, s, emph = from_musclemap(e, extra)
+            p, s, sub_terms = from_musclemap(e, extra)
             source = 'muscleMap'
         else:
-            p, s, emph = from_freetext(e, extra)
+            p, s, sub_terms = from_freetext(e, extra)
             source = 'curated' if extra else 'freetext'
         if not p and not s:
             p, s = from_bodypart(e)
-            emph = set()
+            sub_terms = []
             source = 'bodypart'
         p, s = v2_name_rules(e, set(p), set(s))
-        emph = kept_emphasis(emph, p)   # depois das regras, que podem mudar o primário
+        p, s = research_name_rules(e, p, s)
+        # A ênfase sai do primário de depois das regras, que podem mudar o primário.
+        emph = kept_emphasis(emphasis_of(p, sub_terms), p)
         row = {'name': e['name'], 'primary': ordered(p), 'secondary': ordered(s), 'source': source}
         if emph:
             row['emphasis'] = ordered(emph)
@@ -462,16 +598,23 @@ def differences(name, text, path):
         return [f'{name}: não é um JSON válido ({err})']
     new = keyed(name, json.loads(text))
     what, source = ('a região', 'a tabela do gerador') if name == REGIONS_JSON else ('o exercício', 'o catálogo')
+
+    def label(key):
+        """O id, e o nome do exercício ao lado dele (o do catálogo, ou o do arquivo se o catálogo não tem)."""
+        row = new.get(key) if isinstance(new.get(key), dict) else old.get(key)
+        title = row.get('name') if name == EXERCISE_JSON and isinstance(row, dict) else None
+        return f'{key} ({title})' if isinstance(title, str) else str(key)
+
     out = []
     for key in dict.fromkeys([*new, *old]):
         if key not in old:
-            out.append(f'{name}: {what} {key} falta no arquivo')
+            out.append(f'{name}: {what} {label(key)} falta no arquivo')
         elif key not in new:
-            out.append(f'{name}: {what} {key} sobra no arquivo, e {source} não tem')
+            out.append(f'{name}: {what} {label(key)} sobra no arquivo, e {source} não tem')
         elif old[key] != new[key]:
             a, b = old[key], new[key]
             fields = sorted(f for f in {*a, *b} if a.get(f) != b.get(f)) if isinstance(a, dict) else []
-            out.append(f'{name}: {what} {key} não bate com {source}' + (f' ({", ".join(fields)})' if fields else ''))
+            out.append(f'{name}: {what} {label(key)} não bate com {source}' + (f' ({", ".join(fields)})' if fields else ''))
     if len(out) > SHOWN:
         out = out[:SHOWN] + [f'{name}: e mais {len(out) - SHOWN}']
     return out or [f'{name}: o conteúdo bate, mas o texto do arquivo não (formatação ou ordem)']
