@@ -29,7 +29,9 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
   let text = increased ? 7.0 : 4.5, contrast: ColorSchemeContrast = increased ? .increased : .standard
   let dark = HexPalette.resolve(theme, scheme: .dark, contrast: contrast)
   let light = HexPalette.resolve(theme, scheme: .light, contrast: contrast)
-  for background in [HexRGB.black, .card] {
+  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, o cartão fica #242426.
+  let backgrounds: [HexRGB] = increased ? [.black, .card, .cardIncreased] : [.black, .card]
+  for background in backgrounds {
     #expect(dark.accent.contrast(with: background) >= text); #expect(dark.fill.contrast(with: background) >= 3)
     #expect(dark.record.contrast(with: background) >= text)
   }
@@ -43,7 +45,12 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
 }
 @Test func increasedContrastSwapsTheUltravioletButton() {
   let p = HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased)
-  #expect(p.fill == HexRGB(0x8A88FF)); #expect(p.onFill == .black); #expect(p.accent == HexRGB(0xA29BFF))
+  #expect(p.fill == HexRGB(0x8A88FF)); #expect(p.onFill == .black); #expect(p.accent == HexRGB(0xABA5FF))
+}
+@Test func increasedContrastTextClearsTheSystemCard() {  // #71: o texto passa de 7 no cartão do alto contraste
+  #expect(HexRGB.cardIncreased == HexRGB(0x242426))
+  #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased).accent == HexRGB(0xABA5FF))
+  #expect(HexPalette.resolve(.copper, scheme: .dark, contrast: .increased).accent == HexRGB(0xF5976C))
 }
 @Test func lightUsesTheLightColumnWithAWhiteLabel() {
   let p = HexPalette.resolve(.copper, scheme: .light, contrast: .standard)
@@ -53,7 +60,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
 @Test func theWatchAndTheIslandUseTheirOwnUltraviolet() {
   for surface in [HexSurface.watch, .island] {
     #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .standard, surface: surface).accent == HexRGB(0x9D8CFF))
-    #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased, surface: surface).accent == HexRGB(0xA29BFF))
+    #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased, surface: surface).accent == HexRGB(0xABA5FF))
     #expect(HexPalette.resolve(.cyan, scheme: .dark, contrast: .standard, surface: surface).accent == HexRGB(0x4FD8FF))
   }
 }
@@ -112,7 +119,7 @@ private struct Swatches: View {
         HStack(alignment: .top, spacing: 12) {
           Text(mode.title).font(.system(size: 15, weight: .semibold)).frame(width: 132, alignment: .leading)
           ForEach(HexTheme.allCases, id: \.self) { theme in
-            Swatch(palette: .resolve(theme, scheme: mode.scheme, contrast: mode.contrast), scheme: mode.scheme)
+            Swatch(palette: .resolve(theme, scheme: mode.scheme, contrast: mode.contrast), scheme: mode.scheme, contrast: mode.contrast)
           }
         }
       }
@@ -124,7 +131,10 @@ private struct Swatches: View {
 // As amostras de um tema num modo: o accent no fundo (e, no escuro, no cartão do sistema), o botão
 // no fill com o onFill escrito, o recorde com o onRecord e o brilho, quando há.
 private struct Swatch: View {
-  let palette: HexPalette, scheme: ColorScheme
+  let palette: HexPalette, scheme: ColorScheme, contrast: ColorSchemeContrast
+
+  // O cartão que o sistema desenha no modo: com Aumentar Contraste, o cardIncreased.
+  private var card: HexRGB { contrast == .increased ? .cardIncreased : .card }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -132,7 +142,7 @@ private struct Swatch: View {
       Text(hex(palette.accent)).font(.system(size: 24, weight: .bold)).foregroundStyle(Color(palette.accent))
       if scheme == .dark {
         Text("no cartão").font(.system(size: 15, weight: .semibold)).foregroundStyle(Color(palette.accent))
-          .frame(maxWidth: .infinity, minHeight: 34).background(Color(HexRGB.card), in: .rect(cornerRadius: 10))
+          .frame(maxWidth: .infinity, minHeight: 34).background(Color(card), in: .rect(cornerRadius: 10))
       }
       caption("Botão").padding(.top, 6)
       Text(hex(palette.fill)).font(.system(size: 17, weight: .semibold)).foregroundStyle(Color(palette.onFill))

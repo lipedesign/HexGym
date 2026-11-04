@@ -16,10 +16,10 @@ O founder aceitou as quatro recomendações da página das decisões da fase 1 (
 
 1. **Fonte:** Barlow Condensed nos números, nos títulos e no logotipo; SF Pro Compressed de reserva no cirílico e no grego; a fonte do sistema (SF Pro) no texto corrido e nas outras escritas. É a "tipografia final" da seção 10.
 2. **Camadas:** a tabela da seção 6, com quatro ajustes. O número que rola (`numericText`) e a transição de "Começar treino" (`zoom`) passam para "Da Apple, com a marca"; os botões secundários usam o `.glass` da Apple tingido pelo tema; o brilho que respira entra como nosso.
-3. **Alto contraste:** os valores da Task 1, com o botão do Ultravioleta mais claro (#8A88FF) e rótulo preto. Os cinzas vêm do sistema. O Display P3 mais vivo vale só no brilho, e o Giz fica sem ele.
+3. **Alto contraste:** os valores da Task 1, com o botão do Ultravioleta mais claro (#8A88FF) e rótulo preto. Os cinzas vêm do sistema. O Display P3 mais vivo vale só no brilho, e o Giz fica sem ele. Com Aumentar Contraste, o cartão do sistema fica #242426 e o texto do Ultravioleta e do Cobre sobe para #ABA5FF e #F5976C; com ou sem ele, o texto na cor do tema fica só no fundo da tela e no cartão, e os cartões de uma tela que sobe levam texto branco ou nos cinzas do sistema (escolha recomendada, com a delegação do Lipe de 03/11/2026, na #71).
 4. **Participação:** cada componente chega com prints no PR, e com vídeo do simulador quando houver simulador. Com a delegação do founder de 03/11/2026, nenhum componente espera aprovação dele: cada escolha visual que este plano faz além das quatro acima vem marcada como "escolha recomendada, com a delegação do Lipe de 03/11/2026", e a issue da Task repete a marca. A sessão da fase 1 atualiza a página depois de cada merge. O que o founder pedir para mudar depois vira uma Task normal.
 
-As escolhas recomendadas deste plano: a escala de texto, o logotipo com `gym` no peso 200, o espaçamento e os raios, os movimentos e os hápticos, os nomes dos temas em inglês, o botão principal, as entradas do treino, os segmentos, o carimbo, o anel de descanso, o brilho no alto contraste e no Watch, o vidro tingido, o zoom com Reduzir Movimento, a organização da galeria e o botão que a abre, o botão compacto de 44 pt no Watch, a Coroa Digital e o ícone do app. Cada Task diz as suas.
+As escolhas recomendadas deste plano: as cores do alto contraste sobre o cartão do sistema e o lugar do texto na cor do tema (#71), a escala de texto, o logotipo com `gym` no peso 200, o espaçamento e os raios, os movimentos e os hápticos, os nomes dos temas em inglês, o botão principal, as entradas do treino, os segmentos, o carimbo, o anel de descanso, o brilho no alto contraste e no Watch, o vidro tingido, o zoom com Reduzir Movimento, a organização da galeria e o botão que a abre, o botão compacto de 44 pt no Watch, a Coroa Digital e o ícone do app. Cada Task diz as suas.
 
 ## Restrições globais (Global Constraints)
 
@@ -116,6 +116,8 @@ Ficam fora desta fase, de propósito: as telas de verdade (fases 2 a 4); o modo 
 
 **Depende de:** #19, que cria o `xcode.mjs --swift`, o `--swift-test-flags` e o `apple/.gitignore`.
 
+**Escolha recomendada, com a delegação do Lipe de 03/11/2026 (#71):** com alto contraste, o `accent` do Ultravioleta e o do Cobre são #ABA5FF e #F5976C, o primeiro passo de 1% em direção ao branco (a partir de #A29BFF e #F48B5C) que chega a 7 no `cardIncreased`; e o texto na cor do tema fica só no fundo da tela e no cartão, por isso o cinza elevado de uma tela que sobe fica fora das regras (decisão 3).
+
 **Files:**
 - Create: `apple/Packages/HexDesign/Package.swift`
 - Create: `apple/Packages/HexDesign/Sources/HexDesign/Color/HexRGB.swift`, `Color/HexPalette.swift`
@@ -135,7 +137,9 @@ public struct HexRGB: Hashable, Sendable {
   public var displayP3: Components                           // o mesmo ponto, no espaço Display P3
   public var luminance: Double                               // a luminância relativa da WCAG 2.2
   public func contrast(with other: HexRGB) -> Double         // de 1 a 21, nos dois sentidos
-  public static let black: HexRGB, white: HexRGB, card: HexRGB    // 0x000000, 0xFFFFFF e 0x1C1C1E, o cartão do sistema no escuro
+  public static let black: HexRGB, white: HexRGB             // 0x000000 e 0xFFFFFF
+  public static let card: HexRGB                             // 0x1C1C1E, o cartão do sistema no escuro, sem alto contraste
+  public static let cardIncreased: HexRGB                    // 0x242426, o mesmo cartão com Aumentar Contraste (o systemGray6 acessível do HIG)
 }
 public struct HexP3: Equatable, Sendable { public let red, green, blue, opacity: Double }   // já em Display P3
 public enum HexTheme: String, CaseIterable, Sendable {       // o rawValue é o que fica guardado (Task 4)
@@ -165,20 +169,20 @@ extension Color {
 
 | Tema | accent | accent (alto contraste) | fill / onFill | fill / onFill (alto contraste) | claro | claro (alto contraste) | support | glow (P3; opacidade) |
 |---|---|---|---|---|---|---|---|---|
-| Ultravioleta | #8B7BFF | #A29BFF | #6F5CFF / branco | #8A88FF / preto | #5B45E6 | #5339DB | | 0,4221 0,3535 0,9822; 0,85 |
+| Ultravioleta | #8B7BFF | #ABA5FF | #6F5CFF / branco | #8A88FF / preto | #5B45E6 | #5339DB | | 0,4221 0,3535 0,9822; 0,85 |
 | Giz & Ferro | #F2EFE9 | o mesmo | #F2EFE9 / preto | o mesmo | #1D1D1F | o mesmo | | #8D8A84 convertido, sem P3 vivo; 0,55 |
 | Ciano Glacial | #4FD8FF | o mesmo | #4FD8FF / preto | o mesmo | #00739E | #005F84 | #5E6BFF | 0,2302 0,6551 0,8761; 0,8 |
-| Cobre Forjado | #F2895A | #F48B5C | #F2895A / preto | o mesmo | #B0521F | #973D00 | #8EA4BF | 0,8374 0,3918 0,1830; 0,8 |
+| Cobre Forjado | #F2895A | #F5976C | #F2895A / preto | o mesmo | #B0521F | #973D00 | #8EA4BF | 0,8374 0,3918 0,1830; 0,8 |
 
 - No claro, o `accent` e o `fill` são a coluna "claro" (ou a do alto contraste), e o `onFill` é branco. O recorde é #FFC94D com texto preto no escuro, e #8A6100 no claro (#765200 com alto contraste), com texto branco. `support` é nil com alto contraste, e `glow` é nil no claro. A superfície `.watch` ou `.island` só muda o `accent` do Ultravioleta no escuro sem alto contraste: #9D8CFF (seção 6). Nos outros casos, vale o `accent` do app.
-- As regras, que o teste confere em cada tema, com e sem alto contraste (normal / alto contraste):
-  - `accent` no preto e no `card`: 4,5 / 7;
+- As regras, que o teste confere em cada tema, com e sem alto contraste (normal / alto contraste). Os fundos do escuro são o preto e o `card`, e com alto contraste também o `cardIncreased`, o cartão que o sistema desenha com Aumentar Contraste:
+  - `accent` nos fundos do escuro: 4,5 / 7;
   - `onFill` sobre o `fill`: 4,5 / 7;
-  - `fill` contra o preto e contra o `card`: 3 nos dois (o contorno do botão, a regra de componente da WCAG);
+  - `fill` contra os fundos do escuro: 3 nos dois (o contorno do botão, a regra de componente da WCAG);
   - no claro, `accent` no branco e branco sobre o `fill`: 4,5 / 7; `fill` contra o branco: 3;
-  - recorde contra o fundo (o preto e o `card` no escuro, o branco no claro) e `onRecord` sobre o recorde: 4,5 / 7;
+  - recorde contra o fundo (os fundos do escuro, e o branco no claro) e `onRecord` sobre o recorde: 4,5 / 7;
   - o `accent` do Watch e da ilha no preto: 4,5 / 7.
-  Alguns pares passam com pouca folga (o `onFill` do Ultravioleta dá 4,52; o `accent` do Ultravioleta com alto contraste no `card`, 7,02): quem mudar uma cor vê o teste cair.
+  Alguns pares passam com pouca folga (o `onFill` do Ultravioleta dá 4,52; com alto contraste, no `cardIncreased`, o `accent` do Ultravioleta, #ABA5FF, dá 7,05, e o do Cobre, #F5976C, dá 7,03): quem mudar uma cor vê o teste cair.
 
 - [ ] **Step 1: Write `Package.swift` and the failing tests**
 
@@ -203,7 +207,9 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
   let text = increased ? 7.0 : 4.5, contrast: ColorSchemeContrast = increased ? .increased : .standard
   let dark = HexPalette.resolve(theme, scheme: .dark, contrast: contrast)
   let light = HexPalette.resolve(theme, scheme: .light, contrast: contrast)
-  for background in [HexRGB.black, .card] {
+  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, o cartão fica #242426.
+  let backgrounds: [HexRGB] = increased ? [.black, .card, .cardIncreased] : [.black, .card]
+  for background in backgrounds {
     #expect(dark.accent.contrast(with: background) >= text); #expect(dark.fill.contrast(with: background) >= 3)
     #expect(dark.record.contrast(with: background) >= text)
   }
@@ -217,7 +223,12 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
 }
 @Test func increasedContrastSwapsTheUltravioletButton() {
   let p = HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased)
-  #expect(p.fill == HexRGB(0x8A88FF)); #expect(p.onFill == .black); #expect(p.accent == HexRGB(0xA29BFF))
+  #expect(p.fill == HexRGB(0x8A88FF)); #expect(p.onFill == .black); #expect(p.accent == HexRGB(0xABA5FF))
+}
+@Test func increasedContrastTextClearsTheSystemCard() {  // #71: o texto passa de 7 no cartão do alto contraste
+  #expect(HexRGB.cardIncreased == HexRGB(0x242426))
+  #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased).accent == HexRGB(0xABA5FF))
+  #expect(HexPalette.resolve(.copper, scheme: .dark, contrast: .increased).accent == HexRGB(0xF5976C))
 }
 @Test func lightUsesTheLightColumnWithAWhiteLabel() {
   let p = HexPalette.resolve(.copper, scheme: .light, contrast: .standard)
@@ -227,7 +238,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
 @Test func theWatchAndTheIslandUseTheirOwnUltraviolet() {
   for surface in [HexSurface.watch, .island] {
     #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .standard, surface: surface).accent == HexRGB(0x9D8CFF))
-    #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased, surface: surface).accent == HexRGB(0xA29BFF))
+    #expect(HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased, surface: surface).accent == HexRGB(0xABA5FF))
     #expect(HexPalette.resolve(.cyan, scheme: .dark, contrast: .standard, surface: surface).accent == HexRGB(0x4FD8FF))
   }
 }
@@ -243,7 +254,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
 @MainActor @Test(.enabled(if: printsEnabled)) func printTheSwatches() throws { /* cores.png */ }
 ```
 
-O `printTheSwatches` grava `cores.png`: os quatro temas lado a lado, cada um com `accent`, `fill` com o `onFill` escrito, recorde e brilho, no escuro, no escuro com alto contraste e no claro.
+O `printTheSwatches` grava `cores.png`: os quatro temas lado a lado, cada um com `accent` (no escuro, também no cartão do sistema: o `card`, ou o `cardIncreased` com alto contraste), `fill` com o `onFill` escrito, recorde e brilho, no escuro, no escuro com alto contraste e no claro.
 
 - [ ] **Step 2: Run them to verify they fail**
 
@@ -257,7 +268,7 @@ O `glow` do Giz sai de `HexRGB(0x8D8A84).displayP3`, e não de números copiados
 - [ ] **Step 4: Run them to verify they pass**
 
 Run: o comando do pacote
-Expected: PASS, 8 testes, e o print pulado.
+Expected: PASS, 9 testes, e o print pulado.
 
 - [ ] **Step 5: Take the print**
 

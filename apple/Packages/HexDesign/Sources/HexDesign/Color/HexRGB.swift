@@ -42,8 +42,12 @@ public struct HexRGB: Hashable, Sendable {
     return (max(a, b) + 0.05) / (min(a, b) + 0.05)
   }
 
-  // O preto e o branco, e o cartão do sistema no escuro (o secondarySystemBackground).
-  public static let black = HexRGB(0x000000), white = HexRGB(0xFFFFFF), card = HexRGB(0x1C1C1E)
+  // O preto e o branco.
+  public static let black = HexRGB(0x000000), white = HexRGB(0xFFFFFF)
+  // O cartão do sistema no escuro, sem alto contraste (o secondarySystemBackground).
+  public static let card = HexRGB(0x1C1C1E)
+  // O mesmo cartão com Aumentar Contraste: o systemGray6 acessível do HIG da Apple (página "Color").
+  public static let cardIncreased = HexRGB(0x242426)
 
   // A curva do sRGB, de um componente para a luz linear, com o limiar 0,04045 da WCAG 2.2.
   static func linear(_ component: Double) -> Double {
