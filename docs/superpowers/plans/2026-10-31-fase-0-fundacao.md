@@ -1073,6 +1073,7 @@ git commit -m "HexEngine: o motor num JSContext dentro de um ator, com os casos 
 - Create: `apple/Packages/HexStore/Sources/HexStore/DocumentStore.swift`
 - Create: `apple/Packages/HexStore/Tests/HexStoreTests/DocumentStoreTests.swift`
 - Modify: `scripts/hexgym/check.mjs` (a parte `packages` ganha o HexStore)
+- Modify: `scripts/hexgym/check.test.mjs` (os dois testes da Task 7 que prendem as rodadas da parte `packages` esperam também a do HexStore)
 
 **Interfaces:**
 - Consumes: `developerDir({ swiftOnly: true })` e `swiftTestFlags` de `scripts/hexgym/xcode.mjs` (Task 7) na checagem.
@@ -1089,9 +1090,11 @@ public actor DocumentStore {
   public func saveSyncBase(_ base: SyncBase) throws
 }
 public enum StoredDocument: Equatable, Sendable { case empty, current(Data), recovered(Data) }
-public struct SyncBase: Codable, Equatable, Sendable { public var rev: Int; public var ts: Int?; public var wid: String? }
+public struct SyncBase: Codable, Equatable, Sendable { public var rev: Int; public var ts: Int64?; public var wid: String? }
 public enum DocumentStoreError: Error, Equatable { case appGroupUnavailable(String), unreadable, notAnObject }
 ```
+
+O `ts` é `Int64?` porque é um horário em milissegundos, e nos relógios com arm64_32 o `Int` tem 32 bits.
 
 Os arquivos, todos no `directory`: `state.json` (o documento), `state.previous.json` (a cópia anterior), `state.unreadable.json` (o último arquivo ruim, guardado para alguém olhar) e `sync-base.json`. `Package.swift`: `swift-tools-version: 6.2`, `platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)]`, produto `HexStore`, alvo de teste `HexStoreTests`.
 
@@ -1158,6 +1161,13 @@ Swift Testing, cada teste num diretório temporário novo:
     try DocumentStore.appGroupDirectory(lookup: { _ in nil })
   }
 }
+@Test func aDocumentNestedTooDeepIsBrokenAndNothingCrashes() async throws {   // QA do PR #69
+  func nested(_ levels: Int) -> Data { Data((String(repeating: #"{"a":"#, count: levels) + "1" + String(repeating: "}", count: levels)).utf8) }
+  try await store.save(nested(128)); #expect(try await store.load() == .current(nested(128)))
+  await #expect(throws: DocumentStoreError.notAnObject) { try await store.save(nested(129)) }
+  write("state.json", nested(1000)); write("state.previous.json", a)
+  #expect(try await store.load() == .recovered(a))
+}
 ```
 
 `a`, `b` e `c` são três documentos JSON pequenos e diferentes; `read` e `write` leem e gravam direto no diretório temporário, `lock` e `unlock` põem as permissões do arquivo em `0o000` e em `0o644`, e `exists` diz se o arquivo está lá.
@@ -1170,7 +1180,8 @@ Expected: FAIL, `cannot find 'DocumentStore' in scope`.
 - [ ] **Step 3: Implement `DocumentStore`**
 
 O documento é opaco: o pacote só confere que é um objeto JSON e guarda os bytes como vieram.
-- "Válido" quer dizer que o `JSON.parse` leria o arquivo como um objeto: o `JSONSerialization` aceita o arquivo, ou aceita uma cópia em que cada escape de surrogate sem par (um `\ud800` a `\udbff` sem um `\udc00` a `\udfff` logo depois, ou um destes sem aquele antes) virou `�`. O `JSONSerialization` recusa os dois tipos de surrogate sozinho, e o `JSON.stringify` grava os dois (conferido nesta máquina em 31/10/2026). A troca serve só para conferir: os bytes gravados e devolvidos são sempre os originais.
+- "Válido" quer dizer que o `JSON.parse` leria o arquivo como um objeto: o arquivo não tem nenhum byte 0 nem mais de 128 níveis de `{` e `[`, contados fora dos textos, e o `JSONSerialization` aceita o arquivo, ou aceita uma cópia em que cada escape de surrogate sem par (um `\ud800` a `\udbff` sem um `\udc00` a `\udfff` logo depois, ou um destes sem aquele antes) virou o escape do U+FFFD, seis bytes no lugar de seis, para os índices não mudarem. O `JSONSerialization` recusa os dois tipos de surrogate sozinho, e o `JSON.stringify` grava os dois (conferido nesta máquina em 31/10/2026). A troca serve só para conferir: os bytes gravados e devolvidos são sempre os originais.
+- Com mais de 128 níveis, o `JSONSerialization` nem chega a ler o documento: o `save` lança `.notAnObject`, e o `load` o trata como os outros arquivos ruins. Os documentos de verdade têm uns 7 níveis, e o `JSONSerialization`, que desce um nível por chamada, caía com SIGBUS a partir de uns 480 na pilha de 512 KiB da thread do ator (QA do PR #69). O byte 0 fica de fora pelo mesmo motivo: um JSON em UTF-8 não tem nenhum, e com ele o `JSONSerialization` poderia ler os bytes como UTF-16 ou UTF-32, em que a conta dos níveis não vale.
 - "Falta" quer dizer só o erro `NSFileReadNoSuchFileError`. Qualquer outro erro de leitura (permissão, disco, um aparelho que ligou e ainda não foi desbloqueado) lança `.unreadable` sem mexer em nada, no `load` e no `save`.
 - `save` confere o documento novo (um inválido lança `.notAnObject`), depois copia o `state.json` atual para `state.previous.json`, e só se ele for válido, e por fim grava o novo `state.json`. As duas gravações usam `Data.write(to:options: .atomic)`.
 
@@ -1188,11 +1199,11 @@ A recuperação e o erro vão para o `Logger(subsystem: "app.hexgym", category: 
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: o comando do passo 2
-Expected: PASS, 14 testes.
+Expected: PASS, 15 testes.
 
 - [ ] **Step 5: Add HexStore to the `packages` check**
 
-Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`, com o `args` como função, como os do HexEngine. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta.
+Em `PARTS.packages`, depois do HexEngine: `{ name: 'HexStore', cmd: 'swift', args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexStore'], env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }) }`, com o `args` como função, como os do HexEngine. Como diz a Task 1, a checagem nova precisa mostrar ao `check.mjs` quantos testes rodou, para a conta da parte `packages` incluir os testes do HexStore: por ser um `swift test`, o XUnit da Task 7 já conta. No `check.test.mjs`, os dois testes da Task 7 que prendem as rodadas da parte passam a esperar também a do HexStore, sem fuso: o que lista os comandos e os `env` da parte, e o de ponta a ponta com o swift de mentira, que vê quatro chamadas, conta 12 testes e roda sem `TZ` nem `HEXGYM_CASES` no ambiente, para mostrar que a do HexStore não recebe fuso. A parte `scripts` roda esses testes.
 
 Run: `node scripts/hexgym/check.mjs packages`
 Expected: `ok`.
@@ -1200,7 +1211,7 @@ Expected: `ok`.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add apple/Packages/HexStore scripts/hexgym/check.mjs
+git add apple/Packages/HexStore scripts/hexgym/check.mjs scripts/hexgym/check.test.mjs
 git commit -m "HexStore: o documento de dados no App Group, com cópia anterior"
 ```
 

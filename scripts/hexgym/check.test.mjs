@@ -13,7 +13,9 @@
 // Os três da issue #18 (a conta do Vitest e a do engine-load.mjs) vêm depois, também com pastas
 // temporárias, e nenhum roda o Vitest de verdade nem o jsc.
 // Os cinco da issue #19 (a parte packages, a conta do swift test e a parte sem o swift) vêm no fim,
-// com um swift e um xcode.mjs de mentira em pastas temporárias, e nenhum roda o swift de verdade.
+// com um swift e um xcode.mjs de mentira em pastas temporárias, e nenhum roda o swift de verdade. A
+// issue #20 pôs o HexStore no fim da parte packages, e os dois deles que prendem as rodadas da parte
+// esperam também a dele.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -206,18 +208,22 @@ test('a Vitest that writes no report counts zero, and its part fails', async t =
 })
 
 // A parte packages da issue #19, sem rodar nada: o swift test de todos os testes do HexEngine no
-// primeiro fuso, e o dos casos gravados em cada um dos outros dois, com o que o primeiro compilou. O
-// DEVELOPER_DIR do ambiente ganha do resto no developerDir, então o args e o env saem iguais em
-// qualquer máquina: com /x, o swiftTestFlags não dá nenhum argumento.
-test('the packages part runs every HexEngine test in the first zone, and the recorded cases in each other zone', t => {
+// primeiro fuso, e o dos casos gravados em cada um dos outros dois, com o que o primeiro compilou; e,
+// desde a issue #20, o de todos os testes do HexStore, sem fuso. O DEVELOPER_DIR do ambiente ganha do
+// resto no developerDir, então o args e o env saem iguais em qualquer máquina: com /x, o
+// swiftTestFlags não dá nenhum argumento.
+test('the packages part runs every HexEngine test in the first zone, the recorded cases in each other zone, and every HexStore test', t => {
   const before = process.env.DEVELOPER_DIR
   t.after(() => { if (before === undefined) delete process.env.DEVELOPER_DIR; else process.env.DEVELOPER_DIR = before })
   process.env.DEVELOPER_DIR = '/x'
   const hexengine = ['swift', 'test', '--package-path', 'apple/Packages/HexEngine']
   const recorded = [...hexengine, '--skip-build', '--filter', 'RecordedCasesTests']
-  assert.deepEqual(PARTS.packages.map(c => [c.cmd, ...c.args()]), [hexengine, recorded, recorded])
-  assert.deepEqual(PARTS.packages.map(c => c.env()), ['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland'].map(
-    zone => ({ DEVELOPER_DIR: '/x', TZ: zone, HEXGYM_CASES: zone })))
+  const hexstore = ['swift', 'test', '--package-path', 'apple/Packages/HexStore']
+  assert.deepEqual(PARTS.packages.map(c => [c.cmd, ...c.args()]), [hexengine, recorded, recorded, hexstore])
+  assert.deepEqual(PARTS.packages.map(c => c.env()), [
+    ...['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland'].map(zone => ({ DEVELOPER_DIR: '/x', TZ: zone, HEXGYM_CASES: zone })),
+    { DEVELOPER_DIR: '/x' },
+  ])
   assert.ok(PARTS.engine.some(c => [c.cmd, ...c.args].join(' ') === 'node scripts/hexgym/record-engine-cases.mjs --check'))
 })
 
@@ -294,24 +300,28 @@ test('a swift test that writes no XUnit counts zero, and its part fails', async 
 })
 
 // A parte packages de ponta a ponta, numa cópia do check.mjs: um xcode.mjs de mentira, que dá um
-// DEVELOPER_DIR e dois argumentos marcados para ele, e o swift de mentira no começo do PATH. As três
-// rodadas levam os mesmos argumentos, inclusive as duas com --skip-build, e cada uma o seu fuso.
+// DEVELOPER_DIR e dois argumentos marcados para ele, e o swift de mentira no começo do PATH. As quatro
+// rodadas levam os mesmos argumentos, inclusive as duas com --skip-build; cada uma do HexEngine leva o
+// seu fuso, e a do HexStore, nenhum. Para isso se ver, o ambiente da cópia vai sem TZ e sem
+// HEXGYM_CASES.
 const MARKED = [
   "export function developerDir() { return '/caminho/de/mentira' }",
   "export function swiftTestFlags(dir) { return dir === '/caminho/de/mentira' ? ['-Xswiftc', '-marca'] : [] }",
 ].join('\n') + '\n'
-test('every swift test of the packages part gets the same swiftTestFlags, and its own zone', t => {
+test('every swift test of the packages part gets the same swiftTestFlags, each HexEngine run its own zone, and the HexStore run none', t => {
   const swift = fakeSwift(t, { report: true })
-  const r = runPart(copiedCheck(t, { 'xcode.mjs': MARKED }), 'packages', { ...WITHOUT_CONTEXT, PATH: `${swift.cwd}${path.delimiter}${process.env.PATH}` })
+  const { TZ: _tz, HEXGYM_CASES: _cases, ...env } = { ...WITHOUT_CONTEXT, PATH: `${swift.cwd}${path.delimiter}${process.env.PATH}` }
+  const r = runPart(copiedCheck(t, { 'xcode.mjs': MARKED }), 'packages', env)
   assert.equal(r.status, 0, r.stderr)
-  assert.match(r.stdout, /\ntestes contados: packages 9\nok\n$/)
+  assert.match(r.stdout, /\ntestes contados: packages 12\nok\n$/)
   const calls = swift.seen()
-  assert.deepEqual(calls.map(c => c.argv.slice(0, 2)), [['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output']])
+  assert.deepEqual(calls.map(c => c.argv.slice(0, 2)), [['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output']])
   const flags = ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexEngine']
   assert.deepEqual(calls.map(({ argv, tz, cases, dev }) => ({ rest: argv.slice(3), tz, cases, dev })), [
     { rest: flags, tz: 'America/Sao_Paulo', cases: 'America/Sao_Paulo', dev: '/caminho/de/mentira' },
     { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Europe/Zurich', cases: 'Europe/Zurich', dev: '/caminho/de/mentira' },
     { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Pacific/Auckland', cases: 'Pacific/Auckland', dev: '/caminho/de/mentira' },
+    { rest: ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexStore'], tz: null, cases: null, dev: '/caminho/de/mentira' },
   ])
 })
 
