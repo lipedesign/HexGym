@@ -6,6 +6,7 @@ import { CATALOGUE, healCustomEx, registerCustom } from '../../../../frontend/sr
 import { registerExerciseAliases } from '../../../../frontend/src/lib/exercise-aliases.js'
 import { freshState, stateFromSaved } from '../../../../frontend/src/lib/state-core.js'
 import { stateJson } from '../../../../frontend/src/lib/state-json.js'
+import * as library from './library.js'
 import { decodeValue, encodeValue } from './values.js'
 
 // O idioma das telas, dos nomes e dos passos (language.js), que o load() do Swift chama com os
@@ -55,8 +56,32 @@ export function restore(json) {
 
 // O documento aberto, no mesmo texto que o app web grava (lib/state-json.js).
 export function document() {
+  return stateJson(opened())
+}
+
+// O documento aberto, ou o erro de antes do primeiro.
+function opened() {
   if (!current) throw new Error('HexEngine: nenhum documento aberto')
-  return stateJson(current)
+  return current
+}
+
+// A biblioteca (library.js) sobre o documento aberto, para as telas do app: o catálogo, a busca, o
+// detalhe de um exercício e as opções dos filtros. A busca recebe o texto JSON da LibraryQuery do
+// Swift.
+export function catalogue() {
+  return JSON.stringify(library.catalogue(opened()))
+}
+
+export function search(queryJson) {
+  return JSON.stringify(library.search(opened(), JSON.parse(queryJson)))
+}
+
+export function exercise(id) {
+  return JSON.stringify(library.exercise(opened(), id))
+}
+
+export function facets() {
+  return JSON.stringify(library.facets(opened()))
 }
 
 // O nome de uma função é "<caminho do módulo>#<export>", como "frontend/src/lib/onerm.js#estimate1RM".
