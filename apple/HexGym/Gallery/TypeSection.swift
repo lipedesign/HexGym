@@ -43,12 +43,24 @@ struct TypeSection: View {
     }
   }
 
-  // O nome do estilo, o tamanho no tamanho de texto padrão e o teto, quando há.
+  // O nome do estilo no idioma, o nome dele no código, o tamanho no tamanho de texto padrão e o teto,
+  // quando há.
   private func description(_ style: HexTextStyle) -> Text {
-    let name = String(describing: style), size = Int(style.baseSize)
+    let code = String(describing: style), size = Int(style.baseSize)
     if let cap = style.maxSize {
-      return Text("\(name), \(size) pt, up to \(Int(cap)) pt")
+      return Text("\(name(style)) (\(code)), \(size) pt, up to \(Int(cap)) pt")
     }
-    return Text("\(name), \(size) pt, grows without a cap")
+    return Text("\(name(style)) (\(code)), \(size) pt, grows without a cap")
+  }
+
+  private func name(_ style: HexTextStyle) -> Text {
+    switch style {
+    case .display: Text("Display")
+    case .number: Text("Number")
+    case .title: Text("Title")
+    case .headline: Text("Headline")
+    case .unit: Text("Unit")
+    case .caption: Text("Caption")
+    }
   }
 }

@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ (%@), %lld pt, grows without a cap" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@), %3$lld pt, cresce sem teto"
+          }
+        }
+      }
+    },
+    "%@ (%@), %lld pt, up to %lld pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@), %3$lld pt, até %4$lld pt"
+          }
+        }
+      }
+    },
     "%@ on the background" : {
       "localizations" : {
         "pt-BR" : {
@@ -41,32 +61,62 @@
         }
       }
     },
-    "%@, %lld pt, grows without a cap" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$lld pt, cresce sem teto"
-          }
-        }
-      }
-    },
-    "%@, %lld pt, up to %lld pt" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$lld pt, até %3$lld pt"
-          }
-        }
-      }
-    },
     "Accent" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Destaque"
+          }
+        }
+      }
+    },
+    "Accessibility 1" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acessibilidade 1"
+          }
+        }
+      }
+    },
+    "Accessibility 2" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acessibilidade 2"
+          }
+        }
+      }
+    },
+    "Accessibility 3" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acessibilidade 3"
+          }
+        }
+      }
+    },
+    "Accessibility 4" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acessibilidade 4"
+          }
+        }
+      }
+    },
+    "Accessibility 5" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acessibilidade 5"
           }
         }
       }
@@ -171,6 +221,16 @@
         }
       }
     },
+    "Caption" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legenda"
+          }
+        }
+      }
+    },
     "Colors" : {
       "localizations" : {
         "pt-BR" : {
@@ -221,6 +281,16 @@
         }
       }
     },
+    "Default (Large)" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Padrão (Grande)"
+          }
+        }
+      }
+    },
     "Design system" : {
       "localizations" : {
         "pt-BR" : {
@@ -237,6 +307,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Galeria do design system"
+          }
+        }
+      }
+    },
+    "Display" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibição"
           }
         }
       }
@@ -311,6 +391,46 @@
         }
       }
     },
+    "Extra large" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra grande"
+          }
+        }
+      }
+    },
+    "Extra large 2" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra grande 2"
+          }
+        }
+      }
+    },
+    "Extra large 3" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra grande 3"
+          }
+        }
+      }
+    },
+    "Extra small" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra pequeno"
+          }
+        }
+      }
+    },
     "Glow" : {
       "localizations" : {
         "pt-BR" : {
@@ -327,6 +447,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ir"
+          }
+        }
+      }
+    },
+    "Headline" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabeçalho"
           }
         }
       }
@@ -421,6 +551,16 @@
         }
       }
     },
+    "Medium" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Médio"
+          }
+        }
+      }
+    },
     "Motion and haptics" : {
       "localizations" : {
         "pt-BR" : {
@@ -447,6 +587,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Normal, desligado e grande."
+          }
+        }
+      }
+    },
+    "Number" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número"
           }
         }
       }
@@ -671,6 +821,16 @@
         }
       }
     },
+    "Small" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pequeno"
+          }
+        }
+      }
+    },
     "Start a 90 s rest" : {
       "localizations" : {
         "pt-BR" : {
@@ -807,6 +967,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terceira série"
+          }
+        }
+      }
+    },
+    "Title" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Título"
           }
         }
       }

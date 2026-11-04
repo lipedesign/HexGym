@@ -26,7 +26,7 @@ struct MotionSection: View {
         GalleryValueRow(label: "Increase Contrast", value: state(contrast == .increased))
         GalleryValueRow(label: "High contrast preview", value: state(model.contrastPreview))
         GalleryValueRow(label: "Bold Text", value: state(legibilityWeight == .bold))
-        GalleryValueRow(label: "Text size", value: Text(verbatim: String(describing: dynamicTypeSize)))
+        GalleryValueRow(label: "Text size", value: TextSizeName.text(dynamicTypeSize))
       }
     }
   }
@@ -125,5 +125,26 @@ private struct WorkoutPreview: View {
     guard GalleryLaunch.demo else { return }
     do { try await Task.sleep(for: .seconds(2.8)) } catch { return }
     dismiss()
+  }
+}
+
+// O nome do tamanho de texto, no idioma: o padrão do aparelho é o "Grande" da Apple.
+enum TextSizeName {
+  static func text(_ size: DynamicTypeSize) -> Text {
+    switch size {
+    case .xSmall: Text("Extra small")
+    case .small: Text("Small")
+    case .medium: Text("Medium")
+    case .large: Text("Default (Large)")
+    case .xLarge: Text("Extra large")
+    case .xxLarge: Text("Extra large 2")
+    case .xxxLarge: Text("Extra large 3")
+    case .accessibility1: Text("Accessibility 1")
+    case .accessibility2: Text("Accessibility 2")
+    case .accessibility3: Text("Accessibility 3")
+    case .accessibility4: Text("Accessibility 4")
+    case .accessibility5: Text("Accessibility 5")
+    @unknown default: Text(verbatim: String(describing: size))
+    }
   }
 }

@@ -59,8 +59,9 @@ struct LayerName: View {
 }
 
 // Da Apple, como vem: uma chave, um seletor segmentado, uma linha de ajustes e um SF Symbol. A marca
-// entra só pelo tint (o accent do tema, na raiz).
+// entra só pela cor de destaque: na chave, pelo estilo da raiz, e no símbolo, pela paleta.
 private struct AppleColumn: View {
+  @Environment(\.hexPalette) private var palette
   @State private var isOn = true
   @State private var unit = WeightUnit.kg
 
@@ -87,15 +88,16 @@ private struct AppleColumn: View {
       .buttonStyle(.plain)
       Image(systemName: "dumbbell.fill")
         .font(.largeTitle)
-        .foregroundStyle(.tint)
+        .foregroundStyle(Color(palette.accent))
         .accessibilityLabel(Text("SF Symbol"))
     }
   }
 }
 
 // Da Apple, com a marca: o cartão de vidro com um número que rola, e um botão secundário que muda o
-// número. Sobre o vidro, o texto é branco (QA da PR #77): medido no simulador, o branco passa de 9,6:1
-// nos quatro temas, e o cinza secundário do sistema fica em 3,1 a 3,2:1, abaixo de 4,5.
+// número. Sobre o vidro, o texto é branco (QA da PR #77): medido no simulador, o branco fica em pelo
+// menos 8,54:1 nos quatro temas, no pior pixel do vidro, e o cinza secundário do sistema fica em 3,1 a
+// 3,2:1, abaixo de 4,5.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: sobre o vidro, só texto branco.
 private struct BrandedColumn: View {

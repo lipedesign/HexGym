@@ -22,15 +22,14 @@ struct HexGymApp: App {
 }
 
 // A raiz com o tema: uma view, e não o body da cena, para observar o modelo e trocar o tema na hora.
-// Os componentes da Apple usam o accent do tema como tint, e o modelo também vai para o ambiente, para a
-// galeria trocar o tema e a prévia de alto contraste.
+// O modelo também vai para o ambiente, para a galeria trocar o tema e a prévia de alto contraste.
 private struct ThemedRoot<Content: View>: View {
   let theme: ThemeModel
   @ViewBuilder let content: Content
 
   var body: some View {
     content
-      .modifier(AccentTint())
+      .modifier(RootTint())
       .background { BreathingGlow() }
       .hexTheme(theme)
       .environment(theme)
@@ -39,11 +38,38 @@ private struct ThemedRoot<Content: View>: View {
   }
 }
 
-// O tint dos componentes da Apple: o accent da paleta do ambiente.
-private struct AccentTint: ViewModifier {
+// O tint dos componentes da Apple na raiz: branco. O tint vira a cor do texto dos botões de barra (o
+// "OK" de uma tela que sobe, por exemplo), dos alertas e dos menus, que ficam sobre o vidro das barras
+// (#3A3A3C), onde o accent não é conferido: no QA da PR #85, o "OK" no accent mediu 3,45:1 no
+// Ultravioleta. Pela regra da #71, o texto na cor do tema só fica sobre o fundo da tela e sobre o
+// cartão do sistema. O accent entra só onde é pedido: nos componentes do HexDesign, que leem a paleta;
+// nas chaves, pelo HexSwitchStyle abaixo, porque nelas o tint é o preenchimento, e não texto; e onde
+// uma tela o põe de propósito.
+//
+// Escolha recomendada, com a delegação do Lipe de 03/11/2026: o tint branco na raiz e o accent só onde
+// é pedido.
+private struct RootTint: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .tint(Color.white)
+      .toggleStyle(HexSwitchStyle())
+  }
+}
+
+// A chave da Apple, como vem, com o preenchimento no accent do tema.
+private struct HexSwitchStyle: ToggleStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    AccentSwitch(configuration: configuration)
+  }
+}
+
+private struct AccentSwitch: View {
+  let configuration: ToggleStyleConfiguration
   @Environment(\.hexPalette) private var palette
 
-  func body(content: Content) -> some View {
-    content.tint(Color(palette.accent))
+  var body: some View {
+    Toggle(configuration)
+      .toggleStyle(.switch)
+      .tint(Color(palette.accent))
   }
 }

@@ -26,6 +26,8 @@ O alvo de toque nunca fica abaixo de 44 pt (`HexTarget.minimum`), no iPhone e no
 
 ![O botão principal nos quatro temas: normal, com alto contraste e desligado, em .regular e .large](imagens/botao-principal.png)
 
+![O botão principal no simulador do iPhone: normal, desligado e grande, no Ultravioleta](imagens/simulador-botao-principal.png)
+
 **O que faz:** o botão da ação principal da tela, como "Começar treino". Ocupa a largura toda, no `fill` do tema, com o rótulo no `onFill`.
 
 ```swift
@@ -220,6 +222,8 @@ RestRing(total: 120, remaining: 90)   // em segundos
 
 ![O brilho nos quatro temas, sem e com alto contraste](imagens/brilho.png)
 
+![O brilho no simulador do iPhone, no Ultravioleta](imagens/simulador-brilho.png)
+
 **O que faz:** o fundo das telas do app: preto, com um brilho na cor do tema no alto, que cresce e encolhe devagar.
 
 ```swift
@@ -299,17 +303,17 @@ HexGlassCard {
 - **A tinta:** o destaque do tema a 18%. O vidro tingido com o destaque a 18% e sem tinta no alto contraste é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
 - **O texto sobre o vidro:** só branco, nunca na cor do tema nem no cinza secundário. É a regra da #71 ([cores.md](cores.md#onde-o-texto-na-cor-do-tema-pode-ficar)): o texto na cor do tema só fica sobre o fundo da tela e sobre o cartão do sistema. O cinza secundário do sistema (`.secondary`) mediu de 3,1 a 3,2:1 sobre o vidro, abaixo de 4,5, e por isso saiu. Só branco sobre o vidro é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
 
-**O contraste medido:** no simulador do iPhone (iOS 27.0), em prints da galeria, com o fundo sendo a cor mais comum do vidro atrás do texto. O vidro muda com o que está atrás, e o brilho do topo é o fundo mais claro que ele pega na galeria.
+**O contraste medido:** no simulador do iPhone (iOS 27.0), em prints da galeria. O vidro muda com o que está atrás, e o brilho do topo é o fundo mais claro que ele pega na galeria. A conta que vale é a menor: o branco contra o pixel do vidro que menos contrasta com ele, em qualquer ponto do cartão (fora do próprio texto e da borda serrilhada dele). Ao lado, a cor mais comum do vidro, para comparar.
 
-| Situação | Fundo do vidro | Branco sobre ele |
+| Situação | Menor contraste (pior pixel do vidro) | Na cor mais comum |
 |---|---|---|
-| Ultravioleta | #333048 | 12,67:1 |
-| Giz & Ferro | #454544 | 9,60:1 |
-| Ciano Glacial | #284148 | 10,83:1 |
-| Cobre Forjado | #46322A | 12,00:1 |
-| Prévia de alto contraste (sem tinta) | #202020 | 16,29:1 |
-| Aumentar Contraste (sem tinta) | #1D1D1D | 16,86:1 |
-| Reduzir Transparência (Ultravioleta) | #28253E | 14,74:1 |
+| Ultravioleta | 11,04:1 (#3C3953) | 12,67:1 (#333048) |
+| Giz & Ferro | 8,54:1 (#4E4C4B) | 9,60:1 (#454544) |
+| Ciano Glacial | 9,42:1 (#304A53) | 10,83:1 (#284148) |
+| Cobre Forjado | 10,53:1 (#4E3B31) | 12,00:1 (#46322A) |
+| Prévia de alto contraste (sem tinta) | 14,28:1 (#2C2A29, no Cobre) | 16,29:1 (#202020) |
+| Aumentar Contraste (sem tinta) | 15,60:1 (#222424, no Ciano) | 16,86:1 (#1D1D1D) |
+| Reduzir Transparência (Ultravioleta) | 14,53:1 (#292640) | 14,74:1 (#28253E) |
 
 **Estados:**
 
@@ -341,16 +345,16 @@ HStack {
 
 **Estados:** os da Apple (apertado, desligado), com a tinta no destaque do tema. Com Aumentar Contraste, continuam tingidos, com o destaque de alto contraste; só o cartão de vidro perde a tinta.
 
-**O contraste medido:** no iPhone, o rótulo do `.glass` tingido sai na cor do destaque, sobre um vidro escuro, e não em branco como no macOS (onde o branco deu 2,14:1 no Cobre). No simulador do iPhone (iOS 27.0), em prints da galeria:
+**O contraste medido:** no iPhone, o rótulo do `.glass` tingido sai na cor do destaque, sobre um vidro escuro, e não em branco como no macOS (onde o branco deu 2,14:1 no Cobre). No simulador do iPhone (iOS 27.0), em prints da galeria, o menor valor: o rótulo contra o pixel do botão que menos contrasta com ele (o vidro clareia perto da borda de cima, até #262626, ou #222222 com Aumentar Contraste). Entre parênteses, o valor na cor mais comum do botão (#202020, ou #1B1B1B com Aumentar Contraste).
 
-| Tema | Sem ajuste (vidro #1F1F1F) | Com Aumentar Contraste (vidro #1B1B1B) |
+| Tema | Sem ajuste | Com Aumentar Contraste |
 |---|---|---|
-| Ultravioleta | 5,00:1 | 7,84:1 (rótulo #ABA5FF) |
-| Giz & Ferro | 14,36:1 | 15,01:1 |
-| Ciano Glacial | 9,89:1 | 10,33:1 |
-| Cobre Forjado | 6,67:1 (7,48:1 com a prévia de alto contraste) | 7,81:1 (rótulo #F5976C) |
+| Ultravioleta | 4,59:1 (4,95:1) | 7,24:1 (7,84:1), rótulo #ABA5FF |
+| Giz & Ferro | 13,19:1 (14,20:1) | 13,86:1 (15,01:1) |
+| Ciano Glacial | 9,08:1 (9,78:1) | 9,55:1 (10,33:1) |
+| Cobre Forjado | 6,13:1 (6,60:1); 6,86:1 (7,39:1) com a prévia de alto contraste | 7,22:1 (7,81:1), rótulo #F5976C |
 
-Os quatro passam de 4,5:1, com e sem Aumentar Contraste, e por isso o rótulo fica como a Apple desenha. Com Reduzir Transparência, o botão vira uma cor lisa, #141414, e o rótulo no Ultravioleta fica em 5,59:1.
+Os quatro passam de 4,5:1, com e sem Aumentar Contraste, e por isso o rótulo fica como a Apple desenha. O Ultravioleta sem ajuste é o mais justo: 4,59:1 no pixel mais claro. Com Reduzir Transparência, o botão vira uma cor lisa, #141414, e o rótulo no Ultravioleta fica em 5,23:1 no pior pixel (5,59:1 na cor mais comum).
 
 **VoiceOver:** são botões do SwiftUI; o VoiceOver lê o rótulo como botão.
 
