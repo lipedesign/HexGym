@@ -17,16 +17,16 @@ import Testing
 // dos UserDefaults, e o deinit apaga esse domínio, passe ou falhe o teste. A suíte é ~Copyable porque
 // só assim uma struct tem deinit.
 @Suite struct ThemeTests: ~Copyable {
-  private let suite = "hexdesign-\(UUID().uuidString)"
+  // Um caminho absoluto no temporário, e não um nome solto: o cfprefsd grava um plist vazio do domínio
+  // depois do fim do processo, e no temporário quem limpa é o sistema, longe de Library/Preferences.
+  private let suite = FileManager.default.temporaryDirectory.appendingPathComponent("hexdesign-\(UUID().uuidString)").path
 
   // Os UserDefaults só deste teste, que começam vazios.
   func fresh() -> UserDefaults {
     UserDefaults(suiteName: suite)!
   }
 
-  // Apaga as chaves do domínio. O cfprefsd ainda grava, segundos depois, um plist vazio do domínio em
-  // Library/Preferences quando o teste gravou alguma coisa; apagar o arquivo aqui não adianta, porque
-  // essa gravação vem depois.
+  // Apaga as chaves do domínio.
   deinit {
     UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite)
   }
