@@ -1,5 +1,6 @@
-// O app do Apple Watch. Nesta fase, só a tela provisória com a marca, no centro, em fundo preto.
-// O Watch não roda JavaScript: nada de JavaScriptCore nem do HexEngine aqui.
+// O app do Apple Watch. Nesta fase, só a tela provisória com a marca do HexDesign, no centro, em fundo
+// preto. O Watch não roda JavaScript: nada de JavaScriptCore nem do HexEngine aqui.
+import HexDesign
 import SwiftUI
 
 @main
@@ -8,7 +9,7 @@ struct HexGymWatchApp: App {
     WindowGroup {
       ZStack {
         Color.black.ignoresSafeArea()
-        Wordmark(size: 30)
+        HexWordmark(size: 30)
       }
     }
   }

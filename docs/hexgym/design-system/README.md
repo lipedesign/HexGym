@@ -26,6 +26,10 @@ A regra para decidir: se a Apple oferece o componente e o usuário espera o comp
 
 Todo componente nosso funciona com Dynamic Type, VoiceOver, Reduzir Movimento, Aumentar Contraste, Reduzir Transparência, Texto em Negrito e hápticos, e tem alvo de toque de pelo menos 44 pt.
 
+No app do iPhone, a galeria do design system mostra as três camadas lado a lado, no topo (o botão "Galeria do design system" da tela provisória). Nos tamanhos de acessibilidade, elas viram uma embaixo da outra.
+
+![As três camadas na galeria do iPhone, no Ultravioleta](imagens/simulador-camadas.png)
+
 ## Como usar o pacote num alvo
 
 1. No projeto do Xcode, o alvo (o app do iPhone, o do Watch ou um widget) ganha o pacote local `apple/Packages/HexDesign` e o produto `HexDesign`.
@@ -95,5 +99,4 @@ Os prints saem iguais byte a byte de uma geração para outra. Nenhuma imagem de
 
 ## O que ainda vem
 
-- **A galeria no iPhone (Task 10):** os componentes rodando no simulador, com a troca de tema ao vivo, os prints do vidro e da transição e os prints no maior tamanho de texto.
 - **O design system no Watch (Task 11):** a versão de cada componente para o Watch, que entra nas seções "No Watch" de [componentes.md](componentes.md).

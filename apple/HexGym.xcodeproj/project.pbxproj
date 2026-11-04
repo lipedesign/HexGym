@@ -10,8 +10,12 @@
 		02E19521CDCE7A08DE5E4554 /* HexGymWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 39F9A71A33881EFF75201641 /* HexGymWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		063FCCB5968FF92D1F1F92D9 /* HexGymWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0844E44C528B271ACE52742D /* HexGymWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0953718FEB0A988BEE83AB0D /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 5E24FEE5B721DD7596AA690F /* HexDesign */; };
 		0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */ = {isa = PBXBuildFile; productRef = F7D667231290D9949914F205 /* HexEngine */; };
 		0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */ = {isa = PBXBuildFile; productRef = FD10DF20928C0DA753FF1560 /* HexStore */; };
+		7D8B27A75A0672F92F9AD7CD /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 065F48265460A29DF3541267 /* HexDesign */; };
+		7F77EDAF80727F612A7E91BA /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = A1415B7FF0EAECE2DA7FCDAF /* HexDesign */; };
+		945F248E32746F935A176598 /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 42AFEE8145ADF29955546C99 /* HexDesign */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,11 +119,6 @@
 			path = HexGymTests;
 			sourceTree = "<group>";
 		};
-		55A7C14DB135424318D93AEA /* Shared */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Shared;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +126,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				945F248E32746F935A176598 /* HexDesign in Frameworks */,
 				0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */,
 				0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */,
 			);
@@ -136,6 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0953718FEB0A988BEE83AB0D /* HexDesign in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7F77EDAF80727F612A7E91BA /* HexDesign in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +152,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D8B27A75A0672F92F9AD7CD /* HexDesign in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +174,6 @@
 				457D145E02D0379FCDD79639 /* HexGymWatch */,
 				4B4162986F701F9489A52BBB /* HexGymWatchWidgets */,
 				54B85696700A2EA7361DCC2C /* HexGymTests */,
-				55A7C14DB135424318D93AEA /* Shared */,
 				63A820911F1A58DC1B3052B6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -209,10 +211,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				434112C3915DC2F333BEF57C /* HexGym */,
-				55A7C14DB135424318D93AEA /* Shared */,
 			);
 			name = HexGym;
 			packageProductDependencies = (
+				42AFEE8145ADF29955546C99 /* HexDesign */,
 				F7D667231290D9949914F205 /* HexEngine */,
 				FD10DF20928C0DA753FF1560 /* HexStore */,
 			);
@@ -234,10 +236,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				44BB825392670EC071F8119A /* HexGymWidgets */,
-				55A7C14DB135424318D93AEA /* Shared */,
 			);
 			name = HexGymWidgets;
 			packageProductDependencies = (
+				5E24FEE5B721DD7596AA690F /* HexDesign */,
 			);
 			productName = HexGymWidgets;
 			productReference = 39F9A71A33881EFF75201641 /* HexGymWidgets.appex */;
@@ -259,10 +261,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				457D145E02D0379FCDD79639 /* HexGymWatch */,
-				55A7C14DB135424318D93AEA /* Shared */,
 			);
 			name = HexGymWatch;
 			packageProductDependencies = (
+				A1415B7FF0EAECE2DA7FCDAF /* HexDesign */,
 			);
 			productName = HexGymWatch;
 			productReference = 3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */;
@@ -282,10 +284,10 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4B4162986F701F9489A52BBB /* HexGymWatchWidgets */,
-				55A7C14DB135424318D93AEA /* Shared */,
 			);
 			name = HexGymWatchWidgets;
 			packageProductDependencies = (
+				065F48265460A29DF3541267 /* HexDesign */,
 			);
 			productName = HexGymWatchWidgets;
 			productReference = 415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */;
@@ -355,6 +357,7 @@
 			packageReferences = (
 				F47B29B18CB5B56F4F5C6E84 /* XCLocalSwiftPackageReference "Packages/HexEngine" */,
 				F683D71DBDA7846B3CE84AD1 /* XCLocalSwiftPackageReference "Packages/HexStore" */,
+				6FB7F657AB6F3F027C850634 /* XCLocalSwiftPackageReference "Packages/HexDesign" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63A820911F1A58DC1B3052B6 /* Products */;
@@ -792,6 +795,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/HexStore;
 		};
+		6FB7F657AB6F3F027C850634 /* XCLocalSwiftPackageReference "Packages/HexDesign" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HexDesign;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -802,6 +809,22 @@
 		FD10DF20928C0DA753FF1560 /* HexStore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HexStore;
+		};
+		42AFEE8145ADF29955546C99 /* HexDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexDesign;
+		};
+		5E24FEE5B721DD7596AA690F /* HexDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexDesign;
+		};
+		A1415B7FF0EAECE2DA7FCDAF /* HexDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexDesign;
+		};
+		065F48265460A29DF3541267 /* HexDesign */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexDesign;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

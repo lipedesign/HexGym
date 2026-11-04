@@ -63,7 +63,7 @@ Quando o Reduzir Movimento liga com o brilho no meio do ciclo, ele volta ao tama
 | Componente | O que muda |
 |---|---|
 | Brilho que respira | apaga: fica só o fundo preto |
-| Cartão de vidro e botões secundários | o próprio sistema deixa o vidro opaco |
+| Cartão de vidro e botões secundários | o próprio sistema deixa o vidro opaco; no simulador do iPhone, os dois viram uma cor lisa ([componentes.md](componentes.md#o-cartão-de-vidro)) |
 
 Os outros componentes não têm transparência e não mudam.
 

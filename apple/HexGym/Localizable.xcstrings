@@ -1,12 +1,252 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ on the background" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no fundo da tela"
+          }
+        }
+      }
+    },
+    "%@ on the card" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no cartão"
+          }
+        }
+      }
+    },
+    "%@ with its label" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ com o rótulo"
+          }
+        }
+      }
+    },
+    "%@ with its text" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ com o texto dele"
+          }
+        }
+      }
+    },
+    "%@, %lld pt, grows without a cap" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$lld pt, cresce sem teto"
+          }
+        }
+      }
+    },
+    "%@, %lld pt, up to %lld pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$lld pt, até %3$lld pt"
+          }
+        }
+      }
+    },
+    "Accent" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destaque"
+          }
+        }
+      }
+    },
+    "Accessibility settings" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de acessibilidade"
+          }
+        }
+      }
+    },
+    "Always the system red, in every theme" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sempre o vermelho do sistema, em todo tema"
+          }
+        }
+      }
+    },
+    "An example screen. The real one comes in phase 3." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma tela de exemplo. A de verdade vem na fase 3."
+          }
+        }
+      }
+    },
+    "Apple, as it comes" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da Apple, como vem"
+          }
+        }
+      }
+    },
+    "Apple, with our brand" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da Apple, com a marca"
+          }
+        }
+      }
+    },
+    "Barlow Condensed in numbers, titles and the logo; the system font in running text." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Barlow Condensed nos números, nos títulos e no logotipo; a fonte do sistema no texto corrido."
+          }
+        }
+      }
+    },
+    "Bench press" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supino reto"
+          }
+        }
+      }
+    },
+    "Bold Text" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto em Negrito"
+          }
+        }
+      }
+    },
+    "Breathing glow" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brilho que respira"
+          }
+        }
+      }
+    },
+    "Button" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botão"
+          }
+        }
+      }
+    },
+    "Colors" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cores"
+          }
+        }
+      }
+    },
+    "Components" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Componentes"
+          }
+        }
+      }
+    },
     "Couldn't open your data." : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Não deu para abrir os seus dados."
+          }
+        }
+      }
+    },
+    "Cyrillic and Greek come out in SF Pro Compressed, at the weight of the style; other scripts, in the system font." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O cirílico e o grego saem na SF Pro Compressed, no peso do estilo; as outras escritas, na fonte do sistema."
+          }
+        }
+      }
+    },
+    "Decrease" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminuir"
+          }
+        }
+      }
+    },
+    "Design system" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Design system"
+          }
+        }
+      }
+    },
+    "Design system gallery" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Galeria do design system"
+          }
+        }
+      }
+    },
+    "Display P3, only in the glow, never in text" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display P3, só no brilho, nunca em texto"
           }
         }
       }
@@ -41,6 +281,16 @@
         }
       }
     },
+    "Done" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
     "Engine loaded · %lld exercises" : {
       "localizations" : {
         "pt-BR" : {
@@ -51,8 +301,195 @@
         }
       }
     },
-    "HexGym" : {
-      "shouldTranslate" : false
+    "Error" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erro"
+          }
+        }
+      }
+    },
+    "Glow" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brilho"
+          }
+        }
+      }
+    },
+    "Go" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir"
+          }
+        }
+      }
+    },
+    "High contrast preview" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prévia de alto contraste"
+          }
+        }
+      }
+    },
+    "If Reduce Motion changes while the workout screen is open, the screen gets a new identity and starts over (the if usesZoom of the destination). In phase 3, the workout state lives outside the view, or the screen reads Reduce Motion once, when it opens." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se o Reduzir Movimento mudar com a tela do treino aberta, ela ganha outra identidade e recomeça (o if usesZoom do destino). Na fase 3, o estado do treino mora fora da view, ou a tela lê o Reduzir Movimento uma vez, ao abrir."
+          }
+        }
+      }
+    },
+    "In a sheet" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numa tela que sobe"
+          }
+        }
+      }
+    },
+    "In a sheet, the inputs sit straight on its background, never on a card inside it." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numa tela que sobe, as entradas ficam direto no fundo dela, nunca num cartão dentro dela."
+          }
+        }
+      }
+    },
+    "Increase" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aumentar"
+          }
+        }
+      }
+    },
+    "Increase Contrast" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aumentar Contraste"
+          }
+        }
+      }
+    },
+    "Inside a card, the − and + buttons take the card's own background, so their outline disappears." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dentro de um cartão, os botões − e + ficam com o fundo do próprio cartão, e o contorno deles some."
+          }
+        }
+      }
+    },
+    "It stops with Reduce Motion, goes out with Reduce Transparency and drops to half with high contrast." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ele para com Reduzir Movimento, apaga com Reduzir Transparência e cai à metade com alto contraste."
+          }
+        }
+      }
+    },
+    "Log set" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar série"
+          }
+        }
+      }
+    },
+    "Motion and haptics" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Movimento e háptico"
+          }
+        }
+      }
+    },
+    "None in this theme and contrast" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma neste tema e neste contraste"
+          }
+        }
+      }
+    },
+    "Normal, turned off and large." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal, desligado e grande."
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desligado"
+          }
+        }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ligado"
+          }
+        }
+      }
+    },
+    "One more" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais um"
+          }
+        }
+      }
+    },
+    "Only in the glow, never in text" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Só no brilho, nunca em texto"
+          }
+        }
+      }
     },
     "Opening…" : {
       "localizations" : {
@@ -60,6 +497,366 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abrindo…"
+          }
+        }
+      }
+    },
+    "Other scripts" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outras escritas"
+          }
+        }
+      }
+    },
+    "Ours" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nossos"
+          }
+        }
+      }
+    },
+    "Ours: the load input" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nossos: a entrada da carga"
+          }
+        }
+      }
+    },
+    "Primary button" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botão principal"
+          }
+        }
+      }
+    },
+    "Record" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorde"
+          }
+        }
+      }
+    },
+    "Record stamp" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carimbo de recorde"
+          }
+        }
+      }
+    },
+    "Reduce Motion" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reduzir Movimento"
+          }
+        }
+      }
+    },
+    "Reduce Transparency" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reduzir Transparência"
+          }
+        }
+      }
+    },
+    "Rest" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descanso"
+          }
+        }
+      }
+    },
+    "Rest done" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fim do descanso"
+          }
+        }
+      }
+    },
+    "Rest ring" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anel de descanso"
+          }
+        }
+      }
+    },
+    "See them in a sheet" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver numa tela que sobe"
+          }
+        }
+      }
+    },
+    "Set logged" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série registrada"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        }
+      }
+    },
+    "SF Symbol" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SF Symbol"
+          }
+        }
+      }
+    },
+    "Show it again" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar de novo"
+          }
+        }
+      }
+    },
+    "Slanted segments" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segmentos inclinados"
+          }
+        }
+      }
+    },
+    "Start a 90 s rest" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar um descanso de 90 s"
+          }
+        }
+      }
+    },
+    "Start workout" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar treino"
+          }
+        }
+      }
+    },
+    "Support" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apoio"
+          }
+        }
+      }
+    },
+    "Switch" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chave"
+          }
+        }
+      }
+    },
+    "Text size" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamanho do texto"
+          }
+        }
+      }
+    },
+    "The button grows into the workout screen. With Reduce Motion, the screen appears without moving." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O botão cresce até virar a tela do treino. Com Reduzir Movimento, a tela aparece sem se mover."
+          }
+        }
+      }
+    },
+    "The preview swaps the colors the way Increase Contrast does, without changing the system setting." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A prévia troca as cores como o Aumentar Contraste, sem mudar o ajuste do sistema."
+          }
+        }
+      }
+    },
+    "The simulator does not play haptics: try these on a real iPhone." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O simulador não toca háptico: experimente num iPhone de verdade."
+          }
+        }
+      }
+    },
+    "The theme changes the whole gallery at once and stays on this device, in the App Group, under hexgym.theme." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O tema troca a galeria inteira na hora e fica neste aparelho, no App Group, na chave hexgym.theme."
+          }
+        }
+      }
+    },
+    "The three layers" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As três camadas"
+          }
+        }
+      }
+    },
+    "The transition" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A transição"
+          }
+        }
+      }
+    },
+    "Theme" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tema"
+          }
+        }
+      }
+    },
+    "Theme colored text only goes on the screen background and on the system card." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O texto na cor do tema só fica no fundo da tela e no cartão do sistema."
+          }
+        }
+      }
+    },
+    "Third set" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terceira série"
+          }
+        }
+      }
+    },
+    "Typography" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipografia"
+          }
+        }
+      }
+    },
+    "Unit" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unidade"
+          }
+        }
+      }
+    },
+    "Workout" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treino"
+          }
+        }
+      }
+    },
+    "Workout inputs" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entradas do treino"
+          }
+        }
+      }
+    },
+    "workouts" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "treinos"
           }
         }
       }

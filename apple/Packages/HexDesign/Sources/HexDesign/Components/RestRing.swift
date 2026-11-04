@@ -26,9 +26,13 @@ public enum RestRingModel {
     return hours > 0 ? "\(hours):\(twoDigits(minutes)):\(twoDigits(rest))" : "\(minutes):\(twoDigits(rest))"
   }
 
-  // O tempo como o VoiceOver fala, no idioma: "1 minuto e 30 segundos", "1 minute, 30 seconds".
+  // O tempo como o VoiceOver fala, no idioma: "1 minuto e 30 segundos", "1 minute, 30 seconds". O
+  // CLDR do português põe o 0 na forma one, e o formato da Apple diria "0 segundo" justo quando o
+  // descanso acaba: o 0 em português vem da tabela Progress, no plural, como o da carga (QA da PR #78).
   public static func spokenTime(_ seconds: Int, locale: Locale = .current) -> String {
-    Duration.seconds(max(seconds, 0)).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale))
+    let seconds = max(seconds, 0)
+    if seconds == 0, HexStrings.isPortuguese(locale) { return HexStrings.text("rest.zero", table: "Progress", locale: locale) }
+    return Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale))
   }
 
   private static func twoDigits(_ value: Int) -> String {

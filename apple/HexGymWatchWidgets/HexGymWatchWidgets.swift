@@ -1,5 +1,6 @@
-// Os widgets do Apple Watch. Nesta fase, um só, retangular, com a marca em fundo preto. Ele não muda
-// com o tempo, então a linha do tempo tem uma entrada e nunca pede outra.
+// Os widgets do Apple Watch. Nesta fase, um só, retangular, com a marca do HexDesign em fundo preto.
+// Ele não muda com o tempo, então a linha do tempo tem uma entrada e nunca pede outra.
+import HexDesign
 import SwiftUI
 import WidgetKit
 
@@ -25,7 +26,7 @@ struct WordmarkProvider: TimelineProvider {
 struct WordmarkWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: "HexGymWordmark", provider: WordmarkProvider()) { _ in
-      Wordmark(size: 24)
+      HexWordmark(size: 24)
         .containerBackground(.black, for: .widget)
     }
     .configurationDisplayName("HexGym")

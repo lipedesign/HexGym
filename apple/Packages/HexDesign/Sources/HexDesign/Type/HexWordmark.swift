@@ -14,7 +14,8 @@ public struct HexWordmark: View {
   }
 
   // HEX no peso 800 e gym no 200, do mesmo tamanho e alinhados pela linha de base, com 0,06 do
-  // tamanho entre os dois. O VoiceOver lê um elemento só, "HexGym".
+  // tamanho entre os dois. O VoiceOver lê um elemento só, "HexGym", escrito sem passar pela tradução,
+  // por ser o nome da marca (QA da PR #73).
   public var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: 0.06 * size) {
       Text(verbatim: "HEX").font(Font(HexFonts.font(.extraBold, size: size, tabularDigits: false)))
@@ -22,6 +23,6 @@ public struct HexWordmark: View {
     }
     .foregroundStyle(Color.white)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("HexGym")
+    .accessibilityLabel(Text(verbatim: "HexGym"))
   }
 }

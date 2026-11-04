@@ -1,5 +1,6 @@
-/* O progresso: o rótulo dos segmentos, o carimbo de recorde, o anúncio dele no VoiceOver e o rótulo do anel de descanso. */
+/* O progresso: o rótulo dos segmentos, o carimbo de recorde, o anúncio dele no VoiceOver, o rótulo do anel de descanso e o descanso em 0 falado (o CLDR do português põe o 0 na forma one, e o VoiceOver diria "0 segundo"). */
 "sets" = "Séries";
 "record" = "Recorde";
 "record.new" = "Novo recorde";
 "rest" = "Descanso";
+"rest.zero" = "0 segundos";

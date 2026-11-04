@@ -65,7 +65,7 @@ Os estilos com teto são os de uma linha só (`display`, `number`, `title` e `un
 
 O teste `oneLineStylesStopAtTheirCap` confere: o `display` pedido em 400 fica em 132, pedido em 100 fica em 100, e o `headline` pedido em 400 fica em 400.
 
-No Mac o Dynamic Type não muda o tamanho, então os testes do pacote conferem a escala como uma conta. Os prints no AX5, que mostram que nada é cortado, chegam com o simulador (Task 10).
+No Mac o Dynamic Type não muda o tamanho, então os testes do pacote conferem a escala como uma conta. No simulador do iPhone, os testes `DynamicTypeTests` do app conferem a escala de verdade: o `display` cresce no AX5 e para no teto de 132 pt, o `headline` passa de 1,5 vez a altura do tamanho padrão, e o Texto em Negrito deixa o texto mais largo. Os prints da galeria no AX5 estão em [prints/64](../prints/64/13-ax5-tipografia.png).
 
 ## Os dígitos tabulares
 
@@ -98,7 +98,7 @@ HexWordmark(size: 88)
 ```
 
 - O logotipo não segue o Dynamic Type nem o Texto em Negrito.
-- O VoiceOver lê um elemento só: "HexGym".
+- O VoiceOver lê um elemento só: "HexGym". O rótulo é escrito com `Text(verbatim:)`, para o nome da marca não passar pela tradução.
 - O gym no peso 200 é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
 
 ## A licença

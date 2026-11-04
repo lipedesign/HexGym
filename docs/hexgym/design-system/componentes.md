@@ -96,15 +96,21 @@ EffortInput(value: 8.5, scale: .rpe) { direção in }   // value: nil para o esf
 
 | Entrada | Português do Brasil | Inglês |
 |---|---|---|
-| Carga | "142,5 quilogramas", "317,5 libras", "1 quilograma", "0 quilogramas" | "317.5 pounds", "1 kilogram", "0 kilograms" |
+| Carga | "142,5 quilogramas", "317,5 libras", "1 quilograma", "0 quilogramas" (também para 0,001 kg, que a tela mostra como 0) | "317.5 pounds", "1 kilogram", "0 kilograms" |
 | Repetições | "1 repetição", "8 repetições", "0 repetições" | "1 repetition", "8 repetitions" |
 | Esforço | "RPE 8,5"; vazio, "Esforço não registrado" | "RIR 2"; vazio, "Effort not logged" |
 
 Num aparelho em outro idioma, os textos saem em inglês, com o plural do inglês ("1 repetition" num aparelho em japonês).
 
-**Testes:** `loadsShowWhatWasLogged`, `voiceOverSaysTheUnit`, `anEmptyEffortShowsNothing`, `accessibilitySizesStack`, `bigLoadsKeepTheirWidth`, `anEmptyEffortKeepsItsHeight`, `otherLanguagesUseTheEnglishPlural`, `zeroRepsArePluralInPortuguese` e `zeroLoadsArePluralInPortuguese`.
+**Testes:** `loadsShowWhatWasLogged`, `voiceOverSaysTheUnit`, `anEmptyEffortShowsNothing`, `accessibilitySizesStack`, `bigLoadsKeepTheirWidth`, `anEmptyEffortKeepsItsHeight`, `otherLanguagesUseTheEnglishPlural`, `zeroRepsArePluralInPortuguese`, `zeroLoadsArePluralInPortuguese` e `loadsThatRoundToZeroArePluralInPortuguese` (o 0 é o que o formato de duas casas mostra como 0, e por isso 0,001 kg e -0,001 kg também dizem "0 quilogramas").
 
-**Cuidado:** a unidade fica no destaque do tema. Num cartão de uma tela que sobe, ela iria contra a regra de onde o texto na cor do tema pode ficar ([cores.md](cores.md#onde-o-texto-na-cor-do-tema-pode-ficar)). A galeria (Task 10) confere isso no simulador.
+**Num cartão:** dentro do cartão do sistema, os botões − e + têm o fundo do próprio cartão, e o contorno deles some; o valor e a unidade continuam legíveis.
+
+**Numa tela que sobe:** a unidade fica no destaque do tema, e num cartão de uma tela que sobe ela iria contra a regra de onde o texto na cor do tema pode ficar ([cores.md](cores.md#onde-o-texto-na-cor-do-tema-pode-ficar)). Por isso, numa tela que sobe, as entradas ficam direto no fundo opaco dela, nunca num cartão dentro dela. Medido no simulador do iPhone, o fundo dessa tela no escuro é #1C1C1E, o mesmo cinza do cartão do sistema, e a unidade no Ultravioleta (#8B7BFF) fica em 5,17:1. É uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+
+![As entradas no simulador: num cartão do sistema, com 141,3 kg, 1000 kg e o esforço vazio](imagens/simulador-entradas.png)
+
+![As entradas no simulador em AX5: os botões descem para baixo do valor](imagens/simulador-ax5-entradas.png)
 
 **No Watch:** preenchida na Task 11.
 
@@ -134,6 +140,12 @@ SlantedSegments(total: 5, done: 3)
 
 **Testes:** `segmentsLightFromTheStartOfTheLine`, `segmentsSayWhereYouAre`, `otherLanguagesCountSetsInEnglish` e `zeroSetsArePluralInPortuguese`.
 
+**No simulador:** os segmentos, o carimbo e o anel na galeria do iPhone, no tamanho de texto padrão e em AX5. Em AX5, a linha de segmentos e o anel cabem na largura da tela, sem cortar.
+
+![Os segmentos com 0, 3 e 5 de 5, o carimbo e o anel de descanso, no simulador](imagens/simulador-segmentos-carimbo-anel.png)
+
+![Os segmentos e o carimbo no simulador em AX5](imagens/simulador-ax5-segmentos-carimbo.png)
+
 **No Watch:** preenchida na Task 11.
 
 ### O carimbo de recorde
@@ -159,7 +171,7 @@ RecordStamp(isShown: bateuRecorde)
 | O carimbo já abre com `isShown` verdadeiro | aparece parado, sem animação, sem háptico e sem anúncio |
 | `isShown` volta para falso | some na hora, sem animação, pronto para o próximo recorde |
 
-O carimbo só anima, toca e anuncia na passagem de `isShown` de falso para verdadeiro. Para mostrar um recorde que acabou de acontecer, a tela troca o `isShown` de um carimbo que já está montado.
+O carimbo só anima, toca e anuncia na passagem de `isShown` de falso para verdadeiro. Para mostrar um recorde que acabou de acontecer, a tela troca o `isShown` de um carimbo que já está montado. A galeria faz assim: o carimbo fica montado, cai quando a parte dele aparece na tela, e o botão "Mostrar de novo" põe o `isShown` em falso e, 0,3 s depois, em verdadeiro.
 
 - **Com Dynamic Type:** o texto cresce com o `title` até o teto de 60 pt, numa linha só.
 - **Com o Texto em Negrito:** fica igual, porque o `title` já está no peso 800, o mais forte do pacote.
@@ -196,9 +208,11 @@ RestRing(total: 120, remaining: 90)   // em segundos
 
 **VoiceOver:** um elemento só, com o rótulo "Descanso", o valor falado ("1 minuto e 30 segundos", "1 hora"; em inglês, "1 minute, 30 seconds") e o traço de que atualiza com frequência.
 
-**Ainda a resolver:** em português, com o tempo em zero, o VoiceOver diz "0 segundo", no singular, e não "0 segundos". A galeria (Task 10) cuida disso.
+**O zero em português:** o CLDR do português põe o 0 na forma `one`, e o formato da Apple diria "0 segundo" justo quando o descanso acaba. Por isso o 0 em português vem da tabela `Progress` (`rest.zero`), no plural: "0 segundos". Um valor negativo também é o 0. Em inglês, o formato da Apple já diz "0 seconds".
 
-**Testes:** `restTimeNeverJumps`, `restTimeIsSpoken`, `theRingCountsDownInTicks`, `theRingKeepsItsSizeWhenAnHourBegins` e `theRingNeverOutgrowsItsWidth`.
+**Testes:** `restTimeNeverJumps`, `restTimeIsSpoken`, `theRingCountsDownInTicks`, `theRingKeepsItsSizeWhenAnHourBegins`, `theRingNeverOutgrowsItsWidth` e `zeroRestIsPluralInPortuguese`.
+
+![O anel de descanso no simulador em AX5, com o botão que começa um descanso de 90 s](imagens/simulador-ax5-anel.png)
 
 **No Watch:** preenchida na Task 11.
 
@@ -232,6 +246,8 @@ TelaQualquer().background { BreathingGlow() }
 
 **Testes:** `theGlowFollowsAccessibility`, `noGlowOnLightAndAStillGlowOnTheWatch`, `theGlowStopsStillWhenReduceMotionTurnsOn` e `theGlowCarriesTheSupportColorUnlessContrastIsUp`.
 
+**No simulador:** com a galeria aberta no brilho, ligar o Reduzir Movimento no meio do ciclo deixa o brilho parado: dois prints com 1,5 s entre eles são iguais pixel a pixel, e iguais (com diferença de no máximo 2 em 255, do pontilhado) ao brilho de quando o app já abre com Reduzir Movimento, no tamanho 1. Desligado de novo, ele volta a respirar. Com Reduzir Transparência, o brilho apaga.
+
 **No Watch:** preenchida na Task 11. O que o pacote já faz no watchOS: o brilho usa a superfície do Watch e fica parado.
 
 ## Da Apple, com a marca
@@ -264,7 +280,7 @@ RollingNumber(value: 90, text: "1:30", style: .display)
 
 **No Watch:** preenchida na Task 11.
 
-**Print:** o número que rola aparece nos prints das [entradas do treino](#as-entradas-do-treino) e do [anel de descanso](#o-anel-de-descanso). A rolagem em si aparece no vídeo do simulador, na Task 10.
+**Print:** o número que rola aparece nos prints das [entradas do treino](#as-entradas-do-treino) e do [anel de descanso](#o-anel-de-descanso). A rolagem em si se vê na galeria do iPhone, no botão "Mais um" do cartão de vidro e nas entradas.
 
 ### O cartão de vidro
 
@@ -272,14 +288,28 @@ RollingNumber(value: 90, text: "1:30", style: .display)
 
 ```swift
 HexGlassCard {
-  Text("Semana 3").foregroundStyle(.secondary)
-  Text(verbatim: "4 treinos").hexFont(.title)
+  Text("Semana 3").foregroundStyle(Color.white)
+  Text(verbatim: "4 treinos").hexFont(.title).foregroundStyle(Color.white)
 }
 ```
 
+![O cartão de vidro no simulador, no Ultravioleta, com o número que rola e o botão secundário "Mais um"](imagens/simulador-vidro.png)
+
 - **Forma:** o conteúdo com 16 pt de margem (`HexSpacing.m`), no vidro regular da Apple, com raio de 28 pt (`HexRadius.card`), contínuo.
 - **A tinta:** o destaque do tema a 18%. O vidro tingido com o destaque a 18% e sem tinta no alto contraste é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
-- **O texto sobre o vidro:** vai em branco ou nos cinzas do sistema, nunca na cor do tema. É a mesma regra da #71 ([cores.md](cores.md#onde-o-texto-na-cor-do-tema-pode-ficar)): o texto na cor do tema só fica sobre o fundo da tela e sobre o cartão do sistema. O contraste do texto sobre o vidro tingido ainda não foi medido; a galeria mede no simulador (Task 10).
+- **O texto sobre o vidro:** só branco, nunca na cor do tema nem no cinza secundário. É a regra da #71 ([cores.md](cores.md#onde-o-texto-na-cor-do-tema-pode-ficar)): o texto na cor do tema só fica sobre o fundo da tela e sobre o cartão do sistema. O cinza secundário do sistema (`.secondary`) mediu de 3,1 a 3,2:1 sobre o vidro, abaixo de 4,5, e por isso saiu. Só branco sobre o vidro é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+
+**O contraste medido:** no simulador do iPhone (iOS 27.0), em prints da galeria, com o fundo sendo a cor mais comum do vidro atrás do texto. O vidro muda com o que está atrás, e o brilho do topo é o fundo mais claro que ele pega na galeria.
+
+| Situação | Fundo do vidro | Branco sobre ele |
+|---|---|---|
+| Ultravioleta | #333048 | 12,67:1 |
+| Giz & Ferro | #454544 | 9,60:1 |
+| Ciano Glacial | #284148 | 10,83:1 |
+| Cobre Forjado | #46322A | 12,00:1 |
+| Prévia de alto contraste (sem tinta) | #202020 | 16,29:1 |
+| Aumentar Contraste (sem tinta) | #1D1D1D | 16,86:1 |
+| Reduzir Transparência (Ultravioleta) | #28253E | 14,74:1 |
 
 **Estados:**
 
@@ -287,15 +317,13 @@ HexGlassCard {
 |---|---|
 | Normal | vidro regular, tingido pelo destaque a 18% (`HexGlass.tintOpacity` dá 0,18) |
 | Aumentar Contraste, ou a prévia de alto contraste | vidro regular sem tinta (`tintOpacity` dá nil) |
-| Reduzir Transparência | o sistema deixa o vidro opaco |
+| Reduzir Transparência | o sistema deixa o vidro opaco: no simulador, ele vira uma cor lisa, #28253E no Ultravioleta, sem o desfoque nem a variação de cor de cima para baixo (sem o ajuste, ela vai de #3A3750 a #423E58). Como o brilho também apaga, o que está atrás é preto, e o print não separa um vidro opaco de um transparente sobre o preto; a cor lisa é o que dá para ver |
 
 **VoiceOver:** o vidro não é um elemento; o VoiceOver lê o conteúdo.
 
 **Testes:** `theGlassTakesTheThemeUnlessContrastIsUp`.
 
 **No Watch:** preenchida na Task 11.
-
-**Print:** o vidro só aparece de verdade no simulador, então o print dele fica para a Task 10.
 
 ### Os botões secundários
 
@@ -309,13 +337,24 @@ HStack {
 .hexSecondaryButton()   // os botões dentro desta view
 ```
 
-**Estados:** os da Apple (apertado, desligado), com a tinta no destaque do tema. Com Aumentar Contraste, continuam tingidos, com o destaque de alto contraste; só o cartão de vidro perde a tinta. O contraste do rótulo sobre o vidro tingido fica para a galeria medir no simulador (Task 10).
+![Os botões secundários no simulador, um por háptico, no Ultravioleta](imagens/simulador-secundarios.png)
+
+**Estados:** os da Apple (apertado, desligado), com a tinta no destaque do tema. Com Aumentar Contraste, continuam tingidos, com o destaque de alto contraste; só o cartão de vidro perde a tinta.
+
+**O contraste medido:** no iPhone, o rótulo do `.glass` tingido sai na cor do destaque, sobre um vidro escuro, e não em branco como no macOS (onde o branco deu 2,14:1 no Cobre). No simulador do iPhone (iOS 27.0), em prints da galeria:
+
+| Tema | Sem ajuste (vidro #1F1F1F) | Com Aumentar Contraste (vidro #1B1B1B) |
+|---|---|---|
+| Ultravioleta | 5,00:1 | 7,84:1 (rótulo #ABA5FF) |
+| Giz & Ferro | 14,36:1 | 15,01:1 |
+| Ciano Glacial | 9,89:1 | 10,33:1 |
+| Cobre Forjado | 6,67:1 (7,48:1 com a prévia de alto contraste) | 7,81:1 (rótulo #F5976C) |
+
+Os quatro passam de 4,5:1, com e sem Aumentar Contraste, e por isso o rótulo fica como a Apple desenha. Com Reduzir Transparência, o botão vira uma cor lisa, #141414, e o rótulo no Ultravioleta fica em 5,59:1.
 
 **VoiceOver:** são botões do SwiftUI; o VoiceOver lê o rótulo como botão.
 
 **No Watch:** preenchida na Task 11.
-
-**Print:** fica para a Task 10, com o vidro.
 
 ### A transição de "Começar treino"
 
@@ -324,15 +363,15 @@ HStack {
 ```swift
 @Namespace private var zoom
 @Environment(\.accessibilityReduceMotion) private var reduceMotion
-@State private var treinoAberto = false
+@State private var caminho = NavigationPath()
 
-NavigationStack {
+NavigationStack(path: $caminho) {
   Button("Começar treino") {
-    withTransaction(StartWorkoutTransition.transaction(reduceMotion: reduceMotion)) { treinoAberto = true }
+    withTransaction(StartWorkoutTransition.transaction(reduceMotion: reduceMotion)) { caminho.append(Treino()) }
   }
   .buttonStyle(.hexPrimary)
   .hexStartWorkoutSource(id: "treino", in: zoom)
-  .navigationDestination(isPresented: $treinoAberto) {
+  .navigationDestination(for: Treino.self) { _ in
     TelaDoTreino().hexStartWorkoutDestination(id: "treino", in: zoom)
   }
 }
@@ -340,6 +379,9 @@ NavigationStack {
 
 - A origem (`hexStartWorkoutSource`) marca o botão de onde o zoom sai, e o destino (`hexStartWorkoutDestination`) põe o zoom na tela do treino.
 - Quem abre a tela do treino o faz dentro de `withTransaction(StartWorkoutTransition.transaction(reduceMotion:))`.
+- **Pelo caminho da pilha:** a tela entra com `append` no caminho do `NavigationStack(path:)`. Medido no simulador do iOS 27.0: com `navigationDestination(isPresented:)`, a transação sem animação não chega ao empurrão da pilha, e com Reduzir Movimento a tela entra deslizando da direita; pelo caminho, ela aparece de uma vez.
+
+![A transição no simulador: o botão, o zoom no meio e a tela do treino](imagens/simulador-transicao.png)
 
 **Estados:**
 
@@ -348,7 +390,9 @@ NavigationStack {
 | Normal | com o zoom (`usesZoom` dá verdadeiro) |
 | Reduzir Movimento | sem zoom, e a transação desliga as animações: a tela aparece sem se mover. Essa troca é uma escolha recomendada, com a delegação do Lipe de 03/11/2026 |
 
-**Para saber:** se o Reduzir Movimento mudar com a tela do treino aberta, a tela do treino recomeça o estado dela. Hoje isso não afeta ninguém, porque a tela do treino de verdade é da fase 3.
+**No simulador, com Reduzir Movimento:** prints a cada 0,1 s depois do toque mostram a galeria e, no seguinte, a tela do treino inteira, no lugar; os prints depois dele são iguais pixel a pixel. Sem o ajuste, o print do meio pega o zoom.
+
+**Para saber:** se o Reduzir Movimento mudar com a tela do treino aberta, a tela do treino ganha outra identidade e recomeça o estado dela (o `if usesZoom` do destino). Hoje isso não afeta ninguém, porque a tela do treino de verdade é da fase 3: nela, o estado do treino mora fora da view, ou a tela lê o Reduzir Movimento uma vez, ao abrir. A galeria diz isso numa nota.
 
 **VoiceOver:** a navegação é a da Apple; o VoiceOver anuncia a tela nova como em qualquer navegação.
 
@@ -356,4 +400,4 @@ NavigationStack {
 
 **No Watch:** preenchida na Task 11.
 
-**Print:** a transição é um movimento e só aparece no simulador; o print e o vídeo ficam para a Task 10. Até a fase 3, ela aparece na galeria.
+**Print:** o print está no começo desta parte; o vídeo da galeria, com a troca de tema e o zoom, está em [prints/64](../prints/64/video.mp4). Até a fase 3, ela aparece na galeria.

@@ -65,3 +65,11 @@ import Testing
   #expect(size(RestRing(total: 90, remaining: 90)) == CGSize(width: 220, height: 220))
   #expect(size(RestRing(total: 90, remaining: 90).frame(width: 150)) == CGSize(width: 150, height: 150))
 }
+// Achado no QA da PR #78: o CLDR do português põe o 0 na forma one, e o VoiceOver dizia "Descanso, 0
+// segundo" justo quando o descanso acaba. Um valor negativo também é o 0.
+@Test func zeroRestIsPluralInPortuguese() {
+  #expect(RestRingModel.spokenTime(0, locale: br) == "0 segundos")
+  #expect(RestRingModel.spokenTime(-5, locale: br) == "0 segundos")
+  #expect(RestRingModel.spokenTime(1, locale: br) == "1 segundo")
+  #expect(RestRingModel.spokenTime(0, locale: en) == "0 seconds")
+}
