@@ -15,11 +15,16 @@ The exercise media licensed from Gym visual is never opened or used here.
 | `musclemap/` | The MuscleMap figures (`male.json`, `male.svg`, `female.json`), the label table and the region scripts |
 | `body/` | Scripts for the atlas images (renders, labelled plates, activation crops), written to `work/atlas` |
 | `ref/`, `ref_f/` | The four views sent to Meshy multi-image to 3D, and the reference they were drawn from |
+| `regions/` | The map from exercise to regions: the generator, its tests and the two JSON files the HexBody package will read (see `regions/README.md`) |
 | `work/` | Generated and heavy files, **not in git** |
 
 `musclemap/labels.json` is the one id table for both bodies (229 rows). Pieces drawn only on the female
 figure carry `"fig": "female"`. New rows are always appended, so ids never move. `labels_f.json` is the
 same table with the female figure's frame, written by `raster.py` for `project.py`.
+
+`raster.py` writes both files indented, one value per line, so a changed id shows up in the diff.
+`labels.json` was rewritten that way with the standard library alone (only the whitespace changed);
+`labels_f.json` gets the same indentation the next time step 5 runs for the female body.
 
 ## work/ (not in git)
 
@@ -107,7 +112,7 @@ To see the regions on the body:
 | `BLENDER`, `OUT`, `RES`, `SAMPLES` | `render.sh` | Blender binary, output folder, size, samples |
 
 The activation names in `bodylook.py` (`supino`, `puxada` and so on) are render examples. The app's map
-from exercise to regions is built from the exercise catalogue, not here.
+from exercise to regions is built from the exercise catalogue, in `regions/`.
 
 ## Inspection and history
 

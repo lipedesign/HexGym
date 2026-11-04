@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Gera exercise_regions.json: para cada exercício do catálogo do openGym, as regiões do
-manequim 3D do HexGym (regiões do MuscleMap, 29 pintadas por lado na v1) que acendem como
-primárias (violeta forte) e secundárias (violeta claro).
+"""Gera exercise_regions_v2.json: para cada exercício do catálogo do openGym, as regiões do
+corpo do HexGym (o modelo v2, 36 regiões pintadas por lado) que acendem como primárias (cor do
+tema) e secundárias (40% dela). Grava também regions_v2.json, a tabela das 36 regiões.
 
-    python3 build_exercise_regions.py            escreve exercise_regions.json ao lado deste script
-    python3 build_exercise_regions.py --report   também imprime as contagens usadas nas notas
-    python3 build_exercise_regions.py --v2       modelo v2 (36 regiões pintadas por lado): escreve
-                                                 exercise_regions_v2.json e regions_v2.json
+    python3 -I scripts/hexbody/regions/build_exercise_regions.py           grava os dois JSON ao lado deste script
+    python3 -I scripts/hexbody/regions/build_exercise_regions.py --check   não grava nada; sai com 1, dizendo o
+                                                                           arquivo e o exercício, quando um JSON
+                                                                           não bate com o que sairia do catálogo
+    python3 -I scripts/hexbody/regions/build_exercise_regions.py --report  também imprime as contagens das notas
+
+--out <pasta> troca a pasta dos dois JSON (os testes do --check usam uma pasta temporária).
+Só biblioteca padrão. A v1 (29 regiões por lado, exercise_regions.json) ficou na história do git.
 
 Só lê texto (catalogue/exercises/*.json, frontend/src/lib/exercises.js e
 scripts/catalogue/validate.mjs). Nunca abre nada de catalogue/media/: as imagens e animações
@@ -27,9 +31,12 @@ Precedência, igual à do app (frontend/src/lib/muscles.js, weightsOf):
      porque conta "cardiovascular system" como pseudo-músculo; o modelo 3D não desenha isso.
 
 Campos extras opcionais:
-  "emphasis": sub-regiões que o texto livre nomeia dentro de um grupo que já está inteiro no
+  "emphasis": sub-regiões que o texto livre nomeia dentro de um grupo que está inteiro no
               primário (ex.: alvo "pectorals" + secundário "upper chest" -> ["upperChest"]).
-              É uma dica de ênfase, não muda primary/secondary.
+              Sai depois das regras por nome, só com regiões do primário, e é descartada
+              quando cobre todas as regiões de um grupo do primário ou quando fica igual ao
+              primário, porque aí não diz nada a mais. É uma dica de ênfase, não muda
+              primary/secondary.
   "variantOf": o id é um desenho (figura feminina) de outro exercício; regiões copiadas dele.
 """
 import argparse
@@ -40,12 +47,14 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[3]
+ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / 'catalogue' / 'exercises'
 EXERCISES_JS = ROOT / 'frontend' / 'src' / 'lib' / 'exercises.js'
 VALIDATE_MJS = ROOT / 'scripts' / 'catalogue' / 'validate.mjs'
-OUT = HERE / 'exercise_regions.json'
+EXERCISE_JSON = 'exercise_regions_v2.json'
+REGIONS_JSON = 'regions_v2.json'
 
+# A v1 do modelo, base de que a v2 parte (as tabelas da v2 trocam estas mais abaixo, em _use_v2).
 # Os 18 grupos do app (ordem cabeça-pés de MUSCLES em muscles.js) e as regiões do MuscleMap.
 # Atenção: "chest", "deltoids", "quadriceps" e "trapezius" são ao mesmo tempo nome de grupo
 # (no app) e de UMA região (no modelo). Aqui uma região "chest" sozinha é só o peitoral médio.
@@ -191,12 +200,13 @@ V2_REGION_PT = {
     'tibialis': 'Tibial anterior', 'sternocleidomastoid': 'Esternocleidomastóideo',
     'neckBack': 'Nuca (esplênios e levantador da escápula)',
 }
-V2_DEFAULT = {}   # grupo -> regiões quando o muscleMap nomeia o grupo sem estreitar (preenchido em use_v2)
+V2_DEFAULT = {}   # grupo -> regiões quando o muscleMap nomeia o grupo sem estreitar (preenchido em _use_v2)
 
 
-def use_v2():
-    """Troca as tabelas do módulo pelas da v2 (as funções leem os globais na hora da chamada)."""
-    global GROUP_REGIONS, REGION_ORDER, GROUP_OF, G, TERM_REGIONS, OUT
+def _use_v2():
+    """Troca as tabelas do módulo pelas da v2 (as funções leem os globais na hora da chamada).
+    Roda uma vez só, ao importar: a v2 é o modelo do app."""
+    global GROUP_REGIONS, REGION_ORDER, GROUP_OF, G, TERM_REGIONS
     GROUP_REGIONS = V2_GROUP_REGIONS
     REGION_ORDER = [r for regions in GROUP_REGIONS.values() for r in regions]
     GROUP_OF = {r: g for g, regions in GROUP_REGIONS.items() for r in regions}
@@ -209,7 +219,9 @@ def use_v2():
     TERM_REGIONS['rotator cuff'] = ['rotatorCuff']
     TERM_REGIONS.update(V2_TERM_CHANGES)
     V2_DEFAULT.update({g: [r for r in rr if r not in V2_BY_NAME_ONLY] for g, rr in G.items()})
-    OUT = HERE / 'exercise_regions_v2.json'
+
+
+_use_v2()
 
 
 NECK_SIDE = re.compile(r'side|lateral|inclination')
@@ -251,12 +263,9 @@ def regions_v2_rows():
              'new': r in V2_NEW} for g, rr in V2_GROUP_REGIONS.items() for r in rr]
 
 
-def write_regions_v2():
-    """Escreve regions_v2.json com as linhas de regions_v2_rows()."""
-    rows = regions_v2_rows()
-    path = HERE / 'regions_v2.json'
-    path.write_text(json.dumps(rows, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
-    return rows
+def regions_text(rows):
+    """O texto de regions_v2.json, com as linhas de regions_v2_rows()."""
+    return json.dumps(rows, ensure_ascii=False, indent=1) + '\n'
 
 
 # BY_BODYPART de muscles.js (fallback do app), com os mesmos pesos.
@@ -320,13 +329,24 @@ def regions_of_terms(terms):
 
 
 def emphasis_of(primary, sub_terms):
-    """Sub-regiões nomeadas dentro de grupos que estão inteiros no primário."""
+    """Sub-regiões nomeadas dentro de grupos que estão inteiros no primário. São só candidatas:
+    a ênfase que fica sai de kept_emphasis, depois das regras por nome."""
     out = set()
     for t in sub_terms:
         regs = set(TERM_REGIONS[t])
         group = set(G[GROUP_OF[next(iter(regs))]])
         if group <= primary:
             out |= regs
+    return out
+
+
+def kept_emphasis(emph, primary):
+    """A ênfase com o primário que já passou pelas regras por nome: só as regiões que estão nele,
+    e nenhuma quando ela cobre todas as regiões de um grupo do primário ou fica igual ao
+    primário, porque aí não diz nada a mais. Só tira: as regras nunca criam ênfase."""
+    out = emph & primary   # daqui em diante, um grupo inteiro na ênfase também está inteiro no primário
+    if out == primary or any(set(rr) <= out for rr in G.values()):
+        return set()
     return out
 
 
@@ -399,8 +419,8 @@ def build():
             p, s = from_bodypart(e)
             emph = set()
             source = 'bodypart'
-        if V2_DEFAULT:
-            p, s = v2_name_rules(e, set(p), set(s))
+        p, s = v2_name_rules(e, set(p), set(s))
+        emph = kept_emphasis(emph, p)   # depois das regras, que podem mudar o primário
         row = {'name': e['name'], 'primary': ordered(p), 'secondary': ordered(s), 'source': source}
         if emph:
             row['emphasis'] = ordered(emph)
@@ -411,9 +431,50 @@ def build():
     return dict(sorted(out.items(), key=lambda kv: (int(kv[0]), kv[0]))), exercises, additions
 
 
-def write(rows):
+def exercises_text(rows):
+    """O texto de exercise_regions_v2.json: uma linha por id, para o diff mostrar o exercício."""
     lines = [f'  {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}' for k, v in rows.items()]
-    OUT.write_text('{\n' + ',\n'.join(lines) + '\n}\n', encoding='utf-8')
+    return '{\n' + ',\n'.join(lines) + '\n}\n'
+
+
+# ---------------------------------------------------------------- --check
+
+SHOWN = 10   # quantos exercícios ou regiões o --check lista por arquivo
+
+
+def keyed(name, data):
+    """O JSON por chave: o id do exercício, ou o id da região na tabela das regiões."""
+    if name == REGIONS_JSON and isinstance(data, list):
+        return {(r.get('region') if isinstance(r, dict) else None) or f'linha {i + 1}': r for i, r in enumerate(data)}
+    return data if isinstance(data, dict) else {}
+
+
+def differences(name, text, path):
+    """O que não bate entre o texto que sairia do catálogo e o arquivo, uma linha por problema."""
+    if not path.is_file():
+        return [f'{name}: o arquivo não existe ({path})']
+    current = path.read_text(encoding='utf-8')
+    if current == text:
+        return []
+    try:
+        old = keyed(name, json.loads(current))
+    except ValueError as err:
+        return [f'{name}: não é um JSON válido ({err})']
+    new = keyed(name, json.loads(text))
+    what, source = ('a região', 'a tabela do gerador') if name == REGIONS_JSON else ('o exercício', 'o catálogo')
+    out = []
+    for key in dict.fromkeys([*new, *old]):
+        if key not in old:
+            out.append(f'{name}: {what} {key} falta no arquivo')
+        elif key not in new:
+            out.append(f'{name}: {what} {key} sobra no arquivo, e {source} não tem')
+        elif old[key] != new[key]:
+            a, b = old[key], new[key]
+            fields = sorted(f for f in {*a, *b} if a.get(f) != b.get(f)) if isinstance(a, dict) else []
+            out.append(f'{name}: {what} {key} não bate com {source}' + (f' ({", ".join(fields)})' if fields else ''))
+    if len(out) > SHOWN:
+        out = out[:SHOWN] + [f'{name}: e mais {len(out) - SHOWN}']
+    return out or [f'{name}: o conteúdo bate, mas o texto do arquivo não (formatação ou ordem)']
 
 
 # ---------------------------------------------------------------- relatório (--report)
@@ -540,19 +601,31 @@ def report(rows, exercises, additions):
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--report', action='store_true')
-    ap.add_argument('--v2', action='store_true', help='modelo v2: regiões novas e regras por nome')
+    ap = argparse.ArgumentParser(description='Gera exercise_regions_v2.json e regions_v2.json a partir do texto do catálogo.')
+    ap.add_argument('--check', action='store_true',
+                    help='não grava nada; sai com 1 quando um dos JSON não bate com o que sairia do catálogo')
+    ap.add_argument('--out', type=Path, default=HERE, metavar='PASTA',
+                    help='a pasta dos dois JSON (padrão: a deste script)')
+    ap.add_argument('--report', action='store_true', help='também imprime as contagens usadas nas notas')
     args = ap.parse_args()
-    if args.v2:
-        use_v2()
-        print(f'regions_v2.json: {len(write_regions_v2())} regiões pintadas por lado', file=sys.stderr)
     rows, exercises, additions = build()
-    write(rows)
-    print(f'{OUT.name}: {len(rows)} chaves escritas', file=sys.stderr)
+    regions = regions_v2_rows()
+    texts = {EXERCISE_JSON: exercises_text(rows), REGIONS_JSON: regions_text(regions)}
+    if args.check:
+        problems = [line for name, text in texts.items() for line in differences(name, text, args.out / name)]
+        if problems:
+            print('\n'.join(problems), file=sys.stderr)
+            print('rode python3 -I scripts/hexbody/regions/build_exercise_regions.py e commite os dois JSON', file=sys.stderr)
+            return 1
+        print(f'em dia: {EXERCISE_JSON} ({len(rows)} chaves) e {REGIONS_JSON} ({len(regions)} regiões por lado)')
+    else:
+        for name, text in texts.items():
+            (args.out / name).write_text(text, encoding='utf-8')
+        print(f'{EXERCISE_JSON}: {len(rows)} chaves; {REGIONS_JSON}: {len(regions)} regiões pintadas por lado', file=sys.stderr)
     if args.report:
         report(rows, exercises, additions)
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

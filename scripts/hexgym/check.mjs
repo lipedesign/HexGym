@@ -77,12 +77,18 @@ const appTests = () => {
 //     DEVELOPER_DIR, e um teste pulado ou que falhou não conta;
 //   - qualquer outro comando, pelo arquivo que o spawnCheck passa em HEXGYM_CHECK_COUNT_FILE, onde
 //     ele grava quantos testes passaram no formato do fim do tap (# pass <n>). É o que o
-//     engine-load.mjs faz, com as metas que conferiu e que passaram.
+//     engine-load.mjs faz, com as metas que conferiu e que passaram, e o run_tests.py do gerador de
+//     regiões, com os testes do unittest que passaram.
 // Um comando que não grava nada (os --check e o xcodebuild ... build, por exemplo) conta zero, e a
 // parte dele precisa de outra checagem que conte, ou de ensinar o spawnCheck a contar.
+// Na parte scripts, depois dos testes dos scripts, as duas rodadas do gerador de regiões (issue #12),
+// no Python 3 da máquina, isolado (-I) e só com a biblioteca padrão: o --check não conta teste, e o
+// run_tests.py grava a conta no arquivo de COUNT_FILE.
 export const PARTS = {
   scripts: [
     { name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] },
+    { name: 'regiões em dia', cmd: 'python3', args: ['-I', 'scripts/hexbody/regions/build_exercise_regions.py', '--check'] },
+    { name: 'testes do gerador de regiões', cmd: 'python3', args: ['-I', 'scripts/hexbody/regions/run_tests.py'] },
   ],
   engine: [
     { name: 'script do motor em dia', cmd: 'node', args: ['scripts/build-hexgym-engine.mjs', '--check'] },
