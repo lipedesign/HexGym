@@ -8,8 +8,8 @@ import Testing
 @testable import HexEngine
 
 @Test(arguments: zip(
-  [["pt-BR"], ["pt-PT"], ["de-CH"], ["fr-CA"], ["nl-NL", "es-MX"], ["nl"], [], ["zh-Hant-TW"], ["zh-Hans-CN"]],
-  ["pt-BR", "pt", "de-CH", "fr", "es", "en", "en", "zh-TW", "zh"]
+  [["pt-BR"], ["pt-PT"], ["de-CH"], ["fr-CA"], ["nl-NL", "es-MX"], ["nl"], [], ["zh-Hant-TW"], ["zh-Hans-CN"], ["zh-Hans-TW"]],
+  ["pt-BR", "pt", "de-CH", "fr", "es", "en", "en", "zh-TW", "zh", "zh"]
 ))
 func theTagFollowsTheDeviceLanguages(_ preferred: [String], _ expected: String) {
   #expect(EngineLanguage.tag(for: preferred) == expected)

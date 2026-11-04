@@ -28,11 +28,12 @@ public enum EngineLanguage {
       let script = rest.first { $0.count == 4 }
       let region = rest.first { $0.count == 2 || ($0.count == 3 && Int($0) != nil) }
       if let whole = known[parts.joined(separator: "-")] { return whole }
+      // O chinês com script decide pelo script, antes da região: "zh-Hans-TW" (o simplificado com a
+      // região Taiwan) é "zh", e "zh-Hant", sem região, é "zh-TW".
+      if language == "zh", let script, let chinese = known[script == "hant" ? "zh-tw" : "zh"] { return chinese }
       if let region, let regional = known["\(language)-\(region)"] { return regional }
-      if language == "zh" {
-        let traditional = script == "hant" || (script == nil && ["tw", "hk", "mo"].contains(region ?? ""))
-        if let chinese = known[traditional ? "zh-tw" : "zh"] { return chinese }
-      }
+      // Sem script, a região: Taiwan, Hong Kong e Macau usam o tradicional.
+      if language == "zh", let chinese = known[["tw", "hk", "mo"].contains(region ?? "") ? "zh-tw" : "zh"] { return chinese }
       if let base = known[language] { return base }
     }
     return "en"

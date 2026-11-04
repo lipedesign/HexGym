@@ -40,7 +40,9 @@ test('de-CH loads the de pack and derives it: the German wording, with ss in pla
   const de = await source('locales/de.js')
   const key = 'All exercises done. Nice work! Finish up, or add another one if you’ve got more in you.'
   assert.equal(getLang(), 'de-CH')
-  assert.equal(t('Routine'), de['Routine'])
+  // A herança do de: uma chave em que o alemão difere do inglês.
+  assert.notEqual(de['Settings'], 'Settings')
+  assert.equal(t('Settings'), de['Settings'])
   assert.match(de[key], /ß/)
   assert.equal(t(key), de[key].replace(/ß/g, 'ss'))
   assert.equal(exerciseNameFor(EXIDX['1056']), (await source('exercise-names/de.js'))['1056'].replace(/ß/g, 'ss'))
