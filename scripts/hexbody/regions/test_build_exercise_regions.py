@@ -130,6 +130,8 @@ class ResearchRules(unittest.TestCase):
 
     def test_low_incline_press_is_upper_chest(self):
         self.assertRegions('0047', {'upperChest'}, {'frontDeltoid', 'triceps'})   # barbell incline bench press
+        self.assertRegions('6218', {'upperChest'}, {'frontDeltoid', 'triceps'})   # dumbbell incline twist press (o punho gira)
+        self.assertRegions('0331', {'upperChest'}, {'frontDeltoid'})              # dumbbell incline twisted flyes
 
     def test_high_incline_press_is_front_deltoid(self):
         # dumbbell incline shoulders press: o banco a 60° ou 75°, e o nome diz "shoulders press"
@@ -139,14 +141,24 @@ class ResearchRules(unittest.TestCase):
         press = {'upperChest', 'frontDeltoid', 'triceps', 'tricepsLongHead'}
         self.assertRegions('0025', {'chest', 'lowerChest'}, press)                 # barbell bench press
         self.assertRegions('0308', {'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'})   # dumbbell fly
-        p, s = regions('0493')                                                      # incline push-up: fica fora
-        self.assertEqual(p, set(B.G['chest']))
+        self.assertRegions('4835', {'chest', 'lowerChest'}, press)   # dumbbell rotational grip bench press
+        self.assertRegions('4342', {'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'})   # dumbbell twisted fly
+        for id_ in ('3294', '1306', '1273'):                        # archer, plyo e clap push up: flexão
+            self.assertRegions(id_, {'chest', 'lowerChest'}, press)
+        # Ficam fora: a flexão inclinada (incline e elevated push-up) e o deslizar na parede com toalha.
+        for id_ in ('0493', '3812', '10927'):
+            self.assertEqual(regions(id_)[0], set(B.G['chest']), id_)
 
     def test_decline_press_is_low_chest(self):
         self.assertRegions('0033', {'lowerChest', 'chest'}, {'triceps', 'frontDeltoid'})   # barbell decline bench press
+        self.assertRegions('0307', {'lowerChest', 'chest'}, {'frontDeltoid'})              # dumbbell decline twist fly
 
     def test_overhead_press_is_front_deltoid(self):
-        self.assertRegions('0091', {'frontDeltoid'}, {'deltoids', 'triceps', 'upperTrapezius'})   # barbell seated overhead press
+        ohp = {'deltoids', 'triceps', 'upperTrapezius'}
+        self.assertRegions('0091', {'frontDeltoid'}, ohp)   # barbell seated overhead press
+        self.assertRegions('1045', {'frontDeltoid'}, ohp)   # barbell seated military press (inside squat cage)
+        self.assertRegions('0388', {'frontDeltoid'}, ohp)   # dumbbell seated alternate press: "press" com o deltoide inteiro
+        self.assertRegions('2927', {'frontDeltoid'}, ohp | {'rotatorCuff'})   # kettlebell kneeling one arm bottoms up press
 
     def test_lateral_raise_is_lateral_deltoid(self):
         self.assertRegions('0334', {'deltoids'}, {'rearDeltoid', 'upperTrapezius'})   # dumbbell lateral raise
@@ -155,6 +167,10 @@ class ResearchRules(unittest.TestCase):
         self.assertRegions('0378', {'rearDeltoid'}, {'rhomboids', 'trapezius'})   # dumbbell rear fly
         # cable standing face pull: o manguito, que o texto nomeia, fica no secundário
         self.assertRegions('5609', {'rearDeltoid'}, {'rhomboids', 'trapezius', 'rotatorCuff'})
+        # cable bent over one arm lateral raise, lever incline chest supported reverse delt fly (plate loaded),
+        # dumbbell lying one arm deltoid rear e cable cross-over revers fly
+        for id_ in ('3912', '11718', '0341', '0154'):
+            self.assertRegions(id_, {'rearDeltoid'}, {'rhomboids', 'trapezius'})
 
     def test_shrug_is_upper_trapezius_only(self):
         self.assertRegions('0095', {'upperTrapezius'}, set())   # barbell shrug
@@ -180,6 +196,9 @@ class ResearchRules(unittest.TestCase):
         p, s = regions('2966')                                   # dumbbell front squat (alvo quads)
         self.assertEqual(p, legs)
         self.assertIn('quadriceps', s)
+        # with rack, side pov, with chains, with v bar: o mesmo agachamento
+        for id_ in ('0878', '1462', '4064', '7578'):
+            self.assertEqual(regions(id_)[0], legs, id_)
 
     def test_hip_adduction_is_adductors_only(self):
         self.assertRegions('0168', {'adductors'}, set())   # cable hip adduction
@@ -190,6 +209,8 @@ class ResearchRules(unittest.TestCase):
         self.assertRegions('0872', whole, set())   # reverse crunch
         self.assertRegions('1163', whole, set())   # lying leg raise, que tinha "lower abs" no texto
         self.assertNotIn('emphasis', ROWS['1163'])
+        for id_ in ('4886', '9049', '0910'):   # lying flat hip raise, incline hip raise, band lying leg and hip raise
+            self.assertRegions(id_, whole, set())
 
 
 class OutsideRows(unittest.TestCase):
@@ -202,6 +223,8 @@ class OutsideRows(unittest.TestCase):
         p, s = regions('3850')                       # two legs reverse biceps curl with towel v. 2
         self.assertEqual(p, {'brachialis', 'forearm'})
         self.assertIn('biceps', s)
+        # Na rosca martelo o bíceps não é a ênfase (1615 lever hammer grip preacher curl).
+        self.assertNotIn('biceps', ROWS['1615'].get('emphasis', []))
 
     def test_sitting_toe_raise_is_soleus(self):
         p, s = regions('9509')                       # lever sitting toe raise

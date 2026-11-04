@@ -63,7 +63,7 @@ de depois das regras por nome (o braquial na rosca martelo, por exemplo), nunca 
 baixo, que não acende sozinho, e é descartada quando cobre todas as regiões de um grupo do
 primário ou quando fica igual ao primário, porque aí não diz nada a mais. Nas abduções sentadas
 (0597 e 3006, e os desenhos 3611 e 3005), o glúteo máximo, que as regras mandam para o
-secundário, fica fora da ênfase.
+secundário, fica fora da ênfase. Na rosca martelo, o bíceps também fica fora dela (1615).
 
 ## De onde veio
 

@@ -225,6 +225,17 @@ _use_v2()
 
 
 NECK_SIDE = re.compile(r'side|lateral|inclination')
+
+
+def curl_kind(n):
+    """'hammer' ou 'reverse' quando o nome é uma rosca martelo ou inversa de braço; None fora disso.
+    A rosca de perna fica fora pelo "leg curl", não por "leg" solto: as roscas com toalha presa
+    nas pernas (3830, 3850, 3851 e 3831) são roscas de braço (#13)."""
+    if not re.search(r'\bcurl', n) or re.search(r'wrist|\bleg curl|hamstring|calf|nordic|toe', n):
+        return None
+    return 'hammer' if 'hammer' in n else 'reverse' if 'reverse' in n else None
+
+
 def v2_name_rules(e, p, s):
     """Regras por nome da v2 (relatório, seção de regras). Mudam primário e secundário."""
     n = e['name'].lower()
@@ -237,15 +248,13 @@ def v2_name_rules(e, p, s):
     if e['target'] == 'triceps' and re.search(r'overhead|french|behind (the )?head|above head', n) and not stretch:
         if 'triceps' in p:
             p.discard('triceps'); p.add('tricepsLongHead'); s.add('triceps')
-    # A rosca de perna fica fora pelo "leg curl", não por "leg" solto: as roscas com toalha presa
-    # nas pernas (3830, 3850, 3851 e 3831) são roscas de braço (#13).
-    if re.search(r'\bcurl', n) and not re.search(r'wrist|\bleg curl|hamstring|calf|nordic|toe', n):
-        if 'hammer' in n:
-            p |= {'brachialis', 'forearm'}
-        elif re.search(r'reverse', n):
-            if 'biceps' in p:
-                p.discard('biceps'); s.add('biceps')
-            p |= {'brachialis', 'forearm'}
+    kind = curl_kind(n)
+    if kind == 'hammer':
+        p |= {'brachialis', 'forearm'}
+    elif kind == 'reverse':
+        if 'biceps' in p:
+            p.discard('biceps'); s.add('biceps')
+        p |= {'brachialis', 'forearm'}
     if e['bodyPart'] == 'neck' and not stretch:
         flex, ext = 'flexion' in n, 'extension' in n or 'bridge' in n
         if NECK_SIDE.search(n) and (flex or re.search(r'raise|lifting|bend', n)):
@@ -279,20 +288,27 @@ CHEST_MOVE = re.compile(r'bench press|chest press|floor press|\bpress\b|\bpress[
                         r'|\bfly\b|\bflyes?\b|\bflys\b|cross[- ]?over|pec (deck|dec)\b')
 CHEST_FLY = re.compile(r'\bfly\b|\bflyes?\b|\bflys\b|cross[- ]?over|pec (deck|dec)\b')
 PUSH_UP = re.compile(r'push[- ]?ups?\b|\bpress[- ]?ups?\b')
-CHEST_COMBO = re.compile(r'\bto\b|\band\b|\bplus\b|jump|\bclap|plyo|burpee|\bwalk|\btaps?\b|crawl|\brows?\b|rotation'
-                         r'|twist|spider|archer|pike|hindu|\bdive|depth|superman|plank|\bdips?\b|pull|lunge|\bjack'
-                         r'|kick|toe touch|raise|thrust|bridge|tuck|bird dog|child pose')
+# O giro do tronco corta (twisting, rotational push up, "with twist"); o do punho não (twisted fly,
+# twist press, rotational grip). A flexão pliométrica (plyo, clap) e a archer seguem como flexão.
+CHEST_COMBO = re.compile(r'\bto\b|\band\b|\bplus\b|jump|burpee|\bwalk|\btaps?\b|crawl|\brows?\b|\brotation\b'
+                         r'|twisting|\btwist\b(?! (fly|press))|rotational(?! grip)|spider|pike|hindu|\bdive|depth'
+                         r'|superman|plank|\bdips?\b|pull|lunge|\bjack|kick|toe touch|raise|thrust|bridge|tuck'
+                         r'|bird dog|child pose|slide')
 # O cabo de baixo para cima, de cima para baixo, e o nome que já diz a parte: ficam fora da regra do reto.
 CHEST_ANGLED = re.compile(r'upper chest|lower chest|low chest|\blow (fly|crossover)|\bhigh (fly|crossover)')
 INCLINE, DECLINE = re.compile(r'\bincline\b'), re.compile(r'\bdecline\b')
 ANGLE = re.compile(r'(\d+)\s*(?:°|degrees?)')
 OVERHEAD_PRESS = re.compile(r'shoulders? press|overhead press|military press|arnold press|push press|pike press'
                             r'|behind (the )?neck press|bradford|\bz press|viking press|strict press|landmine (\w+ )*press')
-OVERHEAD_COMBO = re.compile(r'clean|thruster|lunge|squat|\bto\b|\band\b|devil|bottoms up|external rotation|cuban'
-                            r'|side bend|plank|incline|kick|face down')
+# Com o deltoide inteiro no primário, um "press" sem outra palavra também é o desenvolvimento
+# (dumbbell seated alternate press, kettlebell seesaw press); o supino, o pallof e a planche não.
+OVERHEAD_PLAIN = re.compile(r'\bpress\b')
+OVERHEAD_COMBO = re.compile(r'clean|thruster|lunge|squat(?! cage)|\bto\b|\band\b|devil|external rotation|cuban'
+                            r'|side bend|plank|incline|kick|face down|bench press|pallof|planche')
 LATERAL_RAISE = re.compile(r'lateral raises?|side raises?|side lateral|lateral delt raise')
-LATERAL_COMBO = re.compile(r'rear|front|plank|\bto\b|\band\b|lunge|squat')
-REAR_DELT = re.compile(r'rear delt|rear deltoid|reverse fly|reverse flye|rear fly|rear lateral|face pull|reverse pec')
+LATERAL_COMBO = re.compile(r'rear|front|plank|\bto\b|\band\b|lunge|squat|bent over')
+REAR_DELT = re.compile(r'rear delt|rear deltoid|deltoid rear|reverse delt|reverse fly|reverse flye|revers fly|rear fly'
+                       r'|rear lateral|face pull|reverse pec|bent over .*lateral raise')
 REAR_COMBO = re.compile(r'plank|\bto\b|\band\b|wake up|lunge|step')
 SHRUG = re.compile(r'\bshrugs?\b')
 # Encolhimento para baixo ou para trás (nas paralelas, pendurado, invertido, reverso) não é o trapézio superior.
@@ -308,13 +324,15 @@ SQUAT = re.compile(r'\bsquats?\b')
 SQUAT_COMBO = re.compile(r'split|bulgarian|single|one[- ]leg|one arm|pistol|sissy|hack|skater|cossack|curtsey|shrimp'
                          r'|lunge|jump|plyo|thrust|jack|jerk|clean|snatch|get up|press|\brows?\b|curl|raise|deadlift'
                          r'|good morning|wood ?chop|twist|hold|walk|hop|kick|punch|reach|rotation|step|\bto\b|\band\b'
-                         r'|with|burpee|wall|ball|pulse|lateral|side|shuffle|abduct|knees?\)|on knees|kneeling|tip toe'
+                         r'|burpee|wall|ball|pulse|lateral|side(?! pov)|shuffle|abduct|knees?\)|on knees|kneeling'
+                         r'|tip toe|with (calf|arms|heel|band|reach|rotation|twist|knee|leg|hip)'
                          r'|pull|hip flexion|reverse squat')
 SQUAT_MACHINES = {'leverage machine', 'sled machine', 'assisted'}
 HIP_ADDUCTION = re.compile(r'\badduct(ion|ors?)\b')
 ADDUCTION_COMBO = re.compile(r'plank|squat|press|thrust|scapular|shoulder|\barm\b|wrist')
+# A elevação de quadril deitado (lying flat, incline, leg and hip) é o mesmo enrolar da pelve da reverse crunch.
 LEG_RAISE = re.compile(r'\b(leg|legs|knee|knees)[- ](hip )?raises?\b|leg-hip raise|reverse crunch|toes to bar'
-                       r'|knees to elbows|\bleg lift')
+                       r'|knees to elbows|\bleg lift|lying flat hip raise|incline hip raise|leg and hip raise')
 LEG_RAISE_COMBO = re.compile(r'oblique|twist|side|plank|press|military|step|lunge|squat|curl|push|circle|dragon'
                              r'|(?<!reverse )crunch|\bto\b(?! bar| elbows)')
 
@@ -349,6 +367,8 @@ def research_name_rules(e, p, s):
         return rule({'frontDeltoid'}, {'upperChest'} | (set() if CHEST_FLY.search(n) else {'triceps'}))
     if p == CHEST and CHEST_MOVE.search(n) and not CHEST_COMBO.search(n) and not CHEST_ANGLED.search(n):
         fly = bool(CHEST_FLY.search(n))
+        if PUSH_UP.search(n) and 'elevated' in n:
+            return p, s   # a flexão com as mãos no alto é a flexão inclinada (3812)
         if INCLINE.search(n) or DECLINE.search(n):
             # A flexão inclinada ou declinada não é o banco, e entre 30° e 45° não há regra: ficam como estavam.
             tri = set() if fly else {'triceps'}
@@ -362,7 +382,7 @@ def research_name_rules(e, p, s):
         tri = set() if fly else {'triceps', 'tricepsLongHead'}
         return rule({'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'} | tri)   # sai o lateral e o posterior
     # Ombro e trapézio.
-    if p == HEADS and OVERHEAD_PRESS.search(n) and not OVERHEAD_COMBO.search(n):
+    if p == HEADS and (OVERHEAD_PRESS.search(n) or OVERHEAD_PLAIN.search(n)) and not OVERHEAD_COMBO.search(n):
         return rule({'frontDeltoid'}, {'deltoids', 'triceps', 'upperTrapezius'})
     if p in (HEADS, UPPER_BACK, TRAPS) and Y_RAISE.search(n):
         return rule({'lowerTrapezius'}, {'deltoids'})
@@ -476,11 +496,12 @@ def emphasis_of(primary, sub_terms):
 NEVER_EMPHASIS = {'lowerAbs'}   # o abdômen baixo nunca acende sozinho, nem como ênfase (relatório, #13)
 
 
-def kept_emphasis(emph, primary):
+def kept_emphasis(emph, primary, banned=frozenset()):
     """A ênfase com o primário que já passou pelas regras por nome: só as regiões que estão nele,
-    sem o abdômen baixo, e nenhuma quando ela cobre todas as regiões de um grupo do primário ou
-    fica igual ao primário, porque aí não diz nada a mais."""
-    out = (emph & primary) - NEVER_EMPHASIS   # um grupo inteiro na ênfase também está inteiro no primário
+    sem o abdômen baixo e sem as que a regra do exercício tira (banned: o bíceps na rosca martelo),
+    e nenhuma quando ela cobre todas as regiões de um grupo do primário ou fica igual ao primário,
+    porque aí não diz nada a mais."""
+    out = (emph & primary) - NEVER_EMPHASIS - banned   # um grupo inteiro na ênfase está inteiro no primário
     if out == primary or any(set(rr) <= out for rr in G.values()):
         return set()
     return out
@@ -556,7 +577,9 @@ def build():
         p, s = v2_name_rules(e, set(p), set(s))
         p, s = research_name_rules(e, p, s)
         # A ênfase sai do primário de depois das regras, que podem mudar o primário.
-        emph = kept_emphasis(emphasis_of(p, sub_terms), p)
+        # Na rosca martelo o braquial e o antebraço entram pela regra: o bíceps não é a ênfase (1615).
+        banned = {'biceps'} if curl_kind(e['name'].lower()) == 'hammer' else set()
+        emph = kept_emphasis(emphasis_of(p, sub_terms), p, banned)
         row = {'name': e['name'], 'primary': ordered(p), 'secondary': ordered(s), 'source': source}
         if emph:
             row['emphasis'] = ordered(emph)
