@@ -1,20 +1,48 @@
 #!/usr/bin/env python3
-"""Testes das regras da v2 do mapa de exercícios (python3 -m unittest test_build_exercise_regions_v2).
+"""Testes do gerador de regiões: as regras da v2, a ênfase e o --check.
 
-Lê só o texto do catálogo, como o gerador. Cada caso é um exercício real pelo id.
+    python3 -I scripts/hexbody/regions/run_tests.py
+
+Lê só o texto do catálogo, como o gerador. Cada caso é um exercício real pelo id. Os testes do
+--check rodam o gerador num processo à parte, contra uma pasta temporária (--out), e nunca
+gravam nada nesta pasta.
 """
 import json
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 import build_exercise_regions as B
 
-B.use_v2()
 ROWS, _, _ = B.build()
 
 
 def regions(id_):
     r = ROWS[id_]
     return set(r['primary']), set(r['secondary'])
+
+
+SCRIPT = Path(B.__file__).resolve()
+JSONS = ('exercise_regions_v2.json', 'regions_v2.json')
+SEATED_ABDUCTIONS = ('0597', '3006', '3611', '3005')   # as duas abduções sentadas e os desenhos delas
+
+
+def run_check(folder):
+    """O --check contra a pasta, num processo à parte, como o check.mjs roda."""
+    return subprocess.run([sys.executable, '-I', str(SCRIPT), '--check', '--out', str(folder)],
+                          capture_output=True, text=True)
+
+
+def copy_of_jsons(test):
+    """Uma pasta temporária com uma cópia dos dois JSON do repositório; sai no fim do teste."""
+    tmp = Path(tempfile.mkdtemp(prefix='hexgym-regions-'))
+    test.addCleanup(shutil.rmtree, tmp, True)
+    for name in JSONS:
+        shutil.copyfile(B.HERE / name, tmp / name)
+    return tmp
 
 
 class V2Rules(unittest.TestCase):
@@ -89,6 +117,52 @@ class V2Rules(unittest.TestCase):
     def test_regions_v2_json_is_current(self):
         committed = json.loads((B.HERE / 'regions_v2.json').read_text(encoding='utf-8'))
         self.assertEqual(committed, B.regions_v2_rows())
+
+
+
+class Emphasis(unittest.TestCase):
+    """A ênfase sai depois das regras por nome, dentro do primário, e só quando diz algo a mais."""
+
+    def with_emphasis(self):
+        rows = {k: v for k, v in ROWS.items() if v.get('emphasis')}
+        self.assertTrue(rows)
+        return rows
+
+    def test_emphasis_stays_inside_primary(self):
+        for id_, v in self.with_emphasis().items():
+            self.assertLessEqual(set(v['emphasis']), set(v['primary']), f'{id_} {v["name"]}')
+
+    def test_emphasis_never_equals_primary_or_a_whole_group(self):
+        for id_, v in self.with_emphasis().items():
+            emph = set(v['emphasis'])
+            self.assertNotEqual(emph, set(v['primary']), f'{id_} {v["name"]}')
+            for group, regions in B.V2_GROUP_REGIONS.items():
+                if set(regions) <= set(v['primary']):
+                    self.assertFalse(set(regions) <= emph, f'{id_} {v["name"]}: a ênfase cobre o grupo {group}')
+
+    def test_seated_abduction_has_no_gluteus_maximus_emphasis(self):
+        for id_ in SEATED_ABDUCTIONS:
+            self.assertIn('seated hip abduction', ROWS[id_]['name'], id_)
+            self.assertNotIn('gluteal', ROWS[id_].get('emphasis', []), id_)
+
+
+class Check(unittest.TestCase):
+    def test_check_passes_when_fresh(self):
+        r = run_check(copy_of_jsons(self))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_check_fails_when_stale(self):
+        tmp = copy_of_jsons(self)
+        path = tmp / 'exercise_regions_v2.json'
+        rows = json.loads(path.read_text(encoding='utf-8'))
+        rows['0001']['primary'] = rows['0001']['primary'][1:]   # o exercício perde uma região
+        stale = json.dumps(rows, ensure_ascii=False)
+        path.write_text(stale, encoding='utf-8')
+        r = run_check(tmp)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn('exercise_regions_v2.json', r.stderr)
+        self.assertIn('0001', r.stderr)
+        self.assertEqual(path.read_text(encoding='utf-8'), stale, 'o --check não grava nada')
 
 
 if __name__ == '__main__':

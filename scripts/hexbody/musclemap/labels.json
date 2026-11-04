@@ -1,1 +1,2629 @@
-{"S": 2.0, "vb": {"front": [0.0, 95.0, 727.0, 1280.0], "back": [718.0, 95.0, 727.0, 1280.0]}, "table": [{"id": 0, "kind": "outside"}, {"id": 1, "kind": "gap"}, {"id": 2, "kind": "muscle", "view": "front", "slug": "chest", "group": "chest", "sub": false, "side": "left", "piece": 0}, {"id": 3, "kind": "muscle", "view": "front", "slug": "chest", "group": "chest", "sub": false, "side": "right", "piece": 0}, {"id": 4, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "left", "piece": 0}, {"id": 5, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "left", "piece": 1}, {"id": 6, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "left", "piece": 2}, {"id": 7, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "left", "piece": 3}, {"id": 8, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "right", "piece": 0}, {"id": 9, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "right", "piece": 1}, {"id": 10, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "right", "piece": 2}, {"id": 11, "kind": "muscle", "view": "front", "slug": "abs", "group": "abs", "sub": false, "side": "right", "piece": 3}, {"id": 12, "kind": "muscle", "view": "front", "slug": "biceps", "group": "biceps", "sub": false, "side": "left", "piece": 0}, {"id": 13, "kind": "muscle", "view": "front", "slug": "biceps", "group": "biceps", "sub": false, "side": "right", "piece": 0}, {"id": 14, "kind": "muscle", "view": "front", "slug": "triceps", "group": "triceps", "sub": false, "side": "left", "piece": 0}, {"id": 15, "kind": "muscle", "view": "front", "slug": "triceps", "group": "triceps", "sub": false, "side": "right", "piece": 0}, {"id": 16, "kind": "muscle", "view": "front", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "left", "piece": 0}, {"id": 17, "kind": "muscle", "view": "front", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "right", "piece": 0}, {"id": 18, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 0}, {"id": 19, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 1}, {"id": 20, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 2}, {"id": 21, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 3}, {"id": 22, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 4}, {"id": 23, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 5}, {"id": 24, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 6}, {"id": 25, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "left", "piece": 7}, {"id": 26, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 0}, {"id": 27, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 1}, {"id": 28, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 2}, {"id": 29, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 3}, {"id": 30, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 4}, {"id": 31, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 5}, {"id": 32, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 6}, {"id": 33, "kind": "muscle", "view": "front", "slug": "obliques", "group": "obliques", "sub": false, "side": "right", "piece": 7}, {"id": 34, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "left", "piece": 0}, {"id": 35, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "left", "piece": 1}, {"id": 36, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "left", "piece": 2}, {"id": 37, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "right", "piece": 0}, {"id": 38, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "right", "piece": 1}, {"id": 39, "kind": "muscle", "view": "front", "slug": "quadriceps", "group": "quadriceps", "sub": false, "side": "right", "piece": 2}, {"id": 40, "kind": "muscle", "view": "front", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 0}, {"id": 41, "kind": "muscle", "view": "front", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 1}, {"id": 42, "kind": "muscle", "view": "front", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 0}, {"id": 43, "kind": "muscle", "view": "front", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 1}, {"id": 44, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "left", "piece": 0}, {"id": 45, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "left", "piece": 1}, {"id": 46, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "left", "piece": 2}, {"id": 47, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "right", "piece": 0}, {"id": 48, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "right", "piece": 1}, {"id": 49, "kind": "muscle", "view": "front", "slug": "adductors", "group": "adductors", "sub": false, "side": "right", "piece": 2}, {"id": 50, "kind": "muscle", "view": "front", "slug": "trapezius", "group": "trapezius", "sub": false, "side": "left", "piece": 0}, {"id": 51, "kind": "muscle", "view": "front", "slug": "trapezius", "group": "trapezius", "sub": false, "side": "right", "piece": 0}, {"id": 52, "kind": "inert", "view": "front", "slug": "neck", "group": "neck", "sub": false, "side": "left", "piece": 0}, {"id": 53, "kind": "inert", "view": "front", "slug": "neck", "group": "neck", "sub": false, "side": "left", "piece": 1}, {"id": 54, "kind": "inert", "view": "front", "slug": "neck", "group": "neck", "sub": false, "side": "right", "piece": 0}, {"id": 55, "kind": "inert", "view": "front", "slug": "neck", "group": "neck", "sub": false, "side": "right", "piece": 1}, {"id": 56, "kind": "inert", "view": "front", "slug": "neck", "group": "neck", "sub": false, "side": "common", "piece": 0}, {"id": 57, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 0}, {"id": 58, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 1}, {"id": 59, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 2}, {"id": 60, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 0}, {"id": 61, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 1}, {"id": 62, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 2}, {"id": 63, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 0}, {"id": 64, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 1}, {"id": 65, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 2}, {"id": 66, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 3}, {"id": 67, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 4}, {"id": 68, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 5}, {"id": 69, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 0}, {"id": 70, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 1}, {"id": 71, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 2}, {"id": 72, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 3}, {"id": 73, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 4}, {"id": 74, "kind": "inert", "view": "front", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 5}, {"id": 75, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "left", "piece": 0}, {"id": 76, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "left", "piece": 1}, {"id": 77, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "right", "piece": 0}, {"id": 78, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "right", "piece": 1}, {"id": 79, "kind": "muscle", "view": "front", "slug": "tibialis", "group": "tibialis", "sub": false, "side": "left", "piece": 0}, {"id": 80, "kind": "muscle", "view": "front", "slug": "tibialis", "group": "tibialis", "sub": false, "side": "right", "piece": 0}, {"id": 81, "kind": "inert", "view": "front", "slug": "ankles", "group": "ankles", "sub": false, "side": "left", "piece": 0}, {"id": 82, "kind": "inert", "view": "front", "slug": "ankles", "group": "ankles", "sub": false, "side": "left", "piece": 1}, {"id": 83, "kind": "inert", "view": "front", "slug": "ankles", "group": "ankles", "sub": false, "side": "right", "piece": 0}, {"id": 84, "kind": "inert", "view": "front", "slug": "ankles", "group": "ankles", "sub": false, "side": "right", "piece": 1}, {"id": 85, "kind": "inert", "view": "front", "slug": "feet", "group": "feet", "sub": false, "side": "left", "piece": 0}, {"id": 86, "kind": "inert", "view": "front", "slug": "feet", "group": "feet", "sub": false, "side": "left", "piece": 1}, {"id": 87, "kind": "inert", "view": "front", "slug": "feet", "group": "feet", "sub": false, "side": "right", "piece": 0}, {"id": 88, "kind": "inert", "view": "front", "slug": "feet", "group": "feet", "sub": false, "side": "right", "piece": 1}, {"id": 89, "kind": "inert", "view": "front", "slug": "head", "group": "head", "sub": false, "side": "common", "piece": 0}, {"id": 90, "kind": "inert", "view": "front", "slug": "hair", "group": "hair", "sub": false, "side": "common", "piece": 0}, {"id": 91, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 0}, {"id": 92, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 1}, {"id": 93, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 2}, {"id": 94, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 3}, {"id": 95, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 4}, {"id": 96, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "left", "piece": 5}, {"id": 97, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 0}, {"id": 98, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 1}, {"id": 99, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 2}, {"id": 100, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 3}, {"id": 101, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 4}, {"id": 102, "kind": "muscle", "view": "front", "slug": "serratus", "group": "serratus", "sub": true, "side": "right", "piece": 5}, {"id": 103, "kind": "muscle", "view": "front", "slug": "hipFlexors", "group": "hip-flexors", "sub": true, "side": "left", "piece": 0}, {"id": 104, "kind": "muscle", "view": "front", "slug": "hipFlexors", "group": "hip-flexors", "sub": true, "side": "right", "piece": 0}, {"id": 105, "kind": "muscle", "view": "front", "slug": "upperChest", "group": "chest", "sub": true, "side": "left", "piece": 0}, {"id": 106, "kind": "muscle", "view": "front", "slug": "upperChest", "group": "chest", "sub": true, "side": "right", "piece": 0}, {"id": 107, "kind": "muscle", "view": "front", "slug": "lowerChest", "group": "chest", "sub": true, "side": "left", "piece": 0}, {"id": 108, "kind": "muscle", "view": "front", "slug": "lowerChest", "group": "chest", "sub": true, "side": "right", "piece": 0}, {"id": 109, "kind": "muscle", "view": "front", "slug": "innerQuad", "group": "quadriceps", "sub": true, "side": "left", "piece": 0}, {"id": 110, "kind": "muscle", "view": "front", "slug": "innerQuad", "group": "quadriceps", "sub": true, "side": "right", "piece": 0}, {"id": 111, "kind": "muscle", "view": "front", "slug": "outerQuad", "group": "quadriceps", "sub": true, "side": "left", "piece": 0}, {"id": 112, "kind": "muscle", "view": "front", "slug": "outerQuad", "group": "quadriceps", "sub": true, "side": "right", "piece": 0}, {"id": 113, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "left", "piece": 0}, {"id": 114, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "left", "piece": 1}, {"id": 115, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "left", "piece": 2}, {"id": 116, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "right", "piece": 0}, {"id": 117, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "right", "piece": 1}, {"id": 118, "kind": "muscle", "view": "front", "slug": "upperAbs", "group": "abs", "sub": true, "side": "right", "piece": 2}, {"id": 119, "kind": "muscle", "view": "front", "slug": "lowerAbs", "group": "abs", "sub": true, "side": "left", "piece": 0}, {"id": 120, "kind": "muscle", "view": "front", "slug": "lowerAbs", "group": "abs", "sub": true, "side": "right", "piece": 0}, {"id": 121, "kind": "muscle", "view": "front", "slug": "frontDeltoid", "group": "deltoids", "sub": true, "side": "left", "piece": 0}, {"id": 122, "kind": "muscle", "view": "front", "slug": "frontDeltoid", "group": "deltoids", "sub": true, "side": "right", "piece": 0}, {"id": 123, "kind": "muscle", "view": "front", "slug": "upperTrapezius", "group": "trapezius", "sub": true, "side": "left", "piece": 0}, {"id": 124, "kind": "muscle", "view": "front", "slug": "upperTrapezius", "group": "trapezius", "sub": true, "side": "right", "piece": 0}, {"id": 125, "kind": "inert", "view": "back", "slug": "neck", "group": "neck", "sub": false, "side": "left", "piece": 0}, {"id": 126, "kind": "inert", "view": "back", "slug": "neck", "group": "neck", "sub": false, "side": "right", "piece": 0}, {"id": 127, "kind": "muscle", "view": "back", "slug": "trapezius", "group": "trapezius", "sub": false, "side": "left", "piece": 0}, {"id": 128, "kind": "muscle", "view": "back", "slug": "trapezius", "group": "trapezius", "sub": false, "side": "right", "piece": 0}, {"id": 129, "kind": "muscle", "view": "back", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "left", "piece": 0}, {"id": 130, "kind": "muscle", "view": "back", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "right", "piece": 0}, {"id": 131, "kind": "muscle", "view": "back", "slug": "upperBack", "group": "upper-back", "sub": false, "side": "left", "piece": 0}, {"id": 132, "kind": "muscle", "view": "back", "slug": "upperBack", "group": "upper-back", "sub": false, "side": "left", "piece": 1}, {"id": 133, "kind": "muscle", "view": "back", "slug": "upperBack", "group": "upper-back", "sub": false, "side": "right", "piece": 0}, {"id": 134, "kind": "muscle", "view": "back", "slug": "upperBack", "group": "upper-back", "sub": false, "side": "right", "piece": 1}, {"id": 135, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "left", "piece": 0}, {"id": 136, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "left", "piece": 1}, {"id": 137, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "left", "piece": 2}, {"id": 138, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "right", "piece": 0}, {"id": 139, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "right", "piece": 1}, {"id": 140, "kind": "muscle", "view": "back", "slug": "triceps", "group": "triceps", "sub": false, "side": "right", "piece": 2}, {"id": 141, "kind": "muscle", "view": "back", "slug": "lowerBack", "group": "lower-back", "sub": false, "side": "left", "piece": 0}, {"id": 142, "kind": "muscle", "view": "back", "slug": "lowerBack", "group": "lower-back", "sub": false, "side": "left", "piece": 1}, {"id": 143, "kind": "muscle", "view": "back", "slug": "lowerBack", "group": "lower-back", "sub": false, "side": "right", "piece": 0}, {"id": 144, "kind": "muscle", "view": "back", "slug": "lowerBack", "group": "lower-back", "sub": false, "side": "right", "piece": 1}, {"id": 145, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 0}, {"id": 146, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 1}, {"id": 147, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 2}, {"id": 148, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 3}, {"id": 149, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 0}, {"id": 150, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 1}, {"id": 151, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 2}, {"id": 152, "kind": "muscle", "view": "back", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 3}, {"id": 153, "kind": "muscle", "view": "back", "slug": "gluteal", "group": "gluteal", "sub": false, "side": "left", "piece": 0}, {"id": 154, "kind": "muscle", "view": "back", "slug": "gluteal", "group": "gluteal", "sub": false, "side": "left", "piece": 1}, {"id": 155, "kind": "muscle", "view": "back", "slug": "gluteal", "group": "gluteal", "sub": false, "side": "right", "piece": 0}, {"id": 156, "kind": "muscle", "view": "back", "slug": "gluteal", "group": "gluteal", "sub": false, "side": "right", "piece": 1}, {"id": 157, "kind": "muscle", "view": "back", "slug": "adductors", "group": "adductors", "sub": false, "side": "left", "piece": 0}, {"id": 158, "kind": "muscle", "view": "back", "slug": "adductors", "group": "adductors", "sub": false, "side": "right", "piece": 0}, {"id": 159, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "left", "piece": 0}, {"id": 160, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "left", "piece": 1}, {"id": 161, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "left", "piece": 2}, {"id": 162, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "left", "piece": 3}, {"id": 163, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "right", "piece": 0}, {"id": 164, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "right", "piece": 1}, {"id": 165, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "right", "piece": 2}, {"id": 166, "kind": "muscle", "view": "back", "slug": "hamstring", "group": "hamstring", "sub": false, "side": "right", "piece": 3}, {"id": 167, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 0}, {"id": 168, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 1}, {"id": 169, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 2}, {"id": 170, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "left", "piece": 3}, {"id": 171, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 0}, {"id": 172, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 1}, {"id": 173, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 2}, {"id": 174, "kind": "muscle", "view": "back", "slug": "calves", "group": "calves", "sub": false, "side": "right", "piece": 3}, {"id": 175, "kind": "inert", "view": "back", "slug": "ankles", "group": "ankles", "sub": false, "side": "left", "piece": 0}, {"id": 176, "kind": "inert", "view": "back", "slug": "ankles", "group": "ankles", "sub": false, "side": "right", "piece": 0}, {"id": 177, "kind": "inert", "view": "back", "slug": "feet", "group": "feet", "sub": false, "side": "left", "piece": 0}, {"id": 178, "kind": "inert", "view": "back", "slug": "feet", "group": "feet", "sub": false, "side": "right", "piece": 0}, {"id": 179, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 0}, {"id": 180, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 1}, {"id": 181, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 2}, {"id": 182, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 3}, {"id": 183, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 4}, {"id": 184, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "left", "piece": 5}, {"id": 185, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 0}, {"id": 186, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 1}, {"id": 187, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 2}, {"id": 188, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 3}, {"id": 189, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 4}, {"id": 190, "kind": "inert", "view": "back", "slug": "hands", "group": "hands", "sub": false, "side": "right", "piece": 5}, {"id": 191, "kind": "inert", "view": "back", "slug": "head", "group": "head", "sub": false, "side": "common", "piece": 0}, {"id": 192, "kind": "inert", "view": "back", "slug": "hair", "group": "hair", "sub": false, "side": "common", "piece": 0}, {"id": 193, "kind": "muscle", "view": "back", "slug": "rotatorCuff", "group": "deltoids", "sub": true, "side": "left", "piece": 0}, {"id": 194, "kind": "muscle", "view": "back", "slug": "rotatorCuff", "group": "deltoids", "sub": true, "side": "right", "piece": 0}, {"id": 195, "kind": "muscle", "view": "back", "slug": "rhomboids", "group": "upper-back", "sub": true, "side": "left", "piece": 0}, {"id": 196, "kind": "muscle", "view": "back", "slug": "rhomboids", "group": "upper-back", "sub": true, "side": "right", "piece": 0}, {"id": 197, "kind": "muscle", "view": "back", "slug": "upperTrapezius", "group": "trapezius", "sub": true, "side": "left", "piece": 0}, {"id": 198, "kind": "muscle", "view": "back", "slug": "upperTrapezius", "group": "trapezius", "sub": true, "side": "right", "piece": 0}, {"id": 199, "kind": "muscle", "view": "back", "slug": "lowerTrapezius", "group": "trapezius", "sub": true, "side": "left", "piece": 0}, {"id": 200, "kind": "muscle", "view": "back", "slug": "lowerTrapezius", "group": "trapezius", "sub": true, "side": "right", "piece": 0}, {"id": 201, "kind": "muscle", "view": "back", "slug": "rearDeltoid", "group": "deltoids", "sub": true, "side": "left", "piece": 0}, {"id": 202, "kind": "muscle", "view": "back", "slug": "rearDeltoid", "group": "deltoids", "sub": true, "side": "right", "piece": 0}, {"id": 203, "kind": "muscle", "view": "back", "slug": "gluteusMedius", "group": "gluteal", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 204, "kind": "muscle", "view": "back", "slug": "gluteusMedius", "group": "gluteal", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 205, "kind": "muscle", "view": "back", "slug": "soleus", "group": "calves", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 206, "kind": "muscle", "view": "back", "slug": "soleus", "group": "calves", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 207, "kind": "muscle", "view": "back", "slug": "brachialis", "group": "biceps", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 208, "kind": "muscle", "view": "back", "slug": "brachialis", "group": "biceps", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 209, "kind": "muscle", "view": "back", "slug": "teresMajor", "group": "upper-back", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 210, "kind": "muscle", "view": "back", "slug": "teresMajor", "group": "upper-back", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 211, "kind": "muscle", "view": "back", "slug": "sternocleidomastoid", "group": "neck", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 212, "kind": "muscle", "view": "back", "slug": "sternocleidomastoid", "group": "neck", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 213, "kind": "muscle", "view": "back", "slug": "neckBack", "group": "neck", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 214, "kind": "muscle", "view": "back", "slug": "neckBack", "group": "neck", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 215, "kind": "muscle", "view": "back", "slug": "tricepsLongHead", "group": "triceps", "sub": true, "side": "left", "piece": 0, "v2": true}, {"id": 216, "kind": "muscle", "view": "back", "slug": "tricepsLongHead", "group": "triceps", "sub": true, "side": "right", "piece": 0, "v2": true}, {"id": 217, "kind": "inert", "view": "front", "slug": "hair", "group": "hair", "sub": false, "side": "common", "piece": 1, "fig": "female"}, {"id": 218, "kind": "muscle", "view": "front", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "left", "piece": 1, "fig": "female"}, {"id": 219, "kind": "muscle", "view": "front", "slug": "deltoids", "group": "deltoids", "sub": false, "side": "right", "piece": 1, "fig": "female"}, {"id": 220, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "left", "piece": 3, "fig": "female"}, {"id": 221, "kind": "muscle", "view": "front", "slug": "forearm", "group": "forearm", "sub": false, "side": "right", "piece": 3, "fig": "female"}, {"id": 222, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "left", "piece": 2, "fig": "female"}, {"id": 223, "kind": "inert", "view": "front", "slug": "knees", "group": "knees", "sub": false, "side": "right", "piece": 2, "fig": "female"}, {"id": 224, "kind": "inert", "view": "back", "slug": "hair", "group": "hair", "sub": false, "side": "common", "piece": 1, "fig": "female"}, {"id": 225, "kind": "muscle", "view": "back", "slug": "adductors", "group": "adductors", "sub": false, "side": "left", "piece": 1, "fig": "female"}, {"id": 226, "kind": "muscle", "view": "back", "slug": "adductors", "group": "adductors", "sub": false, "side": "right", "piece": 1, "fig": "female"}, {"id": 227, "kind": "inert", "view": "back", "slug": "ankles", "group": "ankles", "sub": false, "side": "left", "piece": 1, "fig": "female"}, {"id": 228, "kind": "inert", "view": "back", "slug": "ankles", "group": "ankles", "sub": false, "side": "right", "piece": 1, "fig": "female"}], "boxes": {"front": {"chest": [255.15951171875003, 317.22609374999996, 472.91703125000004, 435.0], "abs": [305.86472656250004, 428.493203125, 422.408203125, 715.9311190670147], "biceps": [181.79453125000006, 406.40552734375, 546.4800000000001, 492.9063867187499], "triceps": [200.69734374999996, 384.83, 527.7531250000001, 514.2018945312499], "deltoids": [194.64751953125, 303.4090625, 533.4423046874999, 396.80312499999997], "obliques": [255.63296874999997, 417.01001457547045, 472.54574218749997, 657.6100000000001], "quadriceps": [241.185, 666.925, 487.030625, 947.8810937500001], "calves": [250.86609375, 1008.1626877973766, 477.3125, 1231.8435889648415], "adductors": [274.47453125, 647.3165624999999, 454.05390625, 898.6000000000001], "trapezius": [284.40780670222307, 279.7075, 443.9174999999999, 311.20390625], "neck": [327.7975, 240.0027852187649, 400.5253125, 316.1008821638526], "forearm": [125.72671875, 498.4781153650998, 602.5043749999999, 686.5862362266577], "hands": [53.06999999999999, 692.7300000000001, 675.211875, 814.6609374999999], "knees": [267.47734375000005, 952.55, 460.75374999999997, 1059.7910737548225], "tibialis": [259.70650390624996, 973.1622507064263, 468.316875, 1201.7125], "ankles": [270.0665625, 1208.06216796875, 457.83000000000004, 1293.4175], "feet": [245.45586325341466, 1283.9024999999997, 482.8525320285544, 1340.4888617484721], "head": [302.15890625, 125.69296874999999, 426.17017578125007, 253.62237499999998], "hair": [306.75921875000006, 96.48374999999999, 421.59875000000005, 193.12604121502568], "serratus": [255.63296874999997, 417.01001457547045, 472.54574218749997, 544.8012500000001], "hipFlexors": [246.9, 667.1, 481.2, 721.0], "upperChest": [255.5, 317.2, 472.6, 365.2], "lowerChest": [255.2, 368.3, 472.9, 435.0], "innerQuad": [307.67085937499996, 837.7774999999999, 420.61666015625, 947.8810937500001], "outerQuad": [241.185, 793.3940199454362, 487.030625, 943.1072926631443], "upperAbs": [305.86472656250004, 428.493203125, 422.408203125, 578.7356250000001], "lowerAbs": [310.87857966609243, 583.37806640625, 417.39, 715.9311190670147], "frontDeltoid": [231.1, 303.4, 497.1, 391.5], "upperTrapezius": [284.40780670222307, 279.7075, 443.9174999999999, 311.20390625]}, "back": {"neck": [1022.2145760140526, 218.92626953125, 1144.747924118032, 292.30875000000003], "trapezius": [1002.6675000000001, 297.27625, 1164.2740983575995, 473.01], "deltoids": [914.0960937499998, 310.6137109374999, 1252.76, 397.6975298018382], "upperBack": [955.9524999999999, 359.72, 1210.8799999999999, 585.2453394830441], "triceps": [898.7700000000001, 381.71984375, 1268.42, 534.6845337417791], "lowerBack": [983.75375, 486.99750000000006, 1183.12046875, 638.9721875], "forearm": [838.7856736511934, 518.3247374387759, 1328.365842324502, 688.1704130186987], "gluteal": [976.47, 618.8974218750002, 1190.5418750000003, 777.77734375], "adductors": [1039.469375, 783.8937500000002, 1127.8484629827274, 863.1223912622497], "hamstring": [962.1375000000002, 740.9076996425932, 1204.76671875, 1006.4175], "calves": [970.3006250000001, 971.5725, 1197.0736328125004, 1289.8339062500002], "ankles": [987.1609375, 1264.1817737275169, 1179.84322265625, 1320.5323437499999], "feet": [962.5475, 1323.6650000000002, 1205.7175, 1341.5552148437498], "hands": [772.710625, 692.85552734375, 1394.3193749999998, 814.53060546875], "head": [1021.7186074218749, 166.45, 1146.109375, 238.8225], "hair": [1025.65046875, 96.53000000000003, 1141.2175000000002, 208.99], "rotatorCuff": [961.7799999999999, 322.69250000000005, 1205.3912060746602, 397.6739843749999], "rhomboids": [1018.0, 326.3, 1149.0, 408.6], "upperTrapezius": [1002.8, 297.3, 1164.3, 337.7], "lowerTrapezius": [1041.6, 399.3, 1125.4, 473.0], "rearDeltoid": [914.0960937499998, 310.6137109374999, 1252.76, 397.6975298018382]}}}
+{
+ "S": 2.0,
+ "vb": {
+  "front": [
+   0.0,
+   95.0,
+   727.0,
+   1280.0
+  ],
+  "back": [
+   718.0,
+   95.0,
+   727.0,
+   1280.0
+  ]
+ },
+ "table": [
+  {
+   "id": 0,
+   "kind": "outside"
+  },
+  {
+   "id": 1,
+   "kind": "gap"
+  },
+  {
+   "id": 2,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "chest",
+   "group": "chest",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 3,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "chest",
+   "group": "chest",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 4,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 5,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 6,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 7,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 8,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 9,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 10,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 11,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "abs",
+   "group": "abs",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 12,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "biceps",
+   "group": "biceps",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 13,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "biceps",
+   "group": "biceps",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 14,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 15,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 16,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 17,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 18,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 19,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 20,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 21,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 22,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 4
+  },
+  {
+   "id": 23,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 5
+  },
+  {
+   "id": 24,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 6
+  },
+  {
+   "id": 25,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "left",
+   "piece": 7
+  },
+  {
+   "id": 26,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 27,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 28,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 29,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 30,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 4
+  },
+  {
+   "id": 31,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 5
+  },
+  {
+   "id": 32,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 6
+  },
+  {
+   "id": 33,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "obliques",
+   "group": "obliques",
+   "sub": false,
+   "side": "right",
+   "piece": 7
+  },
+  {
+   "id": 34,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 35,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 36,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 37,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 38,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 39,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "quadriceps",
+   "group": "quadriceps",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 40,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 41,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 42,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 43,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 44,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 45,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 46,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 47,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 48,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 49,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 50,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "trapezius",
+   "group": "trapezius",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 51,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "trapezius",
+   "group": "trapezius",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 52,
+   "kind": "inert",
+   "view": "front",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 53,
+   "kind": "inert",
+   "view": "front",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 54,
+   "kind": "inert",
+   "view": "front",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 55,
+   "kind": "inert",
+   "view": "front",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 56,
+   "kind": "inert",
+   "view": "front",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "common",
+   "piece": 0
+  },
+  {
+   "id": 57,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 58,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 59,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 60,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 61,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 62,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 63,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 64,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 65,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 66,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 67,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 4
+  },
+  {
+   "id": 68,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 5
+  },
+  {
+   "id": 69,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 70,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 71,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 72,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 73,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 4
+  },
+  {
+   "id": 74,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 5
+  },
+  {
+   "id": 75,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 76,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 77,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 78,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 79,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "tibialis",
+   "group": "tibialis",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 80,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "tibialis",
+   "group": "tibialis",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 81,
+   "kind": "inert",
+   "view": "front",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 82,
+   "kind": "inert",
+   "view": "front",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 83,
+   "kind": "inert",
+   "view": "front",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 84,
+   "kind": "inert",
+   "view": "front",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 85,
+   "kind": "inert",
+   "view": "front",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 86,
+   "kind": "inert",
+   "view": "front",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 87,
+   "kind": "inert",
+   "view": "front",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 88,
+   "kind": "inert",
+   "view": "front",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 89,
+   "kind": "inert",
+   "view": "front",
+   "slug": "head",
+   "group": "head",
+   "sub": false,
+   "side": "common",
+   "piece": 0
+  },
+  {
+   "id": 90,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hair",
+   "group": "hair",
+   "sub": false,
+   "side": "common",
+   "piece": 0
+  },
+  {
+   "id": 91,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 92,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 93,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 94,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 95,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 4
+  },
+  {
+   "id": 96,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "left",
+   "piece": 5
+  },
+  {
+   "id": 97,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 98,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 99,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 100,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 101,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 4
+  },
+  {
+   "id": 102,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "serratus",
+   "group": "serratus",
+   "sub": true,
+   "side": "right",
+   "piece": 5
+  },
+  {
+   "id": 103,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "hipFlexors",
+   "group": "hip-flexors",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 104,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "hipFlexors",
+   "group": "hip-flexors",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 105,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperChest",
+   "group": "chest",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 106,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperChest",
+   "group": "chest",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 107,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "lowerChest",
+   "group": "chest",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 108,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "lowerChest",
+   "group": "chest",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 109,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "innerQuad",
+   "group": "quadriceps",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 110,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "innerQuad",
+   "group": "quadriceps",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 111,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "outerQuad",
+   "group": "quadriceps",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 112,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "outerQuad",
+   "group": "quadriceps",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 113,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 114,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 115,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 116,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 117,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 118,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 119,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "lowerAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 120,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "lowerAbs",
+   "group": "abs",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 121,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "frontDeltoid",
+   "group": "deltoids",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 122,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "frontDeltoid",
+   "group": "deltoids",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 123,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 124,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "upperTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 125,
+   "kind": "inert",
+   "view": "back",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 126,
+   "kind": "inert",
+   "view": "back",
+   "slug": "neck",
+   "group": "neck",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 127,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "trapezius",
+   "group": "trapezius",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 128,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "trapezius",
+   "group": "trapezius",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 129,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 130,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 131,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperBack",
+   "group": "upper-back",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 132,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperBack",
+   "group": "upper-back",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 133,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperBack",
+   "group": "upper-back",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 134,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperBack",
+   "group": "upper-back",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 135,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 136,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 137,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 138,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 139,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 140,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "triceps",
+   "group": "triceps",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 141,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerBack",
+   "group": "lower-back",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 142,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerBack",
+   "group": "lower-back",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 143,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerBack",
+   "group": "lower-back",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 144,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerBack",
+   "group": "lower-back",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 145,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 146,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 147,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 148,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 149,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 150,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 151,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 152,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 153,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteal",
+   "group": "gluteal",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 154,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteal",
+   "group": "gluteal",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 155,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteal",
+   "group": "gluteal",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 156,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteal",
+   "group": "gluteal",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 157,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 158,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 159,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 160,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 161,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 162,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 163,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 164,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 165,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 166,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "hamstring",
+   "group": "hamstring",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 167,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 168,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 169,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 170,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 171,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 172,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 173,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 174,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "calves",
+   "group": "calves",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 175,
+   "kind": "inert",
+   "view": "back",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 176,
+   "kind": "inert",
+   "view": "back",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 177,
+   "kind": "inert",
+   "view": "back",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 178,
+   "kind": "inert",
+   "view": "back",
+   "slug": "feet",
+   "group": "feet",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 179,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 180,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 1
+  },
+  {
+   "id": 181,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 2
+  },
+  {
+   "id": 182,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 3
+  },
+  {
+   "id": 183,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 4
+  },
+  {
+   "id": 184,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "left",
+   "piece": 5
+  },
+  {
+   "id": 185,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 186,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 1
+  },
+  {
+   "id": 187,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 2
+  },
+  {
+   "id": 188,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 3
+  },
+  {
+   "id": 189,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 4
+  },
+  {
+   "id": 190,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hands",
+   "group": "hands",
+   "sub": false,
+   "side": "right",
+   "piece": 5
+  },
+  {
+   "id": 191,
+   "kind": "inert",
+   "view": "back",
+   "slug": "head",
+   "group": "head",
+   "sub": false,
+   "side": "common",
+   "piece": 0
+  },
+  {
+   "id": 192,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hair",
+   "group": "hair",
+   "sub": false,
+   "side": "common",
+   "piece": 0
+  },
+  {
+   "id": 193,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rotatorCuff",
+   "group": "deltoids",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 194,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rotatorCuff",
+   "group": "deltoids",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 195,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rhomboids",
+   "group": "upper-back",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 196,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rhomboids",
+   "group": "upper-back",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 197,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 198,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "upperTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 199,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 200,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "lowerTrapezius",
+   "group": "trapezius",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 201,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rearDeltoid",
+   "group": "deltoids",
+   "sub": true,
+   "side": "left",
+   "piece": 0
+  },
+  {
+   "id": 202,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "rearDeltoid",
+   "group": "deltoids",
+   "sub": true,
+   "side": "right",
+   "piece": 0
+  },
+  {
+   "id": 203,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteusMedius",
+   "group": "gluteal",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 204,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "gluteusMedius",
+   "group": "gluteal",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 205,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "soleus",
+   "group": "calves",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 206,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "soleus",
+   "group": "calves",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 207,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "brachialis",
+   "group": "biceps",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 208,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "brachialis",
+   "group": "biceps",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 209,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "teresMajor",
+   "group": "upper-back",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 210,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "teresMajor",
+   "group": "upper-back",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 211,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "sternocleidomastoid",
+   "group": "neck",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 212,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "sternocleidomastoid",
+   "group": "neck",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 213,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "neckBack",
+   "group": "neck",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 214,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "neckBack",
+   "group": "neck",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 215,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "tricepsLongHead",
+   "group": "triceps",
+   "sub": true,
+   "side": "left",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 216,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "tricepsLongHead",
+   "group": "triceps",
+   "sub": true,
+   "side": "right",
+   "piece": 0,
+   "v2": true
+  },
+  {
+   "id": 217,
+   "kind": "inert",
+   "view": "front",
+   "slug": "hair",
+   "group": "hair",
+   "sub": false,
+   "side": "common",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 218,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "left",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 219,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "deltoids",
+   "group": "deltoids",
+   "sub": false,
+   "side": "right",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 220,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "left",
+   "piece": 3,
+   "fig": "female"
+  },
+  {
+   "id": 221,
+   "kind": "muscle",
+   "view": "front",
+   "slug": "forearm",
+   "group": "forearm",
+   "sub": false,
+   "side": "right",
+   "piece": 3,
+   "fig": "female"
+  },
+  {
+   "id": 222,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "left",
+   "piece": 2,
+   "fig": "female"
+  },
+  {
+   "id": 223,
+   "kind": "inert",
+   "view": "front",
+   "slug": "knees",
+   "group": "knees",
+   "sub": false,
+   "side": "right",
+   "piece": 2,
+   "fig": "female"
+  },
+  {
+   "id": 224,
+   "kind": "inert",
+   "view": "back",
+   "slug": "hair",
+   "group": "hair",
+   "sub": false,
+   "side": "common",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 225,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "left",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 226,
+   "kind": "muscle",
+   "view": "back",
+   "slug": "adductors",
+   "group": "adductors",
+   "sub": false,
+   "side": "right",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 227,
+   "kind": "inert",
+   "view": "back",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "left",
+   "piece": 1,
+   "fig": "female"
+  },
+  {
+   "id": 228,
+   "kind": "inert",
+   "view": "back",
+   "slug": "ankles",
+   "group": "ankles",
+   "sub": false,
+   "side": "right",
+   "piece": 1,
+   "fig": "female"
+  }
+ ],
+ "boxes": {
+  "front": {
+   "chest": [
+    255.15951171875003,
+    317.22609374999996,
+    472.91703125000004,
+    435.0
+   ],
+   "abs": [
+    305.86472656250004,
+    428.493203125,
+    422.408203125,
+    715.9311190670147
+   ],
+   "biceps": [
+    181.79453125000006,
+    406.40552734375,
+    546.4800000000001,
+    492.9063867187499
+   ],
+   "triceps": [
+    200.69734374999996,
+    384.83,
+    527.7531250000001,
+    514.2018945312499
+   ],
+   "deltoids": [
+    194.64751953125,
+    303.4090625,
+    533.4423046874999,
+    396.80312499999997
+   ],
+   "obliques": [
+    255.63296874999997,
+    417.01001457547045,
+    472.54574218749997,
+    657.6100000000001
+   ],
+   "quadriceps": [
+    241.185,
+    666.925,
+    487.030625,
+    947.8810937500001
+   ],
+   "calves": [
+    250.86609375,
+    1008.1626877973766,
+    477.3125,
+    1231.8435889648415
+   ],
+   "adductors": [
+    274.47453125,
+    647.3165624999999,
+    454.05390625,
+    898.6000000000001
+   ],
+   "trapezius": [
+    284.40780670222307,
+    279.7075,
+    443.9174999999999,
+    311.20390625
+   ],
+   "neck": [
+    327.7975,
+    240.0027852187649,
+    400.5253125,
+    316.1008821638526
+   ],
+   "forearm": [
+    125.72671875,
+    498.4781153650998,
+    602.5043749999999,
+    686.5862362266577
+   ],
+   "hands": [
+    53.06999999999999,
+    692.7300000000001,
+    675.211875,
+    814.6609374999999
+   ],
+   "knees": [
+    267.47734375000005,
+    952.55,
+    460.75374999999997,
+    1059.7910737548225
+   ],
+   "tibialis": [
+    259.70650390624996,
+    973.1622507064263,
+    468.316875,
+    1201.7125
+   ],
+   "ankles": [
+    270.0665625,
+    1208.06216796875,
+    457.83000000000004,
+    1293.4175
+   ],
+   "feet": [
+    245.45586325341466,
+    1283.9024999999997,
+    482.8525320285544,
+    1340.4888617484721
+   ],
+   "head": [
+    302.15890625,
+    125.69296874999999,
+    426.17017578125007,
+    253.62237499999998
+   ],
+   "hair": [
+    306.75921875000006,
+    96.48374999999999,
+    421.59875000000005,
+    193.12604121502568
+   ],
+   "serratus": [
+    255.63296874999997,
+    417.01001457547045,
+    472.54574218749997,
+    544.8012500000001
+   ],
+   "hipFlexors": [
+    246.9,
+    667.1,
+    481.2,
+    721.0
+   ],
+   "upperChest": [
+    255.5,
+    317.2,
+    472.6,
+    365.2
+   ],
+   "lowerChest": [
+    255.2,
+    368.3,
+    472.9,
+    435.0
+   ],
+   "innerQuad": [
+    307.67085937499996,
+    837.7774999999999,
+    420.61666015625,
+    947.8810937500001
+   ],
+   "outerQuad": [
+    241.185,
+    793.3940199454362,
+    487.030625,
+    943.1072926631443
+   ],
+   "upperAbs": [
+    305.86472656250004,
+    428.493203125,
+    422.408203125,
+    578.7356250000001
+   ],
+   "lowerAbs": [
+    310.87857966609243,
+    583.37806640625,
+    417.39,
+    715.9311190670147
+   ],
+   "frontDeltoid": [
+    231.1,
+    303.4,
+    497.1,
+    391.5
+   ],
+   "upperTrapezius": [
+    284.40780670222307,
+    279.7075,
+    443.9174999999999,
+    311.20390625
+   ]
+  },
+  "back": {
+   "neck": [
+    1022.2145760140526,
+    218.92626953125,
+    1144.747924118032,
+    292.30875000000003
+   ],
+   "trapezius": [
+    1002.6675000000001,
+    297.27625,
+    1164.2740983575995,
+    473.01
+   ],
+   "deltoids": [
+    914.0960937499998,
+    310.6137109374999,
+    1252.76,
+    397.6975298018382
+   ],
+   "upperBack": [
+    955.9524999999999,
+    359.72,
+    1210.8799999999999,
+    585.2453394830441
+   ],
+   "triceps": [
+    898.7700000000001,
+    381.71984375,
+    1268.42,
+    534.6845337417791
+   ],
+   "lowerBack": [
+    983.75375,
+    486.99750000000006,
+    1183.12046875,
+    638.9721875
+   ],
+   "forearm": [
+    838.7856736511934,
+    518.3247374387759,
+    1328.365842324502,
+    688.1704130186987
+   ],
+   "gluteal": [
+    976.47,
+    618.8974218750002,
+    1190.5418750000003,
+    777.77734375
+   ],
+   "adductors": [
+    1039.469375,
+    783.8937500000002,
+    1127.8484629827274,
+    863.1223912622497
+   ],
+   "hamstring": [
+    962.1375000000002,
+    740.9076996425932,
+    1204.76671875,
+    1006.4175
+   ],
+   "calves": [
+    970.3006250000001,
+    971.5725,
+    1197.0736328125004,
+    1289.8339062500002
+   ],
+   "ankles": [
+    987.1609375,
+    1264.1817737275169,
+    1179.84322265625,
+    1320.5323437499999
+   ],
+   "feet": [
+    962.5475,
+    1323.6650000000002,
+    1205.7175,
+    1341.5552148437498
+   ],
+   "hands": [
+    772.710625,
+    692.85552734375,
+    1394.3193749999998,
+    814.53060546875
+   ],
+   "head": [
+    1021.7186074218749,
+    166.45,
+    1146.109375,
+    238.8225
+   ],
+   "hair": [
+    1025.65046875,
+    96.53000000000003,
+    1141.2175000000002,
+    208.99
+   ],
+   "rotatorCuff": [
+    961.7799999999999,
+    322.69250000000005,
+    1205.3912060746602,
+    397.6739843749999
+   ],
+   "rhomboids": [
+    1018.0,
+    326.3,
+    1149.0,
+    408.6
+   ],
+   "upperTrapezius": [
+    1002.8,
+    297.3,
+    1164.3,
+    337.7
+   ],
+   "lowerTrapezius": [
+    1041.6,
+    399.3,
+    1125.4,
+    473.0
+   ],
+   "rearDeltoid": [
+    914.0960937499998,
+    310.6137109374999,
+    1252.76,
+    397.6975298018382
+   ]
+  }
+ }
+}

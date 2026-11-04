@@ -170,9 +170,10 @@ for view in ("front", "back"):
     np.save(os.path.join(HERE, f"labels_{view}{SUF}.npy"), a)
     vis = Image.fromarray(((a * 37) % 200 + 40).astype(np.uint8) * (a > 0)).convert("L")
     vis.save(os.path.join(HERE, f"labels_{view}{SUF}.png"))
-json.dump({"S": S, "vb": VB, "table": table, "boxes": marks}, open(os.path.join(HERE, f"labels{SUF}.json"), "w"))
+json.dump({"S": S, "vb": VB, "table": table, "boxes": marks}, open(os.path.join(HERE, f"labels{SUF}.json"), "w", encoding="utf-8"),
+          ensure_ascii=False, indent=1)
 if SUF:   # keep the shared table in labels.json current; its male boxes and viewBoxes stay as they are
-    L = json.load(open(LJ)); L["table"] = table; json.dump(L, open(LJ, "w"))
+    L = json.load(open(LJ)); L["table"] = table; json.dump(L, open(LJ, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("labels", len(table))
 for view in ("front", "back"):
     b = marks[view]
