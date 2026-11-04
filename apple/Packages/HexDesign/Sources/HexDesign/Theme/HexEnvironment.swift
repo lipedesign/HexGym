@@ -66,13 +66,20 @@ enum HexStrings {
 
   // O texto como formato, com os números escritos no jeito do idioma. Com um .stringsdict na tabela,
   // o texto que volta já traz as regras de plural, e o String(format:) escolhe a forma pelo número.
+  // Quando a tabela é a do en.lproj, o plural segue as regras do inglês: o formato usa o inglês na
+  // região do usuário, e não o idioma dele (no japonês, o 1 cairia na forma other).
   static func format(_ key: String, table: String, locale: Locale, _ arguments: CVarArg...) -> String {
-    String(format: text(key, table: table, locale: locale), locale: locale, arguments: arguments)
+    let rules = isPortuguese(locale) ? locale : Locale(languageCode: .english, languageRegion: locale.region)
+    return String(format: text(key, table: table, locale: locale), locale: rules, arguments: arguments)
+  }
+
+  private static func isPortuguese(_ locale: Locale) -> Bool {
+    locale.language.languageCode == .portuguese
   }
 
   // A pasta .lproj do idioma, como um bundle, aberta uma vez só. Sem ela, o bundle do pacote.
   private static func bundle(for locale: Locale) -> Bundle {
-    locale.language.languageCode == .portuguese ? portuguese : english
+    isPortuguese(locale) ? portuguese : english
   }
 
   private static let portuguese = localization("pt-BR")
