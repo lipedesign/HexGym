@@ -5,7 +5,7 @@
 
 Com HEXGYM_CHECK_COUNT_FILE no ambiente, grava nele quantos testes passaram, no formato do fim
 do tap (# pass <n>), que o scripts/hexgym/check.mjs lê: os que passaram, sem os pulados. Sai com
-1 se algum teste falhou ou deu erro. Só biblioteca padrão.
+1 se algum teste falhou ou deu erro, ou se nenhum teste rodou. Só biblioteca padrão.
 """
 import os
 import sys
@@ -24,6 +24,9 @@ def main():
     count = os.environ.get(COUNT_FILE)
     if count:
         Path(count).write_text(f'# tests {result.testsRun}\n# pass {passed}\n# fail {failed}\n', encoding='utf-8')
+    if result.testsRun == 0:   # como uma parte vazia do check.mjs (issue #44): sem teste, não passa
+        print('nenhum teste rodou', file=sys.stderr)
+        return 1
     return 0 if result.wasSuccessful() and failed == 0 else 1
 
 

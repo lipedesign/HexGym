@@ -123,9 +123,9 @@ def flatten(d, seg=8):
     if cur: polys.append(cur)
     return polys
 
-data = json.load(open(os.path.join(HERE, FIG + ".json")))
+data = json.load(open(os.path.join(HERE, FIG + ".json"), encoding="utf-8"))
 LJ = os.path.join(HERE, "labels.json")
-table = json.load(open(LJ))["table"] if os.path.exists(LJ) else [{"id": 0, "kind": "outside"}, {"id": 1, "kind": "gap"}]
+table = json.load(open(LJ, encoding="utf-8"))["table"] if os.path.exists(LJ) else [{"id": 0, "kind": "outside"}, {"id": 1, "kind": "gap"}]
 KEY = {(t["view"], t["slug"], t["side"], t["piece"]): t["id"] for t in table if t.get("kind") in ("muscle", "inert") and not t.get("v2")}
 maps, marks = {}, {}
 for view in ("front", "back"):
@@ -173,7 +173,7 @@ for view in ("front", "back"):
 json.dump({"S": S, "vb": VB, "table": table, "boxes": marks}, open(os.path.join(HERE, f"labels{SUF}.json"), "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
 if SUF:   # keep the shared table in labels.json current; its male boxes and viewBoxes stay as they are
-    L = json.load(open(LJ)); L["table"] = table; json.dump(L, open(LJ, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    L = json.load(open(LJ, encoding="utf-8")); L["table"] = table; json.dump(L, open(LJ, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("labels", len(table))
 for view in ("front", "back"):
     b = marks[view]

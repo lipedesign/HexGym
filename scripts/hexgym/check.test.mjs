@@ -9,9 +9,10 @@
 // Os quatro testes da issue #44 (uma parte que não roda nenhum teste falha) vêm depois deles: a
 // regra sem processo; os dois que rodam uma cópia do check.mjs numa pasta temporária, com ou sem
 // o NODE_TEST_CONTEXT no ambiente; e o do aviso do isMain(), com uma pasta temporária vazia. Cada
-// um apaga a sua pasta no fim. O da issue #12 (a conta e a falha das rodadas do gerador de regiões)
-// vem logo depois dos dois que rodam a cópia, com scripts Python de mentira na pasta dela; ele roda o
-// python3 da máquina, mas nunca o gerador de verdade.
+// um apaga a sua pasta no fim. Os dois da issue #12 vêm logo depois dos dois que rodam a cópia: a
+// conta e a falha das rodadas do gerador de regiões, com scripts Python de mentira na pasta dela, e o
+// run_tests.py de verdade sozinho numa pasta sem testes. Eles rodam o python3 da máquina, mas nunca
+// o gerador.
 // Os três da issue #18 (a conta do Vitest e a do engine-load.mjs) vêm depois, também com pastas
 // temporárias, e nenhum roda o Vitest de verdade nem o jsc.
 // Os cinco da issue #19 (a parte packages, a conta do swift test e a parte sem o swift) vêm no fim,
@@ -157,6 +158,20 @@ test('the scripts part counts what the regions tests write in HEXGYM_CHECK_COUNT
   const stale = runScripts(copiedCheck(t, {}, { 'build_exercise_regions.py': 'raise SystemExit(1)\n', 'run_tests.py': PY_COUNTED }), WITHOUT_CONTEXT)
   assert.equal(stale.status, 1, stale.stdout)
   assert.match(stale.stdout, /\n▶ regiões em dia\ntestes contados: scripts 0\nfalhou: regiões em dia\n$/)
+})
+
+// O run_tests.py de verdade, copiado sozinho para uma pasta temporária, que sai no fim do teste: ele
+// procura os testes na própria pasta, não acha nenhum, grava # pass 0 e sai com 1, como uma parte
+// vazia do check.mjs.
+test('the regions run_tests.py fails and counts zero when it finds no test', t => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  fs.copyFileSync(path.join(REPO, 'scripts', 'hexbody', 'regions', 'run_tests.py'), path.join(tmp, 'run_tests.py'))
+  const count = path.join(tmp, 'count')
+  const r = spawnSync('python3', ['-I', path.join(tmp, 'run_tests.py')], { encoding: 'utf8', env: { ...WITHOUT_CONTEXT, HEXGYM_CHECK_COUNT_FILE: count } })
+  assert.equal(r.status, 1, r.stderr)
+  assert.match(r.stderr, /nenhum teste rodou/)
+  assert.match(fs.readFileSync(count, 'utf8'), /^# pass 0$/m)
 })
 
 // O isMain() que não lê o argv[1] não sai calado. Com o -e, o argv[1] é o primeiro argumento
