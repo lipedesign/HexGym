@@ -68,3 +68,11 @@ import Testing
   #expect(WorkoutFormat.spokenLoad(1, unit: .kg, locale: br) == "1 quilograma")
   #expect(WorkoutFormat.spokenLoad(0, unit: .kg, locale: en) == "0 kilograms")
 }
+// Achado no QA da PR #78: o que o formato de duas casas arredonda para 0 também é o 0 no plural. A
+// tela mostra 0 (ou -0), e o VoiceOver dizia "0 quilograma".
+@Test func loadsThatRoundToZeroArePluralInPortuguese() {
+  #expect(WorkoutFormat.spokenLoad(0.001, unit: .kg, locale: br) == "0 quilogramas")
+  #expect(WorkoutFormat.spokenLoad(0.004, unit: .lb, locale: br) == "0 libras")
+  #expect(WorkoutFormat.spokenLoad(-0.001, unit: .kg, locale: br) == "0 quilogramas")
+  #expect(WorkoutFormat.spokenLoad(0.001, unit: .kg, locale: en) == "0 kilograms")
+}

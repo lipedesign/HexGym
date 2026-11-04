@@ -1,7 +1,9 @@
 // A transição de "Começar treino" (seção 6 do design doc e a decisão 2 de 03/11/2026): o zoom da Apple,
 // que sai do botão e vira a tela do treino. Com Reduzir Movimento não há zoom, e quem abre a tela o faz
 // dentro de withTransaction(StartWorkoutTransition.transaction(reduceMotion:)): a transação desliga as
-// animações, e a tela aparece sem se mover (Foco da revisão, item 4). O zoom não existe no macOS, que
+// animações, e a tela aparece sem se mover (Foco da revisão, item 4). A tela entra pelo caminho do
+// NavigationStack(path:): no simulador do iOS 27, com navigationDestination(isPresented:), a transação
+// não chega ao empurrão da pilha e a tela desliza da direita (Task 10). O zoom não existe no macOS, que
 // está no pacote só para os testes. A tela do treino de verdade é da fase 3; aqui a transição aparece
 // na galeria (Task 10).
 //

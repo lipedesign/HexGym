@@ -45,7 +45,8 @@ Esta é a regra de uso da #71, com ou sem alto contraste:
 
 - O texto na cor do tema (`accent`) fica **só sobre o fundo da tela e sobre o cartão do sistema**: #1C1C1E, ou #242426 com Aumentar Contraste.
 - Os cartões dentro de uma tela que sobe de baixo (o cinza elevado do sistema) levam **texto branco ou nos cinzas do sistema**, nunca na cor do tema.
-- O mesmo vale para o cartão de vidro: o texto sobre ele vai em branco ou nos cinzas do sistema (veja [componentes.md](componentes.md#o-cartão-de-vidro)).
+- No cartão de vidro, o texto vai só em branco: no simulador, o cinza secundário do sistema ficou em 3,1 a 3,2:1 sobre o vidro, e o branco fica em pelo menos 8,54:1 nos quatro temas, no pior pixel do vidro (o Giz & Ferro, sob o brilho; veja [componentes.md](componentes.md#o-cartão-de-vidro)).
+- Os botões de barra (o "OK" de uma tela que sobe, por exemplo), os alertas e os menus ficam em branco: o app põe o tint branco na raiz, e o accent só onde é pedido (as chaves, os componentes do HexDesign). O "OK" no accent, sobre o vidro da barra (#3A3A3C), mediu 3,45:1 no Ultravioleta; em branco, mede pelo menos 11,16:1, e 16,28:1 com Aumentar Contraste, nos quatro temas.
 
 Os testes medem o `accent` só nesses fundos. Fora deles, o contraste não é garantido: no cinza elevado #2C2C2E, por exemplo, o #8B7BFF fica abaixo de 4,5.
 
@@ -116,6 +117,9 @@ O teste `increasedContrastTextClearsTheSystemCard` fixa o #242426 e os dois tons
 - **A troca ao vivo:** o `ThemeModel` grava o tema quando ele muda, e o `.hexTheme(model)` na raiz leva o tema para o ambiente.
 - **A prévia de alto contraste:** o `contrastPreview` do `ThemeModel` troca as cores como o Aumentar Contraste, para a galeria. Ela fica só na memória e não é gravada.
 - **A paleta do ambiente:** `@Environment(\.hexPalette)` dá o tema no esquema do aparelho, com as cores de alto contraste quando o Aumentar Contraste ou a prévia estão ligados, e com o `accent` do Watch no watchOS.
+- **No simulador:** a galeria do iPhone troca o tema numa lista de quatro linhas, cada uma com a bolinha na cor do tema e o nome; o tema escolhido vai para o App Group, e o widget do iPhone lê da mesma chave. A lista no lugar de um seletor segmentado é uma escolha recomendada, com a delegação do Lipe de 03/11/2026: no segmentado, "Cobre Forjado" era cortado já no tamanho de texto padrão.
+
+![O tema na galeria do iPhone, com a prévia de alto contraste](imagens/simulador-tema.png)
 
 Os nomes dos temas (`displayName(locale:)`):
 

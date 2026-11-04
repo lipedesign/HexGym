@@ -34,3 +34,15 @@ test('the app icon and the device families are set', () => {
 test('every target has the app group', () => {
   for (const f of entitlements) assert.match(f, /<string>group\.app\.hexgym<\/string>/)
 })
+// Task 10 do plano da fase 1 (issue #64): o HexDesign entra como o HexEngine e o HexStore, um pacote
+// local, e o produto vai para os quatro alvos do app, porque o logotipo está nos quatro.
+test('the HexDesign package is linked to the four app targets', () => {
+  assert.match(pbx, /relativePath = Packages\/HexDesign;/)
+  const products = [...pbx.matchAll(/\/\* HexDesign \*\/ = \{\s*isa = XCSwiftPackageProductDependency;\s*productName = HexDesign;/g)]
+  assert.equal(products.length, 4)
+  for (const target of ['HexGym', 'HexGymWidgets', 'HexGymWatch', 'HexGymWatchWidgets']) {
+    const block = pbx.match(new RegExp(`/\\* ${target} \\*/ = \\{\\s*isa = PBXNativeTarget;[\\s\\S]*?packageProductDependencies = \\(([^)]*)\\);`))
+    assert.ok(block, `o alvo ${target} existe`)
+    assert.equal([...block[1].matchAll(/\/\* HexDesign \*\//g)].length, 1, `o HexDesign no alvo ${target}`)
+  }
+})
