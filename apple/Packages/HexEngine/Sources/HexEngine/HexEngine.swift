@@ -22,8 +22,10 @@ public struct EngineInfo: Equatable, Sendable {
   public let language: String
 }
 
+// O languagePack diz o que há de errado com os pacotes de idioma (Language.swift): o index.json que
+// falta ou não lê, um pacote que falta ou não descomprime, ou um que não bate com o sha256 do índice.
 public enum EngineError: Error, Equatable, Sendable {
-  case scriptMissing, notLoaded, javaScript(String)
+  case scriptMissing, notLoaded, javaScript(String), languagePack(String)
 }
 
 public actor HexEngine {
@@ -138,8 +140,9 @@ public actor HexEngine {
     return (context, engine)
   }
 
-  // Chama um método do global HexEngine e devolve o texto JSON que ele devolveu.
-  private func run(_ method: String, _ arguments: [Any]) throws -> Data {
+  // Chama um método do global HexEngine e devolve o texto JSON que ele devolveu. Interno, para a
+  // biblioteca (Library.swift) chamar também.
+  func run(_ method: String, _ arguments: [Any]) throws -> Data {
     let (context, engine) = try opened()
     return Data(try Self.text(engine.invokeMethod(method, withArguments: arguments), from: method, in: context).utf8)
   }

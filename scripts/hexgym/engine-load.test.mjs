@@ -13,9 +13,12 @@ test('padHistory reaches the total with a new id for each copy', () => {
   assert.equal(S.workouts.length, 1040); assert.equal(new Set(S.workouts.map(w => w.id)).size, 1040)
 })
 test('overBudget names each limit that was passed', () => {
-  assert.deepEqual(overBudget({ evaluate: 100, language: 40, restore: 150, tick: 10, structuredClone: true }), [])
-  assert.deepEqual(overBudget({ evaluate: 200, language: 40, restore: 150, tick: 31, structuredClone: false }),
-    ['evaluate + idioma + restore: 390 ms (meta 300)', 'tick: 31 ms (meta 30)', 'structuredClone diferente no JavaScriptCore'])
-  assert.deepEqual(overBudget({ evaluate: 200, language: 40, restore: 150, tick: 31, structuredClone: true }, 2), [])
-  assert.deepEqual(overBudget({ evaluate: 100, restore: 150, tick: 10, structuredClone: true }), ['evaluate + idioma + restore: NaN ms (meta 300)'])
+  const library = { catalogue: 200, search: 50 }
+  assert.deepEqual(overBudget({ evaluate: 100, language: 40, restore: 150, tick: 10, ...library, structuredClone: true }), [])
+  assert.deepEqual(overBudget({ evaluate: 200, language: 40, restore: 150, tick: 31, catalogue: 401, search: 101, structuredClone: false }),
+    ['evaluate + idioma + restore: 390 ms (meta 300)', 'tick: 31 ms (meta 30)', 'catálogo: 401 ms (meta 400)', 'busca: 101 ms (meta 100)',
+      'structuredClone diferente no JavaScriptCore'])
+  assert.deepEqual(overBudget({ evaluate: 200, language: 40, restore: 150, tick: 31, catalogue: 401, search: 101, structuredClone: true }, 2), [])
+  assert.deepEqual(overBudget({ evaluate: 100, restore: 150, tick: 10, catalogue: 200, structuredClone: true }),
+    ['evaluate + idioma + restore: NaN ms (meta 300)', 'busca: NaN ms (meta 100)'])
 })

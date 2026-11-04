@@ -16,6 +16,10 @@
 //   evaluate         avaliar o script, pelo load() do jsc;
 //   idioma           ler os dois pacotes e o HexEngine.setLanguage deles;
 //   restore          o HexEngine.restore do documento;
+//   catalogue        o HexEngine.catalogue(), a lista inteira da biblioteca, no texto JSON que o Swift
+//                    decodifica, com o índice da busca que ele monta (library.js);
+//   search           o HexEngine.search de "supino", a primeira busca do contexto, logo depois do
+//                    catálogo, como a primeira letra que a pessoa digita na lista aberta;
 //   tick             a mediana de 20 séries marcadas, cada uma como o update() do app web faz;
 //   fatigue          o fatigueOf do histórico, só para registro;
 //   structuredClone  se a cópia de um objeto com Date, Map, Set e referência circular é igual ao
@@ -23,8 +27,10 @@
 // A tabela usa a mediana das cinco rodadas em cada tempo, e o structuredClone precisa dar certo nas
 // cinco. As metas são do tech lead, a partir da seção 8.13 (o app abre em menos de 1 s e a série
 // aparece em menos de 100 ms), com folga de três vezes para um iPhone mais lento que este Mac:
-// evaluate + idioma + restore até 300 ms e tick até 30 ms. Fora delas, o script sai com 1. A
-// descompressão dos pacotes, que no app é do Swift, fica fora da medida do jsc.
+// evaluate + idioma + restore até 300 ms e tick até 30 ms. As da biblioteca (Task 4 do plano da fase
+// 2, escolha recomendada, com a delegação do Lipe de 03/11/2026, tiradas do toque de 100 ms): o
+// catálogo até 400 ms e a busca até 100 ms. Fora delas, o script sai com 1. A descompressão dos
+// pacotes, que no app é do Swift, fica fora da medida do jsc.
 //
 // Chamado pelo scripts/hexgym/check.mjs, na parte load, ele grava no arquivo que o check.mjs passa
 // em HEXGYM_CHECK_COUNT_FILE quantas metas conferiu e quantas passaram, para a parte contar os
@@ -56,7 +62,11 @@ const LANG = 'pt-BR'
 // As metas, em ms, e o que o teste confere, na ordem da tabela.
 const OPEN_MS = 300
 const TICK_MS = 30
-const METAS = ['evaluate + idioma + restore', 'tick', 'structuredClone']
+const CATALOGUE_MS = 400
+const SEARCH_MS = 100
+// A busca da medida: o nome do supino em pt-BR, que o founder procura.
+const QUERY = 'supino'
+const METAS = ['evaluate + idioma + restore', 'tick', 'catálogo', 'busca', 'structuredClone']
 // A variável em que o check.mjs passa o arquivo da conta (o COUNT_FILE de lá).
 const COUNT_FILE = 'HEXGYM_CHECK_COUNT_FILE'
 
@@ -120,6 +130,8 @@ export function overBudget(results, slack = 1) {
   const open = results.evaluate + results.language + results.restore
   if (!(open <= OPEN_MS * slack)) over.push(`evaluate + idioma + restore: ${round(open)} ms (meta ${round(OPEN_MS * slack)})`)
   if (!(results.tick <= TICK_MS * slack)) over.push(`tick: ${round(results.tick)} ms (meta ${round(TICK_MS * slack)})`)
+  if (!(results.catalogue <= CATALOGUE_MS * slack)) over.push(`catálogo: ${round(results.catalogue)} ms (meta ${round(CATALOGUE_MS * slack)})`)
+  if (!(results.search <= SEARCH_MS * slack)) over.push(`busca: ${round(results.search)} ms (meta ${round(SEARCH_MS * slack)})`)
   if (results.structuredClone !== true) over.push('structuredClone diferente no JavaScriptCore')
   return over
 }
@@ -132,9 +144,9 @@ const median = xs => {
 
 // O que cada rodada do jsc roda. Esta função não roda no Node: o texto dela vai para o jsc, que a
 // chama com os caminhos do script e do documento, o número de séries, os caminhos dos dois pacotes de
-// idioma (o do idioma vazio para o inglês) e o idioma. Por isso ela só usa o que tem dentro dela e o
+// idioma (o do idioma vazio para o inglês), o idioma e o texto da busca. Por isso ela só usa o que tem dentro dela e o
 // que o jsc oferece (load, readFile, preciseTime, print e printErr).
-function measure(enginePath, docPath, ticks, enPath, langPath, tag) {
+function measure(enginePath, docPath, ticks, enPath, langPath, tag, query) {
   // O jsc não tem console; o app terá o do Swift (Task 7). Aqui ele vai para o stderr, e a saída
   // fica só com o JSON do fim.
   const say = (...a) => printErr(a.map(String).join(' '))
@@ -160,6 +172,15 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag) {
   t = preciseTime()
   HexEngine.restore(json)
   const restore = ms(t, preciseTime())
+
+  // A biblioteca, antes do treino, no documento aberto: o catálogo e a primeira busca.
+  t = preciseTime()
+  const listed = JSON.parse(HexEngine.catalogue()).length
+  const catalogue = ms(t, preciseTime())
+  t = preciseTime()
+  const found = JSON.parse(HexEngine.search(JSON.stringify({ query }))).ids.length
+  const search = ms(t, preciseTime())
+  if (!found) throw new Error(`a busca de ${query} não achou nada`)
 
   const M = HexEngine.__modules
   const { draftOf, clone } = M['frontend/src/lib/state-core.js']
@@ -240,15 +261,15 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag) {
   }
 
   print(JSON.stringify({
-    evaluate, language, restore, tick: median(times), fatigue, structuredClone: same(original, copy),
-    workouts: S.workouts.length, ticks: times.length,
+    evaluate, language, restore, tick: median(times), fatigue, catalogue, search, structuredClone: same(original, copy),
+    workouts: S.workouts.length, ticks: times.length, listed, found,
   }))
 }
 
 // Uma rodada: um processo novo do jsc, sem JIT. Devolve o que ela mediu; um jsc que falha, ou uma
 // medição que não veio inteira, lança o erro.
 function runJsc(jsc, files) {
-  const r = spawnSync(jsc, ['--useJIT=false', files.measure, '--', files.engine, files.doc, String(TICKS), files.en, files.lang, files.tag], {
+  const r = spawnSync(jsc, ['--useJIT=false', files.measure, '--', files.engine, files.doc, String(TICKS), files.en, files.lang, files.tag, QUERY], {
     encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 120000,
   })
   if (r.error) throw new Error(`não deu para rodar o jsc: ${r.error.message}`)
@@ -262,7 +283,7 @@ function runJsc(jsc, files) {
   } catch {
     throw new Error(`o jsc não deu o JSON da medição:\n${said}`)
   }
-  for (const k of ['evaluate', 'language', 'restore', 'tick', 'fatigue']) {
+  for (const k of ['evaluate', 'language', 'restore', 'tick', 'fatigue', 'catalogue', 'search']) {
     if (!Number.isFinite(out[k])) throw new Error(`a medição do jsc veio sem ${k}: ${line}`)
   }
   if (typeof out.structuredClone !== 'boolean' || out.ticks !== TICKS) throw new Error(`a medição do jsc veio incompleta: ${line}`)
@@ -281,6 +302,8 @@ function table(results, runs, { total, slack, tag }) {
     ['evaluate + idioma + restore', ms(results.evaluate + results.language + results.restore), '', meta(OPEN_MS)],
     [`tick (mediana de ${TICKS} séries marcadas)`, ms(results.tick), each('tick'), meta(TICK_MS)],
     ['fatigue (só para registro)', ms(results.fatigue), each('fatigue'), ''],
+    [`catálogo (${results.listed} exercícios)`, ms(results.catalogue), each('catalogue'), meta(CATALOGUE_MS)],
+    [`busca ("${QUERY}", a primeira do contexto)`, ms(results.search), each('search'), meta(SEARCH_MS)],
     ['structuredClone', results.structuredClone ? 'igual nas 5' : 'diferente', runs.map(r => (r.structuredClone ? 'igual' : 'diferente')).join(', '), 'igual'],
   ]
   return [
@@ -352,7 +375,7 @@ export async function main(argv = [], { jsc = JSC, env = process.env } = {}) {
     fs.writeFileSync(files.en, unpacked('en'))
     if (files.lang) fs.writeFileSync(files.lang, unpacked(tag))
     fs.writeFileSync(files.doc, JSON.stringify(padHistory(buildDemoState(), total)))
-    fs.writeFileSync(files.measure, `${measure.toString()}\nmeasure(arguments[0], arguments[1], Number(arguments[2]), arguments[3], arguments[4], arguments[5])\n`)
+    fs.writeFileSync(files.measure, `${measure.toString()}\nmeasure(arguments[0], arguments[1], Number(arguments[2]), arguments[3], arguments[4], arguments[5], arguments[6])\n`)
     const runs = []
     for (let i = 0; i < RUNS; i++) runs.push(runJsc(jsc, files))
     const bad = runs.find(r => r.workouts !== total)
@@ -363,6 +386,9 @@ export async function main(argv = [], { jsc = JSC, env = process.env } = {}) {
       restore: median(runs.map(r => r.restore)),
       tick: median(runs.map(r => r.tick)),
       fatigue: median(runs.map(r => r.fatigue)),
+      catalogue: median(runs.map(r => r.catalogue)),
+      search: median(runs.map(r => r.search)),
+      listed: runs[0].listed,
       structuredClone: runs.every(r => r.structuredClone),
     }
     const over = overBudget(results, slack)

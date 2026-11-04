@@ -4,7 +4,9 @@
 // Resources/langs, um por idioma, comprimidos em DEFLATE cru como o script do motor, com o
 // index.json, que diz para cada idioma do LANGS do openGym o arquivo e o sha256 do texto. Um idioma
 // derivado (de-CH) aponta para o arquivo da base (de), e o setLanguage do motor faz a derivação.
+// Cada pacote carregado é conferido contra o sha256 do index.json.
 
+import CryptoKit
 import Foundation
 
 public enum EngineLanguage {
@@ -39,27 +41,49 @@ public enum EngineLanguage {
     return "en"
   }
 
-  // O index.json lido uma vez: idioma → arquivo do pacote. Sem ele, nenhum idioma serve, e o load()
-  // lança .scriptMissing ao pedir o en.
-  private static let index: [String: String] = {
-    guard let url = Bundle.module.url(forResource: "index", withExtension: "json", subdirectory: "langs"),
-          let data = try? Data(contentsOf: url),
-          let json = try? JSONSerialization.jsonObject(with: data) as? [String: [String: String]]
-    else { return [:] }
-    return json.compactMapValues { $0["file"] }
-  }()
+  // Uma linha do index.json: o arquivo do pacote e o sha256 do texto descomprimido.
+  struct PackEntry: Decodable, Equatable {
+    let file: String
+    let sha256: String
+  }
 
-  static var available: Set<String> { Set(index.keys) }
+  // A pasta langs do Bundle.module do HexEngine (o alvo de teste tem o próprio Bundle.module).
+  static let directory = Bundle.module.url(forResource: "langs", withExtension: nil)
 
-  // O texto do pacote de um idioma do índice, descomprimido. O pacote é parte do HexEngine como o
-  // script do motor: quando falta ou não descomprime, o pacote Swift está quebrado, e o erro é
-  // .scriptMissing.
+  // O index.json lido uma vez. Quando ele falta ou não lê, o erro fica guardado, e o load() lança
+  // ele ao pedir o primeiro pacote, em vez de seguir com um índice vazio.
+  private static let index = Result { try readIndex(in: directory) }
+
+  static var available: Set<String> { Set(((try? index.get()) ?? [:]).keys) }
+
+  // O index.json de uma pasta de pacotes, ou o erro que diz por que ele não serve.
+  static func readIndex(in directory: URL?) throws -> [String: PackEntry] {
+    guard let directory else { throw EngineError.languagePack("HexEngine: a pasta langs dos pacotes de idioma falta no pacote") }
+    let url = directory.appending(path: "index.json")
+    guard let data = try? Data(contentsOf: url)
+    else { throw EngineError.languagePack("HexEngine: o index.json dos pacotes de idioma falta (\(url.path))") }
+    do {
+      return try JSONDecoder().decode([String: PackEntry].self, from: data)
+    } catch {
+      throw EngineError.languagePack("HexEngine: o index.json dos pacotes de idioma não lê (\(url.path)): \(error)")
+    }
+  }
+
+  // O texto do pacote de um idioma do índice, descomprimido e conferido contra o sha256 do índice,
+  // como o hexengine.js.sha256 confere o script do motor.
   static func packText(_ tag: String) throws -> String {
-    guard let file = index[tag],
-          let url = Bundle.module.url(forResource: file, withExtension: nil, subdirectory: "langs"),
-          let packed = try? Data(contentsOf: url),
-          let text = try? (packed as NSData).decompressed(using: .zlib) as Data
-    else { throw EngineError.scriptMissing }
+    try packText(tag, index: index.get(), in: directory)
+  }
+
+  static func packText(_ tag: String, index: [String: PackEntry], in directory: URL?) throws -> String {
+    guard let entry = index[tag] else { throw EngineError.languagePack("HexEngine: o index.json não tem o idioma \(tag)") }
+    guard let url = directory?.appending(path: entry.file), let packed = try? Data(contentsOf: url)
+    else { throw EngineError.languagePack("HexEngine: o pacote \(entry.file) do idioma \(tag) falta") }
+    guard let text = try? (packed as NSData).decompressed(using: .zlib) as Data
+    else { throw EngineError.languagePack("HexEngine: o pacote \(entry.file) do idioma \(tag) não descomprime") }
+    let sum = SHA256.hash(data: text).map { String(format: "%02x", $0) }.joined()
+    guard sum == entry.sha256
+    else { throw EngineError.languagePack("HexEngine: o pacote \(entry.file) do idioma \(tag) não bate com o sha256 do index.json") }
     return String(decoding: text, as: UTF8.self)
   }
 }
