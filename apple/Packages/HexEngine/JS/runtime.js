@@ -8,6 +8,10 @@ import { freshState, stateFromSaved } from '../../../../frontend/src/lib/state-c
 import { stateJson } from '../../../../frontend/src/lib/state-json.js'
 import { decodeValue, encodeValue } from './values.js'
 
+// O idioma das telas, dos nomes e dos passos (language.js), que o load() do Swift chama com os
+// pacotes de Resources/langs. Não muda o documento.
+export { setLanguage } from './language.js'
+
 // A língua do aparelho, que o Swift diz. Até lá, nenhuma: o documento novo sai em inglês, como no
 // JavaScriptCore, que não tem navigator, e não na língua do Node que roda os testes.
 let deviceTag = ''
