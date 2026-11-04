@@ -1,0 +1,5 @@
+/* O progresso: o rótulo dos segmentos, o carimbo de recorde, o anúncio dele no VoiceOver e o rótulo do anel de descanso. */
+"sets" = "Séries";
+"record" = "Recorde";
+"record.new" = "Novo recorde";
+"rest" = "Descanso";
