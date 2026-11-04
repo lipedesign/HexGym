@@ -31,6 +31,8 @@ import Testing
   #expect(GlowSpec.resolve(palette: light, contrast: .standard, reduceTransparency: false, reduceMotion: false) == nil)
   let cyan = HexPalette.resolve(.cyan, scheme: .dark, contrast: .standard)
   #expect(GlowSpec.resolve(palette: cyan, contrast: .standard, reduceTransparency: false, reduceMotion: false, surface: .watch)?.breathes == false)
+  // O Watch dos hápticos é o Watch do brilho e das cores (QA da PR #74): os dois saem do HexPlatform.
+  #expect(HexPlatform.watch.surface == .watch); #expect(HexPlatform.phone.surface == .app)
 }
 @MainActor @Test(.enabled(if: printsEnabled)) func printTheProgressPieces() throws { // segmentos, carimbo, anel e brilho
   try writePrint(SegmentSheet(stills: try SegmentCell.all.map { try still($0.view) }), named: "segmentos")

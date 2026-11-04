@@ -43,16 +43,12 @@ public struct BreathingGlow: View {
   public init() {}
 
   // O brilho deste aparelho, com o alto contraste do sistema ou da prévia, como na paleta do ambiente.
+  // A superfície vem do HexPlatform.current, a mesma dos hápticos: no Watch, o brilho fica parado.
   private var spec: GlowSpec? {
-    #if os(watchOS)
-    let surface = HexSurface.watch
-    #else
-    let surface = HexSurface.app
-    #endif
     let increased = contrast == .increased || contrastPreview
     return GlowSpec.resolve(
       palette: palette, contrast: increased ? .increased : .standard, reduceTransparency: reduceTransparency,
-      reduceMotion: reduceMotion, surface: surface)
+      reduceMotion: reduceMotion, surface: HexPlatform.current.surface)
   }
 
   public var body: some View {

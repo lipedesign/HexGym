@@ -32,12 +32,9 @@ extension EnvironmentValues {
   // Aumentar Contraste está ligado ou a prévia está ligada, e o accent do Watch no watchOS.
   public var hexPalette: HexPalette {
     let increased = colorSchemeContrast == .increased || hexContrastPreview
-    #if os(watchOS)
-    let surface = HexSurface.watch
-    #else
-    let surface = HexSurface.app
-    #endif
-    return HexPalette.resolve(hexTheme, scheme: colorScheme, contrast: increased ? .increased : .standard, surface: surface)
+    // A superfície vem do HexPlatform.current, a mesma dos hápticos.
+    return HexPalette.resolve(
+      hexTheme, scheme: colorScheme, contrast: increased ? .increased : .standard, surface: HexPlatform.current.surface)
   }
 }
 
