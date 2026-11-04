@@ -207,7 +207,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
   let text = increased ? 7.0 : 4.5, contrast: ColorSchemeContrast = increased ? .increased : .standard
   let dark = HexPalette.resolve(theme, scheme: .dark, contrast: contrast)
   let light = HexPalette.resolve(theme, scheme: .light, contrast: contrast)
-  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, o cartão fica #242426.
+  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, também o #242426.
   let backgrounds: [HexRGB] = increased ? [.black, .card, .cardIncreased] : [.black, .card]
   for background in backgrounds {
     #expect(dark.accent.contrast(with: background) >= text); #expect(dark.fill.contrast(with: background) >= 3)
@@ -609,7 +609,7 @@ enum HexStrings {                                    // interno: os textos do pa
 
 - [ ] **Step 1: Write the failing tests**
 
-Cada teste usa um `UserDefaults(suiteName: "hexdesign-<UUID>")` só dele, apagado no fim com `removePersistentDomain(forName:)`; `fresh()` cria um. `br` e `en` ficam em `Support/Locales.swift`, para as Tasks 5 e 6 usarem também: `let br = Locale(identifier: "pt-BR")` e `let en = Locale(identifier: "en_US")`:
+Cada teste usa um `UserDefaults(suiteName:)` só dele, apagado no fim com `removePersistentDomain(forName:)`; `fresh()` cria um. O nome da suíte é um caminho absoluto, `hexdesign-<UUID>` dentro do `FileManager.default.temporaryDirectory`, porque o cfprefsd grava um plist vazio do domínio depois do fim do processo, e assim ele fica no temporário, que o sistema limpa, e não em `~/Library/Preferences`. `br` e `en` ficam em `Support/Locales.swift`, para as Tasks 5 e 6 usarem também: `let br = Locale(identifier: "pt-BR")` e `let en = Locale(identifier: "en_US")`:
 
 ```swift
 @Test func aFreshDeviceStartsOnUltraviolet() { #expect(ThemeStore(defaults: fresh()).load() == .ultraviolet) }

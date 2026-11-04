@@ -176,8 +176,6 @@ private func sample(_ style: HexTextStyle) -> String {
   }
 }
 
-private let br = Locale(identifier: "pt_BR")
-
 // A linha da tabela da escala, escrita a partir do próprio estilo.
 private func details(_ style: HexTextStyle) -> String {
   var parts = ["\(Int(style.baseSize)) pt", "peso \(style.weight.rawValue)", "segue o \(systemStyle(style.relativeTo))"]
