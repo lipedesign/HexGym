@@ -1,0 +1,7 @@
+/* As entradas do treino: os rótulos dos campos, o esforço vazio no VoiceOver e os botões de diminuir e aumentar. */
+"load" = "Carga";
+"reps" = "Repetições";
+"effort" = "Esforço";
+"effort.empty" = "Esforço não registrado";
+"decrease" = "Diminuir";
+"increase" = "Aumentar";

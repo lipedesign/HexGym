@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- As repetições que o VoiceOver fala. O CLDR do português põe o 0 na forma one, e a chave zero faz o 0 sair no plural. -->
+<plist version="1.0">
+<dict>
+	<key>%lld reps</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@reps@</string>
+		<key>reps</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>zero</key>
+			<string>%lld repetições</string>
+			<key>one</key>
+			<string>%lld repetição</string>
+			<key>other</key>
+			<string>%lld repetições</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
