@@ -73,7 +73,8 @@ enum HexStrings {
     return String(format: text(key, table: table, locale: locale), locale: rules, arguments: arguments)
   }
 
-  private static func isPortuguese(_ locale: Locale) -> Bool {
+  // Português de qualquer região.
+  static func isPortuguese(_ locale: Locale) -> Bool {
     locale.language.languageCode == .portuguese
   }
 

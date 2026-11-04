@@ -61,3 +61,10 @@ import Testing
   #expect(WorkoutFormat.spokenReps(0, locale: br) == "0 repetições")
   #expect(WorkoutFormat.spokenReps(0, locale: en) == "0 repetitions")
 }
+// Achado no QA da PR #76: o mesmo caso na carga. O VoiceOver dizia "0 quilograma" e "0 libra".
+@Test func zeroLoadsArePluralInPortuguese() {
+  #expect(WorkoutFormat.spokenLoad(0, unit: .kg, locale: br) == "0 quilogramas")
+  #expect(WorkoutFormat.spokenLoad(0, unit: .lb, locale: br) == "0 libras")
+  #expect(WorkoutFormat.spokenLoad(1, unit: .kg, locale: br) == "1 quilograma")
+  #expect(WorkoutFormat.spokenLoad(0, unit: .kg, locale: en) == "0 kilograms")
+}

@@ -21,17 +21,9 @@ import Testing
 }
 @MainActor @Test(.enabled(if: printsEnabled)) func printTheButtonAndTheInputs() throws { // botao-principal.png e entradas.png
   var buttons: [ButtonCell: Image] = [:]
-  for cell in ButtonCell.all { buttons[cell] = try still(cell.view) }
+  for cell in ButtonCell.all { buttons[cell] = try still(cell.view.environment(\.locale, br)) }
   try writePrint(ButtonSheet(stills: buttons), named: "botao-principal")
-  try writePrint(InputSheet(stills: try InputCell.all.map { try still($0.view) }), named: "entradas")
-}
-
-// Cada estado desenhado num ImageRenderer só dele, no palco, em escala 2 (a do writePrint), e
-// devolvido como imagem para a folha do print.
-@MainActor private func still(_ view: some View) throws -> Image {
-  let renderer = ImageRenderer(content: staged(view.environment(\.locale, br)))
-  renderer.scale = 2
-  return Image(decorative: try #require(renderer.cgImage, "o ImageRenderer não desenhou um estado"), scale: 2)
+  try writePrint(InputSheet(stills: try InputCell.all.map { try still($0.view.environment(\.locale, br)) }), named: "entradas")
 }
 
 // O print do botão: uma coluna por tema e uma linha por estado (normal, com alto contraste e

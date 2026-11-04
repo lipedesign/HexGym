@@ -1,0 +1,5 @@
+/* O progresso em inglês: o rótulo dos segmentos, o carimbo de recorde, o anúncio dele no VoiceOver e o rótulo do anel de descanso. */
+"sets" = "Sets";
+"record" = "Record";
+"record.new" = "New record";
+"rest" = "Rest";

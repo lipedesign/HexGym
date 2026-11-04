@@ -1,4 +1,4 @@
-/* As entradas do treino em inglês: os rótulos dos campos, o esforço vazio no VoiceOver e os botões de diminuir e aumentar. */
+/* As entradas do treino em inglês: os rótulos dos campos, o esforço vazio no VoiceOver e os botões de diminuir e aumentar. A carga 0 falada só tem chave em português: no inglês, o formato da Apple já diz "0 kilograms". */
 "load" = "Load";
 "reps" = "Reps";
 "effort" = "Effort";

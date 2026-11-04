@@ -25,8 +25,13 @@ public enum WorkoutFormat {
     value.map { load($0, locale: locale) } ?? ""
   }
 
-  // A carga falada, com a unidade por extenso: "142,5 quilogramas", "1 kilogram".
+  // A carga falada, com a unidade por extenso: "142,5 quilogramas", "1 kilogram". O CLDR do português
+  // põe o 0 na forma one, e o formato da Apple diria "0 quilograma": o 0 em português vem da tabela
+  // Workout, no plural, como a chave zero das repetições.
   public static func spokenLoad(_ value: Double, unit: WeightUnit, locale: Locale = .current) -> String {
+    if value == 0, HexStrings.isPortuguese(locale) {
+      return HexStrings.text("load.zero.\(unit.rawValue)", table: "Workout", locale: locale)
+    }
     let measurement = Measurement(value: value, unit: unit == .kg ? UnitMass.kilograms : UnitMass.pounds)
     return measurement.formatted(.measurement(width: .wide, usage: .asProvided, numberFormatStyle: number(locale)).locale(locale))
   }

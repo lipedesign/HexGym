@@ -1,7 +1,9 @@
-/* As entradas do treino: os rótulos dos campos, o esforço vazio no VoiceOver e os botões de diminuir e aumentar. */
+/* As entradas do treino: os rótulos dos campos, o esforço vazio no VoiceOver, os botões de diminuir e aumentar e a carga 0 falada (o CLDR do português põe o 0 na forma one, e o VoiceOver diria "0 quilograma"). */
 "load" = "Carga";
 "reps" = "Repetições";
 "effort" = "Esforço";
 "effort.empty" = "Esforço não registrado";
 "decrease" = "Diminuir";
 "increase" = "Aumentar";
+"load.zero.kg" = "0 quilogramas";
+"load.zero.lb" = "0 libras";
