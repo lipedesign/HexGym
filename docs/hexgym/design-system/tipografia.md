@@ -32,6 +32,10 @@ A Barlow não tem cirílico, mas tem quatro letras gregas para a matemática: Δ
 
 O teste `cyrillicAndGreekFallBackToSFProCompressed` confere, nos quatro pesos, que "ЖИМ ЛЁЖА" e "Πιέσεις πάγκου" saem numa fonte que não é a Barlow, mais estreita que a normal e no peso de reserva, e que "SUPINO RETO" sai inteiro na Barlow.
 
+**No Watch:** a fonte do sistema do watchOS é a SF Compact, e a reserva sai nela: no simulador do Watch, o teste `cyrillicAndGreekFallBackToSFProCompressed` passa nos quatro pesos, com as fontes `.SFCompact-Thin`, `-Medium`, `-Bold` e `-Heavy`, na largura comprimida (-0,3) e no peso de reserva exato. A galeria do Watch mostra "Supino", "ЖИМ ЛЁЖА" e "Πιέσεις πάγκου" no `title`.
+
+![As outras escritas no simulador do Watch](imagens/watch-outras-escritas.png)
+
 Um detalhe: nos estilos em caixa alta, o SwiftUI tira os acentos do grego. No print, "Πιέσεις πάγκου" no `title` aparece como "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ".
 
 ## O texto corrido

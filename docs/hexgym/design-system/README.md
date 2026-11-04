@@ -30,6 +30,14 @@ No app do iPhone, a galeria do design system mostra as três camadas lado a lado
 
 ![As três camadas na galeria do iPhone, no Ultravioleta](imagens/simulador-camadas.png)
 
+No app do Watch, a galeria do design system abre pelo botão "Galeria" da tela de início. É uma lista, na ordem: as três camadas, uma embaixo da outra; o tema, com o seletor do próprio Watch e a prévia de alto contraste; e os componentes, um por seção. O tema escolhido no Watch fica no App Group, na chave `hexgym.theme`, como no iPhone; na fase 4, ele passa a vir do iPhone. A galeria do Watch em lista, nessa ordem, é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+
+![As três camadas na galeria do Watch, no Ultravioleta: da Apple, como vem; da Apple, com a marca; e nossos](imagens/watch-camadas.png)
+
+![O seletor de tema na galeria do Watch](imagens/watch-tema.png)
+
+No Watch, o app põe o tint branco na raiz, como no iPhone, e as chaves liga e desliga ficam no destaque do tema. Os componentes ficam sobre o preto, sem o fundo cinza das linhas da lista, porque o texto na cor do tema só fica sobre o fundo da tela e sobre o cartão do sistema. O título da galeria fica em branco: o cinza do título do sistema mediu 2,9:1 sobre o brilho. São escolhas recomendadas, com a delegação do Lipe de 03/11/2026.
+
 ## Como usar o pacote num alvo
 
 1. No projeto do Xcode, o alvo (o app do iPhone, o do Watch ou um widget) ganha o pacote local `apple/Packages/HexDesign` e o produto `HexDesign`.
@@ -88,7 +96,7 @@ As imagens desta pasta saem dos testes de print do pacote, que só rodam com `HE
 HEXDESIGN_PRINTS=$PWD/docs/hexgym/design-system/imagens DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) --package-path apple/Packages/HexDesign --filter print
 ```
 
-Os prints saem iguais byte a byte de uma geração para outra. Nenhuma imagem desta documentação tem mídia de exercício.
+Os prints saem iguais byte a byte de uma geração para outra. As imagens que começam com `simulador-` e `watch-` não saem dos testes: são prints dos simuladores do iPhone e do Watch, tirados com a galeria aberta. Nenhuma imagem desta documentação tem mídia de exercício.
 
 ## Os outros arquivos
 
@@ -96,7 +104,3 @@ Os prints saem iguais byte a byte de uma geração para outra. Nenhuma imagem de
 - [tipografia.md](tipografia.md): a Barlow Condensed, a reserva para outras escritas, a escala, os dígitos tabulares, os tetos, o Texto em Negrito, o logotipo e a licença.
 - [movimento-e-haptico.md](movimento-e-haptico.md): os movimentos, os hápticos e o que muda com Reduzir Movimento, Reduzir Transparência e Aumentar Contraste.
 - [componentes.md](componentes.md): as medidas comuns e cada componente, nosso ou da Apple com a marca, com os estados, o VoiceOver e o print.
-
-## O que ainda vem
-
-- **O design system no Watch (Task 11):** a versão de cada componente para o Watch, que entra nas seções "No Watch" de [componentes.md](componentes.md).

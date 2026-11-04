@@ -52,7 +52,14 @@ Button("Começar treino") {}.buttonStyle(.hexPrimary(size: .large))
 
 **Testes:** `thePrimaryButtonOnlyFadesWithReduceMotion` (0,97 sem Reduzir Movimento e 0,8 de opacidade com ele) e `thePrimaryButtonHasRoomForAThumb` (56 e 72 pt).
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** o tamanho `.compact`, com altura mínima de 44 pt (o alvo mínimo), rótulo no `headline`, 12 pt de margem dos lados (`HexSpacing.s`) e 8 pt em cima e embaixo (`HexSpacing.xs`). No watchOS ele é o padrão: `.buttonStyle(.hexPrimary)` já sai compacto (`Size.platformDefault`). O botão compacto de 44 pt é uma escolha recomendada, com a delegação do Lipe de 03/11/2026. Os estados são os mesmos do iPhone.
+
+![O botão principal compacto no simulador do Watch: normal e desligado, no Ultravioleta](imagens/watch-botao-principal.png)
+
+- **No Watch menor:** no Series 11 de 42 mm (187 pt de largura), "Registrar série" quebra em duas linhas, sem cortar, e o botão cresce junto.
+- **O contraste medido:** no simulador do Watch (Ultra 3 de 49 mm, watchOS 26.1), o rótulo contra o pixel do botão que menos contrasta com ele, o menor dos quatro temas: 4,52:1 (Ultravioleta, branco sobre #6F5CFF) sem ajuste e 7,05:1 com Aumentar Contraste.
+
+**Teste:** `theWatchButtonIsCompact` (44 pt).
 
 ### As entradas do treino
 
@@ -114,7 +121,25 @@ Num aparelho em outro idioma, os textos saem em inglês, com o plural do inglês
 
 ![As entradas no simulador em AX5: os botões descem para baixo do valor](imagens/simulador-ax5-entradas.png)
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** a variante compacta e a Coroa Digital.
+
+![A entrada de carga no simulador do Watch: sem foco, depois do toque no valor (com o contorno no destaque) e depois de dois giros da coroa, de 141,3 para 153,8 kg](imagens/watch-entradas.png)
+
+- **A variante compacta:** no Watch, os botões ficam sempre embaixo do valor, lado a lado, em qualquer tamanho de texto (`WorkoutInputLayout.axis` dá `.vertical` no Watch). Cada botão ocupa metade da largura, com altura mínima de 44 pt e o símbolo em 18 pt, e entre o valor e os botões há 8 pt (`HexSpacing.xs`). Os botões embaixo do valor, no Watch, são uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+- **A coroa:** um toque no valor dá a coroa para aquela entrada, e um contorno de 2 pt no destaque do tema, no raio do chip, mostra quem está com ela. Daí, cada degrau da coroa é um passo: chama o `onStep` uma vez, com `.up` ou `.down`, e o motor aplica o passo como num toque nos botões. É o `digitalCrownRotation` da Apple com `by: 1`, sensibilidade `.low`, contínuo e com o háptico da própria coroa a cada degrau (a coroa não toca o `increase` nem o `decrease` por cima). A conta dos degraus é `CrownSteps.steps(from:to:)`, a diferença dos pisos (`floor`) entre o valor velho e o novo. Um passo por degrau é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+- **Por que só depois do toque:** com várias entradas focáveis ao mesmo tempo na tela, o watchOS passava o foco de uma para outra sem parar (no simulador, centenas de trocas por segundo). Por isso a entrada só pode ter o foco depois de um toque no valor; tocar no valor de outra entrada passa a coroa para ela, e a entrada que perde o foco, ou sai da tela, volta a não ser focável. O foco pelo toque, com o contorno no destaque, é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+- **Para saber:** pela conta dos pisos, o passo para cima acontece quando a coroa chega no degrau, e o passo para baixo acontece assim que ela sai do degrau. Um toque mínimo para baixo que volta sozinho para o degrau dá um passo para baixo e outro para cima: o valor pisca e volta. Arredondar (`round`) em vez do piso também passa nos testes e tiraria essa diferença; fica como sugestão.
+
+**O contraste medido:** no simulador do Watch, pelo pior pixel, o menor dos quatro temas:
+
+| Parte | Sem ajuste | Com Aumentar Contraste |
+|---|---|---|
+| A unidade (KG), no destaque sobre o preto | 7,63:1 | 9,53:1 |
+| O rótulo (CARGA), cinza sobre o preto | 5,50:1 | 8,12:1 |
+| O + e o −, no destaque sobre o cartão do sistema (#1C1C1E, ou #242426) | 6,18:1 | 7,03:1 |
+| O contorno do foco, no destaque sobre o preto | 7,48:1 | 9,45:1 |
+
+**Testes:** `eachCrownDetentIsOneStep` (cada degrau é um passo, para cima e para baixo, e meio degrau não é nenhum).
 
 ### Os segmentos inclinados
 
@@ -148,7 +173,9 @@ SlantedSegments(total: 5, done: 3)
 
 ![Os segmentos e o carimbo no simulador em AX5](imagens/simulador-ax5-segmentos-carimbo.png)
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** iguais aos do iPhone, na largura da tela: 0, 3 e 5 de 5 na galeria do Watch, com o valor falado embaixo.
+
+![Os segmentos no simulador do Watch: 0, 3 e 5 de 5, no Ultravioleta](imagens/watch-segmentos.png)
 
 ### O carimbo de recorde
 
@@ -182,7 +209,9 @@ O carimbo só anima, toca e anuncia na passagem de `isShown` de falso para verda
 
 **Testes:** `theStampLandsOrFades` (cai de 1,4 sem Reduzir Movimento, e de 1 com ele).
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** o mesmo carimbo, com a mesma queda, numa linha só na largura do Watch. Na galeria do Watch, o botão "Mostrar de novo" faz o mesmo que no iPhone. O ouro sobre o preto mediu 9,45:1 sem ajuste e 12,30:1 com Aumentar Contraste, pelo pior pixel.
+
+![O carimbo de recorde no simulador do Watch, com o botão "Mostrar de novo"](imagens/watch-carimbo.png)
 
 ### O anel de descanso
 
@@ -216,7 +245,9 @@ RestRing(total: 120, remaining: 90)   // em segundos
 
 ![O anel de descanso no simulador em AX5, com o botão que começa um descanso de 90 s](imagens/simulador-ax5-anel.png)
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** o mesmo anel de 60 traços inclinados, retos, que no Watch é onde ele mais precisa não parecer um anel de atividade: nada de faixa contínua nem de pontas redondas. No tamanho de texto padrão do Watch, o diâmetro sai menor que no iPhone (198 pt no Ultra 3, pelo `ScaledMetric`), e ele nunca passa da largura da tela. Quando o tempo chega a zero, o háptico `restDone` é o `.start` do Watch.
+
+![O anel de descanso no simulador do Watch, em 0:07 de 0:12, nos quatro temas](imagens/watch-anel.png)
 
 ### O brilho que respira
 
@@ -252,7 +283,9 @@ TelaQualquer().background { BreathingGlow() }
 
 **No simulador:** com a galeria aberta no brilho, ligar o Reduzir Movimento no meio do ciclo deixa o brilho parado: dois prints com 1,5 s entre eles são iguais pixel a pixel, e iguais (com diferença de no máximo 2 em 255, do pontilhado) ao brilho de quando o app já abre com Reduzir Movimento, no tamanho 1. Desligado de novo, ele volta a respirar. Com Reduzir Transparência, o brilho apaga.
 
-**No Watch:** preenchida na Task 11. O que o pacote já faz no watchOS: o brilho usa a superfície do Watch e fica parado.
+**No Watch:** o brilho usa a superfície do Watch e fica parado, no tamanho 1. É o fundo do app inteiro do Watch, atrás da tela de início e da galeria. A superfície vem de `HexPlatform.current.surface`, a mesma fonte dos hápticos, das cores (`hexPalette`) e do brilho: o Watch de um é o Watch dos outros (QA da PR #74).
+
+![O brilho parado no simulador do Watch, no Ultravioleta](imagens/watch-brilho.png)
 
 ## Da Apple, com a marca
 
@@ -282,7 +315,7 @@ RollingNumber(value: 90, text: "1:30", style: .display)
 
 **Testes:** `rollingNumbersRollUnlessReduceMotion`.
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** igual. Os dígitos rolam a cada degrau da coroa nas entradas, a cada segundo no anel e no "Mais um" do cartão de vidro da galeria do Watch; o vídeo da [prints/65](../prints/65/video.mp4) mostra a carga rolando pela coroa.
 
 **Print:** o número que rola aparece nos prints das [entradas do treino](#as-entradas-do-treino) e do [anel de descanso](#o-anel-de-descanso). A rolagem em si se vê na galeria do iPhone, no botão "Mais um" do cartão de vidro e nas entradas.
 
@@ -327,7 +360,9 @@ HexGlassCard {
 
 **Testes:** `theGlassTakesTheThemeUnlessContrastIsUp`.
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** o mesmo cartão, com a mesma tinta e o texto só em branco. O branco sobre o vidro mediu 6,70:1 sem ajuste e 15,36:1 com Aumentar Contraste, pelo pior pixel, o menor dos quatro temas.
+
+![O cartão de vidro no simulador do Watch, com o número que rola e o botão secundário "Mais um"](imagens/watch-vidro.png)
 
 ### Os botões secundários
 
@@ -358,7 +393,7 @@ Os quatro passam de 4,5:1, com e sem Aumentar Contraste, e por isso o rótulo fi
 
 **VoiceOver:** são botões do SwiftUI; o VoiceOver lê o rótulo como botão.
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** o `.glass` tingido do Watch desenha o rótulo em branco, e não na cor do destaque como no iPhone (é o desenho da Apple; o pacote não muda). O branco sobre o vidro tingido mediu 8,31:1 sem ajuste e 8,18:1 com Aumentar Contraste, pelo pior pixel, o menor dos quatro temas. No print do [cartão de vidro](#o-cartão-de-vidro) do Watch, o "Mais um" é um botão secundário; no do [anel](#o-anel-de-descanso), o "Começar um descanso de 90 s" também.
 
 ### A transição de "Começar treino"
 
@@ -402,6 +437,6 @@ NavigationStack(path: $caminho) {
 
 **Testes:** `theZoomStepsAsideForReduceMotion` e `theWorkoutScreenAppearsStillWithReduceMotion`.
 
-**No Watch:** preenchida na Task 11.
+**No Watch:** não há o zoom. No Watch, a navegação é a da Apple, empurrando a tela da direita, como da tela de início para a galeria; a tela do treino do Watch é da fase 3, e a galeria do Watch não mostra a transição.
 
 **Print:** o print está no começo desta parte; o vídeo da galeria, com a troca de tema e o zoom, está em [prints/64](../prints/64/video.mp4). Até a fase 3, ela aparece na galeria.

@@ -10,13 +10,25 @@ import SwiftUI
 public enum HexPlatform: Sendable {
   case phone, watch
 
-  // .watch só no watchOS; no iPhone e no Mac dos testes, .phone.
+  // .watch só no watchOS; no iPhone e no Mac dos testes, .phone. É a única pergunta "estou no Watch?"
+  // do pacote: os hápticos leem o current, e as cores e o brilho leem o surface dele (QA da PR #74).
   public static var current: HexPlatform {
     #if os(watchOS)
     .watch
     #else
     .phone
     #endif
+  }
+
+  // A superfície das cores e do brilho no aparelho: .watch no Watch e .app no iPhone. A paleta do
+  // ambiente (o accent do Watch) e o BreathingGlow (o brilho parado) leem a superfície daqui, e não de
+  // um #if próprio: assim, os hápticos do Watch e o brilho do Watch nunca dizem coisas diferentes sobre
+  // onde o app está. A ilha (.island) não é um aparelho: quem desenha a Live Activity a pede.
+  public var surface: HexSurface {
+    switch self {
+    case .phone: .app
+    case .watch: .watch
+    }
   }
 }
 

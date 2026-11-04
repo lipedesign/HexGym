@@ -47,6 +47,8 @@ Esta é a regra de uso da #71, com ou sem alto contraste:
 - Os cartões dentro de uma tela que sobe de baixo (o cinza elevado do sistema) levam **texto branco ou nos cinzas do sistema**, nunca na cor do tema.
 - No cartão de vidro, o texto vai só em branco: no simulador, o cinza secundário do sistema ficou em 3,1 a 3,2:1 sobre o vidro, e o branco fica em pelo menos 8,54:1 nos quatro temas, no pior pixel do vidro (o Giz & Ferro, sob o brilho; veja [componentes.md](componentes.md#o-cartão-de-vidro)).
 - Os botões de barra (o "OK" de uma tela que sobe, por exemplo), os alertas e os menus ficam em branco: o app põe o tint branco na raiz, e o accent só onde é pedido (as chaves, os componentes do HexDesign). O "OK" no accent, sobre o vidro da barra (#3A3A3C), mediu 3,45:1 no Ultravioleta; em branco, mede pelo menos 11,16:1, e 16,28:1 com Aumentar Contraste, nos quatro temas.
+- No Watch, a linha da lista do sistema (#222223, ou #272728 com Aumentar Contraste) não é um desses fundos. Por isso, na galeria do Watch, os componentes ficam sobre o preto, sem o fundo da linha, e o texto das linhas fica em branco (pelo menos 15,90:1, e 14,92:1 com Aumentar Contraste). A exceção é o preenchimento das chaves liga e desliga, que não é texto: no destaque, contra a linha, mediu pelo menos 5,77:1 (Ultravioleta) e 6,77:1 com Aumentar Contraste (Cobre). No Giz & Ferro, o botão branco da chave fica sobre o preenchimento #F2EFE9: é o desenho da Apple.
+- O título da navegação no Watch: o cinza do sistema ficava em 2,9:1 sobre o brilho, e por isso a galeria do Watch põe o título em branco: no alto da galeria, pelo menos 7,59:1, e 14,20:1 com Aumentar Contraste. Quando a lista rola por baixo da barra do sistema, o conteúdo que passa atrás do título pode baixar o contraste até 2,86:1 (3,81:1 com Aumentar Contraste), no pior pixel. É o desenho da barra do Watch, que esmaece o que passa por baixo.
 
 Os testes medem o `accent` só nesses fundos. Fora deles, o contraste não é garantido: no cinza elevado #2C2C2E, por exemplo, o #8B7BFF fica abaixo de 4,5.
 
@@ -120,6 +122,10 @@ O teste `increasedContrastTextClearsTheSystemCard` fixa o #242426 e os dois tons
 - **No simulador:** a galeria do iPhone troca o tema numa lista de quatro linhas, cada uma com a bolinha na cor do tema e o nome; o tema escolhido vai para o App Group, e o widget do iPhone lê da mesma chave. A lista no lugar de um seletor segmentado é uma escolha recomendada, com a delegação do Lipe de 03/11/2026: no segmentado, "Cobre Forjado" era cortado já no tamanho de texto padrão.
 
 ![O tema na galeria do iPhone, com a prévia de alto contraste](imagens/simulador-tema.png)
+
+- **No Watch:** a galeria do Watch tem o seletor dela, na mesma lista de quatro linhas, com a bolinha no `accent` do Watch e o nome em branco, e grava o tema no App Group do próprio Watch, na mesma chave. A ida do tema do iPhone para o Watch é da fase 4. O nome do tema, branco sobre a linha da lista, mediu pelo menos 8,40:1 sem ajuste e 11,86:1 com Aumentar Contraste, pelo pior pixel.
+
+![O tema na galeria do Watch](imagens/watch-tema.png)
 
 Os nomes dos temas (`displayName(locale:)`):
 

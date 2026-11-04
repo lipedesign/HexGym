@@ -1,0 +1,316 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Apple, as it comes" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da Apple, como vem"
+          }
+        }
+      }
+    },
+    "Apple, with our brand" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da Apple, com a marca"
+          }
+        }
+      }
+    },
+    "Compact, 44 pt: normal and turned off." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compacto, de 44 pt: normal e desligado."
+          }
+        }
+      }
+    },
+    "Components" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Componentes"
+          }
+        }
+      }
+    },
+    "Cyrillic and Greek fall back to the system font, compressed." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O cirílico e o grego saem na fonte do sistema, comprimida."
+          }
+        }
+      }
+    },
+    "Design system" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Design system"
+          }
+        }
+      }
+    },
+    "Gallery" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Galeria"
+          }
+        }
+      }
+    },
+    "Glow" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brilho"
+          }
+        }
+      }
+    },
+    "Go" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir"
+          }
+        }
+      }
+    },
+    "High contrast preview" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prévia de alto contraste"
+          }
+        }
+      }
+    },
+    "Log set" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrar série"
+          }
+        }
+      }
+    },
+    "On the watch the glow stays still. It goes out with Reduce Transparency and drops to half with high contrast." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Watch, o brilho fica parado. Ele apaga com Reduzir Transparência e cai à metade com alto contraste."
+          }
+        }
+      }
+    },
+    "One more" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais um"
+          }
+        }
+      }
+    },
+    "Other scripts" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outras escritas"
+          }
+        }
+      }
+    },
+    "Ours" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nossos"
+          }
+        }
+      }
+    },
+    "Primary button" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botão principal"
+          }
+        }
+      }
+    },
+    "Record stamp" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carimbo de recorde"
+          }
+        }
+      }
+    },
+    "Rest ring" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anel de descanso"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        }
+      }
+    },
+    "SF Symbol" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SF Symbol"
+          }
+        }
+      }
+    },
+    "Show it again" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar de novo"
+          }
+        }
+      }
+    },
+    "Slanted segments" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segmentos inclinados"
+          }
+        }
+      }
+    },
+    "Start a 90 s rest" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar um descanso de 90 s"
+          }
+        }
+      }
+    },
+    "Switch" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chave"
+          }
+        }
+      }
+    },
+    "Tap the load, then turn the Digital Crown: one step per detent." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque na carga e gire a Coroa Digital: um passo por dente."
+          }
+        }
+      }
+    },
+    "The − and + buttons stay for anyone who does not use the crown." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os botões − e + continuam, para quem não usa a coroa."
+          }
+        }
+      }
+    },
+    "The theme stays on this watch, in the App Group, under hexgym.theme. It comes from the iPhone in phase 4." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O tema fica neste Watch, no App Group, em hexgym.theme. A ida do tema do iPhone para o Watch vem na fase 4."
+          }
+        }
+      }
+    },
+    "The three layers" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As três camadas"
+          }
+        }
+      }
+    },
+    "Theme" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tema"
+          }
+        }
+      }
+    },
+    "Workout inputs" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entradas do treino"
+          }
+        }
+      }
+    },
+    "workouts" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "treinos"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
