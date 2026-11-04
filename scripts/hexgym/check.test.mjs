@@ -15,7 +15,8 @@
 // Os cinco da issue #19 (a parte packages, a conta do swift test e a parte sem o swift) vêm no fim,
 // com um swift e um xcode.mjs de mentira em pastas temporárias, e nenhum roda o swift de verdade. A
 // issue #20 pôs o HexStore no fim da parte packages, e os dois deles que prendem as rodadas da parte
-// esperam também a dele.
+// esperam também a dele. A issue #62 pôs o HexDesign logo depois do HexStore: o teste dela vem no
+// fim, e os mesmos dois esperam também a rodada do HexDesign.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -209,19 +210,21 @@ test('a Vitest that writes no report counts zero, and its part fails', async t =
 
 // A parte packages da issue #19, sem rodar nada: o swift test de todos os testes do HexEngine no
 // primeiro fuso, e o dos casos gravados em cada um dos outros dois, com o que o primeiro compilou; e,
-// desde a issue #20, o de todos os testes do HexStore, sem fuso. O DEVELOPER_DIR do ambiente ganha do
-// resto no developerDir, então o args e o env saem iguais em qualquer máquina: com /x, o
-// swiftTestFlags não dá nenhum argumento.
-test('the packages part runs every HexEngine test in the first zone, the recorded cases in each other zone, and every HexStore test', t => {
+// desde a issue #20, o de todos os testes do HexStore, sem fuso, e, desde a issue #62, o de todos os
+// do HexDesign, também sem fuso. O DEVELOPER_DIR do ambiente ganha do resto no developerDir, então o
+// args e o env saem iguais em qualquer máquina: com /x, o swiftTestFlags não dá nenhum argumento.
+test('the packages part runs every HexEngine test in the first zone, the recorded cases in each other zone, every HexStore test and every HexDesign test', t => {
   const before = process.env.DEVELOPER_DIR
   t.after(() => { if (before === undefined) delete process.env.DEVELOPER_DIR; else process.env.DEVELOPER_DIR = before })
   process.env.DEVELOPER_DIR = '/x'
   const hexengine = ['swift', 'test', '--package-path', 'apple/Packages/HexEngine']
   const recorded = [...hexengine, '--skip-build', '--filter', 'RecordedCasesTests']
   const hexstore = ['swift', 'test', '--package-path', 'apple/Packages/HexStore']
-  assert.deepEqual(PARTS.packages.map(c => [c.cmd, ...c.args()]), [hexengine, recorded, recorded, hexstore])
+  const hexdesign = ['swift', 'test', '--package-path', 'apple/Packages/HexDesign']
+  assert.deepEqual(PARTS.packages.map(c => [c.cmd, ...c.args()]), [hexengine, recorded, recorded, hexstore, hexdesign])
   assert.deepEqual(PARTS.packages.map(c => c.env()), [
     ...['America/Sao_Paulo', 'Europe/Zurich', 'Pacific/Auckland'].map(zone => ({ DEVELOPER_DIR: '/x', TZ: zone, HEXGYM_CASES: zone })),
+    { DEVELOPER_DIR: '/x' },
     { DEVELOPER_DIR: '/x' },
   ])
   assert.ok(PARTS.engine.some(c => [c.cmd, ...c.args].join(' ') === 'node scripts/hexgym/record-engine-cases.mjs --check'))
@@ -300,28 +303,29 @@ test('a swift test that writes no XUnit counts zero, and its part fails', async 
 })
 
 // A parte packages de ponta a ponta, numa cópia do check.mjs: um xcode.mjs de mentira, que dá um
-// DEVELOPER_DIR e dois argumentos marcados para ele, e o swift de mentira no começo do PATH. As quatro
+// DEVELOPER_DIR e dois argumentos marcados para ele, e o swift de mentira no começo do PATH. As cinco
 // rodadas levam os mesmos argumentos, inclusive as duas com --skip-build; cada uma do HexEngine leva o
-// seu fuso, e a do HexStore, nenhum. Para isso se ver, o ambiente da cópia vai sem TZ e sem
-// HEXGYM_CASES.
+// seu fuso, e a do HexStore e a do HexDesign, nenhum. Para isso se ver, o ambiente da cópia vai sem TZ
+// e sem HEXGYM_CASES.
 const MARKED = [
   "export function developerDir() { return '/caminho/de/mentira' }",
   "export function swiftTestFlags(dir) { return dir === '/caminho/de/mentira' ? ['-Xswiftc', '-marca'] : [] }",
 ].join('\n') + '\n'
-test('every swift test of the packages part gets the same swiftTestFlags, each HexEngine run its own zone, and the HexStore run none', t => {
+test('every swift test of the packages part gets the same swiftTestFlags, each HexEngine run its own zone, and the HexStore and HexDesign runs none', t => {
   const swift = fakeSwift(t, { report: true })
   const { TZ: _tz, HEXGYM_CASES: _cases, ...env } = { ...WITHOUT_CONTEXT, PATH: `${swift.cwd}${path.delimiter}${process.env.PATH}` }
   const r = runPart(copiedCheck(t, { 'xcode.mjs': MARKED }), 'packages', env)
   assert.equal(r.status, 0, r.stderr)
-  assert.match(r.stdout, /\ntestes contados: packages 12\nok\n$/)
+  assert.match(r.stdout, /\ntestes contados: packages 15\nok\n$/)
   const calls = swift.seen()
-  assert.deepEqual(calls.map(c => c.argv.slice(0, 2)), [['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output'], ['test', '--xunit-output']])
+  assert.deepEqual(calls.map(c => c.argv.slice(0, 2)), Array(5).fill(['test', '--xunit-output']))
   const flags = ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexEngine']
   assert.deepEqual(calls.map(({ argv, tz, cases, dev }) => ({ rest: argv.slice(3), tz, cases, dev })), [
     { rest: flags, tz: 'America/Sao_Paulo', cases: 'America/Sao_Paulo', dev: '/caminho/de/mentira' },
     { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Europe/Zurich', cases: 'Europe/Zurich', dev: '/caminho/de/mentira' },
     { rest: [...flags, '--skip-build', '--filter', 'RecordedCasesTests'], tz: 'Pacific/Auckland', cases: 'Pacific/Auckland', dev: '/caminho/de/mentira' },
     { rest: ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexStore'], tz: null, cases: null, dev: '/caminho/de/mentira' },
+    { rest: ['-Xswiftc', '-marca', '--package-path', 'apple/Packages/HexDesign'], tz: null, cases: null, dev: '/caminho/de/mentira' },
   ])
 })
 
@@ -341,4 +345,24 @@ test('without swift, only the packages part fails', t => {
   assert.equal(r.status, 1, r.stdout)
   assert.match(r.stderr, /não deu para preparar "HexEngine, com os casos gravados em America\/Sao_Paulo": nenhum Xcode encontrado/)
   assert.match(r.stdout, /\ntestes contados: scripts 1, packages 0\nfalhou: HexEngine, com os casos gravados em America\/Sao_Paulo\n$/)
+})
+
+// A rodada do HexDesign da issue #62, sem rodar nada, no formato do teste da #19 e da #20: ela vem logo
+// depois da do HexStore e é a mesma rodada com o pacote trocado, o mesmo comando, os mesmos argumentos
+// com apple/Packages/HexDesign no lugar de apple/Packages/HexStore e o mesmo env. Com o DEVELOPER_DIR
+// /x, o args e o env saem iguais em qualquer máquina.
+test('the packages part runs HexDesign after HexStore, with the same flags and env', t => {
+  const before = process.env.DEVELOPER_DIR
+  t.after(() => { if (before === undefined) delete process.env.DEVELOPER_DIR; else process.env.DEVELOPER_DIR = before })
+  process.env.DEVELOPER_DIR = '/x'
+  const names = PARTS.packages.map(c => c.name)
+  const store = names.indexOf('HexStore')
+  assert.ok(store >= 0, `a parte packages não tem a rodada do HexStore: ${names.join(', ')}`)
+  assert.equal(names[store + 1], 'HexDesign', `depois do HexStore vem ${names[store + 1] ?? 'nada'}`)
+  const hexstore = PARTS.packages[store], hexdesign = PARTS.packages[store + 1]
+  assert.equal(hexdesign.cmd, hexstore.cmd)
+  assert.equal(hexdesign.cwd, hexstore.cwd)
+  assert.deepEqual(hexdesign.args(), hexstore.args().map(a => (a === 'apple/Packages/HexStore' ? 'apple/Packages/HexDesign' : a)))
+  assert.ok(hexdesign.args().includes('apple/Packages/HexDesign'))
+  assert.deepEqual(hexdesign.env(), hexstore.env())
 })
