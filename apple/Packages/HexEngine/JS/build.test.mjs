@@ -62,7 +62,8 @@ test('a module forced in with import.meta fails with its name', async () => {
 })
 test('the script loads and answers', async () => {
   const E = new Function((await engine()).code + '\nreturn HexEngine')()
-  assert.ok(JSON.parse(E.info()).exercises > 5000); E.setDeviceLanguage('pt-BR'); assert.equal(JSON.parse(E.freshDocument()).langAuto, true)
+  assert.ok(JSON.parse(E.info()).exercises > 5000); const d = JSON.parse(E.freshDocument())
+  assert.equal(d.langAuto, true); assert.equal(Object.hasOwn(d, 'lang'), false)
 })
 test('a module forced in that imports a package fails with its name', async () => {
   await assert.rejects(buildEngine(repo, { extra: ['apple/Packages/HexEngine/JS/test-fixtures/imports-react.js'] }),

@@ -52,8 +52,7 @@ test('search finds the same first result for supino, SUPINO and supíno, and it 
   const results = ['supino', 'SUPINO', 'supíno'].map(query => search({ query }))
   for (const ids of results) {
     assert.ok(ids.length > 0)
-    assert.equal(ids[0], results[0][0])
-    assert.ok(ids.includes('0025'))
+    assert.equal(ids[0], '0025')
   }
 })
 
