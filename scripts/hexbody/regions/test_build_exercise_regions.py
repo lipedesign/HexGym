@@ -120,6 +120,118 @@ class V2Rules(unittest.TestCase):
 
 
 
+class ResearchRules(unittest.TestCase):
+    """As regras por nome da tabela "A evidência confirma o banco inclinado e derruba o abdômen
+    inferior" do relatório (issue #13), uma por teste, cada uma com exercícios reais do catálogo."""
+
+    def assertRegions(self, id_, primary, secondary):
+        p, s = regions(id_)
+        self.assertEqual((p, s), (set(primary), set(secondary)), f'{id_} {ROWS[id_]["name"]}')
+
+    def test_low_incline_press_is_upper_chest(self):
+        self.assertRegions('0047', {'upperChest'}, {'frontDeltoid', 'triceps'})   # barbell incline bench press
+        self.assertRegions('6218', {'upperChest'}, {'frontDeltoid', 'triceps'})   # dumbbell incline twist press (o punho gira)
+        self.assertRegions('0331', {'upperChest'}, {'frontDeltoid'})              # dumbbell incline twisted flyes
+
+    def test_high_incline_press_is_front_deltoid(self):
+        # dumbbell incline shoulders press: o banco a 60° ou 75°, e o nome diz "shoulders press"
+        self.assertRegions('5261', {'frontDeltoid'}, {'upperChest', 'triceps'})
+
+    def test_flat_press_fly_and_push_up_are_mid_and_low_chest(self):
+        press = {'upperChest', 'frontDeltoid', 'triceps', 'tricepsLongHead'}
+        self.assertRegions('0025', {'chest', 'lowerChest'}, press)                 # barbell bench press
+        self.assertRegions('0308', {'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'})   # dumbbell fly
+        self.assertRegions('4835', {'chest', 'lowerChest'}, press)   # dumbbell rotational grip bench press
+        self.assertRegions('4342', {'chest', 'lowerChest'}, {'upperChest', 'frontDeltoid'})   # dumbbell twisted fly
+        for id_ in ('3294', '1306', '1273'):                        # archer, plyo e clap push up: flexão
+            self.assertRegions(id_, {'chest', 'lowerChest'}, press)
+        # Ficam fora: a flexão inclinada (incline e elevated push-up) e o deslizar na parede com toalha.
+        for id_ in ('0493', '3812', '10927'):
+            self.assertEqual(regions(id_)[0], set(B.G['chest']), id_)
+
+    def test_decline_press_is_low_chest(self):
+        self.assertRegions('0033', {'lowerChest', 'chest'}, {'triceps', 'frontDeltoid'})   # barbell decline bench press
+        self.assertRegions('0307', {'lowerChest', 'chest'}, {'frontDeltoid'})              # dumbbell decline twist fly
+
+    def test_overhead_press_is_front_deltoid(self):
+        ohp = {'deltoids', 'triceps', 'upperTrapezius'}
+        self.assertRegions('0091', {'frontDeltoid'}, ohp)   # barbell seated overhead press
+        self.assertRegions('1045', {'frontDeltoid'}, ohp)   # barbell seated military press (inside squat cage)
+        self.assertRegions('0388', {'frontDeltoid'}, ohp)   # dumbbell seated alternate press: "press" com o deltoide inteiro
+        self.assertRegions('2927', {'frontDeltoid'}, ohp | {'rotatorCuff'})   # kettlebell kneeling one arm bottoms up press
+
+    def test_lateral_raise_is_lateral_deltoid(self):
+        self.assertRegions('0334', {'deltoids'}, {'rearDeltoid', 'upperTrapezius'})   # dumbbell lateral raise
+
+    def test_reverse_fly_and_face_pull_are_rear_deltoid(self):
+        self.assertRegions('0378', {'rearDeltoid'}, {'rhomboids', 'trapezius'})   # dumbbell rear fly
+        # cable standing face pull: o manguito, que o texto nomeia, fica no secundário
+        self.assertRegions('5609', {'rearDeltoid'}, {'rhomboids', 'trapezius', 'rotatorCuff'})
+        # cable bent over one arm lateral raise, lever incline chest supported reverse delt fly (plate loaded),
+        # dumbbell lying one arm deltoid rear e cable cross-over revers fly
+        for id_ in ('3912', '11718', '0341', '0154'):
+            self.assertRegions(id_, {'rearDeltoid'}, {'rhomboids', 'trapezius'})
+
+    def test_shrug_is_upper_trapezius_only(self):
+        self.assertRegions('0095', {'upperTrapezius'}, set())   # barbell shrug
+
+    def test_y_raise_is_lower_trapezius(self):
+        self.assertRegions('3403', {'lowerTrapezius'}, {'deltoids'})   # standing y raise (alvo traps)
+        self.assertRegions('1017', {'lowerTrapezius'}, {'deltoids'})   # band y-raise (alvo delts)
+
+    def test_rotation_and_side_plank_are_obliques(self):
+        self.assertRegions('0687', {'obliques'}, {'upperAbs'})    # russian twist
+        self.assertRegions('11251', {'obliques'}, {'upperAbs'})   # cable kneeling woodchop v. 3
+        self.assertRegions('0715', {'obliques'}, {'upperAbs'})    # side plank
+
+    def test_side_plank_with_abduction_is_gluteus_medius(self):
+        self.assertRegions('0703', {'gluteusMedius'}, {'gluteal', 'obliques'})   # side bridge hip abduction (star)
+        self.assertRegions('4863', {'gluteusMedius'}, {'gluteal', 'obliques'})   # side plank leg lift
+
+    def test_squat_is_vasti_gluteus_and_adductors(self):
+        legs = {'outerQuad', 'innerQuad', 'gluteal', 'adductors'}
+        p, s = regions('0043')                                   # barbell full squat
+        self.assertEqual(p, legs)
+        self.assertLessEqual({'quadriceps', 'hamstring', 'lowerBack', 'calves'}, s)   # os secundários que já tinha
+        p, s = regions('2966')                                   # dumbbell front squat (alvo quads)
+        self.assertEqual(p, legs)
+        self.assertIn('quadriceps', s)
+        # with rack, side pov, with chains, with v bar: o mesmo agachamento
+        for id_ in ('0878', '1462', '4064', '7578'):
+            self.assertEqual(regions(id_)[0], legs, id_)
+
+    def test_hip_adduction_is_adductors_only(self):
+        self.assertRegions('0168', {'adductors'}, set())   # cable hip adduction
+
+    def test_leg_raise_lights_hip_flexors_and_whole_abs(self):
+        whole = {'hipFlexors', 'upperAbs', 'lowerAbs'}
+        self.assertRegions('0472', whole, set())   # hanging leg raise
+        self.assertRegions('0872', whole, set())   # reverse crunch
+        self.assertRegions('1163', whole, set())   # lying leg raise, que tinha "lower abs" no texto
+        self.assertNotIn('emphasis', ROWS['1163'])
+        for id_ in ('4886', '9049', '0910'):   # lying flat hip raise, incline hip raise, band lying leg and hip raise
+            self.assertRegions(id_, whole, set())
+
+
+class OutsideRows(unittest.TestCase):
+    """As linhas da tabela que a issue #13 deixou fora e que o JSON não seguia (a rosca martelo e
+    a inversa com toalha, e a panturrilha sentada com outro nome)."""
+
+    def test_towel_hammer_and_reverse_curls_follow_the_curl_rule(self):
+        p, _ = regions('3830')                       # lying double legs hammer curl with towel
+        self.assertLessEqual({'biceps', 'brachialis', 'forearm'}, p)
+        p, s = regions('3850')                       # two legs reverse biceps curl with towel v. 2
+        self.assertEqual(p, {'brachialis', 'forearm'})
+        self.assertIn('biceps', s)
+        # Na rosca martelo o bíceps não é a ênfase (1615 lever hammer grip preacher curl).
+        self.assertNotIn('biceps', ROWS['1615'].get('emphasis', []))
+
+    def test_sitting_toe_raise_is_soleus(self):
+        p, s = regions('9509')                       # lever sitting toe raise
+        self.assertEqual(p, {'soleus'})
+        self.assertIn('calves', s)
+
+
 class Emphasis(unittest.TestCase):
     """A ênfase sai depois das regras por nome, dentro do primário, e só quando diz algo a mais."""
 
@@ -163,6 +275,22 @@ class Check(unittest.TestCase):
         self.assertIn('exercise_regions_v2.json', r.stderr)
         self.assertIn('0001', r.stderr)
         self.assertEqual(path.read_text(encoding='utf-8'), stale, 'o --check não grava nada')
+
+    def test_check_names_the_exercise_that_lost_a_region(self):
+        # Só a linha do 0025 muda (uma região a menos no primário); o resto do arquivo fica igual.
+        tmp = copy_of_jsons(self)
+        path = tmp / 'exercise_regions_v2.json'
+        lines = path.read_text(encoding='utf-8').split('\n')
+        i = next(i for i, line in enumerate(lines) if line.startswith('  "0025": '))
+        row = json.loads(lines[i][len('  "0025": '):].rstrip(','))
+        row['primary'] = row['primary'][:-1]
+        lines[i] = '  "0025": ' + json.dumps(row, ensure_ascii=False) + (',' if lines[i].endswith(',') else '')
+        path.write_text('\n'.join(lines), encoding='utf-8')
+        r = run_check(tmp)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn('0025 (barbell bench press)', r.stderr)
+        self.assertIn('(primary)', r.stderr)
+        self.assertEqual(r.stderr.count('não bate'), 1, r.stderr)   # só o 0025, nenhum outro
 
 
 if __name__ == '__main__':
