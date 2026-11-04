@@ -1,0 +1,809 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02E19521CDCE7A08DE5E4554 /* HexGymWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 39F9A71A33881EFF75201641 /* HexGymWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		063FCCB5968FF92D1F1F92D9 /* HexGymWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0844E44C528B271ACE52742D /* HexGymWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */ = {isa = PBXBuildFile; productRef = F7D667231290D9949914F205 /* HexEngine */; };
+		0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */ = {isa = PBXBuildFile; productRef = FD10DF20928C0DA753FF1560 /* HexStore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		140CCD31E4913DD5ED2D9E70 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 709FB13DAB53DB8A6F091ABD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6AAEB13BB0939FAFBB395A31;
+			remoteInfo = HexGymWidgets;
+		};
+		1FBEF0927CCADE1F16C5EFF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 709FB13DAB53DB8A6F091ABD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D46733017FDA782A3795D05;
+			remoteInfo = HexGymWatch;
+		};
+		25BBC72D29EDAA07BB95BACD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 709FB13DAB53DB8A6F091ABD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D484FCFC9030353546C4326;
+			remoteInfo = HexGymWatchWidgets;
+		};
+		25D3DFFAF372A8B03A9ECF81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 709FB13DAB53DB8A6F091ABD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A6A55B5F7ACB6B351A420E8;
+			remoteInfo = HexGym;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		28D14979B5EC8E46CD2695A8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				02E19521CDCE7A08DE5E4554 /* HexGymWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A21BAC83704F88868FDB6C7 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				063FCCB5968FF92D1F1F92D9 /* HexGymWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2E8336C69458744EEA69F1FF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0844E44C528B271ACE52742D /* HexGymWatchWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		3627FAE9EF11E89EF9EFFD08 /* HexGym.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexGym.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39F9A71A33881EFF75201641 /* HexGymWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HexGymWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexGymWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HexGymWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		421E31AA8537C5C2CD8D74A0 /* HexGymTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexGymTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		434112C3915DC2F333BEF57C /* HexGym */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HexGym;
+			sourceTree = "<group>";
+		};
+		44BB825392670EC071F8119A /* HexGymWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HexGymWidgets;
+			sourceTree = "<group>";
+		};
+		457D145E02D0379FCDD79639 /* HexGymWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HexGymWatch;
+			sourceTree = "<group>";
+		};
+		4B4162986F701F9489A52BBB /* HexGymWatchWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HexGymWatchWidgets;
+			sourceTree = "<group>";
+		};
+		54B85696700A2EA7361DCC2C /* HexGymTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HexGymTests;
+			sourceTree = "<group>";
+		};
+		55A7C14DB135424318D93AEA /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5609AD0061A1806C07A528EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */,
+				0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B06328CC1D20EA79BE942A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B0A3DDE8EE1C245BC4553D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5F0D70E410D2BBE5CBDD4324 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5F6FE8A48551EDFFE6D95CC4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6319410E265FE282A2CA087A = {
+			isa = PBXGroup;
+			children = (
+				434112C3915DC2F333BEF57C /* HexGym */,
+				44BB825392670EC071F8119A /* HexGymWidgets */,
+				457D145E02D0379FCDD79639 /* HexGymWatch */,
+				4B4162986F701F9489A52BBB /* HexGymWatchWidgets */,
+				54B85696700A2EA7361DCC2C /* HexGymTests */,
+				55A7C14DB135424318D93AEA /* Shared */,
+				63A820911F1A58DC1B3052B6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		63A820911F1A58DC1B3052B6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3627FAE9EF11E89EF9EFFD08 /* HexGym.app */,
+				39F9A71A33881EFF75201641 /* HexGymWidgets.appex */,
+				3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */,
+				415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */,
+				421E31AA8537C5C2CD8D74A0 /* HexGymTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6A6A55B5F7ACB6B351A420E8 /* HexGym */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2320616769CFFAFBC28B49C /* Build configuration list for PBXNativeTarget "HexGym" */;
+			buildPhases = (
+				7807DF72AA39EAD69E73BB2D /* Sources */,
+				5609AD0061A1806C07A528EC /* Frameworks */,
+				7362A8E42B9E11C754141D94 /* Resources */,
+				28D14979B5EC8E46CD2695A8 /* Embed Foundation Extensions */,
+				2A21BAC83704F88868FDB6C7 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9C435EAB3E6A5056D5926899 /* PBXTargetDependency */,
+				9F355B9440E9B179FEA8609F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				434112C3915DC2F333BEF57C /* HexGym */,
+				55A7C14DB135424318D93AEA /* Shared */,
+			);
+			name = HexGym;
+			packageProductDependencies = (
+				F7D667231290D9949914F205 /* HexEngine */,
+				FD10DF20928C0DA753FF1560 /* HexStore */,
+			);
+			productName = HexGym;
+			productReference = 3627FAE9EF11E89EF9EFFD08 /* HexGym.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6AAEB13BB0939FAFBB395A31 /* HexGymWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E365A331F5ACECAD1C755895 /* Build configuration list for PBXNativeTarget "HexGymWidgets" */;
+			buildPhases = (
+				901703CFC142D3F3BD30111E /* Sources */,
+				5B06328CC1D20EA79BE942A9 /* Frameworks */,
+				75FD18F85F2171AB145BEFF5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				44BB825392670EC071F8119A /* HexGymWidgets */,
+				55A7C14DB135424318D93AEA /* Shared */,
+			);
+			name = HexGymWidgets;
+			packageProductDependencies = (
+			);
+			productName = HexGymWidgets;
+			productReference = 39F9A71A33881EFF75201641 /* HexGymWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		6D46733017FDA782A3795D05 /* HexGymWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E4BE006ACF8D78659CC92278 /* Build configuration list for PBXNativeTarget "HexGymWatch" */;
+			buildPhases = (
+				9089DAB5F04E513888D269CB /* Sources */,
+				5B0A3DDE8EE1C245BC4553D6 /* Frameworks */,
+				7732B73527E26AC2F2DE03CC /* Resources */,
+				2E8336C69458744EEA69F1FF /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A890E7B07E130D3980126B33 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				457D145E02D0379FCDD79639 /* HexGymWatch */,
+				55A7C14DB135424318D93AEA /* Shared */,
+			);
+			name = HexGymWatch;
+			packageProductDependencies = (
+			);
+			productName = HexGymWatch;
+			productReference = 3EFE4DC36DBEC630D4BFE19F /* HexGymWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6D484FCFC9030353546C4326 /* HexGymWatchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E54A8523E95FC1B3D896386A /* Build configuration list for PBXNativeTarget "HexGymWatchWidgets" */;
+			buildPhases = (
+				9AAA6432DDB54374A8C48FEC /* Sources */,
+				5F0D70E410D2BBE5CBDD4324 /* Frameworks */,
+				779E32CB8998870F96515F35 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4B4162986F701F9489A52BBB /* HexGymWatchWidgets */,
+				55A7C14DB135424318D93AEA /* Shared */,
+			);
+			name = HexGymWatchWidgets;
+			packageProductDependencies = (
+			);
+			productName = HexGymWatchWidgets;
+			productReference = 415960F19844BF2F62DFBD2E /* HexGymWatchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		70974FB159B746D1CA087876 /* HexGymTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F30AA4C53F5277F248D83E92 /* Build configuration list for PBXNativeTarget "HexGymTests" */;
+			buildPhases = (
+				9C06DB848138CECCF11368B6 /* Sources */,
+				5F6FE8A48551EDFFE6D95CC4 /* Frameworks */,
+				77E4D3566CB921FAC190BB1C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A96761046D3CD8498E180F96 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				54B85696700A2EA7361DCC2C /* HexGymTests */,
+			);
+			name = HexGymTests;
+			packageProductDependencies = (
+			);
+			productName = HexGymTests;
+			productReference = 421E31AA8537C5C2CD8D74A0 /* HexGymTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		709FB13DAB53DB8A6F091ABD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					6A6A55B5F7ACB6B351A420E8 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					6AAEB13BB0939FAFBB395A31 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					6D46733017FDA782A3795D05 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					6D484FCFC9030353546C4326 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					70974FB159B746D1CA087876 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 6A6A55B5F7ACB6B351A420E8;
+					};
+				};
+			};
+			buildConfigurationList = DDB3C61E82F066DEFADFAA48 /* Build configuration list for PBXProject "HexGym" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"pt-BR",
+			);
+			mainGroup = 6319410E265FE282A2CA087A;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F47B29B18CB5B56F4F5C6E84 /* XCLocalSwiftPackageReference "Packages/HexEngine" */,
+				F683D71DBDA7846B3CE84AD1 /* XCLocalSwiftPackageReference "Packages/HexStore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 63A820911F1A58DC1B3052B6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6A6A55B5F7ACB6B351A420E8 /* HexGym */,
+				6AAEB13BB0939FAFBB395A31 /* HexGymWidgets */,
+				6D46733017FDA782A3795D05 /* HexGymWatch */,
+				6D484FCFC9030353546C4326 /* HexGymWatchWidgets */,
+				70974FB159B746D1CA087876 /* HexGymTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7362A8E42B9E11C754141D94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75FD18F85F2171AB145BEFF5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7732B73527E26AC2F2DE03CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		779E32CB8998870F96515F35 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77E4D3566CB921FAC190BB1C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7807DF72AA39EAD69E73BB2D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		901703CFC142D3F3BD30111E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9089DAB5F04E513888D269CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AAA6432DDB54374A8C48FEC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9C06DB848138CECCF11368B6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9C435EAB3E6A5056D5926899 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6AAEB13BB0939FAFBB395A31 /* HexGymWidgets */;
+			targetProxy = 140CCD31E4913DD5ED2D9E70 /* PBXContainerItemProxy */;
+		};
+		9F355B9440E9B179FEA8609F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D46733017FDA782A3795D05 /* HexGymWatch */;
+			targetProxy = 1FBEF0927CCADE1F16C5EFF4 /* PBXContainerItemProxy */;
+		};
+		A890E7B07E130D3980126B33 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D484FCFC9030353546C4326 /* HexGymWatchWidgets */;
+			targetProxy = 25BBC72D29EDAA07BB95BACD /* PBXContainerItemProxy */;
+		};
+		A96761046D3CD8498E180F96 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6A6A55B5F7ACB6B351A420E8 /* HexGym */;
+			targetProxy = 25D3DFFAF372A8B03A9ECF81 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AD165577464F50600332A095 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MPAGLMK4Q2;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		ADD3C7D63E0C9904F91783B6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MPAGLMK4Q2;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1.0;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AE4153F2684445C6FF065CED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/HexGym.entitlements;
+				INFOPLIST_FILE = "Config/HexGym-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B22A7A94028860CAE8F0E4E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/HexGym.entitlements;
+				INFOPLIST_FILE = "Config/HexGym-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		B5B273AB839D94967922B603 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWidgets.entitlements;
+				INFOPLIST_FILE = "Config/HexGymWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BA5E76142D85BC095BD099D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWidgets.entitlements;
+				INFOPLIST_FILE = "Config/HexGymWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C050B2B2A3351DA3261076E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWatch.entitlements;
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.hexgym;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		C120D6E083E6A397C3114F64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWatch.entitlements;
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.hexgym;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		C6E46CE56E2BB753856AB633 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWatchWidgets.entitlements;
+				INFOPLIST_FILE = "Config/HexGymWatchWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		C706283DEE35FB447CFEFC7F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/HexGymWatchWidgets.entitlements;
+				INFOPLIST_FILE = "Config/HexGymWatchWidgets-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = HexGym;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		D2E04B65227E84F945D1344E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HexGym.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HexGym";
+			};
+			name = Debug;
+		};
+		DB2259531364F67F8598FFEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.hexgym.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HexGym.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HexGym";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DDB3C61E82F066DEFADFAA48 /* Build configuration list for PBXProject "HexGym" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD165577464F50600332A095 /* Debug */,
+				ADD3C7D63E0C9904F91783B6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2320616769CFFAFBC28B49C /* Build configuration list for PBXNativeTarget "HexGym" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE4153F2684445C6FF065CED /* Debug */,
+				B22A7A94028860CAE8F0E4E5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E365A331F5ACECAD1C755895 /* Build configuration list for PBXNativeTarget "HexGymWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5B273AB839D94967922B603 /* Debug */,
+				BA5E76142D85BC095BD099D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E4BE006ACF8D78659CC92278 /* Build configuration list for PBXNativeTarget "HexGymWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C050B2B2A3351DA3261076E4 /* Debug */,
+				C120D6E083E6A397C3114F64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E54A8523E95FC1B3D896386A /* Build configuration list for PBXNativeTarget "HexGymWatchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6E46CE56E2BB753856AB633 /* Debug */,
+				C706283DEE35FB447CFEFC7F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F30AA4C53F5277F248D83E92 /* Build configuration list for PBXNativeTarget "HexGymTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2E04B65227E84F945D1344E /* Debug */,
+				DB2259531364F67F8598FFEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F47B29B18CB5B56F4F5C6E84 /* XCLocalSwiftPackageReference "Packages/HexEngine" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HexEngine;
+		};
+		F683D71DBDA7846B3CE84AD1 /* XCLocalSwiftPackageReference "Packages/HexStore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HexStore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F7D667231290D9949914F205 /* HexEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexEngine;
+		};
+		FD10DF20928C0DA753FF1560 /* HexStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexStore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 709FB13DAB53DB8A6F091ABD /* Project object */;
+}

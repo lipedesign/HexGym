@@ -1316,7 +1316,7 @@ Expected: os testes de formato passam e os dois builds terminam com `** BUILD SU
 
 - [ ] **Step 6: Verify the embedding and the Info.plist**
 
-Run: `find apple/DerivedData/Build/Products/Debug-iphonesimulator/HexGym.app -maxdepth 3 \( -name '*.appex' -o -name '*.app' \)` e `plutil -extract WKCompanionAppBundleIdentifier raw apple/DerivedData/Build/Products/Debug-iphonesimulator/HexGym.app/Watch/HexGymWatch.app/Info.plist`
+Run: `find apple/DerivedData/Build/Products/Debug-iphonesimulator/HexGym.app -maxdepth 4 \( -name '*.appex' -o -name '*.app' \)` (o `HexGymWatchWidgets.appex` está na quarta camada, em `Watch/HexGymWatch.app/PlugIns/`) e `plutil -extract WKCompanionAppBundleIdentifier raw apple/DerivedData/Build/Products/Debug-iphonesimulator/HexGym.app/Watch/HexGymWatch.app/Info.plist`
 Expected: `PlugIns/HexGymWidgets.appex`, `Watch/HexGymWatch.app` e, dentro dele, `PlugIns/HexGymWatchWidgets.appex`; e `app.hexgym`.
 
 - [ ] **Step 7: See it run**
