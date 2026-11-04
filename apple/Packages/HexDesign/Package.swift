@@ -11,7 +11,7 @@ let package = Package(
   platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)],
   products: [.library(name: "HexDesign", targets: ["HexDesign"])],
   targets: [
-    .target(name: "HexDesign", resources: [.copy("Resources/Fonts")]),
+    .target(name: "HexDesign", resources: [.copy("Resources/Fonts"), .process("Resources/Strings")]),
     .testTarget(name: "HexDesignTests", dependencies: ["HexDesign"]),
   ]
 )

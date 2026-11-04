@@ -207,7 +207,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
   let text = increased ? 7.0 : 4.5, contrast: ColorSchemeContrast = increased ? .increased : .standard
   let dark = HexPalette.resolve(theme, scheme: .dark, contrast: contrast)
   let light = HexPalette.resolve(theme, scheme: .light, contrast: contrast)
-  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, o cartão fica #242426.
+  // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, também o #242426.
   let backgrounds: [HexRGB] = increased ? [.black, .card, .cardIncreased] : [.black, .card]
   for background in backgrounds {
     #expect(dark.accent.contrast(with: background) >= text); #expect(dark.fill.contrast(with: background) >= 3)
