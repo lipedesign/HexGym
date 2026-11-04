@@ -1,0 +1,69 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Couldn't open your data." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para abrir os seus dados."
+          }
+        }
+      }
+    },
+    "Document created" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documento criado"
+          }
+        }
+      }
+    },
+    "Document opened" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documento aberto"
+          }
+        }
+      }
+    },
+    "Document restored from the previous copy" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documento recuperado da cópia anterior"
+          }
+        }
+      }
+    },
+    "Engine loaded · %lld exercises" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Motor carregado · %lld exercícios"
+          }
+        }
+      }
+    },
+    "HexGym" : {
+      "shouldTranslate" : false
+    },
+    "Opening…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrindo…"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

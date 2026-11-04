@@ -17,6 +17,8 @@
 // issue #20 pôs o HexStore no fim da parte packages, e os dois deles que prendem as rodadas da parte
 // esperam também a dele. A issue #62 pôs o HexDesign logo depois do HexStore: o teste dela vem no
 // fim, e os mesmos dois esperam também a rodada do HexDesign.
+// Os quatro da issue #22 (a parte app e a conta do xcodebuild test) vêm depois, com um xcodebuild e um
+// xcrun de mentira numa pasta temporária, e nenhum roda o Xcode nem um simulador de verdade.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -34,7 +36,7 @@ test('no part means every part, in PARTS order', () => {
   assert.deepEqual(planChecks([]), Object.values(PARTS).flat())
 })
 test('an unknown part fails with the list of parts', () => {
-  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine, load, packages\)/)
+  assert.throws(() => planChecks(['x']), /parte desconhecida: x \(partes: scripts, engine, load, packages, app\)/)
 })
 test('runChecks stops at the first failure', async () => {
   const ran = []
@@ -365,4 +367,126 @@ test('the packages part runs HexDesign after HexStore, with the same flags and e
   assert.deepEqual(hexdesign.args(), hexstore.args().map(a => (a === 'apple/Packages/HexStore' ? 'apple/Packages/HexDesign' : a)))
   assert.ok(hexdesign.args().includes('apple/Packages/HexDesign'))
   assert.deepEqual(hexdesign.env(), hexstore.env())
+})
+
+// A parte app da issue #22, sem rodar nada: os dois builds da Task 9, sem assinatura, e a rodada de
+// testes do esquema HexGym, nesta ordem, as três com o DEVELOPER_DIR do Xcode completo. O args da
+// rodada de testes é uma função, porque o udid do simulador só sai na hora de rodar; o teste de ponta
+// a ponta, mais abaixo, prende o que ela devolve. Com o DEVELOPER_DIR /x, o env sai igual em qualquer
+// máquina.
+test('the app part builds the app and the Watch without signing, then runs the HexGym tests, each with the full Xcode', t => {
+  const before = process.env.DEVELOPER_DIR
+  t.after(() => { if (before === undefined) delete process.env.DEVELOPER_DIR; else process.env.DEVELOPER_DIR = before })
+  process.env.DEVELOPER_DIR = '/x'
+  const build = (scheme, platform) => ['xcodebuild', '-project', 'apple/HexGym.xcodeproj', '-scheme', scheme, '-destination', `generic/platform=${platform}`,
+    '-derivedDataPath', 'apple/DerivedData', 'CODE_SIGNING_ALLOWED=NO', 'build']
+  assert.deepEqual(PARTS.app.map(c => c.name), ['build do app', 'build do Watch', 'testes do app'])
+  assert.deepEqual(PARTS.app.slice(0, 2).map(c => [c.cmd, ...c.args]), [build('HexGym', 'iOS Simulator'), build('HexGymWatch', 'watchOS Simulator')])
+  assert.equal(PARTS.app[2].cmd, 'xcodebuild')
+  assert.equal(typeof PARTS.app[2].args, 'function')
+  assert.deepEqual(PARTS.app.map(c => c.env()), Array(3).fill({ DEVELOPER_DIR: '/x' }))
+  assert.equal(Object.keys(PARTS).at(-1), 'app')
+})
+
+// Um xcodebuild e um xcrun de mentira, numa pasta que sai no fim do teste: dois sh que chamam o Node,
+// para os caminhos acabarem em xcodebuild e xcrun. Cada um guarda, de cada chamada, os argumentos que
+// recebeu e o HEXGYM_CHECK_COUNT_FILE e o DEVELOPER_DIR que herdou.
+// O xcodebuild, com report e a ação test no fim, cria a pasta do -resultBundlePath e grava nela o
+// resumo, com 6 testes que passaram, 1 que falhou e 1 pulado. O xcrun responde a dois comandos: ao
+// simctl list devices available --json, com o SIMCTL; e ao xcresulttool get test-results summary, com
+// o resumo gravado na pasta do --path, ou com erro, sem ele.
+const PICKED = 'C7976575-8AEE-427B-AB22-EB5C92AE5817'
+const SIMCTL = JSON.stringify({ devices: {
+  'com.apple.CoreSimulator.SimRuntime.iOS-26-4': [{ udid: 'A0C4D3F2-C323-4966-8241-83A9FDADD60E', name: 'iPhone 17', isAvailable: true }],
+  'com.apple.CoreSimulator.SimRuntime.iOS-27-0': [
+    { udid: '0E263758-BDC6-4924-930C-6D2FC92A545D', name: 'iPad (A16)', isAvailable: true },
+    { udid: PICKED, name: 'iPhone 17 Pro', isAvailable: true },
+  ],
+} })
+const SUMMARY = JSON.stringify({ result: 'Failed', totalTestCount: 8, passedTests: 6, failedTests: 1, skippedTests: 1, expectedFailures: 0 })
+function fakeXcode(t, { report }) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hexgym-check-'))
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }))
+  const seen = path.join(tmp, 'seen.jsonl')
+  const record = tool => [
+    "const fs = require('node:fs')",
+    "const path = require('node:path')",
+    'const argv = process.argv.slice(2)',
+    "const { HEXGYM_CHECK_COUNT_FILE: countFile = null, DEVELOPER_DIR: dev = null } = process.env",
+    `fs.appendFileSync(${JSON.stringify(seen)}, JSON.stringify({ tool: ${JSON.stringify(tool)}, argv, countFile, dev }) + '\\n')`,
+  ]
+  const files = {
+    'xcodebuild.cjs': [
+      ...record('xcodebuild'),
+      ...(report ? [
+        "if (argv.at(-1) === 'test') {",
+        "  const bundle = argv[argv.indexOf('-resultBundlePath') + 1]",
+        '  fs.mkdirSync(bundle)',
+        `  fs.writeFileSync(path.join(bundle, 'summary.json'), ${JSON.stringify(SUMMARY)})`,
+        '}',
+      ] : []),
+    ].join('\n') + '\n',
+    'xcrun.cjs': [
+      ...record('xcrun'),
+      `if (argv[0] === 'simctl') process.stdout.write(${JSON.stringify(SIMCTL)})`,
+      "else if (argv[0] === 'xcresulttool') process.stdout.write(fs.readFileSync(path.join(argv[argv.indexOf('--path') + 1], 'summary.json'), 'utf8'))",
+      'else process.exitCode = 64',
+    ].join('\n') + '\n',
+  }
+  for (const tool of ['xcodebuild', 'xcrun']) files[tool] = `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(tmp, `${tool}.cjs`))} "$@"\n`
+  for (const [name, text] of Object.entries(files)) fs.writeFileSync(path.join(tmp, name), text)
+  for (const tool of ['xcodebuild', 'xcrun']) fs.chmodSync(path.join(tmp, tool), 0o755)
+  return {
+    cwd: tmp, cmd: path.join(tmp, 'xcodebuild'), env: { DEVELOPER_DIR: '/caminho/de/mentira', PATH: `${tmp}${path.delimiter}${process.env.PATH}` },
+    seen: () => (fs.existsSync(seen) ? fs.readFileSync(seen, 'utf8').trim().split('\n').map(l => JSON.parse(l)) : []),
+  }
+}
+
+test('an xcodebuild test check counts the passed tests of its result bundle, read with the same DEVELOPER_DIR, and does not get HEXGYM_CHECK_COUNT_FILE', async t => {
+  const xcode = fakeXcode(t, { report: true })
+  let tests
+  const check = { name: 'xcodebuild', cmd: xcode.cmd, args: ['-scheme', 'X', 'test'], cwd: xcode.cwd, env: xcode.env }
+  assert.equal(await spawnCheck(check, n => { tests = n }), 0)
+  assert.equal(tests, 6)
+  const [build, summary, ...rest] = xcode.seen(), bundle = build.argv[3]
+  assert.deepEqual(rest, [])
+  assert.deepEqual(build, { tool: 'xcodebuild', argv: ['-scheme', 'X', '-resultBundlePath', bundle, 'test'], countFile: null, dev: '/caminho/de/mentira' })
+  assert.deepEqual(summary, { tool: 'xcrun', argv: ['xcresulttool', 'get', 'test-results', 'summary', '--path', bundle, '--compact'], countFile: null, dev: '/caminho/de/mentira' })
+  assert.ok(!fs.existsSync(path.dirname(bundle)), 'a pasta da checagem sai no fim')
+})
+test('an xcodebuild test that writes no result bundle counts zero, and its part fails', async t => {
+  const xcode = fakeXcode(t, { report: false })
+  const app = [{ name: 'xcodebuild', cmd: xcode.cmd, args: ['test'], cwd: xcode.cwd, env: xcode.env }]
+  assert.deepEqual(await runParts({ app }), { ok: false, part: 'app', tests: 0 })
+  assert.deepEqual(xcode.seen().map(c => c.tool), ['xcodebuild'])
+})
+
+// A parte app de ponta a ponta, numa cópia do check.mjs com o xcode.mjs de verdade, que devolve o
+// DEVELOPER_DIR do ambiente, e o xcodebuild e o xcrun de mentira no começo do PATH. Os dois builds
+// não levam -resultBundlePath e contam zero; a rodada de testes vai para o iPhone que o pickSimulator
+// escolhe na lista do xcrun simctl, com -parallel-testing-enabled NO, e só ela conta: 6. Todas as
+// chamadas levam o mesmo DEVELOPER_DIR.
+test('the app part runs the two builds and the test run on the picked iPhone, and only the test run counts', t => {
+  const xcode = fakeXcode(t, { report: true })
+  const env = { ...WITHOUT_CONTEXT, ...xcode.env }
+  const r = runPart(copiedCheck(t), 'app', env)
+  assert.equal(r.status, 0, r.stderr)
+  assert.match(r.stdout, /\ntestes contados: app 6\nok\n$/)
+  const calls = xcode.seen()
+  assert.deepEqual(calls.map(c => [c.tool, c.argv[0], c.dev]), [
+    ['xcodebuild', '-project', '/caminho/de/mentira'],
+    ['xcodebuild', '-project', '/caminho/de/mentira'],
+    ['xcrun', 'simctl', '/caminho/de/mentira'],
+    ['xcodebuild', '-project', '/caminho/de/mentira'],
+    ['xcrun', 'xcresulttool', '/caminho/de/mentira'],
+  ])
+  const [app, watch, simctl, tests] = calls
+  const project = ['-project', 'apple/HexGym.xcodeproj'], derived = ['-derivedDataPath', 'apple/DerivedData']
+  assert.deepEqual(app.argv, [...project, '-scheme', 'HexGym', '-destination', 'generic/platform=iOS Simulator', ...derived, 'CODE_SIGNING_ALLOWED=NO', 'build'])
+  assert.deepEqual(watch.argv, [...project, '-scheme', 'HexGymWatch', '-destination', 'generic/platform=watchOS Simulator', ...derived, 'CODE_SIGNING_ALLOWED=NO', 'build'])
+  assert.deepEqual(simctl.argv, ['simctl', 'list', 'devices', 'available', '--json'])
+  const bundle = tests.argv.at(-2)
+  assert.deepEqual(tests.argv, [...project, '-scheme', 'HexGym', '-destination', `id=${PICKED}`, ...derived, '-parallel-testing-enabled', 'NO', '-resultBundlePath', bundle, 'test'])
+  assert.equal(tests.countFile, null)
+  assert.ok(app.countFile && watch.countFile, 'os builds são outro comando e recebem o arquivo da conta, em que nada grava')
 })

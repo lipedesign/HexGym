@@ -1422,6 +1422,8 @@ Em `apple/HexGymTests/AppModelTests.swift`, dentro de `@Suite @MainActor struct 
 
 (`state.origin` é um atalho de teste, numa extensão dentro do `AppModelTests.swift`.)
 
+Mais um teste, das notas do PR #69 (o HexStore lê com o `JSONSerialization`, que aceita uma vírgula sobrando, e o `JSON.parse` do motor não): `aDocumentTheEngineCannotReadFailsWithoutWriting`, com um `state.json` `{"a":1,}`, que o `load` dá como `.current`. Ele espera `.failed`, o `state.json` igual ao de antes e nenhum outro arquivo no diretório. São seis testes. O diretório temporário de cada teste é criado antes, porque o `save` do HexStore não cria pasta.
+
 - [ ] **Step 2: Write the failing test for `pickSimulator`**
 
 Em `scripts/hexgym/xcode.test.mjs`, com um JSON no formato de `xcrun simctl list devices available --json` que tem um iPhone 17 no iOS 26.4, um iPhone 17 Pro no iOS 27.0 e um iPad no iOS 27.0: `pickSimulator(json)` devolve o udid do iPhone 17 Pro; sem nenhum iPhone 26 ou acima, lança `Error` com `nenhum simulador de iPhone com iOS 26 ou mais novo`.
@@ -1429,7 +1431,7 @@ Em `scripts/hexgym/xcode.test.mjs`, com um JSON no formato de `xcrun simctl list
 - [ ] **Step 3: Run them to verify they fail**
 
 Run: `node --test scripts/hexgym/xcode.test.mjs` e `DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs) xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`
-Expected: FAIL, `pickSimulator is not a function` e `cannot find 'AppModel' in scope`.
+Expected: FAIL, `pickSimulator is not a function` e `cannot find type 'AppModel' in scope`. O compilador para na extensão do atalho `state.origin`, que nomeia o tipo; sem ela, o erro seria `cannot find 'AppModel' in scope`, nas chamadas dos testes.
 
 - [ ] **Step 4: Implement `AppModel`, the screen, the strings and `pickSimulator`**
 
@@ -1440,14 +1442,14 @@ Expected: FAIL, `pickSimulator is not a function` e `cannot find 'AppModel' in s
 `PARTS.app`, parte nova, com três checagens nesta ordem, cada uma com `env: () => ({ DEVELOPER_DIR: developerDir() })`:
 1. o build do app, o primeiro do passo 4 da Task 9;
 2. o build do Watch, o segundo do mesmo passo;
-3. a rodada de testes, `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`.
+3. a rodada de testes, `xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination id=<udid> -derivedDataPath apple/DerivedData -parallel-testing-enabled NO test`, com `args` como função que acha o `udid` com `pickSimulator` na hora de rodar, sobre a saída de `xcrun simctl list devices available --json` no mesmo `DEVELOPER_DIR`. O `-parallel-testing-enabled NO` faz os testes rodarem no próprio simulador, e não num clone que o `xcodebuild` cria desligando o original (QA do PR #81).
 
-Das três, só a rodada de testes entra na conta, porque build não roda teste. Como diz a Task 1, ela precisa mostrar ao `check.mjs` quantos testes rodou: senão, a parte `app` conta zero e falha. Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
+Das três, só a rodada de testes entra na conta, porque build não roda teste. Como diz a Task 1, ela precisa mostrar ao `check.mjs` quantos testes rodou: senão, a parte `app` conta zero e falha. A conta vem de um arquivo, como a do `swift test`: o `spawnCheck` reconhece o `xcodebuild` com a ação `test` no fim, acrescenta `-resultBundlePath` numa pasta temporária da checagem e conta o `passedTests` de `xcrun xcresulttool get test-results summary --path <resultado> --compact`, no mesmo `DEVELOPER_DIR`. Por isso a checagem não leva o `-resultBundlePath`. Atualizar a mensagem esperada do teste "unknown part" com as partes que existem.
 
 - [ ] **Step 6: Run the checks**
 
 Run: `node scripts/hexgym/check.mjs scripts app`
-Expected: `ok`, com os cinco testes do `AppModelTests` passando.
+Expected: `ok`, com os seis testes do `AppModelTests` passando e `testes contados: …, app 6`.
 
 - [ ] **Step 7: See it run**
 

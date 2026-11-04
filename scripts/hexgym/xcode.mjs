@@ -9,7 +9,9 @@
 // O Xcode-beta nunca é escolhido: é pré-lançamento, e o desta máquina está sem os componentes da
 // primeira abertura (decisão do tech lead, 03/11/2026). Sem nenhum, um erro diz o que fazer.
 // O swiftTestFlags dá os argumentos que o swift test precisa com aquele swift: com as Command Line
-// Tools, o caminho do plugin do TestingMacros, e com um Xcode completo, nenhum.
+// Tools, o caminho do plugin do TestingMacros, e com um Xcode completo, nenhum. O pickSimulator
+// escolhe, entre os simuladores que já existem, o iPhone em que a parte app do check.mjs roda os
+// testes.
 //
 //   node scripts/hexgym/xcode.mjs                    # o Xcode completo: xcodebuild, xcrun e codesign
 //   node scripts/hexgym/xcode.mjs --swift            # o do swift test dos pacotes
@@ -64,6 +66,32 @@ export function developerDir({
 export function swiftTestFlags(dir, { exists = fs.existsSync } = {}) {
   if (String(dir).replace(/\/+$/, '') !== CLT || !exists(TESTING_MACROS)) return []
   return ['-Xswiftc', '-load-plugin-library', '-Xswiftc', TESTING_MACROS]
+}
+
+// O udid do simulador em que os testes do app rodam, pelo texto de xcrun simctl list devices available
+// --json: no iOS mais novo que for 26 ou acima, o primeiro aparelho disponível com o nome começando
+// por family. Só escolhe entre os que existem: não cria, não liga e não apaga nenhum. Sem nenhum, um
+// erro diz o que falta.
+export function pickSimulator(simctlJSON, family = 'iPhone') {
+  const { devices = {} } = JSON.parse(simctlJSON)
+  let best = null
+  for (const [runtime, list] of Object.entries(devices)) {
+    // com.apple.CoreSimulator.SimRuntime.iOS-27-0: o sistema e a versão, com o terceiro número opcional.
+    const m = /\.iOS-(\d+)-(\d+)(?:-(\d+))?$/.exec(runtime)
+    if (!m) continue
+    const version = m.slice(1).map(n => Number(n ?? 0))
+    if (version[0] < 26 || (best && compareVersions(version, best.version) <= 0)) continue
+    const device = list.find(d => d.isAvailable === true && typeof d.name === 'string' && d.name.startsWith(family))
+    if (device) best = { version, udid: device.udid }
+  }
+  if (!best) throw new Error(`nenhum simulador de ${family} com iOS 26 ou mais novo`)
+  return best.udid
+}
+
+// Compara duas versões [maior, menor, correção]: negativo, zero ou positivo.
+function compareVersions(a, b) {
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i]
+  return 0
 }
 
 // A CLI: imprime o caminho, ou os argumentos do swift test separados por espaço (nada, quando não há

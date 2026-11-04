@@ -1,11 +1,15 @@
-// O app do iPhone. Nesta fase, só a tela provisória com a marca; a Task 10 liga o motor e os dados.
+// O app do iPhone. Ao abrir, carrega o motor e o documento de dados (AppModel), e a tela provisória
+// mostra a marca e o que aconteceu.
 import SwiftUI
 
 @main
 struct HexGymApp: App {
+  @State private var model = AppModel.live()
+
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      ContentView(model: model)
+        .task { await model.start() }
     }
   }
 }
