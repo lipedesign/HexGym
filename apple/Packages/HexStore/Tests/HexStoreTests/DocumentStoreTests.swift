@@ -1,7 +1,8 @@
-// Os testes do HexStore, o documento de dados no App Group (seção 8.3 do design doc). Os 14 testes
-// são os do passo 1 da Task 8 do plano da fase 0, com o texto de lá, e os marcados com o Foco da
-// revisão prendem os itens 1 e 2 dele. Cada teste roda num diretório temporário novo: o Swift Testing
-// cria uma DocumentStoreTests para cada um, e o deinit apaga o diretório no fim.
+// Os testes do HexStore, o documento de dados no App Group (seção 8.3 do design doc). Os 15 testes
+// são os do passo 1 da Task 8 do plano da fase 0, com o texto de lá, e o 15º entrou depois do QA
+// do PR #69. Os marcados com o Foco da revisão prendem os itens 1 e 2 dele. Cada teste roda num
+// diretório temporário novo: o Swift Testing cria uma DocumentStoreTests para cada um, e o deinit
+// apaga o diretório no fim.
 //
 //   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) \
 //     --package-path apple/Packages/HexStore
@@ -107,5 +108,12 @@ import HexStore
     #expect(throws: DocumentStoreError.appGroupUnavailable("group.app.hexgym")) {
       try DocumentStore.appGroupDirectory(lookup: { _ in nil })
     }
+  }
+  @Test func aDocumentNestedTooDeepIsBrokenAndNothingCrashes() async throws {   // QA do PR #69
+    func nested(_ levels: Int) -> Data { Data((String(repeating: #"{"a":"#, count: levels) + "1" + String(repeating: "}", count: levels)).utf8) }
+    try await store.save(nested(128)); #expect(try await store.load() == .current(nested(128)))
+    await #expect(throws: DocumentStoreError.notAnObject) { try await store.save(nested(129)) }
+    write("state.json", nested(1000)); write("state.previous.json", a)
+    #expect(try await store.load() == .recovered(a))
   }
 }

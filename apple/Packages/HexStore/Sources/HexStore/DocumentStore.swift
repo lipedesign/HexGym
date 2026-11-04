@@ -186,15 +186,14 @@ public actor DocumentStore {
     contents == nil ? "falta" : "não é um objeto JSON"
   }
 
-  // Se o JSON.parse leria os bytes como um objeto: o JSONSerialization lê os bytes como um objeto, ou
-  // lê assim uma cópia em que cada escape de surrogate sem par virou \ufffd, o escape do �. O
+  // Se o JSON.parse leria os bytes como um objeto. Antes do JSONSerialization, o bytesToParse recusa
+  // o que ele não deve ler e troca cada escape de surrogate sem par pelo escape do U+FFFD: o
   // JSONSerialization recusa um surrogate sozinho, e o JSON.stringify grava um no texto de um emoji
-  // cortado ao meio (Foco da revisão 2). A cópia serve só para conferir: o que se grava e o que se
+  // cortado ao meio (Foco da revisão 2). A troca serve só para conferir: o que se grava e o que se
   // devolve são sempre os bytes de antes.
   private static func isObject(_ data: Data) -> Bool {
-    if parsesAsObject(data) { return true }
-    guard let copy = replacingLoneSurrogates(in: data) else { return false }
-    return parsesAsObject(copy)
+    guard let readable = bytesToParse(data) else { return false }
+    return parsesAsObject(readable)
   }
 
   // Um objeto JSON sai do JSONSerialization como NSDictionary. O erro da leitura quer dizer só que os
@@ -204,22 +203,51 @@ public actor DocumentStore {
     return object is NSDictionary
   }
 
+  // Quantos níveis de { e [ um documento pode ter. Os documentos de verdade têm uns 7. O
+  // JSONSerialization desce um nível por chamada e, na pilha de 512 KiB da thread do ator, derrubava o
+  // app a partir de uns 480 (QA do PR #69).
+  private static let maxDepth = 128
+
   private static let backslash = UInt8(ascii: "\\")
+  private static let quote = UInt8(ascii: "\"")
   private static let high = 0xD800...0xDBFF
   private static let low = 0xDC00...0xDFFF
   private static let replacement = Array(#"\ufffd"#.utf8)
 
-  // Uma cópia dos bytes em que cada escape \uXXXX de surrogate sem par virou \ufffd, ou nil quando não
-  // há nenhum. Sem par quer dizer um \ud800 a \udbff sem um \udc00 a \udfff logo depois, ou um destes
-  // sem aquele logo antes; um par fica como está. A troca é de seis bytes por seis, e o resto da cópia
-  // fica igual. Fora de um texto JSON, uma barra já deixa o JSON inválido, então não é preciso saber
-  // onde cada texto começa: cada barra começa um escape, e um \\ é uma barra escrita, que não começa
-  // nenhum.
-  private static func replacingLoneSurrogates(in data: Data) -> Data? {
+  // Os bytes para o JSONSerialization ler, ou nil quando o documento já é ruim sem ele, numa varredura
+  // só:
+  //   - um byte 0, em qualquer lugar, é ruim: um JSON em UTF-8 não tem nenhum, e com ele o
+  //     JSONSerialization poderia ler os bytes como UTF-16 ou UTF-32, em que esta varredura não vale;
+  //   - fora dos textos, ela conta os níveis de { e [, e passar de maxDepth é ruim;
+  //   - dentro dos textos, cada escape de surrogate sem par vira o escape do U+FFFD, seis bytes no
+  //     lugar de seis, para os índices não mudarem. Sem par quer dizer um \ud800 a \udbff sem um
+  //     \udc00 a \udfff logo depois, ou um destes sem aquele logo antes; um par fica como está.
+  // Dentro de um texto, cada barra começa um escape, e um \\ é uma barra escrita, que não começa
+  // nenhum. Sem nada trocado, devolve os próprios bytes.
+  private static func bytesToParse(_ data: Data) -> Data? {
     let bytes = [UInt8](data)
-    var copy = bytes, changed = false, i = 0
+    guard !bytes.contains(0) else { return nil }
+    var copy = bytes, changed = false, depth = 0, inText = false, i = 0
     while i < bytes.count {
-      guard bytes[i] == backslash else { i += 1; continue }
+      let byte = bytes[i]
+      if !inText {
+        switch byte {
+        case quote: inText = true
+        case UInt8(ascii: "{"), UInt8(ascii: "["):
+          depth += 1
+          if depth > maxDepth { return nil }
+        case UInt8(ascii: "}"), UInt8(ascii: "]"): depth = max(depth - 1, 0)
+        default: break
+        }
+        i += 1
+        continue
+      }
+      if byte == quote {
+        inText = false
+        i += 1
+        continue
+      }
+      guard byte == backslash else { i += 1; continue }
       // \", \\, \n e os outros escapes de dois bytes.
       guard let unit = escapedUnit(bytes, at: i) else { i += 2; continue }
       if high.contains(unit), let next = escapedUnit(bytes, at: i + 6), low.contains(next) {
@@ -232,7 +260,7 @@ public actor DocumentStore {
       }
       i += 6
     }
-    return changed ? Data(copy) : nil
+    return changed ? Data(copy) : data
   }
 
   // O valor do escape \uXXXX que começa em i, ou nil quando ali não começa um.
