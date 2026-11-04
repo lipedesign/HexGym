@@ -84,6 +84,9 @@ const appTests = () => {
 // Na parte scripts, depois dos testes dos scripts, as duas rodadas do gerador de regiões (issue #12),
 // no Python 3 da máquina, isolado (-I) e só com a biblioteca padrão: o --check não conta teste, e o
 // run_tests.py grava a conta no arquivo de COUNT_FILE.
+// Na parte engine, os pacotes de idioma (scripts/build-hexgym-langs.mjs) vêm antes do script do
+// motor: o --check deles não conta teste, e o language.test.mjs, que lê os pacotes guardados, cai no
+// glob dos testes do script do motor.
 export const PARTS = {
   scripts: [
     { name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] },
@@ -91,6 +94,7 @@ export const PARTS = {
     { name: 'testes do gerador de regiões', cmd: 'python3', args: ['-I', 'scripts/hexbody/regions/run_tests.py'] },
   ],
   engine: [
+    { name: 'idiomas em dia', cmd: 'node', args: ['scripts/build-hexgym-langs.mjs', '--check'] },
     { name: 'script do motor em dia', cmd: 'node', args: ['scripts/build-hexgym-engine.mjs', '--check'] },
     { name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] },
     { name: 'testes do script do motor', cmd: 'node', args: ['--test', 'apple/Packages/HexEngine/JS/*.test.mjs'] },

@@ -7,7 +7,8 @@
 // lado (hexengine.js.sha256), e o bundledScript() é o único lugar que o descomprime. O host.js traz
 // o console e os timers, que o JavaScriptCore não tem, pelas duas pontes que o bridge(_:) põe no
 // contexto. Uma exceção do JS vira EngineError.javaScript("<mensagem>\n<pilha>"), e o contexto segue
-// usável na chamada seguinte.
+// usável na chamada seguinte. O load() carrega também o pacote do idioma do aparelho e o en, de
+// Resources/langs (Language.swift).
 
 import Foundation
 import JavaScriptCore
@@ -16,6 +17,9 @@ import os
 public struct EngineInfo: Equatable, Sendable {
   public let exercises: Int
   public let openGymVersion: String
+  // O idioma de LANGS do openGym em que o motor responde, escolhido pelas línguas do aparelho
+  // (EngineLanguage.tag(for:)).
+  public let language: String
 }
 
 public enum EngineError: Error, Equatable, Sendable {
@@ -25,7 +29,8 @@ public enum EngineError: Error, Equatable, Sendable {
 public actor HexEngine {
   static let logger = Logger(subsystem: "app.hexgym", category: "motor")
 
-  private let language: String
+  // As línguas do aparelho, na ordem de preferência.
+  private let languages: [String]
   private var context: JSContext?
   // O global HexEngine que o script cria, com o que runtime.js exporta, o call e os __modules.
   private var engine: JSValue?
@@ -34,13 +39,18 @@ public actor HexEngine {
   // que falhou não dispara no contexto de outro load().
   private var generation = 0
 
-  public init(language: String = Locale.preferredLanguages.first ?? "en") {
-    self.language = language
+  public init(languages: [String] = Locale.preferredLanguages) {
+    self.languages = languages
   }
 
-  // Avalia o host.js e o script do motor num contexto novo, diz ao motor a língua do aparelho e lê
-  // o info(). Da segunda vez em diante, devolve o mesmo, sem avaliar de novo. Um load() que falha
-  // não guarda nada, e o seguinte começa outro contexto.
+  // Uma língua só, como se o aparelho tivesse só ela.
+  public init(language: String) {
+    self.init(languages: [language])
+  }
+
+  // Avalia o host.js e o script do motor num contexto novo, diz ao motor a língua do aparelho,
+  // carrega o pacote do idioma e o en e lê o info(). Da segunda vez em diante, devolve o mesmo, sem
+  // avaliar de novo. Um load() que falha não guarda nada, e o seguinte começa outro contexto.
   public func load() throws -> EngineInfo {
     if let info { return info }
     let script = try Self.bundledScript().script
@@ -58,13 +68,20 @@ public actor HexEngine {
     try check(context)
     guard let engine = context.objectForKeyedSubscript("HexEngine"), engine.isObject
     else { throw EngineError.javaScript("HexEngine: o script não criou o global HexEngine") }
-    _ = engine.invokeMethod("setDeviceLanguage", withArguments: [language])
+    // A primeira língua do aparelho vai para o documento novo, como no primeiro uso do app web
+    // (freshState); o idioma das telas e dos nomes sai do pacote e nunca é gravado no documento.
+    _ = engine.invokeMethod("setDeviceLanguage", withArguments: [languages.first ?? "en"])
+    try check(context)
+    let language = EngineLanguage.tag(for: languages)
+    let en = try EngineLanguage.packText("en")
+    let own: Any = language == "en" ? NSNull() : try EngineLanguage.packText(language)
+    _ = engine.invokeMethod("setLanguage", withArguments: [en, own, language])
     try check(context)
     let text = try Self.text(engine.invokeMethod("info", withArguments: []), from: "info", in: context)
     guard let json = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any],
           let exercises = json["exercises"] as? Int, let version = json["openGymVersion"] as? String
     else { throw EngineError.javaScript("HexEngine: o info() devolveu \(text)") }
-    let info = EngineInfo(exercises: exercises, openGymVersion: version)
+    let info = EngineInfo(exercises: exercises, openGymVersion: version, language: language)
     (self.context, self.engine, self.info) = (context, engine, info)
     return info
   }

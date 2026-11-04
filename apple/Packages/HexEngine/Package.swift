@@ -15,6 +15,8 @@ let package = Package(
         .copy("Resources/hexengine.js.deflate"),
         .copy("Resources/hexengine.js.sha256"),
         .copy("Resources/host.js"),
+        // Os pacotes de idioma (scripts/build-hexgym-langs.mjs) e o index.json deles.
+        .copy("Resources/langs"),
       ]
     ),
     .testTarget(name: "HexEngineTests", dependencies: ["HexEngine"], resources: [.copy("Cases")]),
