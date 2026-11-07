@@ -23,6 +23,11 @@
 //   restore+search   o HexEngine.search de "supino" logo depois do restore de outro documento (o
 //                    mesmo histórico com outro descanso padrão, como a cópia que chega de outro
 //                    aparelho), sem o catálogo antes: o índice da busca tem que sobreviver à troca;
+//   reabrir          o HexEngine.catalogue() e o HexEngine.search de "supino" logo depois do restore
+//                    de um documento com outros apelidos (o exAliases de uma cópia de outro aparelho),
+//                    que obrigam o openGym a refazer o índice da busca: como a lista do app, que pede o
+//                    catálogo antes da busca quando aparece (LibraryModel, Task 9; achado do QA do PR
+//                    #108);
 //   tick             a mediana de 20 séries marcadas, cada uma como o update() do app web faz;
 //   fatigue          o fatigueOf do histórico, só para registro;
 //   structuredClone  se a cópia de um objeto com Date, Map, Set e referência circular é igual ao
@@ -32,7 +37,8 @@
 // aparece em menos de 100 ms), com folga de três vezes para um iPhone mais lento que este Mac:
 // evaluate + idioma + restore até 300 ms e tick até 30 ms. As da biblioteca (Task 4 do plano da fase
 // 2, escolha recomendada, com a delegação do Lipe de 03/11/2026, tiradas do toque de 100 ms): o
-// catálogo até 400 ms e a busca até 100 ms, a primeira e a de depois do restore (Task 5). Fora delas, o script sai com 1. A descompressão dos
+// catálogo até 400 ms e a busca até 100 ms, a primeira e a de depois do restore (Task 5), e as duas
+// também ao reabrir com outros apelidos (Task 9). Fora delas, o script sai com 1. A descompressão dos
 // pacotes, que no app é do Swift, fica fora da medida do jsc.
 //
 // Chamado pelo scripts/hexgym/check.mjs, na parte load, ele grava no arquivo que o check.mjs passa
@@ -69,7 +75,7 @@ const CATALOGUE_MS = 400
 const SEARCH_MS = 100
 // A busca da medida: o nome do supino em pt-BR, que o founder procura.
 const QUERY = 'supino'
-const METAS = ['evaluate + idioma + restore', 'tick', 'catálogo', 'busca', 'busca depois do restore', 'structuredClone']
+const METAS = ['evaluate + idioma + restore', 'tick', 'catálogo', 'busca', 'busca depois do restore', 'reabrir com outros apelidos', 'structuredClone']
 // A variável em que o check.mjs passa o arquivo da conta (o COUNT_FILE de lá).
 const COUNT_FILE = 'HEXGYM_CHECK_COUNT_FILE'
 
@@ -138,6 +144,11 @@ export function overBudget(results, slack = 1) {
   if (!(results.searchAfterRestore <= SEARCH_MS * slack)) {
     over.push(`busca depois do restore: ${round(results.searchAfterRestore)} ms (meta ${round(SEARCH_MS * slack)})`)
   }
+  // Uma meta só, com os dois tempos: a lista só responde depois dos dois.
+  if (!(results.catalogueAfterAliases <= CATALOGUE_MS * slack && results.searchAfterAliases <= SEARCH_MS * slack)) {
+    over.push(`reabrir com outros apelidos: catálogo ${round(results.catalogueAfterAliases)} ms (meta ${round(CATALOGUE_MS * slack)}), `
+      + `busca ${round(results.searchAfterAliases)} ms (meta ${round(SEARCH_MS * slack)})`)
+  }
   if (results.structuredClone !== true) over.push('structuredClone diferente no JavaScriptCore')
   return over
 }
@@ -198,6 +209,20 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag, query) {
   const foundAgain = JSON.parse(HexEngine.search(JSON.stringify({ query }))).ids.length
   const searchAfterRestore = ms(t, preciseTime())
   if (foundAgain !== found) throw new Error(`a busca de ${query} depois do restore achou ${foundAgain}, e a de antes, ${found}`)
+
+  // Outro documento com um apelido a mais, como a cópia de outro aparelho: o openGym refaz o índice da
+  // busca com ele (corpusOf, lib/exercises.js). A lista do app pede o catálogo antes da busca quando
+  // aparece, e o catálogo monta o índice (library.js); a busca de depois não pode passar da meta.
+  const aliased = JSON.parse(json)
+  aliased.exAliases = { ...(aliased.exAliases || {}), '0025': ['supino do hexgym'] }
+  HexEngine.restore(JSON.stringify(aliased))
+  t = preciseTime()
+  JSON.parse(HexEngine.catalogue())
+  const catalogueAfterAliases = ms(t, preciseTime())
+  t = preciseTime()
+  const foundAliased = JSON.parse(HexEngine.search(JSON.stringify({ query }))).ids.length
+  const searchAfterAliases = ms(t, preciseTime())
+  if (foundAliased < found) throw new Error(`a busca de ${query} com outros apelidos achou ${foundAliased}, e a de antes, ${found}`)
 
   const M = HexEngine.__modules
   const { draftOf, clone } = M['frontend/src/lib/state-core.js']
@@ -278,7 +303,8 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag, query) {
   }
 
   print(JSON.stringify({
-    evaluate, language, restore, tick: median(times), fatigue, catalogue, search, searchAfterRestore, structuredClone: same(original, copy),
+    evaluate, language, restore, tick: median(times), fatigue, catalogue, search, searchAfterRestore, catalogueAfterAliases, searchAfterAliases,
+    structuredClone: same(original, copy),
     workouts: S.workouts.length, ticks: times.length, listed, found,
   }))
 }
@@ -300,7 +326,7 @@ function runJsc(jsc, files) {
   } catch {
     throw new Error(`o jsc não deu o JSON da medição:\n${said}`)
   }
-  for (const k of ['evaluate', 'language', 'restore', 'tick', 'fatigue', 'catalogue', 'search', 'searchAfterRestore']) {
+  for (const k of ['evaluate', 'language', 'restore', 'tick', 'fatigue', 'catalogue', 'search', 'searchAfterRestore', 'catalogueAfterAliases', 'searchAfterAliases']) {
     if (!Number.isFinite(out[k])) throw new Error(`a medição do jsc veio sem ${k}: ${line}`)
   }
   if (typeof out.structuredClone !== 'boolean' || out.ticks !== TICKS) throw new Error(`a medição do jsc veio incompleta: ${line}`)
@@ -322,6 +348,8 @@ function table(results, runs, { total, slack, tag }) {
     [`catálogo (${results.listed} exercícios)`, ms(results.catalogue), each('catalogue'), meta(CATALOGUE_MS)],
     [`busca ("${QUERY}", a primeira do contexto)`, ms(results.search), each('search'), meta(SEARCH_MS)],
     [`busca ("${QUERY}", a primeira depois do restore de outro documento)`, ms(results.searchAfterRestore), each('searchAfterRestore'), meta(SEARCH_MS)],
+    ['catálogo ao reabrir com outros apelidos', ms(results.catalogueAfterAliases), each('catalogueAfterAliases'), meta(CATALOGUE_MS)],
+    [`busca ("${QUERY}", logo depois desse catálogo)`, ms(results.searchAfterAliases), each('searchAfterAliases'), meta(SEARCH_MS)],
     ['structuredClone', results.structuredClone ? 'igual nas 5' : 'diferente', runs.map(r => (r.structuredClone ? 'igual' : 'diferente')).join(', '), 'igual'],
   ]
   return [
@@ -407,6 +435,8 @@ export async function main(argv = [], { jsc = JSC, env = process.env } = {}) {
       catalogue: median(runs.map(r => r.catalogue)),
       search: median(runs.map(r => r.search)),
       searchAfterRestore: median(runs.map(r => r.searchAfterRestore)),
+      catalogueAfterAliases: median(runs.map(r => r.catalogueAfterAliases)),
+      searchAfterAliases: median(runs.map(r => r.searchAfterAliases)),
       listed: runs[0].listed,
       structuredClone: runs.every(r => r.structuredClone),
     }
