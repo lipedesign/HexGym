@@ -53,6 +53,9 @@ import os
   private var pendingSave: Task<Void, Never>?
   // A última gravação, para a seguinte esperar por ela e o flush() só voltar com tudo no disco.
   private var lastWrite: Task<Void, Never>?
+  // Os perform que ainda esperam o engine.apply, e quem espera eles acabarem (o flush()).
+  private var applying = 0
+  private var applyWaiters: [CheckedContinuation<Void, Never>] = []
 
   private static let logger = Logger(subsystem: "app.hexgym", category: "app")
 
@@ -96,6 +99,8 @@ import os
   // muda. Devolve o resultado da ação.
   func perform(_ action: EngineAction) async throws -> ActionOutcome {
     guard case .ready = state else { throw EngineError.notLoaded }
+    applying += 1
+    defer { finishApply() }
     let outcome = try await engine.apply(action)
     if outcome.changed {
       revision += 1
@@ -106,11 +111,23 @@ import os
   }
 
   // Grava na hora o que ainda não foi gravado e só volta com tudo no disco, inclusive uma gravação
-  // que já estava saindo. É o que o app chama ao ir para o fundo.
+  // que já estava saindo e uma ação que ainda rodava no motor: sem esperar por ela, o flush() acharia
+  // o documento gravado, e a mudança dela ficaria para a gravação de 0,5 s, que pode não sair antes
+  // de o sistema suspender o app. É o que o app chama ao ir para o fundo.
   func flush() async {
+    if applying > 0 { await withCheckedContinuation { applyWaiters.append($0) } }
     pendingSave?.cancel()
     pendingSave = nil
     await write()
+  }
+
+  // Um perform acabou, com a mudança já marcada para gravar; o último solta quem esperava.
+  private func finishApply() {
+    applying -= 1
+    guard applying == 0 else { return }
+    let waiters = applyWaiters
+    applyWaiters = []
+    for waiter in waiters { waiter.resume() }
   }
 
   private func scheduleSave() {

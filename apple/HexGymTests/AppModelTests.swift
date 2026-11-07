@@ -104,9 +104,19 @@ import Testing
     await model.flush()
     let saved = read("state.json")
     #expect(saved != created); #expect(saved == (try await model.engine.document()))
-    // A gravação marcada para depois foi cancelada: nada mais sai, e a cópia anterior fica a criada.
+    // Uma ação ainda rodando no motor quando o app vai para o fundo: o flush() espera por ela e grava o
+    // que ela mudou. O yield deixa o perform começar e parar no engine.apply antes do flush().
+    let late = Task { try await model.perform(.createRoutine(name: "B")) }
+    await Task.yield()
+    await model.flush()
+    let flushed = read("state.json")
+    let routines = (try JSONSerialization.jsonObject(with: flushed) as? [String: Any])?["routines"] as? [[String: Any]]
+    #expect(routines?.compactMap { $0["name"] as? String } == ["A", "B"])
+    #expect(try await late.value.changed)
+    // A gravação marcada para depois foi cancelada: nada mais sai, e a cópia anterior fica a do
+    // primeiro flush().
     try await Task.sleep(for: AppModel.saveDelay * 2)
-    #expect(read("state.json") == saved); #expect(read("state.previous.json") == created)
+    #expect(read("state.json") == flushed); #expect(read("state.previous.json") == saved)
   }
 }
 
