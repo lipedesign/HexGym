@@ -18,7 +18,8 @@
 // "Músculos", "Como fazer" e "Sobre o exercício" no headline do HexDesign, a barra sem título (o nome
 // grande já está no topo), a estrela e o "Adicionar à rotina" como símbolos na barra (o VoiceOver diz o
 // nome, e a Visualização de Conteúdo Grande mostra o nome nos tamanhos de acessibilidade), "Nova rotina"
-// no fim do menu, depois das rotinas, e a faixa da confirmação por 2,5 s.
+// no fim do menu, depois das rotinas, e a faixa da confirmação por 2,5 s. Desde a Task 11, a rotina que
+// já tem o exercício leva a marca da Apple no menu.
 import HexDesign
 import SwiftUI
 
@@ -182,8 +183,13 @@ struct ExerciseDetailView: View {
         Menu {
           ForEach(screen.routines) { routine in
             Button { Task { await screen.add(to: routine.id) } } label: {
-              Text(verbatim: routine.name)
+              if routine.hasExercise {
+                Label(routine.name, systemImage: "checkmark")
+              } else {
+                Text(verbatim: routine.name)
+              }
             }
+            .accessibilityLabel(Text(verbatim: routine.spoken))
           }
           if !screen.routines.isEmpty { Divider() }
           Button { Task { await screen.addToNewRoutine() } } label: {

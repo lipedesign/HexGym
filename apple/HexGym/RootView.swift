@@ -1,9 +1,9 @@
 // A raiz do app do iPhone (Task 6 do plano da fase 2): enquanto o motor e o documento abrem, um
 // ProgressView; se não deu para abrir, a tela de erro, com a marca e a linha de sempre, sem abas; e,
 // com o documento aberto, a TabView da Apple com as três abas, Rotinas, Exercícios e Ajustes, cada uma
-// com o seu NavigationStack. Os Exercícios são a biblioteca (LibraryView, Task 9), e um toque abre o
-// detalhe do exercício (Task 10); as Rotinas mostram um ContentUnavailableView até a Task 11. O detalhe
-// de um erro vai para o log, nunca para a tela.
+// com o seu NavigationStack. As Rotinas são a lista das rotinas, com o editor (RoutinesView, Task 11); os
+// Exercícios são a biblioteca (LibraryView, Task 9), e um toque abre o detalhe do exercício (Task 10). O
+// detalhe de um erro vai para o log, nunca para a tela.
 //
 // Antes das abas, a primeira abertura (Task 7), quando o documento foi criado agora ou quando este
 // aparelho nunca a viu (OnboardingLaunch.shouldShow). No fim dela, as abas entram com um esmaecido.
@@ -81,6 +81,13 @@ private struct RootTabs: View {
   @State private var tab = RootTab.launch()
   // A biblioteca, criada uma vez com o documento aberto: o catálogo fica guardado entre as abas.
   @State private var library: LibraryModel
+  // A lista das rotinas e a biblioteca da escolha de exercícios do editor, separada da aba Exercícios,
+  // para a busca de uma não aparecer na outra.
+  @State private var routines: RoutinesScreen
+  @State private var pickLibrary: LibraryModel
+  // A pilha da aba Rotinas: o editor de uma rotina por cima da lista. Com -HexGymRoutine, a lista abre
+  // o editor da rotina pedida (RoutinesLaunch).
+  @State private var routinesPath: [RoutineRoute] = []
   // Só com -HexGymLibraryPick YES: os escolhidos no modo de escolha, para os prints (LibraryLaunch).
   @State private var picked: [String] = []
   // A pilha da aba Exercícios: o detalhe de um exercício por cima da lista. Com -HexGymExercise <id>, já
@@ -93,13 +100,15 @@ private struct RootTabs: View {
   init(model: AppModel) {
     self.model = model
     _library = State(initialValue: LibraryModel(app: model))
+    _routines = State(initialValue: RoutinesScreen(app: model))
+    _pickLibrary = State(initialValue: LibraryModel(app: model))
   }
 
   var body: some View {
     TabView(selection: $tab) {
       Tab("Routines", systemImage: "list.bullet.rectangle", value: RootTab.routines) {
-        NavigationStack {
-          PendingTab(title: "Routines", systemImage: "list.bullet.rectangle")
+        NavigationStack(path: $routinesPath) {
+          RoutinesView(screen: routines, library: pickLibrary, path: $routinesPath)
         }
         .background { BreathingGlow() }
       }
@@ -120,21 +129,6 @@ private struct RootTabs: View {
         .background { BreathingGlow() }
       }
     }
-  }
-}
-
-// Uma aba que ainda não tem tela: o estado vazio da Apple, com o nome da aba.
-private struct PendingTab: View {
-  let title: LocalizedStringKey
-  let systemImage: String
-
-  var body: some View {
-    ContentUnavailableView {
-      Label(title, systemImage: systemImage)
-    } description: {
-      Text("Coming in a later version.")
-    }
-    .containerBackground(.clear, for: .navigation)
   }
 }
 
