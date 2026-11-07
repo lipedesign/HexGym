@@ -69,12 +69,17 @@ struct OnboardingView: View {
     }
   }
 
-  // O topo de cada passo: os segmentos inclinados, com o atual no accent a 35%, e "Passo 1 de 3" em
-  // texto. Para o VoiceOver, um elemento só, que ele diz sem a caixa alta da tela.
+  // O topo de cada passo: os segmentos inclinados, com o passo atual e os de antes acesos no accent (o
+  // passo 1 acende um, e o 3, os três), e "Passo 1 de 3" em texto. Para o VoiceOver, um elemento só,
+  // que ele diz sem a caixa alta da tela.
+  //
+  // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o passo atual conta como aceso (QA do
+  // PR #111: no passo 1, com o atual a 35%, nenhum parecia aceso, e no Ciano e no Giz & Ferro ele ficava
+  // quase cinza).
   private func position(_ step: OnboardingFlow.Step) -> some View {
     let text = OnboardingText(locale: locale).position(step)
     return VStack(alignment: .leading, spacing: HexSpacing.xs) {
-      SlantedSegments(total: OnboardingFlow.stepCount, done: step.rawValue - 1)
+      SlantedSegments(total: OnboardingFlow.stepCount, done: step.rawValue)
         .frame(maxWidth: 120)
       Text(verbatim: text)
         .hexFont(.caption)
@@ -299,7 +304,8 @@ private struct OptionRow: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .accessibilityElement(children: .ignore)
+    // O próprio Button é o elemento, com o rótulo por cima: ele leva a ação, e o toque do VoiceOver, do
+    // Controle por Botão e do teclado escolhe (QA do PR #111).
     .accessibilityLabel(Text(verbatim: label))
     .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
   }
@@ -356,7 +362,8 @@ private struct BodyTile: View {
       .contentShape(shape)
     }
     .buttonStyle(.plain)
-    .accessibilityElement(children: .ignore)
+    // O próprio Button é o elemento, com o rótulo por cima: ele leva a ação, e o toque do VoiceOver, do
+    // Controle por Botão e do teclado escolhe (QA do PR #111).
     .accessibilityLabel(Text(verbatim: label))
     .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
   }

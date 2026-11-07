@@ -331,7 +331,8 @@ struct ThemeChoiceRow: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .accessibilityElement(children: .ignore)
+    // O próprio Button é o elemento, com o rótulo por cima: ele leva a ação, e o toque do VoiceOver, do
+    // Controle por Botão e do teclado escolhe (QA do PR #111).
     .accessibilityLabel(Text(verbatim: theme.displayName(locale: locale)))
     .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
   }
