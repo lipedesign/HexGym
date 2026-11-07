@@ -1,15 +1,18 @@
 // O app do iPhone. Ao abrir, carrega o motor e o documento de dados (AppModel), e a tela provisória
-// mostra a marca e o que aconteceu. O tema do aparelho (o ThemeModel, nos UserDefaults do App Group)
+// mostra a marca e o que aconteceu. Quando a cena vai para o fundo, o AppModel grava na hora o que as
+// ações ainda não gravaram (flush), com um tempo pedido ao sistema para terminar. O tema do aparelho (o ThemeModel, nos UserDefaults do App Group)
 // vai para o ambiente na raiz, com o brilho que respira atrás da tela: a troca de tema na galeria muda
 // tudo na hora e pede aos widgets que se desenhem de novo, com o tema novo.
 import HexDesign
 import SwiftUI
+import UIKit
 import WidgetKit
 
 @main
 struct HexGymApp: App {
   @State private var model = AppModel.live()
   @State private var theme = ThemeModel(store: .appGroupStore())
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some Scene {
     WindowGroup {
@@ -18,6 +21,37 @@ struct HexGymApp: App {
       }
       .task { await model.start() }
     }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .background { flushInBackground() }
+    }
+  }
+
+  // O flush() com o tempo extra do sistema, para a gravação terminar antes de o app ser suspenso.
+  private func flushInBackground() {
+    let time = BackgroundTime()
+    time.begin()
+    Task {
+      await model.flush()
+      time.end()
+    }
+  }
+}
+
+// O tempo extra que o sistema dá a um app que foi para o fundo, encerrado uma vez só: quando a
+// gravação termina, ou quando o tempo acaba antes (o sistema chama o fim na thread principal).
+@MainActor private final class BackgroundTime {
+  private var id = UIBackgroundTaskIdentifier.invalid
+
+  func begin() {
+    id = UIApplication.shared.beginBackgroundTask(withName: "Gravar o documento") { [weak self] in
+      MainActor.assumeIsolated { self?.end() }
+    }
+  }
+
+  func end() {
+    guard id != .invalid else { return }
+    UIApplication.shared.endBackgroundTask(id)
+    id = .invalid
   }
 }
 

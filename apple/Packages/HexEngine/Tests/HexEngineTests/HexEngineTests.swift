@@ -49,10 +49,12 @@ func openGymVersion() -> String {
   let e = try await loaded(); _ = try await e.evaluate("globalThis.marca = 7"); _ = try await e.load()
   #expect(try await e.evaluate("String(globalThis.marca)") == "7")
 }
+// Sem lang, em qualquer língua do aparelho: o HexGym nunca grava o idioma no documento (escolha 4 do
+// plano da fase 2).
 @Test func freshDocumentIsTheWebAppFirstRun() async throws {
   let d = try object(await loaded("pt-BR").freshDocument())
-  #expect(d["lang"] as? String == "en"); #expect(d["langAuto"] as? Bool == true); #expect(d["gifSize"] as? String == "mini")
-  #expect(try object(await loaded("ar-EG").freshDocument())["lang"] as? String == "ar")
+  #expect(d["lang"] == nil); #expect(d["langAuto"] as? Bool == true); #expect(d["gifSize"] as? String == "mini")
+  #expect(try object(await loaded("ar-EG").freshDocument())["lang"] == nil)
 }
 @Test func restoreKeepsKeysTheAppDoesNotKnow() async throws {                      // Foco da revisão 2
   let e = try await loaded()
