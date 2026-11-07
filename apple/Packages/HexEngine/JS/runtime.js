@@ -3,9 +3,10 @@
 // (scripts/build-hexgym-engine.mjs). Entra e sai sempre texto JSON. O documento de dados fica
 // aqui dentro, aberto uma vez, e não vai e volta a cada chamada.
 import { CATALOGUE, healCustomEx, registerCustom } from '../../../../frontend/src/lib/exercises.js'
-import { registerExerciseAliases } from '../../../../frontend/src/lib/exercise-aliases.js'
+import { aliasSnapshot, registerExerciseAliases } from '../../../../frontend/src/lib/exercise-aliases.js'
 import { freshState, stateFromSaved } from '../../../../frontend/src/lib/state-core.js'
 import { stateJson } from '../../../../frontend/src/lib/state-json.js'
+import * as actions from './actions.js'
 import * as library from './library.js'
 import { decodeValue, encodeValue } from './values.js'
 
@@ -13,9 +14,6 @@ import { decodeValue, encodeValue } from './values.js'
 // pacotes de Resources/langs. Não muda o documento.
 export { setLanguage } from './language.js'
 
-// A língua do aparelho, que o Swift diz. Até lá, nenhuma: o documento novo sai em inglês, como no
-// JavaScriptCore, que não tem navigator, e não na língua do Node que roda os testes.
-let deviceTag = ''
 // O documento aberto; null antes do primeiro.
 let current = null
 
@@ -25,33 +23,45 @@ export function info() {
   return JSON.stringify({ exercises: CATALOGUE.length, openGymVersion: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev' })
 }
 
-export function setDeviceLanguage(tag) {
-  deviceTag = tag
-}
+// Os apelidos como o registerExerciseAliases guarda: o mapa, ou {} no lugar do que não é um.
+const aliasMap = map => (map && typeof map === 'object' && !Array.isArray(map) ? map : {})
 
 // Cada troca de documento faz o que o boot do app web faz depois de ler a cópia salva
 // (store/useStore.js): cura os exercícios personalizados e registra eles e os apelidos, que
-// ficam no módulo e não no documento. Sem isso, valeriam os do documento anterior.
+// ficam no módulo e não no documento. Sem isso, valeriam os do documento anterior. Os apelidos só
+// são registrados quando mudaram de conteúdo: o índice da busca do openGym (corpusOf,
+// lib/exercises.js) compara o mapa registrado pela identidade e se refaz inteiro quando ele é
+// outro objeto, e todo restore traz um objeto novo, mesmo com os mesmos apelidos. Refazer custava
+// mais de 100 ms na primeira busca depois de um restore, no jsc sem JIT (engine-load.mjs).
 function open(doc) {
   doc.customEx = healCustomEx(doc.customEx)
   registerCustom(doc.customEx)
-  registerExerciseAliases(doc.exAliases)
+  if (JSON.stringify(aliasMap(doc.exAliases)) !== JSON.stringify(aliasSnapshot())) registerExerciseAliases(doc.exAliases)
   current = doc
 }
 
-// O primeiro uso, como o do app web: freshState na língua do aparelho.
+// O primeiro uso, como o do app web (freshState), sem o lang: o HexGym segue o idioma do aparelho
+// e nunca grava o lang no documento compartilhado (escolha 4 do plano da fase 2), para não mudar o
+// idioma do openGym de quem usa os dois. O langAuto fica: no openGym, ele quer dizer que ninguém
+// escolheu o idioma, e o openGym então usa o do navegador (lib/default-lang.js) em vez de gravar um.
 export function freshDocument() {
-  open(freshState(deviceTag))
+  const doc = freshState()
+  delete doc.lang
+  open(doc)
   return document()
 }
 
 // Uma cópia salva, lida como o app web lê a do aparelho: as chaves dela por cima do DEF, e as
-// que esta versão não conhece ficam como estão. Texto que não é JSON lança o SyntaxError do
-// JSON.parse; o documento aberto continua o mesmo.
+// que esta versão não conhece ficam como estão. O lang fica como veio: o stateFromSaved põe o do
+// DEF, ou o detectado, numa cópia sem ele, e o HexGym não grava nenhum (escolha 4). Texto que não é
+// JSON lança o SyntaxError do JSON.parse; o documento aberto continua o mesmo.
 export function restore(json) {
   const saved = JSON.parse(json)
   if (saved === null || typeof saved !== 'object' || Array.isArray(saved)) throw new TypeError('HexEngine: o documento não é um objeto JSON')
-  open(stateFromSaved(saved, deviceTag))
+  const doc = stateFromSaved(saved)
+  if (Object.hasOwn(saved, 'lang')) doc.lang = saved.lang
+  else delete doc.lang
+  open(doc)
 }
 
 // O documento aberto, no mesmo texto que o app web grava (lib/state-json.js).
@@ -82,6 +92,34 @@ export function exercise(id) {
 
 export function facets() {
   return JSON.stringify(library.facets(opened()))
+}
+
+// As ações sobre o documento aberto (actions.js), com o carimbo do openGym. Recebe o texto JSON da
+// EngineAction do Swift e o instante em ms, troca o documento aberto quando a ação mudou alguma
+// coisa e devolve { changed, result }. Uma ação inválida lança TypeError, e o documento aberto fica
+// o mesmo. Nenhuma ação mexe nos personalizados nem nos apelidos, então não há o que registrar de
+// novo (open).
+export function apply(actionJson, now) {
+  const { doc, changed, result } = actions.apply(opened(), JSON.parse(actionJson), now)
+  current = doc
+  return JSON.stringify({ changed, result })
+}
+
+// As leituras das telas, sem mudar nada: as rotinas, a semana, os ajustes e os planos prontos.
+export function routines() {
+  return JSON.stringify(actions.routines(opened()))
+}
+
+export function week() {
+  return JSON.stringify(actions.week(opened()))
+}
+
+export function settings() {
+  return JSON.stringify(actions.settings(opened()))
+}
+
+export function starterPlans() {
+  return JSON.stringify(actions.starterPlans())
 }
 
 // O nome de uma função é "<caminho do módulo>#<export>", como "frontend/src/lib/onerm.js#estimate1RM".

@@ -54,6 +54,9 @@ public enum EngineLanguage {
   // ele ao pedir o primeiro pacote, em vez de seguir com um índice vazio.
   private static let index = Result { try readIndex(in: directory) }
 
+  // O índice vazio aqui, quando o index.json não leu, é de propósito: a escolha do idioma cai no
+  // "en", e o packText("en") que o load() chama logo depois lança o erro guardado no index, em vez
+  // de o motor seguir sem pacote.
   static var available: Set<String> { Set(((try? index.get()) ?? [:]).keys) }
 
   // O index.json de uma pasta de pacotes, ou o erro que diz por que ele não serve.

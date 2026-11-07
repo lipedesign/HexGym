@@ -1,7 +1,8 @@
 // Os testes do AppModel, que liga o motor e o documento de dados quando o app abre. Os cinco
 // primeiros são os do passo 1 da Task 10 do plano da fase 0, com o texto de lá; o sexto entrou pelas
 // notas do PR #69: um documento que o HexStore aceita e o motor não lê. Os marcados com o Foco da
-// revisão prendem o item 1 dele.
+// revisão prendem o item 1 dele. Os dois últimos são da Task 5 do plano da fase 2: a gravação das
+// ações, que junta as de 0,5 s numa só, e o flush(), que grava na hora.
 //
 // O alvo roda dentro do app (TEST_HOST) e vê o HexEngine e o HexStore pelo app, sem uma segunda cópia
 // deles. Cada teste roda num diretório temporário novo: o Swift Testing cria uma AppModelTests para
@@ -79,6 +80,43 @@ import Testing
     guard case .failed = model.state else { Issue.record("\(model.state)"); return }
     #expect(read("state.json") == bad)
     #expect(try FileManager.default.contentsOfDirectory(atPath: folder.url.path(percentEncoded: false)) == ["state.json"])
+  }
+  // Duas ações seguidas, bem antes de 0,5 s, saem numa gravação só: o save guarda o state.json de
+  // antes como cópia anterior, e ela é o documento criado, e não o de depois da primeira ação.
+  @Test func twoActionsWithinHalfASecondSaveOnce() async throws {
+    let model = AppModel(engine: HexEngine(), store: store); await model.start()
+    let created = read("state.json")
+    #expect(try await model.perform(.createRoutine(name: "A")).changed)
+    #expect(try await model.perform(.createRoutine(name: "B")).changed)
+    #expect(model.revision == 2)
+    #expect(read("state.json") == created)
+    let previous = folder.url.appending(path: "state.previous.json").path(percentEncoded: false)
+    for _ in 0..<40 where !FileManager.default.fileExists(atPath: previous) { try await Task.sleep(for: .milliseconds(50)) }
+    try await Task.sleep(for: AppModel.saveDelay)                 // uma segunda gravação teria tempo de sair
+    #expect(read("state.previous.json") == created)
+    #expect(read("state.json") == (try await model.engine.document()))
+    #expect(try await model.engine.routines().map(\.name) == ["A", "B"])
+  }
+  @Test func flushSavesRightAway() async throws {
+    let model = AppModel(engine: HexEngine(), store: store); await model.start()
+    let created = read("state.json")
+    _ = try await model.perform(.createRoutine(name: "A"))
+    await model.flush()
+    let saved = read("state.json")
+    #expect(saved != created); #expect(saved == (try await model.engine.document()))
+    // Uma ação ainda rodando no motor quando o app vai para o fundo: o flush() espera por ela e grava o
+    // que ela mudou. O yield deixa o perform começar e parar no engine.apply antes do flush().
+    let late = Task { try await model.perform(.createRoutine(name: "B")) }
+    await Task.yield()
+    await model.flush()
+    let flushed = read("state.json")
+    let routines = (try JSONSerialization.jsonObject(with: flushed) as? [String: Any])?["routines"] as? [[String: Any]]
+    #expect(routines?.compactMap { $0["name"] as? String } == ["A", "B"])
+    #expect(try await late.value.changed)
+    // A gravação marcada para depois foi cancelada: nada mais sai, e a cópia anterior fica a do
+    // primeiro flush().
+    try await Task.sleep(for: AppModel.saveDelay * 2)
+    #expect(read("state.json") == flushed); #expect(read("state.previous.json") == saved)
   }
 }
 

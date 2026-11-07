@@ -13,13 +13,16 @@ import { exerciseOf } from '../../../../frontend/src/lib/exercises.js'
 import { estimate1RM } from '../../../../frontend/src/lib/onerm.js'
 import { isoOf } from '../../../../frontend/src/lib/format.js'
 
-test('a fresh document is the web app first run in the device language', () => {
-  R.setDeviceLanguage('ar-EG'); assert.equal(JSON.parse(R.freshDocument()).lang, 'ar')
-  R.setDeviceLanguage('pt-BR'); const d = JSON.parse(R.freshDocument())
-  assert.deepEqual([d.lang, d.langAuto, d.weighIn, d.gifSize], ['en', true, false, 'mini'])
+// O documento novo e o restore nunca põem um lang: o HexGym segue o idioma do aparelho (escolha 4 do
+// plano da fase 2). O lang de uma cópia do openGym fica como veio.
+test('a fresh document is the web app first run, without a language', () => {
+  const d = JSON.parse(R.freshDocument())
+  assert.deepEqual([Object.hasOwn(d, 'lang'), d.langAuto, d.weighIn, d.gifSize], [false, true, false, 'mini'])
 })
 test('restore keeps the keys it does not know', () => {
-  R.restore('{"chaveDoFuturo":{"x":[1,2]}}'); assert.deepEqual(JSON.parse(R.document()).chaveDoFuturo, { x: [1, 2] })
+  R.restore('{"chaveDoFuturo":{"x":[1,2]}}'); const d = JSON.parse(R.document())
+  assert.deepEqual(d.chaveDoFuturo, { x: [1, 2] }); assert.equal(Object.hasOwn(d, 'lang'), false)
+  R.restore('{"lang":"de"}'); assert.equal(JSON.parse(R.document()).lang, 'de')
 })
 test('restore refuses what is not a JSON object', () => {
   assert.throws(() => R.restore('[1]'), /o documento não é um objeto JSON/); assert.throws(() => R.restore('{'), SyntaxError)

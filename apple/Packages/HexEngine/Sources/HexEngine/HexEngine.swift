@@ -70,10 +70,8 @@ public actor HexEngine {
     try check(context)
     guard let engine = context.objectForKeyedSubscript("HexEngine"), engine.isObject
     else { throw EngineError.javaScript("HexEngine: o script não criou o global HexEngine") }
-    // A primeira língua do aparelho vai para o documento novo, como no primeiro uso do app web
-    // (freshState); o idioma das telas e dos nomes sai do pacote e nunca é gravado no documento.
-    _ = engine.invokeMethod("setDeviceLanguage", withArguments: [languages.first ?? "en"])
-    try check(context)
+    // O idioma das telas e dos nomes sai do pacote e nunca é gravado no documento (escolha 4 do plano
+    // da fase 2): o documento novo sai sem lang (runtime.js, freshDocument).
     let language = EngineLanguage.tag(for: languages)
     let en = try EngineLanguage.packText("en")
     let own: Any = language == "en" ? NSNull() : try EngineLanguage.packText(language)
