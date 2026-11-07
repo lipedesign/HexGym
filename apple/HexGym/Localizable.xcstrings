@@ -61,6 +61,17 @@
         }
       }
     },
+    "%lld filters on" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld filtros ligados"
+          }
+        }
+      }
+    },
     "%lld min" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -170,6 +181,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustes de acessibilidade"
+          }
+        }
+      }
+    },
+    "Add (%lld)" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar (%lld)"
           }
         }
       }
@@ -294,12 +315,32 @@
         }
       }
     },
+    "Category" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categoria"
+          }
+        }
+      }
+    },
     "Changing the unit converts the loads in your routines. RIR counts the reps you had left; RPE rates the same effort from 1 to 10." : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trocar a unidade converte as cargas das suas rotinas. O RIR conta as repetições que sobraram; o RPE dá o mesmo esforço numa escala de 1 a 10."
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar"
           }
         }
       }
@@ -340,6 +381,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuar"
+          }
+        }
+      }
+    },
+    "Couldn't open the exercises." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para abrir os exercícios."
           }
         }
       }
@@ -439,7 +490,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "OK"
+            "value" : "Pronto"
           }
         }
       }
@@ -450,6 +501,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escala de esforço"
+          }
+        }
+      }
+    },
+    "Equipment" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equipamento"
           }
         }
       }
@@ -514,6 +575,37 @@
         }
       }
     },
+    "Favorite" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorito"
+          }
+        }
+      }
+    },
+    "favorite" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "favorito"
+          }
+        }
+      }
+    },
+    "Favorites only" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Só favoritos"
+          }
+        }
+      }
+    },
     "Female" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -521,6 +613,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Feminino"
+          }
+        }
+      }
+    },
+    "Filters" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtros"
           }
         }
       }
@@ -758,12 +860,33 @@
         }
       }
     },
+    "Muscle groups" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupos musculares"
+          }
+        }
+      }
+    },
     "Muscle map" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mapa dos músculos"
+          }
+        }
+      }
+    },
+    "No filters on" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum filtro ligado"
           }
         }
       }
@@ -825,6 +948,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ligado"
+          }
+        }
+      }
+    },
+    "One filter on" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um filtro ligado"
           }
         }
       }
@@ -970,6 +1104,16 @@
         }
       }
     },
+    "Remove from favorites" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tirar dos favoritos"
+          }
+        }
+      }
+    },
     "Rest" : {
       "localizations" : {
         "pt-BR" : {
@@ -1006,6 +1150,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rotinas"
+          }
+        }
+      }
+    },
+    "Search exercises" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar exercícios"
           }
         }
       }
