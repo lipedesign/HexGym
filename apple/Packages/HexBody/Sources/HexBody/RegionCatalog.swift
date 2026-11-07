@@ -27,6 +27,14 @@ public struct ExerciseRegions: Equatable, Sendable {
   public let secondary: [BodyRegion]
   public let emphasis: [BodyRegion]
 
+  // As regiões vêm do RegionCatalog.bundled.regions, porque só o catálogo cria regiões. É público
+  // para os testes do app montarem um exercício sem o @testable.
+  public init(primary: [BodyRegion], secondary: [BodyRegion], emphasis: [BodyRegion]) {
+    self.primary = primary
+    self.secondary = secondary
+    self.emphasis = emphasis
+  }
+
   // O peso da região no desenho, os da pesquisa: 1 no primário (a cor do tema), 0,4 no secundário
   // (40% dela) e 0 fora do exercício.
   public func weight(of region: BodyRegion) -> Double {

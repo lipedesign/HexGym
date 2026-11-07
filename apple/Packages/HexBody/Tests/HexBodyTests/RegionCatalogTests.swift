@@ -40,6 +40,9 @@ private let en = Locale(identifier: "en_US")
     #expect(bench.weight(of: try region("calves")) == 0)
     // O desenho feminino do supino (2440) entra pelo id dele, com as mesmas regiões.
     #expect(catalog.regions(for: "2440") == bench)
+    // O init público, como nos testes do app: o mesmo exercício montado à mão dá os mesmos pesos.
+    let fixture = ExerciseRegions(primary: [chest], secondary: [triceps], emphasis: [])
+    #expect(fixture.weight(of: chest) == 1 && fixture.weight(of: triceps) == 0.4)
   }
 
   @Test func anUnknownExerciseHasNoRegions() {
