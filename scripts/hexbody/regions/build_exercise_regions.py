@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """Gera exercise_regions_v2.json: para cada exercício do catálogo do openGym, as regiões do
 corpo do HexGym (o modelo v2, 36 regiões pintadas por lado) que acendem como primárias (cor do
-tema) e secundárias (40% dela). Grava também regions_v2.json, a tabela das 36 regiões.
+tema) e secundárias (40% dela). Grava também regions_v2.json, a tabela das 36 regiões, e o JSON
+compacto que o app lê, exercise-regions.json no pacote HexBody (issue #95).
 
     python3 -I scripts/hexbody/regions/build_exercise_regions.py           grava os dois JSON ao lado deste script
+                                                                           e o do app no pacote HexBody
     python3 -I scripts/hexbody/regions/build_exercise_regions.py --check   não grava nada; sai com 1, dizendo o
                                                                            arquivo e o exercício, quando um JSON
                                                                            não bate com o que sairia do catálogo
     python3 -I scripts/hexbody/regions/build_exercise_regions.py --report  também imprime as contagens das notas
 
---out <pasta> troca a pasta dos dois JSON (os testes do --check usam uma pasta temporária).
+--out <pasta> troca a pasta dos dois JSON, e --app <arquivo>, o caminho do JSON do app (os testes
+do --check usam uma pasta temporária para os três).
+
+O JSON do app: {"regions": [{"id", "group", "watchGroup"}], "exercises": {"<id>": [primário,
+secundário, ênfase]}}, as regiões na ordem do regions_v2.json e cada lista com os índices delas,
+sem o nome e sem a fonte. Os desenhos femininos entram pelo id deles, com as regiões do exercício.
 Só biblioteca padrão. A v1 (29 regiões por lado, exercise_regions.json) ficou na história do git.
 
 Só lê texto (catalogue/exercises/*.json, frontend/src/lib/exercises.js e
@@ -53,6 +60,9 @@ EXERCISES_JS = ROOT / 'frontend' / 'src' / 'lib' / 'exercises.js'
 VALIDATE_MJS = ROOT / 'scripts' / 'catalogue' / 'validate.mjs'
 EXERCISE_JSON = 'exercise_regions_v2.json'
 REGIONS_JSON = 'regions_v2.json'
+# O JSON que o app lê, no pacote HexBody, gravado e conferido junto com os dois desta pasta.
+APP_JSON = ROOT / 'apple' / 'Packages' / 'HexBody' / 'Sources' / 'HexBody' / 'Resources' / 'exercise-regions.json'
+APP_LISTS = ('primary', 'secondary', 'emphasis')   # as três listas de cada exercício, nessa ordem
 
 # A v1 do modelo, base de que a v2 parte (as tabelas da v2 trocam estas mais abaixo, em _use_v2).
 # Os 18 grupos do app (ordem cabeça-pés de MUSCLES em muscles.js) e as regiões do MuscleMap.
@@ -596,20 +606,57 @@ def exercises_text(rows):
     return '{\n' + ',\n'.join(lines) + '\n}\n'
 
 
+def app_text(rows, regions):
+    """O texto do JSON do app: compacto, sem espaço, com uma linha por região e por exercício para o
+    diff mostrar o que mudou. As listas levam o índice de cada região no regions_v2.json."""
+    index = {r['region']: i for i, r in enumerate(regions)}
+    compact = {'separators': (',', ':')}
+    head = [json.dumps({'id': r['region'], 'group': r['group'], 'watchGroup': r['watchGroup']}, **compact)
+            for r in regions]
+    body = [json.dumps(k) + ':' + json.dumps([[index[x] for x in v.get(f, [])] for f in APP_LISTS], **compact)
+            for k, v in rows.items()]
+    return '{"regions":[\n' + ',\n'.join(head) + '\n],"exercises":{\n' + ',\n'.join(body) + '\n}}\n'
+
+
 # ---------------------------------------------------------------- --check
 
 SHOWN = 10   # quantos exercícios ou regiões o --check lista por arquivo
 
 
+REGION, EXERCISE = 'a região', 'o exercício'
+
+
+def by_id(rows, field):
+    """Uma lista de linhas pelo id de cada uma (o campo), ou pelo número da linha sem ele."""
+    rows = rows if isinstance(rows, list) else []
+    return {(r.get(field) if isinstance(r, dict) else None) or f'linha {i + 1}': r for i, r in enumerate(rows)}
+
+
 def keyed(name, data):
-    """O JSON por chave: o id do exercício, ou o id da região na tabela das regiões."""
-    if name == REGIONS_JSON and isinstance(data, list):
-        return {(r.get('region') if isinstance(r, dict) else None) or f'linha {i + 1}': r for i, r in enumerate(data)}
-    return data if isinstance(data, dict) else {}
+    """O JSON por chave, (o que é, o id): o exercício, ou a região na tabela das regiões. O JSON do
+    app tem os dois."""
+    if name == REGIONS_JSON:
+        return {(REGION, k): v for k, v in by_id(data, 'region').items()}
+    if name == APP_JSON.name:
+        data = data if isinstance(data, dict) else {}
+        exercises = data.get('exercises') if isinstance(data.get('exercises'), dict) else {}
+        return {**{(REGION, k): v for k, v in by_id(data.get('regions'), 'id').items()},
+                **{(EXERCISE, k): v for k, v in exercises.items()}}
+    return {(EXERCISE, k): v for k, v in data.items()} if isinstance(data, dict) else {}
 
 
-def differences(name, text, path):
-    """O que não bate entre o texto que sairia do catálogo e o arquivo, uma linha por problema."""
+def changed_fields(a, b):
+    """Os campos que mudaram numa linha: as chaves de um objeto, ou as três listas do app."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        return sorted(f for f in {*a, *b} if a.get(f) != b.get(f))
+    if isinstance(a, list) and isinstance(b, list) and len(b) == len(APP_LISTS):
+        return [f for i, f in enumerate(APP_LISTS) if i >= len(a) or a[i] != b[i]]
+    return []
+
+
+def differences(name, text, path, names=None):
+    """O que não bate entre o texto que sairia do catálogo e o arquivo, uma linha por problema. O
+    names dá o nome de cada exercício pelo id, para o JSON do app, que não tem nome."""
     if not path.is_file():
         return [f'{name}: o arquivo não existe ({path})']
     current = path.read_text(encoding='utf-8')
@@ -620,24 +667,27 @@ def differences(name, text, path):
     except ValueError as err:
         return [f'{name}: não é um JSON válido ({err})']
     new = keyed(name, json.loads(text))
-    what, source = ('a região', 'a tabela do gerador') if name == REGIONS_JSON else ('o exercício', 'o catálogo')
+    source = {REGION: 'a tabela do gerador', EXERCISE: 'o catálogo'}
 
     def label(key):
-        """O id, e o nome do exercício ao lado dele (o do catálogo, ou o do arquivo se o catálogo não tem)."""
-        row = new.get(key) if isinstance(new.get(key), dict) else old.get(key)
-        title = row.get('name') if name == EXERCISE_JSON and isinstance(row, dict) else None
-        return f'{key} ({title})' if isinstance(title, str) else str(key)
+        """O que é e o id, com o nome do exercício ao lado (o do catálogo, ou o do arquivo se o
+        catálogo não tem)."""
+        what, id_ = key
+        title = None
+        if what == EXERCISE:
+            row = new.get(key) if isinstance(new.get(key), dict) else old.get(key)
+            title = (names or {}).get(id_) or (row.get('name') if isinstance(row, dict) else None)
+        return f'{what} {id_} ({title})' if isinstance(title, str) else f'{what} {id_}'
 
     out = []
     for key in dict.fromkeys([*new, *old]):
         if key not in old:
-            out.append(f'{name}: {what} {label(key)} falta no arquivo')
+            out.append(f'{name}: {label(key)} falta no arquivo')
         elif key not in new:
-            out.append(f'{name}: {what} {label(key)} sobra no arquivo, e {source} não tem')
+            out.append(f'{name}: {label(key)} sobra no arquivo, e {source[key[0]]} não tem')
         elif old[key] != new[key]:
-            a, b = old[key], new[key]
-            fields = sorted(f for f in {*a, *b} if a.get(f) != b.get(f)) if isinstance(a, dict) else []
-            out.append(f'{name}: {what} {label(key)} não bate com {source}' + (f' ({", ".join(fields)})' if fields else ''))
+            fields = changed_fields(old[key], new[key])
+            out.append(f'{name}: {label(key)} não bate com {source[key[0]]}' + (f' ({", ".join(fields)})' if fields else ''))
     if len(out) > SHOWN:
         out = out[:SHOWN] + [f'{name}: e mais {len(out) - SHOWN}']
     return out or [f'{name}: o conteúdo bate, mas o texto do arquivo não (formatação ou ordem)']
@@ -767,27 +817,37 @@ def report(rows, exercises, additions):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='Gera exercise_regions_v2.json e regions_v2.json a partir do texto do catálogo.')
+    ap = argparse.ArgumentParser(
+        description='Gera exercise_regions_v2.json, regions_v2.json e o JSON do app a partir do texto do catálogo.')
     ap.add_argument('--check', action='store_true',
-                    help='não grava nada; sai com 1 quando um dos JSON não bate com o que sairia do catálogo')
+                    help='não grava nada; sai com 1 quando um dos três JSON não bate com o que sairia do catálogo')
     ap.add_argument('--out', type=Path, default=HERE, metavar='PASTA',
                     help='a pasta dos dois JSON (padrão: a deste script)')
+    ap.add_argument('--app', type=Path, default=APP_JSON, metavar='ARQUIVO',
+                    help='o JSON do app (padrão: exercise-regions.json no pacote HexBody)')
     ap.add_argument('--report', action='store_true', help='também imprime as contagens usadas nas notas')
     args = ap.parse_args()
     rows, exercises, additions = build()
     regions = regions_v2_rows()
-    texts = {EXERCISE_JSON: exercises_text(rows), REGIONS_JSON: regions_text(regions)}
+    names = {k: v['name'] for k, v in rows.items()}
+    app = app_text(rows, regions)
+    files = [(EXERCISE_JSON, exercises_text(rows), args.out / EXERCISE_JSON),
+             (REGIONS_JSON, regions_text(regions), args.out / REGIONS_JSON),
+             (APP_JSON.name, app, args.app)]
+    size = f'{len(app.encode("utf-8"))} bytes'
     if args.check:
-        problems = [line for name, text in texts.items() for line in differences(name, text, args.out / name)]
+        problems = [line for name, text, path in files for line in differences(name, text, path, names)]
         if problems:
             print('\n'.join(problems), file=sys.stderr)
-            print('rode python3 -I scripts/hexbody/regions/build_exercise_regions.py e commite os dois JSON', file=sys.stderr)
+            print('rode python3 -I scripts/hexbody/regions/build_exercise_regions.py e commite os três JSON', file=sys.stderr)
             return 1
-        print(f'em dia: {EXERCISE_JSON} ({len(rows)} chaves) e {REGIONS_JSON} ({len(regions)} regiões por lado)')
+        print(f'em dia: {EXERCISE_JSON} ({len(rows)} chaves), {REGIONS_JSON} ({len(regions)} regiões por lado)'
+              f' e {APP_JSON.name} ({size})')
     else:
-        for name, text in texts.items():
-            (args.out / name).write_text(text, encoding='utf-8')
-        print(f'{EXERCISE_JSON}: {len(rows)} chaves; {REGIONS_JSON}: {len(regions)} regiões pintadas por lado', file=sys.stderr)
+        for name, text, path in files:
+            path.write_text(text, encoding='utf-8')
+        print(f'{EXERCISE_JSON}: {len(rows)} chaves; {REGIONS_JSON}: {len(regions)} regiões pintadas por lado;'
+              f' {APP_JSON.name}: {size}', file=sys.stderr)
     if args.report:
         report(rows, exercises, additions)
     return 0

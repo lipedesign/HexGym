@@ -15,7 +15,7 @@ The exercise media licensed from Gym visual is never opened or used here.
 | `musclemap/` | The MuscleMap figures (`male.json`, `male.svg`, `female.json`), the label table and the region scripts |
 | `body/` | Scripts for the atlas images (renders, labelled plates, activation crops), written to `work/atlas` |
 | `ref/`, `ref_f/` | The four views sent to Meshy multi-image to 3D, and the reference they were drawn from |
-| `regions/` | The map from exercise to regions: the generator, its tests and the two JSON files the HexBody package will read (see `regions/README.md`) |
+| `regions/` | The map from exercise to regions: the generator, its tests and its two JSON files, plus the compact JSON it writes into the HexBody package (`apple/Packages/HexBody`, see `regions/README.md`) |
 | `work/` | Generated and heavy files, **not in git** |
 
 `musclemap/labels.json` is the one id table for both bodies (229 rows). Pieces drawn only on the female

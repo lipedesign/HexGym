@@ -35,14 +35,21 @@ test('every target has the app group', () => {
   for (const f of entitlements) assert.match(f, /<string>group\.app\.hexgym<\/string>/)
 })
 // Task 10 do plano da fase 1 (issue #64): o HexDesign entra como o HexEngine e o HexStore, um pacote
-// local, e o produto vai para os quatro alvos do app, porque o logotipo está nos quatro.
-test('the HexDesign package is linked to the four app targets', () => {
-  assert.match(pbx, /relativePath = Packages\/HexDesign;/)
-  const products = [...pbx.matchAll(/\/\* HexDesign \*\/ = \{\s*isa = XCSwiftPackageProductDependency;\s*productName = HexDesign;/g)]
-  assert.equal(products.length, 4)
-  for (const target of ['HexGym', 'HexGymWidgets', 'HexGymWatch', 'HexGymWatchWidgets']) {
-    const block = pbx.match(new RegExp(`/\\* ${target} \\*/ = \\{\\s*isa = PBXNativeTarget;[\\s\\S]*?packageProductDependencies = \\(([^)]*)\\);`))
-    assert.ok(block, `o alvo ${target} existe`)
-    assert.equal([...block[1].matchAll(/\/\* HexDesign \*\//g)].length, 1, `o HexDesign no alvo ${target}`)
+// local, e o produto vai para os quatro alvos do app, porque o logotipo está nos quatro. Task 8 do
+// plano da fase 2 (issue #95): o HexBody entra do mesmo jeito, só no alvo HexGym, porque só o
+// iPhone mostra o corpo nesta fase; os widgets e o Watch não o têm.
+const TARGETS = ['HexGym', 'HexGymWidgets', 'HexGymWatch', 'HexGymWatchWidgets']
+const PACKAGES = { HexDesign: TARGETS, HexBody: ['HexGym'] }
+test('the HexDesign package is linked to the four app targets, and HexBody to the app only', () => {
+  for (const [name, linked] of Object.entries(PACKAGES)) {
+    assert.match(pbx, new RegExp(`relativePath = Packages/${name};`))
+    const products = [...pbx.matchAll(new RegExp(`/\\* ${name} \\*/ = \\{\\s*isa = XCSwiftPackageProductDependency;\\s*productName = ${name};`, 'g'))]
+    assert.equal(products.length, linked.length, `os produtos do ${name}`)
+    for (const target of TARGETS) {
+      const block = pbx.match(new RegExp(`/\\* ${target} \\*/ = \\{\\s*isa = PBXNativeTarget;[\\s\\S]*?packageProductDependencies = \\(([^)]*)\\);`))
+      assert.ok(block, `o alvo ${target} existe`)
+      const count = linked.includes(target) ? 1 : 0
+      assert.equal([...block[1].matchAll(new RegExp(`/\\* ${name} \\*/`, 'g'))].length, count, `o ${name} no alvo ${target}`)
+    }
   }
 })

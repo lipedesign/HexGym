@@ -107,9 +107,9 @@ export const PARTS = {
   // novo em cada outro fuso. Só a primeira rodada compila: as outras rodam o que ela compilou
   // (--skip-build), porque o swift test refaz parte da compilação a cada chamada, mesmo sem mudança.
   // Depois, todos os testes do HexStore, com o mesmo swift e os mesmos swiftTestFlags; eles não
-  // dependem do fuso, e o env não põe nenhum. Por fim, todos os do HexDesign, como os do HexStore. Os
+  // dependem do fuso, e o env não põe nenhum. Depois, todos os do HexDesign, como os do HexStore. Os
   // testes de print do HexDesign só rodam com HEXDESIGN_PRINTS no ambiente: sem ela, ficam pulados e
-  // não contam.
+  // não contam. Por fim, todos os do HexBody (issue #95), também como os do HexStore.
   // O args e o env são funções: sem o swift, só esta parte falha.
   packages: [
     { name: `HexEngine, com os casos gravados em ${TIME_ZONES[0]}`, cmd: 'swift', args: () => hexEngineTest(), env: () => swiftIn(TIME_ZONES[0]) },
@@ -125,6 +125,11 @@ export const PARTS = {
     {
       name: 'HexDesign', cmd: 'swift',
       args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexDesign'],
+      env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }),
+    },
+    {
+      name: 'HexBody', cmd: 'swift',
+      args: () => ['test', ...swiftTestFlags(developerDir({ swiftOnly: true })), '--package-path', 'apple/Packages/HexBody'],
       env: () => ({ DEVELOPER_DIR: developerDir({ swiftOnly: true }) }),
     },
   ],

@@ -9,6 +9,7 @@ exercício diz algo a mais. O app acende o corpo a partir daqui.
 | `build_exercise_regions.py` | o gerador |
 | `exercise_regions_v2.json` | a saída: uma linha por id, 6.554 chaves (os 5.632 exercícios e os 922 desenhos femininos, que copiam as regiões do exercício pelo `variantOf`) |
 | `regions_v2.json` | as 36 regiões, com o nome em português, o grupo no corpo e o grupo que o Watch mostra |
+| `apple/Packages/HexBody/Sources/HexBody/Resources/exercise-regions.json` | o JSON compacto que o app lê, no pacote HexBody (abaixo) |
 | `test_build_exercise_regions.py` | os testes (`unittest`) |
 | `run_tests.py` | roda os testes e grava a conta para o `scripts/hexgym/check.mjs` |
 
@@ -26,15 +27,37 @@ Python 3 da máquina, sempre com `-I`, e só a biblioteca padrão.
 Da raiz do repositório:
 
 ```sh
-python3 -I scripts/hexbody/regions/build_exercise_regions.py           # grava os dois JSON
+python3 -I scripts/hexbody/regions/build_exercise_regions.py           # grava os três JSON
 python3 -I scripts/hexbody/regions/build_exercise_regions.py --check   # confere, sem gravar nada
 python3 -I scripts/hexbody/regions/run_tests.py                        # os testes
 ```
 
 O `--check` sai com 1 quando um JSON não bate com o que sairia do catálogo, e diz o arquivo e o
 exercício, com o id e o nome (ou a região). Quando o catálogo muda, rode o gerador e commite os
-dois JSON junto. O `--report` imprime as contagens das notas da pesquisa. O `--out <pasta>` troca
-a pasta dos dois JSON, e só os testes do `--check` usam.
+três JSON junto. O `--report` imprime as contagens das notas da pesquisa. O `--out <pasta>` troca
+a pasta dos dois JSON desta pasta, e o `--app <arquivo>`, o caminho do JSON do app; só os testes
+do `--check` usam os dois.
+
+## O JSON do app
+
+O gerador também grava o `exercise-regions.json` do pacote HexBody (issue #95), que o app lê pelo
+`RegionCatalog`. É compacto, sem espaço, com uma linha por região e por exercício para o diff
+mostrar o que mudou:
+
+```
+{"regions":[
+{"id":"upperTrapezius","group":"trapezius","watchGroup":"trapezius"},
+...
+],"exercises":{
+"0025":[[8,9],[3,7,16,17],[]],
+...
+}}
+```
+
+As regiões vão na ordem do `regions_v2.json`, sem o nome (o pacote tem os nomes em português e em
+inglês no `Regions.strings`), e o `watchGroup` é `null` no pescoço. Cada exercício tem três listas,
+o primário, o secundário e a ênfase, com o índice de cada região, sem o nome e sem a fonte. Os 922
+desenhos femininos entram pelo id deles, com as regiões do exercício de que são o desenho.
 
 A parte `scripts` do `node scripts/hexgym/check.mjs` roda o `--check` ("regiões em dia") e os
 testes ("testes do gerador de regiões"). O workflow do HexGym da issue #9, quando entrar, roda o
