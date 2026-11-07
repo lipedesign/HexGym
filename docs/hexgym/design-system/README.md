@@ -26,7 +26,7 @@ A regra para decidir: se a Apple oferece o componente e o usuário espera o comp
 
 Todo componente nosso funciona com Dynamic Type, VoiceOver, Reduzir Movimento, Aumentar Contraste, Reduzir Transparência, Texto em Negrito e hápticos, e tem alvo de toque de pelo menos 44 pt.
 
-No app do iPhone, a galeria do design system mostra as três camadas lado a lado, no topo (o botão "Galeria do design system" da tela provisória). Nos tamanhos de acessibilidade, elas viram uma embaixo da outra.
+No app do iPhone, a galeria do design system mostra as três camadas lado a lado, no topo (a linha "Galeria do design system", no fim dos Ajustes). Nos tamanhos de acessibilidade, elas viram uma embaixo da outra.
 
 ![As três camadas na galeria do iPhone, no Ultravioleta](imagens/simulador-camadas.png)
 

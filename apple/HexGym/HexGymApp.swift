@@ -1,9 +1,11 @@
-// O app do iPhone. Ao abrir, carrega o motor e o documento de dados (AppModel), e a tela provisória
-// mostra a marca e o que aconteceu. Quando a cena vai para o fundo, o AppModel grava na hora o que as
-// ações ainda não gravaram (flush), com um tempo pedido ao sistema para terminar. O tema do aparelho (o ThemeModel, nos UserDefaults do App Group)
-// vai para o ambiente na raiz, com o brilho que respira atrás da tela: a troca de tema na galeria muda
-// tudo na hora e pede aos widgets que se desenhem de novo, com o tema novo.
+// O app do iPhone. Ao abrir, carrega o motor e o documento de dados (AppModel), e a raiz (RootView)
+// mostra as abas, ou o erro, se o documento não abriu. Quando a cena vai para o fundo, o AppModel grava
+// na hora o que as ações ainda não gravaram (flush), com um tempo pedido ao sistema para terminar. O
+// tema do aparelho (o ThemeModel, nos UserDefaults do App Group) vai para o ambiente na raiz, com o
+// brilho que respira atrás da tela: a troca de tema nos Ajustes ou na galeria muda tudo na hora e pede
+// aos widgets que se desenhem de novo, com o tema novo.
 import HexDesign
+import os
 import SwiftUI
 import UIKit
 import WidgetKit
@@ -17,7 +19,7 @@ struct HexGymApp: App {
   var body: some Scene {
     WindowGroup {
       ThemedRoot(theme: theme) {
-        ContentView(model: model)
+        RootView(model: model)
       }
       .task { await model.start() }
     }
@@ -27,14 +29,19 @@ struct HexGymApp: App {
   }
 
   // O flush() com o tempo extra do sistema, para a gravação terminar antes de o app ser suspenso.
+  // A ida para o fundo e o fim do flush() vão para o log, com a hora, para a conferência no simulador.
   private func flushInBackground() {
     let time = BackgroundTime()
     time.begin()
+    Self.logger.info("fundo: gravando o que falta")
     Task {
       await model.flush()
+      Self.logger.info("fundo: flush terminou")
       time.end()
     }
   }
+
+  private static let logger = Logger(subsystem: "app.hexgym", category: "app")
 }
 
 // O tempo extra que o sistema dá a um app que foi para o fundo, encerrado uma vez só: quando a
@@ -56,7 +63,8 @@ struct HexGymApp: App {
 }
 
 // A raiz com o tema: uma view, e não o body da cena, para observar o modelo e trocar o tema na hora.
-// O modelo também vai para o ambiente, para a galeria trocar o tema e a prévia de alto contraste.
+// O modelo também vai para o ambiente, para os Ajustes e a galeria trocarem o tema, e a galeria, a
+// prévia de alto contraste.
 private struct ThemedRoot<Content: View>: View {
   let theme: ThemeModel
   @ViewBuilder let content: Content

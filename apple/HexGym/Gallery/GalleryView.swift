@@ -68,6 +68,11 @@ struct GalleryView: View {
   }
 }
 
+// O caminho até a galeria, na pilha dos Ajustes (a linha "Galeria do design system", no fim deles).
+enum GalleryRoute: Hashable {
+  case gallery
+}
+
 // Os lugares da galeria para onde o -HexGymSection rola.
 enum GalleryAnchor {
   static let layers = "layers", theme = "theme", colors = "colors", type = "type", buttons = "buttons", inputs = "inputs"
@@ -77,7 +82,7 @@ enum GalleryAnchor {
 // Os argumentos de início da galeria, para os prints e o vídeo do PR saírem do simulador sem tocar na
 // tela. Vêm do domínio dos argumentos dos UserDefaults padrão (xcrun simctl launch ... -HexGymGallery
 // YES), que não fica gravado: sem eles, o app abre como sempre.
-//   -HexGymGallery YES          a galeria já aberta
+//   -HexGymGallery YES          os Ajustes com a galeria já aberta (RootTab.launch)
 //   -HexGymTheme copper         o tema, pelo ThemeModel (vai para o App Group, como no seletor)
 //   -HexGymContrastPreview YES  a prévia de alto contraste ligada
 //   -HexGymSection inputs       rola até uma parte (GalleryAnchor)

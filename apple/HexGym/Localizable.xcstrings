@@ -61,6 +61,49 @@
         }
       }
     },
+    "%lld min" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "%lld min %lld s" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld min %2$lld s"
+          }
+        }
+      }
+    },
+    "%lld s" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        }
+      }
+    },
+    "About" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobre"
+          }
+        }
+      }
+    },
     "Accent" : {
       "localizations" : {
         "pt-BR" : {
@@ -151,6 +194,16 @@
         }
       }
     },
+    "Appearance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparência"
+          }
+        }
+      }
+    },
     "Apple, as it comes" : {
       "localizations" : {
         "pt-BR" : {
@@ -187,6 +240,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supino reto"
+          }
+        }
+      }
+    },
+    "Body" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corpo"
           }
         }
       }
@@ -231,12 +294,32 @@
         }
       }
     },
+    "Changing the unit converts the loads in your routines. RIR counts the reps you had left; RPE rates the same effort from 1 to 10." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trocar a unidade converte as cargas das suas rotinas. O RIR conta as repetições que sobraram; o RPE dá o mesmo esforço numa escala de 1 a 10."
+          }
+        }
+      }
+    },
     "Colors" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cores"
+          }
+        }
+      }
+    },
+    "Coming in a later version." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chega numa próxima versão."
           }
         }
       }
@@ -291,6 +374,16 @@
         }
       }
     },
+    "Default rest" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descanso padrão"
+          }
+        }
+      }
+    },
     "Design system" : {
       "localizations" : {
         "pt-BR" : {
@@ -331,36 +424,6 @@
         }
       }
     },
-    "Document created" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Documento criado"
-          }
-        }
-      }
-    },
-    "Document opened" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Documento aberto"
-          }
-        }
-      }
-    },
-    "Document restored from the previous copy" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Documento recuperado da cópia anterior"
-          }
-        }
-      }
-    },
     "Done" : {
       "localizations" : {
         "pt-BR" : {
@@ -371,12 +434,12 @@
         }
       }
     },
-    "Engine loaded · %lld exercises" : {
+    "Effort scale" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Motor carregado · %lld exercícios"
+            "value" : "Escala de esforço"
           }
         }
       }
@@ -387,6 +450,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erro"
+          }
+        }
+      }
+    },
+    "Exercises" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios"
           }
         }
       }
@@ -431,6 +504,27 @@
         }
       }
     },
+    "Female" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feminino"
+          }
+        }
+      }
+    },
+    "First day" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primeiro dia"
+          }
+        }
+      }
+    },
     "Glow" : {
       "localizations" : {
         "pt-BR" : {
@@ -457,6 +551,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cabeçalho"
+          }
+        }
+      }
+    },
+    "HexGym is an unofficial fork of openGym, not made or endorsed by its author. Its code is public, under the same license." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O HexGym é um fork não oficial do openGym, sem ligação com o autor dele. O código é público, sob a mesma licença."
+          }
+        }
+      }
+    },
+    "HexGym source code" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código do HexGym"
           }
         }
       }
@@ -541,12 +655,54 @@
         }
       }
     },
+    "Kilograms (kg)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quilos (kg)"
+          }
+        }
+      }
+    },
+    "License text" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto da licença"
+          }
+        }
+      }
+    },
+    "Licenses" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licenças"
+          }
+        }
+      }
+    },
     "Log set" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registrar série"
+          }
+        }
+      }
+    },
+    "Male" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masculino"
           }
         }
       }
@@ -561,12 +717,44 @@
         }
       }
     },
+    "Monday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segunda"
+          }
+        }
+      }
+    },
     "Motion and haptics" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Movimento e háptico"
+          }
+        }
+      }
+    },
+    "Muscle map" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapa dos músculos"
+          }
+        }
+      }
+    },
+    "None" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma"
           }
         }
       }
@@ -641,6 +829,16 @@
         }
       }
     },
+    "openGym source code" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código do openGym"
+          }
+        }
+      }
+    },
     "Opening…" : {
       "localizations" : {
         "pt-BR" : {
@@ -677,6 +875,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nossos: a entrada da carga"
+          }
+        }
+      }
+    },
+    "Pounds (lb)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Libras (lb)"
           }
         }
       }
@@ -757,6 +966,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anel de descanso"
+          }
+        }
+      }
+    },
+    "Routines" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotinas"
           }
         }
       }
@@ -851,6 +1070,17 @@
         }
       }
     },
+    "Sunday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domingo"
+          }
+        }
+      }
+    },
     "Support" : {
       "localizations" : {
         "pt-BR" : {
@@ -881,6 +1111,16 @@
         }
       }
     },
+    "The body the muscles of each exercise are shown on." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O corpo em que aparecem os músculos de cada exercício."
+          }
+        }
+      }
+    },
     "The button grows into the workout screen. With Reduce Motion, the screen appears without moving." : {
       "localizations" : {
         "pt-BR" : {
@@ -891,12 +1131,32 @@
         }
       }
     },
+    "The muscle map of the body." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O mapa dos músculos do corpo."
+          }
+        }
+      }
+    },
     "The preview swaps the colors the way Increase Contrast does, without changing the system setting." : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "A prévia troca as cores como o Aumentar Contraste, sem mudar o ajuste do sistema."
+          }
+        }
+      }
+    },
+    "The rules of the app: exercises, routines and progression." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As regras do app: os exercícios, as rotinas e a progressão."
           }
         }
       }
@@ -921,6 +1181,16 @@
         }
       }
     },
+    "The theme stays on this device only." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O tema fica só neste aparelho."
+          }
+        }
+      }
+    },
     "The three layers" : {
       "localizations" : {
         "pt-BR" : {
@@ -937,6 +1207,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A transição"
+          }
+        }
+      }
+    },
+    "The typeface of numbers and titles." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A fonte dos números e dos títulos."
           }
         }
       }
@@ -997,6 +1277,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unidade"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versão"
+          }
+        }
+      }
+    },
+    "Week" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semana"
           }
         }
       }
