@@ -205,6 +205,17 @@
         }
       }
     },
+    "Add to favorites" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar aos favoritos"
+          }
+        }
+      }
+    },
     "Add to routine" : {
       "localizations" : {
         "pt-BR" : {

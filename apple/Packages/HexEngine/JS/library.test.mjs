@@ -101,6 +101,20 @@ test('an id that does not exist is an unknown exercise, with the name from t()',
   assert.ok(bench.instructions.length > 0)
 })
 
+// Issue #97: um grupo fora do MUSCLES (o "cardiovascular system" do burpee, 1160, e de um
+// personalizado de cardio do openGym) também vem com o nome no idioma, pelo MUSCLE_NAME e o t().
+test('exercise() names every muscle group it has, the ones outside MUSCLES too', () => {
+  open({ customEx: [{ id: 'custom-cardio', n: 'Corrida do HexGym', bp: 'cardio', custom: true, primaries: ['cardiovascular system'] }] })
+  const burpee = JSON.parse(R.exercise('1160'))
+  assert.equal(burpee.muscles['cardiovascular system'], 1)
+  assert.equal(burpee.muscleNames['cardiovascular system'], 'sistema cardiovascular')
+  assert.equal(burpee.muscleNames.chest, 'Peito')
+  assert.deepEqual(Object.keys(burpee.muscleNames).sort(), Object.keys(burpee.muscles).sort())
+  const custom = JSON.parse(R.exercise('custom-cardio'))
+  assert.equal(custom.muscleNames['cardiovascular system'], 'sistema cardiovascular')
+  assert.deepEqual(JSON.parse(R.exercise('nao-existe')).muscleNames, {})
+})
+
 test('facets() has the 18 muscle groups and the 11 body parts, named in the language', () => {
   open()
   const facets = JSON.parse(R.facets())

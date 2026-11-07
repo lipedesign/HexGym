@@ -253,7 +253,7 @@ nonisolated struct LibraryRow: Identifiable, Equatable, Sendable {
     let group = summary.bp.isEmpty ? nil : LibraryNames.capitalized(names.bodyParts[summary.bp] ?? summary.bp, language: language)
     let equipment = summary.equipment.map { LibraryNames.capitalized(names.equipment[$0] ?? $0, language: language) }
     let parts = [group].compactMap { $0 } + equipment
-    self.init(id: summary.id, name: name, detail: parts.joined(separator: " · "), favourite: summary.favourite,
+    self.init(id: summary.id, name: name, detail: parts.joined(separator: LibraryNames.separator), favourite: summary.favourite,
               spokenBase: ([name] + parts).joined(separator: ", "), favouriteWord: text.favourite)
   }
 
@@ -282,6 +282,10 @@ nonisolated struct LibraryNames: Sendable {
     let named = { (list: [LibraryFacet]) in Dictionary(list.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first }) }
     self.init(bodyParts: named(facets.bodyParts), equipment: named(facets.equipment))
   }
+
+  // O separador do grupo e do equipamento na linha, e do equipamento e da categoria no detalhe: o espaço
+  // antes do ponto não quebra, para o ponto nunca começar uma linha nos tamanhos grandes (QA do PR #113).
+  static let separator = "\u{00A0}· "
 
   // A primeira letra em maiúscula, na regra do idioma dos nomes; o resto fica como veio.
   static func capitalized(_ text: String, language: Locale) -> String {

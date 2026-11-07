@@ -41,6 +41,12 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
   let steps: [ExerciseStep]
   let about: String?
   var favourite: Bool
+  // O rótulo da estrela para o VoiceOver, com o que um toque faz: "Adicionar aos favoritos" ou "Tirar
+  // dos favoritos". O botão da barra é do UIKit e não leva o traço de selecionado da SwiftUI, então o
+  // estado vai no rótulo (QA do PR #113).
+  var favouriteLabel: String { favourite ? removeFavouriteLabel : addFavouriteLabel }
+  private let addFavouriteLabel: String
+  private let removeFavouriteLabel: String
 
   init(_ detail: ExerciseDetail, regions: ExerciseRegions?, catalog: RegionCatalog?, names: ExerciseDetailNames,
        text: ExerciseDetailText, language: Locale) {
@@ -48,13 +54,14 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
     known = detail.known
     name = LibraryNames.capitalized(detail.name, language: language)
     favourite = detail.favourite
+    (addFavouriteLabel, removeFavouriteLabel) = (text.addFavourite, text.removeFavourite)
     guard detail.known else {
       (subtitle, unknownNote, muscles, musclesSpoken, steps, about) = ("", text.unknown, [], "", [], nil)
       return
     }
     unknownNote = nil
     let parts = detail.equipment.map { names.equipment[$0] ?? $0 } + [detail.category.map { names.categories[$0] ?? $0 }].compactMap { $0 }
-    subtitle = parts.map { LibraryNames.capitalized($0, language: language) }.joined(separator: " · ")
+    subtitle = parts.map { LibraryNames.capitalized($0, language: language) }.joined(separator: LibraryNames.separator)
 
     let lists: (primary: [String], secondary: [String])
     if let regions, let catalog, !(regions.primary.isEmpty && regions.secondary.isEmpty) {
@@ -64,7 +71,7 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
       }
       lists = (ordered(regions.primary), ordered(regions.secondary))
     } else {
-      lists = Self.groups(detail.muscles, names: names, language: language)
+      lists = Self.groups(detail.muscles, engineNames: detail.muscleNames ?? [:], names: names, language: language)
     }
     var sections: [MuscleSection] = []
     if !lists.primary.isEmpty { sections.append(MuscleSection(kind: .primary, title: text.primary, names: lists.primary)) }
@@ -86,14 +93,17 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
   }
 
   // Os grupos do motor: o "Principal" com os de maior peso, o "Também trabalha" com os outros acima de
-  // 0, na ordem dos grupos do openGym. Um grupo fora da lista do motor vem no fim, pelo id.
-  private static func groups(_ weights: [String: Double], names: ExerciseDetailNames, language: Locale)
+  // 0, na ordem dos grupos do openGym. Um grupo fora dos 18 do facets() vem no fim.
+  private static func groups(_ weights: [String: Double], engineNames: [String: String], names: ExerciseDetailNames,
+                             language: Locale)
     -> (primary: [String], secondary: [String]) {
     let positive = weights.filter { $0.value > 0 }
     guard let top = positive.values.max() else { return ([], []) }
     let known = names.muscles.map(\.id)
     let order = known + positive.keys.filter { !known.contains($0) }.sorted()
-    let named = names.muscles.reduce(into: [String: String]()) { $0[$1.id] = $1.name }
+    // Os nomes do facets() e, para um grupo fora dos 18 (o "cardiovascular system" do cardio), o do
+    // muscleNames do motor. Só sem nenhum dos dois o id aparece.
+    let named = names.muscles.reduce(into: engineNames) { $0[$1.id] = $1.name }
     let pick = { (keep: (Double) -> Bool) in
       order.filter { positive[$0].map(keep) ?? false }.map { LibraryNames.capitalized(named[$0] ?? $0, language: language) }
     }
@@ -138,7 +148,7 @@ nonisolated struct ExerciseDetailNames: Sendable {
 // Os textos do app que o modelo usa, lidos uma vez, na thread principal, no idioma da tela.
 nonisolated struct ExerciseDetailText: Sendable {
   let locale: Locale
-  let primary, secondary, primarySpoken, secondarySpoken, step, unknown: String
+  let primary, secondary, primarySpoken, secondarySpoken, step, unknown, addFavourite, removeFavourite: String
 
   @MainActor init(locale: Locale) {
     self.locale = locale
@@ -148,6 +158,8 @@ nonisolated struct ExerciseDetailText: Sendable {
     secondarySpoken = AppText.text("Also works: %@.", locale: locale)
     step = AppText.text("Step %lld", locale: locale)
     unknown = AppText.text("This exercise isn't in the library on this device.", locale: locale)
+    addFavourite = AppText.text("Add to favorites", locale: locale)
+    removeFavourite = AppText.text("Remove from favorites", locale: locale)
   }
 }
 

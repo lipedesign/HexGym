@@ -175,10 +175,10 @@ struct ExerciseDetailView: View {
   @ToolbarContentBuilder private var toolbar: some ToolbarContent {
     if let model = screen.model, model.known {
       ToolbarItemGroup(placement: .topBarTrailing) {
+        // O rótulo diz o estado, porque o botão da barra do UIKit não leva o .isSelected (QA do PR #113).
         Button { Task { await screen.toggleFavourite() } } label: {
-          Label("Favorite", systemImage: model.favourite ? "star.fill" : "star")
+          Label(model.favouriteLabel, systemImage: model.favourite ? "star.fill" : "star")
         }
-        .accessibilityAddTraits(model.favourite ? .isSelected : [])
         Menu {
           ForEach(screen.routines) { routine in
             Button { Task { await screen.add(to: routine.id) } } label: {
@@ -272,9 +272,10 @@ enum ExerciseLaunch {
     defaults.string(forKey: "HexGymExercise").map { $0.trimmingCharacters(in: .whitespaces) }.flatMap { $0.isEmpty ? nil : $0 }
   }
 
-  // A pilha da aba Exercícios quando o app abre: o detalhe pedido, ou só a lista.
+  // A parte da tela até onde ela abre rolada, ou nil.
   static var scroll: ExerciseSection? { defaults.string(forKey: "HexGymExerciseScroll").flatMap(ExerciseSection.init(rawValue:)) }
 
+  // A pilha da aba Exercícios quando o app abre: o detalhe pedido, ou só a lista.
   static var path: [ExerciseRoute] { exercise.map { [ExerciseRoute(id: $0)] } ?? [] }
 
   // Só o detalhe aberto pelo argumento, e só uma vez, põe o exercício na rotina nova.

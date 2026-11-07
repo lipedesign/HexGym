@@ -42,8 +42,8 @@ import Testing
   }
 
   // Um detalhe montado à mão, no JSON que o motor manda.
-  func detail(_ id: String, muscles: String, known: Bool = true) throws -> ExerciseDetail {
-    let json = #"{"id":"\#(id)","name":"exercício de teste","nameEnglish":"test exercise","bp":"chest","equipment":["barbell"],"category":"strength","muscles":\#(muscles),"instructions":["deite no banco.","empurre a barra."],"description":"Um exercício de teste.","favourite":false,"custom":false,"known":\#(known)}"#
+  func detail(_ id: String, muscles: String, muscleNames: String = "{}", favourite: Bool = false, known: Bool = true) throws -> ExerciseDetail {
+    let json = #"{"id":"\#(id)","name":"exercício de teste","nameEnglish":"test exercise","bp":"chest","equipment":["barbell"],"category":"strength","muscles":\#(muscles),"muscleNames":\#(muscleNames),"instructions":["deite no banco.","empurre a barra."],"description":"Um exercício de teste.","favourite":\#(favourite),"custom":false,"known":\#(known)}"#
     return try JSONDecoder().decode(ExerciseDetail.self, from: Data(json.utf8))
   }
 
@@ -69,7 +69,7 @@ import Testing
     #expect(model.muscles[1].names.contains("Tríceps, cabeças lateral e medial"))
     #expect(model.musclesSpoken.hasPrefix("Principal: Peito médio; Peito baixo. Também trabalha: "))
     // O resto da tela: o equipamento e a categoria, os passos numerados e a descrição.
-    #expect(model.subtitle == "Barra · Força")
+    #expect(model.subtitle == "Barra\u{00A0}· Força")
     #expect(!model.steps.isEmpty)
     #expect(model.steps.map(\.number) == Array(1...model.steps.count))
     #expect(model.steps[0].spoken.hasPrefix("Passo 1. "))
@@ -101,7 +101,7 @@ import Testing
     #expect(model.muscles.map(\.names) == [["Peito"], ["Ombros", "Tríceps"]])
     #expect(model.musclesSpoken == "Principal: Peito. Também trabalha: Ombros; Tríceps.")
     #expect(model.name == "Exercício de teste")
-    #expect(model.subtitle == "Barra · Força")
+    #expect(model.subtitle == "Barra\u{00A0}· Força")
     #expect(model.steps.map(\.text) == ["Deite no banco.", "Empurre a barra."])
   }
 
@@ -138,6 +138,34 @@ import Testing
     #expect(model.muscles.map(\.title) == ["Principal", "Também trabalha"])
     #expect(model.muscles[0].names == ["Peito"])
     #expect(model.musclesSpoken.hasPrefix("Principal: Peito. Também trabalha: "))
+  }
+
+  // QA do PR #113: o botão da barra do UIKit não leva o traço de selecionado, então o rótulo da estrela
+  // diz o estado: o que um toque faz, com o texto do deslizar da lista para tirar.
+  @Test func theStarLabelSaysWhatATapDoes() throws {
+    var model = ExerciseDetailModel(try detail("x3", muscles: "{}"), regions: nil, catalog: catalog, names: names,
+                                    text: ExerciseDetailText(locale: portuguese), language: portuguese)
+    #expect(model.favouriteLabel == "Adicionar aos favoritos")
+    model.favourite = true
+    #expect(model.favouriteLabel == "Tirar dos favoritos")
+    let on = ExerciseDetailModel(try detail("x3", muscles: "{}", favourite: true), regions: nil, catalog: catalog, names: names,
+                                 text: ExerciseDetailText(locale: Locale(identifier: "en-US")), language: portuguese)
+    #expect(on.favouriteLabel == "Remove from favorites")
+  }
+
+  // QA do PR #113: um grupo fora dos 18 do facets(), como o "cardiovascular system" do burpee (1160) e
+  // de um personalizado de cardio do openGym, sai com o nome do motor, e não com o id em inglês.
+  @Test func aGroupOutsideTheEighteenHasItsNameFromTheEngine() async throws {
+    let fixture = ExerciseDetailModel(
+      try detail("x4", muscles: #"{"cardiovascular system":1,"chest":0.4}"#,
+                 muscleNames: #"{"cardiovascular system":"sistema cardiovascular","chest":"Peito"}"#),
+      regions: nil, catalog: catalog, names: names, text: ExerciseDetailText(locale: portuguese), language: portuguese)
+    #expect(fixture.muscles.map(\.names) == [["Sistema cardiovascular"], ["Peito"]])
+    // O burpee de verdade, sem o JSON do HexBody, no caminho dos grupos do motor.
+    let burpee = await screen("1160", engine: try await engine(), regions: { try RegionCatalog.load(contentsOf: nil) })
+    let model = try #require(burpee.model)
+    #expect(model.muscles.first?.names == ["Sistema cardiovascular"])
+    #expect(!model.musclesSpoken.lowercased().contains("cardiovascular system"))
   }
 
   @Test func addToRoutineAddsTheExerciseAndConfirms() async throws {
