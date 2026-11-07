@@ -1,5 +1,6 @@
 // Os testes do catálogo de regiões do HexBody (Task 8 do plano da fase 2, issue #95): as 36 regiões,
-// as do supino reto com os pesos 1 e 0,4, um id que não existe e os nomes nos dois idiomas.
+// as do supino reto com os pesos 1 e 0,4, um id que não existe e os nomes nos dois idiomas; e, da issue #97,
+// o carregador que lança o erro em vez de parar o app.
 //
 //   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs --swift) swift test $(node scripts/hexgym/xcode.mjs --swift-test-flags) \
 //     --package-path apple/Packages/HexBody
@@ -43,6 +44,23 @@ private let en = Locale(identifier: "en_US")
     // O init público, como nos testes do app: o mesmo exercício montado à mão dá os mesmos pesos.
     let fixture = ExerciseRegions(primary: [chest], secondary: [triceps], emphasis: [])
     #expect(fixture.weight(of: chest) == 1 && fixture.weight(of: triceps) == 0.4)
+  }
+
+  // O carregador que lança, para a tela não derrubar o app (Task 10 do plano da fase 2, issue #97): o
+  // do pacote dá o mesmo catálogo do bundled, e um arquivo que falta ou não se lê lança o erro, sem
+  // parar o processo.
+  @Test func theThrowingLoaderGivesTheCatalogOrTheError() throws {
+    let loaded = try RegionCatalog.loadBundled()
+    #expect(loaded === catalog)
+    #expect(loaded.regions.count == 36)
+    #expect(throws: RegionCatalogError.self) { try RegionCatalog.load(contentsOf: nil) }
+    let folder = FileManager.default.temporaryDirectory.appending(path: "hexbody-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: folder) }
+    #expect(throws: (any Error).self) { try RegionCatalog.load(contentsOf: folder.appending(path: "nao-existe.json")) }
+    let broken = folder.appending(path: "quebrado.json")
+    try Data(#"{"regions":[{"id":"chest","group":"chest","watchGroup":"chest"}],"exercises":{"x":[[3],[],[]]}}"#.utf8).write(to: broken)
+    #expect(throws: RegionCatalogError.self) { try RegionCatalog.load(contentsOf: broken) }
   }
 
   @Test func anUnknownExerciseHasNoRegions() {

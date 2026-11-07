@@ -103,6 +103,12 @@ import os
 
   func summary(_ id: String) -> ExerciseSummary? { summaries[id] }
 
+  // O estado do detalhe de um exercício (Task 10), com o mesmo motor, o mesmo idioma, as mesmas ações e o
+  // mesmo revision da lista.
+  func detail(_ id: String) -> ExerciseDetailScreen {
+    ExerciseDetailScreen(id: id, engine: engine, locale: locale, revision: revision, perform: perform)
+  }
+
   // O catálogo, as opções dos filtros e a busca de agora, sem esperar: é o que a lista pede quando
   // aparece. Volta com o resultado na tela. Um refresh() que começou enquanto o catálogo vinha fica
   // com a última palavra sobre as linhas, e a busca daqui sai do mesmo jeito: a resposta dela é

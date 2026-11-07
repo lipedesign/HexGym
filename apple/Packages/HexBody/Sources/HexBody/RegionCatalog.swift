@@ -47,17 +47,33 @@ public struct ExerciseRegions: Equatable, Sendable {
 // O catálogo das regiões, lido uma vez do pacote.
 public final class RegionCatalog: Sendable {
   // O catálogo do exercise-regions.json do pacote. Um arquivo que falta ou não se lê é um erro do
-  // build, e não do aparelho: o app para com o motivo.
+  // build, e não do aparelho: quem usa o bundled para com o motivo. É o que os testes usam. As telas
+  // usam o loadBundled(), que lança o mesmo erro em vez de parar o app (issue #97).
   public static let bundled: RegionCatalog = {
     do {
-      guard let url = Bundle.module.url(forResource: "exercise-regions", withExtension: "json") else {
-        throw RegionCatalogError.missingFile
-      }
-      return try RegionCatalog(data: Data(contentsOf: url))
+      return try loadBundled()
     } catch {
       fatalError("HexBody: não deu para ler o exercise-regions.json do pacote (\(error))")
     }
   }()
+
+  // O catálogo do pacote, lido uma vez, ou o erro de quando ele não se leu. O bundled e o
+  // loadBundled() devolvem o mesmo catálogo.
+  private static let loaded = Result {
+    try load(contentsOf: Bundle.module.url(forResource: "exercise-regions", withExtension: "json"))
+  }
+
+  // O catálogo do pacote, ou o erro, sem parar o app: uma tela que não acha as regiões mostra outra
+  // coisa no lugar delas.
+  public static func loadBundled() throws -> RegionCatalog {
+    try loaded.get()
+  }
+
+  // Lê um catálogo no formato do gerador. nil, um arquivo que falta ou um JSON que não bate lançam.
+  public static func load(contentsOf url: URL?) throws -> RegionCatalog {
+    guard let url else { throw RegionCatalogError.missingFile }
+    return try RegionCatalog(data: Data(contentsOf: url))
+  }
 
   // As 36 regiões, na ordem do regions_v2.json.
   public let regions: [BodyRegion]
@@ -106,7 +122,7 @@ private struct RegionFile: Decodable {
   let exercises: [String: [[Int]]]
 }
 
-enum RegionCatalogError: Error {
+public enum RegionCatalogError: Error {
   case missingFile
   case badExercise(String)
 }
