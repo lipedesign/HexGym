@@ -115,6 +115,16 @@
         }
       }
     },
+    "About this exercise" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobre o exercício"
+          }
+        }
+      }
+    },
     "Accent" : {
       "localizations" : {
         "pt-BR" : {
@@ -191,6 +201,60 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adicionar (%lld)"
+          }
+        }
+      }
+    },
+    "Add to favorites" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar aos favoritos"
+          }
+        }
+      }
+    },
+    "Add to routine" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar à rotina"
+          }
+        }
+      }
+    },
+    "Added to %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionado a %@"
+          }
+        }
+      }
+    },
+    "Also works" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Também trabalha"
+          }
+        }
+      }
+    },
+    "Also works: %@." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Também trabalha: %@."
           }
         }
       }
@@ -381,6 +445,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuar"
+          }
+        }
+      }
+    },
+    "Couldn't add the exercise." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para adicionar o exercício."
+          }
+        }
+      }
+    },
+    "Couldn't open the exercise." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para abrir o exercício."
           }
         }
       }
@@ -707,6 +792,16 @@
         }
       }
     },
+    "How to do it" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como fazer"
+          }
+        }
+      }
+    },
     "If Reduce Motion changes while the workout screen is open, the screen gets a new identity and starts over (the if usesZoom of the destination). In phase 3, the workout state lives outside the view, or the screen reads Reduce Motion once, when it opens." : {
       "localizations" : {
         "pt-BR" : {
@@ -876,6 +971,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mapa dos músculos"
+          }
+        }
+      }
+    },
+    "Muscles" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Músculos"
+          }
+        }
+      }
+    },
+    "New routine" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nova rotina"
           }
         }
       }
@@ -1054,12 +1169,34 @@
         }
       }
     },
+    "Primary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Principal"
+          }
+        }
+      }
+    },
     "Primary button" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Botão principal"
+          }
+        }
+      }
+    },
+    "Primary: %@." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Principal: %@."
           }
         }
       }
@@ -1264,6 +1401,17 @@
         }
       }
     },
+    "Step %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passo %lld"
+          }
+        }
+      }
+    },
     "Step %lld of %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1452,6 +1600,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terceira série"
+          }
+        }
+      }
+    },
+    "This exercise isn't in the library on this device." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este exercício não está na biblioteca deste aparelho."
           }
         }
       }

@@ -21,10 +21,12 @@ public struct LibraryQuery: Codable, Equatable, Sendable {
 }
 
 // O detalhe de um exercício. Um id que não existe vem com known false e o nome "Exercício
-// desconhecido" no idioma.
+// desconhecido" no idioma. O muscleNames tem o nome de cada grupo do muscles no idioma, inclusive os
+// de fora dos 18 do facets(), como o "cardiovascular system" do cardio (issue #97); é opcional para um
+// JSON sem ele continuar a decodificar.
 public struct ExerciseDetail: Codable, Equatable, Sendable {
   public let id: String, name: String, nameEnglish: String, bp: String, equipment: [String], category: String?
-  public let muscles: [String: Double], instructions: [String], description: String?
+  public let muscles: [String: Double], muscleNames: [String: String]?, instructions: [String], description: String?
   public let favourite: Bool, custom: Bool, known: Bool
 }
 

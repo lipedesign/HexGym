@@ -82,13 +82,16 @@ export function exercise(S, id) {
   if (!e) {
     return {
       id: String(id), name: t('Unknown exercise'), nameEnglish: '', bp: '', equipment: [], category: null, muscles: {},
-      instructions: [], description: null, favourite, custom: false, known: false,
+      muscleNames: {}, instructions: [], description: null, favourite, custom: false, known: false,
     }
   }
   const { custom, ...rest } = summary(e, new Set(favIds(S)))
   return {
     ...rest,
     nameEnglish: e.n || '',
+    // O nome de cada grupo do muscles no idioma, pelo MUSCLE_NAME e o t(), inclusive os de fora do
+    // MUSCLES, como o "cardiovascular system" do cardio, que o facets() não tem (issue #97).
+    muscleNames: Object.fromEntries(Object.keys(rest.muscles).map(m => [m, t(MUSCLE_NAME[m] || m)])),
     instructions: strings(instrFor(e)),
     description: descFor(e) || null,
     custom,

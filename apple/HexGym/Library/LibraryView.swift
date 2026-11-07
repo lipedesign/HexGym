@@ -4,6 +4,8 @@
 // há filtro) e o estado vazio da Apple (ContentUnavailableView.search) quando a busca não acha nada.
 // A busca, os filtros e a ordem são do motor, pelo LibraryModel; as linhas vêm prontas dele.
 //
+// Um toque no nome abre o detalhe do exercício (ExerciseDetailView, Task 10), na pilha da aba.
+//
 // Com selection (o editor de rotina, Task 11), a lista vira múltipla escolha: cada toque marca ou
 // desmarca, na ordem dos toques, que vira a ordem dos slots, e o botão "Adicionar (n)" da barra chama o
 // onAdd com os ids nessa ordem.
@@ -56,6 +58,9 @@ struct LibraryView: View {
     .searchable(text: searchText, prompt: Text("Search exercises"))
     .toolbar { toolbar }
     .sheet(isPresented: $showsFilters) { LibraryFilterSheet(model: model) }
+    .navigationDestination(for: ExerciseRoute.self) { route in
+      ExerciseDetailView(screen: model.detail(route.id))
+    }
     .onChange(of: model.documentRevision) { Task { await model.refresh() } }
     .containerBackground(.clear, for: .navigation)
   }

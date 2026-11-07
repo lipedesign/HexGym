@@ -4,8 +4,10 @@
 // para a lista dos 5.632 rolar sem perder quadro. O nome quebra linha em qualquer tamanho de texto,
 // sem teto de linhas (Foco da revisão 5).
 //
-// Na lista comum, o texto é um elemento do VoiceOver, com o rótulo do modelo, e a estrela é um botão à
-// parte, com pelo menos 44 pt, que o VoiceOver, o Controle por Botão e o teclado acionam. Nos tamanhos
+// Na lista comum, o texto é o link para o detalhe do exercício (Task 10), um elemento do VoiceOver com o
+// rótulo do modelo, e a estrela é um botão à parte, com pelo menos 44 pt, que o VoiceOver, o Controle
+// por Botão e o teclado acionam. O rótulo vai no próprio NavigationLink, sem um
+// .accessibilityElement(children: .ignore) por fora, para o toque do VoiceOver abrir o detalhe. Nos tamanhos
 // de acessibilidade (AX1 a AX5), a estrela desce para baixo do texto, e o nome fica com a largura
 // inteira da linha (escolha recomendada, com a delegação do Lipe de 03/11/2026). No modo de
 // escolha (o editor de rotina, Task 11), a linha inteira é o botão que marca e desmarca, e a estrela
@@ -67,9 +69,13 @@ struct ExerciseRow: View {
 
   private var browseRow: some View {
     browseLayout {
-      texts
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: row.spoken))
+      NavigationLink(value: ExerciseRoute(id: row.id)) {
+        texts
+          .frame(minHeight: HexTarget.minimum)
+          .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(Text(verbatim: row.spoken))
       Button(action: toggleFavourite) {
         star
           .frame(minWidth: HexTarget.minimum, minHeight: HexTarget.minimum)

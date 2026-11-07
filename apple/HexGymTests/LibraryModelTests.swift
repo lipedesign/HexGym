@@ -119,7 +119,7 @@ import Testing
     let names = LibraryNames(bodyParts: ["chest": "peito"], equipment: ["dumbbell": "haltere"])
     let row = LibraryRow(summary, names: names, text: LibraryText(locale: portuguese), language: portuguese)
     #expect(row.name == "Supino inclinado com halteres e pegada neutra no banco de trinta graus")
-    #expect(row.detail == "Peito · Haltere")
+    #expect(row.detail == "Peito\u{00A0}· Haltere")   // o ponto nunca começa a linha (QA do PR #113)
     #expect(row.spoken == "Supino inclinado com halteres e pegada neutra no banco de trinta graus, Peito, Haltere, favorito")
     // Sem favorito, o rótulo para no equipamento; em inglês, "favorite".
     #expect(row.favouriting(false).spoken == "Supino inclinado com halteres e pegada neutra no banco de trinta graus, Peito, Haltere")

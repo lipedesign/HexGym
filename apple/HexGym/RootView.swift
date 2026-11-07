@@ -1,8 +1,9 @@
 // A raiz do app do iPhone (Task 6 do plano da fase 2): enquanto o motor e o documento abrem, um
 // ProgressView; se não deu para abrir, a tela de erro, com a marca e a linha de sempre, sem abas; e,
 // com o documento aberto, a TabView da Apple com as três abas, Rotinas, Exercícios e Ajustes, cada uma
-// com o seu NavigationStack. Os Exercícios são a biblioteca (LibraryView, Task 9); as Rotinas mostram
-// um ContentUnavailableView até a Task 11. O detalhe de um erro vai para o log, nunca para a tela.
+// com o seu NavigationStack. Os Exercícios são a biblioteca (LibraryView, Task 9), e um toque abre o
+// detalhe do exercício (Task 10); as Rotinas mostram um ContentUnavailableView até a Task 11. O detalhe
+// de um erro vai para o log, nunca para a tela.
 //
 // Antes das abas, a primeira abertura (Task 7), quando o documento foi criado agora ou quando este
 // aparelho nunca a viu (OnboardingLaunch.shouldShow). No fim dela, as abas entram com um esmaecido.
@@ -82,6 +83,9 @@ private struct RootTabs: View {
   @State private var library: LibraryModel
   // Só com -HexGymLibraryPick YES: os escolhidos no modo de escolha, para os prints (LibraryLaunch).
   @State private var picked: [String] = []
+  // A pilha da aba Exercícios: o detalhe de um exercício por cima da lista. Com -HexGymExercise <id>, já
+  // começa no detalhe dele, para os prints (ExerciseLaunch).
+  @State private var libraryPath = ExerciseLaunch.path
   // A galeria já aberta nos Ajustes quando o app começa com -HexGymGallery YES, ou as Licenças, para os
   // prints e o vídeo (SettingsLaunch.path).
   @State private var settingsPath = SettingsLaunch.path
@@ -100,7 +104,7 @@ private struct RootTabs: View {
         .background { BreathingGlow() }
       }
       Tab("Exercises", systemImage: "dumbbell", value: RootTab.library) {
-        NavigationStack {
+        NavigationStack(path: $libraryPath) {
           if LibraryLaunch.picks {
             LibraryView(model: library, selection: $picked, onAdd: { _ in picked = [] })
           } else {
