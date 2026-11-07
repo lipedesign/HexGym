@@ -334,6 +334,16 @@
         }
       }
     },
+    "Continue" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        }
+      }
+    },
     "Couldn't open your data." : {
       "localizations" : {
         "pt-BR" : {
@@ -521,6 +531,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Primeiro dia"
+          }
+        }
+      }
+    },
+    "Get started" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar"
           }
         }
       }
@@ -879,6 +899,16 @@
         }
       }
     },
+    "Pick your color" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha a sua cor"
+          }
+        }
+      }
+    },
     "Pounds (lb)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1030,6 +1060,16 @@
         }
       }
     },
+    "Skip" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pular"
+          }
+        }
+      }
+    },
     "Slanted segments" : {
       "localizations" : {
         "pt-BR" : {
@@ -1066,6 +1106,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Começar treino"
+          }
+        }
+      }
+    },
+    "Step %lld of %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passo %1$lld de %2$lld"
           }
         }
       }
@@ -1301,6 +1352,26 @@
         }
       }
     },
+    "What do you lift in?" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em que você levanta?"
+          }
+        }
+      }
+    },
+    "Which body shows your muscles?" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qual corpo mostra os seus músculos?"
+          }
+        }
+      }
+    },
     "Workout" : {
       "localizations" : {
         "pt-BR" : {
@@ -1327,6 +1398,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "treinos"
+          }
+        }
+      }
+    },
+    "You can change this later in Settings." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dá para trocar depois nos Ajustes."
           }
         }
       }
