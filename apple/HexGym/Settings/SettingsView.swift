@@ -137,7 +137,8 @@ struct SettingsView: View {
 
   // O tema troca no ThemeModel, dentro do SettingsRows.change, e não vai ao motor. O resto muda na
   // tela na hora e vai ao motor pelo perform; se a ação falhar, o erro vai para o log e a tela lê de
-  // novo o que o documento tem.
+  // novo o que o documento tem. No log, como no AppModel, o tipo do erro fica público e o detalhe,
+  // privado, porque a mensagem do motor pode trazer um pedaço do documento.
   private func choose(_ choice: SettingsChoice) {
     guard let change = SettingsRows.change(for: choice, theme: theme) else { return }
     values?.apply(choice)
@@ -145,7 +146,7 @@ struct SettingsView: View {
       do {
         _ = try await model.perform(.setSetting(change))
       } catch {
-        Self.logger.error("não deu para gravar o ajuste: \(String(describing: error), privacy: .public)")
+        Self.logger.error("não deu para gravar o ajuste (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")
         await load()
       }
     }
@@ -155,7 +156,7 @@ struct SettingsView: View {
     do {
       values = SettingsValues(try await model.engine.settings())
     } catch {
-      Self.logger.error("não deu para ler os ajustes: \(String(describing: error), privacy: .public)")
+      Self.logger.error("não deu para ler os ajustes (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")
     }
   }
 
