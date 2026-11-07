@@ -1,7 +1,9 @@
 // O cartão do sistema (QA da PR #70 e a #71): o HexDesign testa o contraste do texto na cor do tema
 // contra dois cinzas escritos à mão, o HexRGB.card e o HexRGB.cardIncreased. Aqui, no simulador, o
 // secondarySystemBackground do iOS, resolvido no escuro, precisa dar esses mesmos dois cinzas: sem e
-// com Aumentar Contraste. Cada componente é arredondado para 8 bits antes de comparar.
+// com Aumentar Contraste. Cada componente é arredondado para 8 bits antes de comparar. O fundo das
+// linhas de uma List agrupada (o secondarySystemGroupedBackground), onde os Ajustes mostram a marca na
+// cor do tema, dá os mesmos dois cinzas (Task 6 do plano da fase 2).
 //
 //   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs) xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym \
 //     -destination id=<udid> -derivedDataPath apple/DerivedData -parallel-testing-enabled NO test
@@ -11,14 +13,14 @@ import Testing
 import UIKit
 
 @Suite @MainActor struct SystemCardTests {
-  // O secondarySystemBackground no escuro, no contraste pedido, como 0xRRGGBB em sRGB.
-  func card(_ contrast: UIAccessibilityContrast) -> HexRGB? {
+  // A cor pedida (sem ela, o secondarySystemBackground) no escuro, no contraste pedido, como 0xRRGGBB em sRGB.
+  func card(_ contrast: UIAccessibilityContrast, _ color: UIColor = .secondarySystemBackground) -> HexRGB? {
     let traits = UITraitCollection { traits in
       traits.userInterfaceStyle = .dark
       traits.accessibilityContrast = contrast
       traits.userInterfaceLevel = .base
     }
-    let color = UIColor.secondarySystemBackground.resolvedColor(with: traits)
+    let color = color.resolvedColor(with: traits)
     var (red, green, blue, alpha): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
     guard color.getRed(&red, green: &green, blue: &blue, alpha: &alpha), alpha == 1 else { return nil }
     let byte = { (component: CGFloat) in UInt32((component * 255).rounded()) }
@@ -28,5 +30,7 @@ import UIKit
   @Test func theSystemCardIsTheOneTheColorsAreTestedOn() {
     #expect(card(.normal) == HexRGB.card)                       // #1C1C1E
     #expect(card(.high) == HexRGB.cardIncreased)                // #242426, a #71
+    #expect(card(.normal, .secondarySystemGroupedBackground) == HexRGB.card)
+    #expect(card(.high, .secondarySystemGroupedBackground) == HexRGB.cardIncreased)
   }
 }

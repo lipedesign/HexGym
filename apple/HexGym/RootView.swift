@@ -1,0 +1,105 @@
+// A raiz do app do iPhone (Task 6 do plano da fase 2): enquanto o motor e o documento abrem, um
+// ProgressView; se não deu para abrir, a tela de erro, com a marca e a linha de sempre, sem abas; e,
+// com o documento aberto, a TabView da Apple com as três abas, Rotinas, Exercícios e Ajustes, cada uma
+// com o seu NavigationStack. As Rotinas e os Exercícios mostram um ContentUnavailableView até as
+// Tasks 9 e 11. O detalhe de um erro vai para o log, nunca para a tela.
+//
+// Escolha recomendada, com a delegação do Lipe de 03/11/2026: as três abas (escolha 1 do plano), com
+// as Rotinas primeiro.
+import HexDesign
+import SwiftUI
+
+struct RootView: View {
+  let model: AppModel
+
+  var body: some View {
+    switch model.state {
+    case .starting:
+      ProgressView("Opening…")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    case .failed:
+      FailureView()
+    case .ready:
+      RootTabs(model: model)
+    }
+  }
+}
+
+// As abas. O rawValue é o que o -HexGymTab recebe.
+enum RootTab: String, CaseIterable, Hashable {
+  case routines = "rotinas", library = "exercicios", settings = "ajustes"
+
+  // A aba em que o app abre. Vem do domínio dos argumentos dos UserDefaults padrão (xcrun simctl
+  // launch ... -HexGymTab ajustes), que não fica gravado, para os prints e os testes de interface:
+  //   -HexGymTab <rotinas|exercicios|ajustes>   abre nessa aba
+  //   -HexGymGallery YES                        sem -HexGymTab, abre nos Ajustes, com a galeria aberta
+  //   -HexGymSettingsOpen licenses              com -HexGymTab ajustes, as Licenças (SettingsLaunch)
+  // Sem eles, ou com um valor que não é aba, as Rotinas.
+  static func launch(_ defaults: UserDefaults = .standard) -> RootTab {
+    if let raw = defaults.string(forKey: "HexGymTab"), let tab = RootTab(rawValue: raw) { return tab }
+    return GalleryLaunch.opensGallery ? .settings : .routines
+  }
+}
+
+// A TabView pinta um fundo opaco por cima do brilho da raiz, e o iOS não deixa o fundo dela
+// transparente: por isso, cada aba desenha o brilho que respira atrás da própria pilha.
+private struct RootTabs: View {
+  let model: AppModel
+  @State private var tab = RootTab.launch()
+  // A galeria já aberta nos Ajustes quando o app começa com -HexGymGallery YES, ou as Licenças, para os
+  // prints e o vídeo (SettingsLaunch.path).
+  @State private var settingsPath = SettingsLaunch.path
+
+  var body: some View {
+    TabView(selection: $tab) {
+      Tab("Routines", systemImage: "list.bullet.rectangle", value: RootTab.routines) {
+        NavigationStack {
+          PendingTab(title: "Routines", systemImage: "list.bullet.rectangle")
+        }
+        .background { BreathingGlow() }
+      }
+      Tab("Exercises", systemImage: "dumbbell", value: RootTab.library) {
+        NavigationStack {
+          PendingTab(title: "Exercises", systemImage: "dumbbell")
+        }
+        .background { BreathingGlow() }
+      }
+      Tab("Settings", systemImage: "gearshape", value: RootTab.settings) {
+        NavigationStack(path: $settingsPath) {
+          SettingsView(model: model, path: $settingsPath)
+        }
+        .background { BreathingGlow() }
+      }
+    }
+  }
+}
+
+// Uma aba que ainda não tem tela: o estado vazio da Apple, com o nome da aba.
+private struct PendingTab: View {
+  let title: LocalizedStringKey
+  let systemImage: String
+
+  var body: some View {
+    ContentUnavailableView {
+      Label(title, systemImage: systemImage)
+    } description: {
+      Text("Coming in a later version.")
+    }
+    .containerBackground(.clear, for: .navigation)
+  }
+}
+
+// O documento não abriu: a marca e a linha do erro, como a tela provisória mostrava.
+private struct FailureView: View {
+  var body: some View {
+    VStack(spacing: HexSpacing.l) {
+      HexWordmark()
+      Text("Couldn't open your data.")
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+    }
+    .padding(HexSpacing.m)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+}

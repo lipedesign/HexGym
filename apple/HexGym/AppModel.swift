@@ -1,5 +1,5 @@
 // O que o app faz ao abrir (seção 9 do design doc e Task 10 do plano da fase 0): carrega o motor e
-// abre o documento de dados do App Group, e a tela mostra numa linha o que aconteceu.
+// abre o documento de dados do App Group; a raiz (RootView) mostra as abas, ou o erro.
 //
 // O motor (HexEngine) e o armazenamento (DocumentStore) são atores: cada chamada a eles roda fora da
 // thread principal, e só o state muda aqui, no ator principal.
@@ -159,6 +159,8 @@ import os
     dirty = false
     do {
       try await store.save(try await engine.document())
+      // Só a hora, para conferir no simulador quem gravou: a gravação de 0,5 s ou o flush() do fundo.
+      Self.logger.info("documento gravado")
     } catch {
       dirty = true
       Self.logger.error("não deu para gravar o documento (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")

@@ -64,8 +64,8 @@ public enum HexFonts {
     return cache.font(FontKey(weight: weight, size: size, tabularDigits: tabularDigits))
   }
 
-  // O texto da SIL OFL 1.1, que vai junto com a fonte.
-  static var licenseURL: URL? {
+  // O texto da SIL OFL 1.1, que vai junto com a fonte. A tela de licenças do app o mostra daqui.
+  public static var licenseURL: URL? {
     Bundle.module.url(forResource: "OFL", withExtension: "txt", subdirectory: "Fonts")
   }
 
