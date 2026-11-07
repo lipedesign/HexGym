@@ -10,12 +10,16 @@
 //
 // Para a rolagem dos 5.632 (seção 8.13): a List é preguiçosa, as linhas não têm imagem nem conta no
 // body, e cada linha é uma view só, de tipo fixo (ExerciseRow), para a List não montar todas para
-// contar. O fundo da pilha fica transparente, para o brilho da raiz aparecer atrás, como nos Ajustes.
+// contar. Mostrar em lotes (como o shown da Library.jsx do openGym) foi medido no QA do PR #112 e não
+// entrou: o primeiro toque na aba custou o mesmo (uns 200 ms no simulador, de montar a tela, e não as
+// linhas), e a rolagem contínua piorou muito a cada lote que entrava. O fundo da pilha fica
+// transparente, para o brilho da raiz aparecer atrás, como nos Ajustes.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: a escolha 6 do plano (sem miniatura, o
 // nome, o grupo principal e o equipamento, os favoritos primeiro), a contagem dos filtros no selo do
 // botão, e o deslizar para favoritar no índigo do sistema, onde o texto branco do botão é legível em
-// todos os temas.
+// todos os temas. O selo é desenhado aqui, e não o .badge da Apple: o .badge vira o valor do botão
+// para o VoiceOver ("Filtros, 2 itens") por cima do nosso ("2 filtros ligados") (QA do PR #112).
 import HexDesign
 import HexEngine
 import SwiftUI
@@ -26,7 +30,6 @@ struct LibraryView: View {
   var selection: Binding<[String]>? = nil
   var onAdd: (([String]) -> Void)? = nil
 
-  @Environment(\.locale) private var locale
   @State private var showsFilters = false
   // O que os argumentos de início pedem roda uma vez só, mesmo que a aba volte.
   @State private var ranLaunch = false
@@ -74,10 +77,16 @@ struct LibraryView: View {
   @ToolbarContentBuilder private var toolbar: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
       Button { showsFilters = true } label: {
-        Label("Filters", systemImage: "line.3.horizontal.decrease")
+        // Um ZStack, e não um Label: com Label ou Image, a barra desenha só o símbolo e perde o selo.
+        ZStack {
+          Image(systemName: "line.3.horizontal.decrease")
+            .overlay(alignment: .topTrailing) {
+              if model.activeFilterCount > 0 { FilterBadge(count: model.activeFilterCount) }
+            }
+        }
       }
-      .badge(model.activeFilterCount)
-      .accessibilityValue(Text(verbatim: LibraryText.filtersOn(model.activeFilterCount, locale: locale)))
+      .accessibilityLabel(Text("Filters"))
+      .accessibilityValue(Text(verbatim: model.filtersValue))
     }
     if let selection {
       ToolbarItem(placement: .confirmationAction) {
@@ -163,15 +172,25 @@ struct LibraryView: View {
   }
 }
 
-extension LibraryText {
-  // O valor do botão dos filtros para o VoiceOver: "Nenhum filtro ligado", "Um filtro ligado", "2
-  // filtros ligados".
-  static func filtersOn(_ count: Int, locale: Locale) -> String {
-    switch count {
-    case 0: AppText.text("No filters on", locale: locale)
-    case 1: AppText.text("One filter on", locale: locale)
-    default: String(format: AppText.text("%lld filters on", locale: locale), locale: locale, count)
-    }
+// O selo da contagem no botão dos filtros, no desenho do .badge da Apple: o número em branco no
+// vermelho do sistema, crescendo com o tamanho do texto. Fica fora da acessibilidade: o botão diz a
+// contagem no valor dele.
+private struct FilterBadge: View {
+  let count: Int
+  @ScaledMetric(relativeTo: .footnote) private var size: CGFloat = 18
+
+  var body: some View {
+    Text(count, format: .number)
+      .font(.footnote.weight(.medium))
+      .monospacedDigit()
+      .foregroundStyle(.white)
+      .padding(.horizontal, size / 4)
+      .frame(minWidth: size, minHeight: size)
+      .background(Capsule().fill(Color(.systemRed)))
+      .fixedSize()
+      // O centro do selo na borda do botão de vidro, em cima à direita, onde o .badge da Apple ficava.
+      .offset(x: size * 0.75, y: -size)
+      .accessibilityHidden(true)
   }
 }
 

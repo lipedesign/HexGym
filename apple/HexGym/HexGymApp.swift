@@ -81,9 +81,9 @@ private struct ThemedRoot<Content: View>: View {
 }
 
 // O tint dos componentes da Apple na raiz: branco. O tint vira a cor do texto dos botões de barra (o
-// "OK" de uma tela que sobe, por exemplo), dos alertas e dos menus, que ficam sobre o vidro das barras
-// (#3A3A3C), onde o accent não é conferido: no QA da PR #85, o "OK" no accent mediu 3,45:1 no
-// Ultravioleta. Pela regra da #71, o texto na cor do tema só fica sobre o fundo da tela e sobre o
+// "Pronto" de uma tela que sobe, por exemplo), dos alertas e dos menus, que ficam sobre o vidro das
+// barras (#3A3A3C), onde o accent não é conferido: no QA da PR #85, esse botão no accent mediu 3,45:1
+// no Ultravioleta. Pela regra da #71, o texto na cor do tema só fica sobre o fundo da tela e sobre o
 // cartão do sistema. O accent entra só onde é pedido: nos componentes do HexDesign, que leem a paleta;
 // nas chaves, pelo HexSwitchStyle abaixo, porque nelas o tint é o preenchimento, e não texto; e onde
 // uma tela o põe de propósito.

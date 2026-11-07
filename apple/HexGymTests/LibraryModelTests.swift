@@ -1,9 +1,10 @@
 // Os testes da biblioteca sem tela (Task 9 do plano da fase 2), com o motor de verdade e o documento do
 // primeiro uso em português do Brasil: o catálogo inteiro, a busca "supino", a última busca que vale,
-// a contagem dos filtros, o estado vazio e o rótulo do VoiceOver de uma linha. O teste do rótulo prende
-// o Foco da revisão 5: um nome com 70 letras vai inteiro no rótulo, sem corte. O Foco da revisão 2 (a
-// busca sem acento e nos dois idiomas) é do motor (library.test.mjs); aqui, a busca "supino" passa pelo
-// modelo da tela.
+// a contagem dos filtros (e o valor que o VoiceOver lê no botão), o estado vazio, o rótulo do VoiceOver
+// de uma linha e a estrela que não pisca (a estrela e o valor do botão, do QA do PR #112). O teste do
+// rótulo prende o Foco da revisão 5: um nome com 70 letras vai inteiro no rótulo, sem corte. O Foco da
+// revisão 2 (a busca sem acento e nos dois idiomas) é do motor (library.test.mjs); aqui, a busca
+// "supino" passa pelo modelo da tela.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -81,9 +82,11 @@ import Testing
   @Test func aChestFilterCountsAsOne() async throws {
     let (model, _) = try await loaded()
     var query = LibraryQuery()
+    #expect(model.filtersValue == "Nenhum filtro ligado")
     query.muscles = ["chest"]
     model.update(query: query)
     #expect(model.activeFilterCount == 1)
+    #expect(model.filtersValue == "Um filtro ligado")
     await model.settled()
     #expect(!model.results.isEmpty)
     #expect(model.results.count < 5632)
@@ -95,6 +98,7 @@ import Testing
     query.favouritesOnly = true
     model.update(query: query)
     #expect(model.activeFilterCount == 4)
+    #expect(model.filtersValue == "4 filtros ligados")
   }
 
   @Test func aSearchWithNoResultLeavesTheEmptyState() async throws {
@@ -122,4 +126,47 @@ import Testing
     let english = LibraryRow(summary, names: names, text: LibraryText(locale: Locale(identifier: "en-US")), language: portuguese)
     #expect(english.spoken.hasSuffix(", Peito, Haltere, favorite"))
   }
+
+  // Duas estrelas tocadas bem depressa: o refresh() da primeira lê o catálogo antes de a ação da segunda
+  // chegar ao motor. A segunda estrela não pode apagar nesse meio tempo.
+  @Test func aSecondStarStaysOnWhileTheFirstRefreshReadsTheCatalogue() async throws {
+    let engine = HexEngine(language: "pt-BR")
+    _ = try await engine.load()
+    _ = try await engine.freshDocument()
+    let box = ModelBox()
+    let model = LibraryModel(engine: engine, locale: portuguese) { action in
+      if case .toggleFavourite(id: "0289") = action, let model = box.model, !box.raced {
+        box.raced = true
+        await model.refresh()
+        #expect(model.row("0289")?.favourite == true)
+        #expect(model.row("0025")?.favourite == true)
+      }
+      return try await engine.apply(action)
+    }
+    box.model = model
+    await model.load()
+    #expect(model.row("0289")?.favourite == false)
+    await model.toggleFavourite("0025")
+    await model.toggleFavourite("0289")
+    #expect(model.row("0289")?.favourite == true)
+    #expect(box.raced)
+    // O catálogo de depois das duas ações traz as duas estrelas do motor.
+    await model.refresh()
+    #expect(model.row("0025")?.favourite == true)
+    #expect(model.row("0289")?.favourite == true)
+    // Um toque de novo apaga, e o catálogo de depois confirma.
+    await model.toggleFavourite("0289")
+    await model.refresh()
+    #expect(model.row("0289")?.favourite == false)
+  }
+}
+
+// O modelo, para a ação do teste da estrela chamar o refresh() dele no meio do caminho.
+@MainActor private final class ModelBox {
+  var model: LibraryModel?
+  var raced = false
+}
+
+private extension LibraryModel {
+  func row(_ id: String) -> LibraryRow? { results.first { $0.id == id } }
 }

@@ -15,6 +15,9 @@
 // ação que mudou o documento (o revision do AppModel sobe) pede o catálogo de novo (refresh), para a
 // estrela de um favorito marcado em outra tela aparecer, e a ordem fica a mesma até a próxima busca.
 //
+// Uma estrela tocada fica como a pessoa deixou até a ação dela chegar ao motor e o catálogo de depois
+// chegar (pending): um refresh() que leu o catálogo antes dela não apaga a estrela (QA do PR #112).
+//
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: a estrela muda na hora e a linha fica
 // onde está; os favoritos sobem para o topo na próxima busca, na próxima troca de filtro ou quando a
 // lista abre de novo, para a linha não pular de baixo do dedo. Os nomes começam com letra maiúscula (o
@@ -49,6 +52,10 @@ import os
     query.muscles.count + query.equipment.count + query.categories.count + (query.favouritesOnly ? 1 : 0)
   }
 
+  // O valor do botão dos filtros para o VoiceOver, pronto: "Nenhum filtro ligado", "Um filtro ligado",
+  // "2 filtros ligados".
+  var filtersValue: String { LibraryText.filtersOn(activeFilterCount, locale: locale) }
+
   // O revision do documento, lido pela tela para pedir o catálogo de novo depois de uma ação.
   var documentRevision: Int { revision() }
 
@@ -66,6 +73,17 @@ import os
   @ObservationIgnored private var catalogueGeneration = 0
   // O catálogo já chegou uma vez. Antes dele, uma busca pedida espera o load(), que busca o de agora.
   @ObservationIgnored private var hasCatalogue = false
+  // As estrelas tocadas cuja ação ainda não chegou ao catálogo: o valor que a pessoa deixou, o toque
+  // (para um segundo toque na mesma estrela valer sobre o primeiro) e, depois da ação, o catálogo pedido
+  // por último até ali. Um catálogo pedido depois dele já traz a ação, e a estrela sai daqui.
+  @ObservationIgnored private var pending: [String: Pending] = [:]
+  @ObservationIgnored private var taps = 0
+
+  private struct Pending {
+    let on: Bool
+    let tap: Int
+    var doneAt: Int?
+  }
 
   private static let logger = Logger(subsystem: "app.hexgym", category: "library")
 
@@ -131,13 +149,20 @@ import os
     }
   }
 
-  // A estrela muda na hora; se a ação falhar, ela volta, e o erro vai para o log.
+  // A estrela muda na hora; se a ação falhar, ela volta, e o erro vai para o log. Até o catálogo de
+  // depois da ação chegar, a estrela fica como a pessoa deixou (pending).
   func toggleFavourite(_ id: String) async {
     guard let row = rows[id] else { return }
+    taps += 1
+    let tap = taps
+    pending[id] = Pending(on: !row.favourite, tap: tap)
     replace(row.favouriting(!row.favourite))
     do {
       _ = try await perform(.toggleFavourite(id: id))
+      if pending[id]?.tap == tap { pending[id]?.doneAt = catalogueGeneration }
     } catch {
+      guard pending[id]?.tap == tap else { return }
+      pending[id] = nil
       replace(row)
       Self.logger.error("não deu para favoritar (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")
     }
@@ -154,7 +179,15 @@ import os
       let facets = try await engine.facets()
       let built = await LibraryBuild.make(list, facets: facets, text: LibraryText(locale: locale), language: language)
       guard mine == catalogueGeneration else { return }
-      (summaries, rows, options) = (built.summaries, built.rows, built.options)
+      var fresh = built.rows
+      for (id, star) in pending {
+        if let done = star.doneAt, mine > done {
+          pending[id] = nil
+        } else {
+          fresh[id] = fresh[id]?.favouriting(star.on)
+        }
+      }
+      (summaries, rows, options) = (built.summaries, fresh, built.options)
       hasCatalogue = true
     } catch {
       guard mine == catalogueGeneration else { return }
@@ -257,6 +290,15 @@ nonisolated struct LibraryText: Sendable {
 
   @MainActor init(locale: Locale) {
     favourite = AppText.text("favorite", locale: locale)
+  }
+
+  // O valor do botão dos filtros para o VoiceOver.
+  @MainActor static func filtersOn(_ count: Int, locale: Locale) -> String {
+    switch count {
+    case 0: AppText.text("No filters on", locale: locale)
+    case 1: AppText.text("One filter on", locale: locale)
+    default: String(format: AppText.text("%lld filters on", locale: locale), locale: locale, count)
+    }
   }
 }
 
