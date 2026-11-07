@@ -205,6 +205,8 @@ struct SettingsView: View {
 enum SettingsAnchor {
   static let workout = "workout", effort = "effort", week = "week", body = "body", appearance = "appearance"
   static let about = "about"
+  // Nas Licenças: os links do código do openGym e do HexGym.
+  static let opengym = "opengym"
 }
 
 // Os argumentos de início dos Ajustes, como os da galeria (GalleryLaunch), do domínio dos argumentos
@@ -213,7 +215,8 @@ enum SettingsAnchor {
 //   -HexGymSection appearance      rola até uma seção (SettingsAnchor); a galeria lê a mesma chave
 //   -HexGymSettingsScript demo     o roteiro do vídeo do PR: troca a unidade e o tema
 //   -HexGymSettingsScript flush    troca o corpo 3,8 s depois de abrir, para conferir o flush()
-//   -HexGymSettingsOpen licenses   abre as Licenças; musclemap abre o texto da licença do MuscleMap
+//   -HexGymSettingsOpen licenses   abre as Licenças; musclemap e barlow abrem o texto de uma licença
+//   -HexGymSection opengym         nas Licenças, rola até os links do código do openGym e do HexGym
 enum SettingsLaunch {
   private static var defaults: UserDefaults { .standard }
 
@@ -231,6 +234,9 @@ enum SettingsLaunch {
     case "musclemap":
       path.append(SettingsRoute.licenses)
       path.append(LicenseText(title: "MuscleMap", source: .bundle("LICENSE-MuscleMap")))
+    case "barlow":
+      path.append(SettingsRoute.licenses)
+      path.append(LicenseText(title: "Barlow Condensed", source: .url(HexFonts.licenseURL)))
     default:
       break
     }
@@ -288,6 +294,10 @@ private struct ThemeChoiceRow: View {
   @Environment(\.locale) private var locale
   @Environment(\.colorSchemeContrast) private var contrast
   @Environment(\.hexPalette) private var palette
+  // A amostra acompanha o texto no Dynamic Type, de 18 pt até 36 pt (no AX5, sem o teto, passaria de
+  // 50 pt e tomaria o lugar do nome).
+  @ScaledMetric(relativeTo: .body) private var scaledSwatch: CGFloat = 18
+  private var swatchSize: CGFloat { min(scaledSwatch, 36) }
 
   // O destaque daquele tema no contraste do aparelho.
   private var swatch: Color {
@@ -297,7 +307,7 @@ private struct ThemeChoiceRow: View {
   var body: some View {
     Button(action: select) {
       HStack(spacing: HexSpacing.s) {
-        Circle().fill(swatch).frame(width: 18, height: 18)
+        Circle().fill(swatch).frame(width: swatchSize, height: swatchSize)
         // A marca ao lado do nome quando os dois cabem numa linha; senão (no AX5), embaixo dele, para o
         // nome não quebrar no meio da palavra. Só na linha escolhida: nas outras, o espaço vai para o nome.
         ViewThatFits(in: .horizontal) {

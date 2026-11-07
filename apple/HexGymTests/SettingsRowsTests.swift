@@ -1,6 +1,8 @@
 // Os testes dos Ajustes sem tela (Task 6 do plano da fase 2): as opções do descanso, o rótulo dele
 // e o que o VoiceOver diz, a troca de unidade por uma ação do motor e o tema, que fica no ThemeModel
 // e não gera ação nenhuma (seção 8.12). Os rótulos são conferidos em português do Brasil e em inglês.
+// O teste dos rótulos confere também os parágrafos dos textos das licenças, que a linha "Licenças"
+// abre (LicenseParagraphs), nos três arquivos que vão no app.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -65,6 +67,19 @@ import Testing
     #expect(portuguese.effort(.rir) == "RIR"); #expect(english.effort(.rpe) == "RPE")
     #expect(portuguese.weekStart(.sunday) == "Domingo"); #expect(english.weekStart(.monday) == "Monday")
     #expect(portuguese.body(.female) == "Feminino"); #expect(english.body(.male) == "Male")
+    // A linha "Licenças" do Sobre abre os textos das licenças, em parágrafos (LicenseParagraphs): o
+    // título de uma seção fica sozinho, e um aviso de garantia em maiúsculas fica inteiro.
+    #expect(LicenseParagraphs.split("PREAMBLE\nThe goals of\nthe OFL.\n\nPERMISSION & CONDITIONS\nPermission is\ngranted.\n")
+      == ["PREAMBLE", "The goals of the OFL.", "PERMISSION & CONDITIONS", "Permission is granted."])
+    #expect(LicenseParagraphs.split("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED.\n")
+      == ["THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED."])
+    let ofl = LicenseText(title: "Barlow Condensed", source: .url(HexFonts.licenseURL)).paragraphs()
+    #expect(["PREAMBLE", "DEFINITIONS", "PERMISSION & CONDITIONS", "TERMINATION", "DISCLAIMER"].allSatisfy(ofl.contains))
+    let mit = LicenseText(title: "MuscleMap", source: .bundle("LICENSE-MuscleMap")).paragraphs()
+    #expect(mit.count == 5); #expect(mit.first == "MIT License"); #expect(mit.last?.hasPrefix("THE SOFTWARE IS PROVIDED") == true)
+    let agpl = LicenseText(title: "openGym", source: .bundle("LICENSE-openGym")).paragraphs()
+    #expect(Array(agpl.prefix(2)) == ["GNU AFFERO GENERAL PUBLIC LICENSE", "Version 3, 19 November 2007"])
+    #expect(agpl.contains("TERMS AND CONDITIONS")); #expect(agpl.contains("END OF TERMS AND CONDITIONS"))
   }
 
   @Test func changingTheThemeMakesNoEngineAction() {

@@ -13,6 +13,18 @@ import SwiftUI
 
 struct LicensesView: View {
   var body: some View {
+    ScrollViewReader { proxy in
+      list
+        .task {
+          // -HexGymSection opengym rola até os links do código, para o print em AX5 mostrar as setas.
+          guard SettingsLaunch.anchor == SettingsAnchor.opengym else { return }
+          try? await Task.sleep(for: .milliseconds(600))
+          proxy.scrollTo(SettingsAnchor.opengym, anchor: .top)
+        }
+    }
+  }
+
+  private var list: some View {
     List {
       Section {
         Text("HexGym is an unofficial fork of openGym, not made or endorsed by its author. Its code is public, under the same license.")
@@ -21,8 +33,9 @@ struct LicensesView: View {
         work: "openGym", license: "AGPL-3.0-or-later", holder: "© 2026 Duarte Santos",
         purpose: "The rules of the app: exercises, routines and progression.", text: .bundle("LICENSE-openGym")
       ) {
-        Link("openGym source code", destination: URL(string: "https://github.com/DuarteSantos8/openGym")!)
-        Link("HexGym source code", destination: URL(string: "https://github.com/lipedesign/HexGym")!)
+        SourceLink("openGym source code", destination: URL(string: "https://github.com/DuarteSantos8/openGym")!)
+          .id(SettingsAnchor.opengym)
+        SourceLink("HexGym source code", destination: URL(string: "https://github.com/lipedesign/HexGym")!)
       }
       LicenseSection(
         work: "Barlow Condensed", license: "SIL Open Font License 1.1", holder: "© 2017 The Barlow Project Authors",
@@ -54,23 +67,69 @@ struct LicenseText: Hashable {
     }
   }
 
-  // O texto com os parágrafos juntados: os arquivos quebram a linha em 72 colunas, e na largura do
-  // iPhone, com Dynamic Type, essas quebras cortariam as frases no meio. Uma linha em branco separa
-  // os parágrafos, e uma linha só de traços fica sozinha.
+  // Os parágrafos do arquivo (LicenseParagraphs), ou nenhum, se ele não abriu.
   func paragraphs() -> [String] {
     guard let url, let raw = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+    return LicenseParagraphs.split(raw)
+  }
+}
+
+// O texto de uma licença em parágrafos: os arquivos quebram a linha em 72 colunas, e na largura do
+// iPhone, com Dynamic Type, essas quebras cortariam as frases no meio. As linhas de um bloco se
+// juntam num parágrafo; uma linha em branco ou só de traços separa os blocos; e o título de uma seção
+// (o "PREAMBLE" e o "TERMINATION" da OFL, o "TERMS AND CONDITIONS" da AGPL) fica num parágrafo
+// próprio, em vez de grudar no texto dele. Testado no SettingsRowsTests.
+enum LicenseParagraphs {
+  static func split(_ raw: String) -> [String] {
     var result: [String] = [], current: [String] = []
     func close() {
       if !current.isEmpty { result.append(current.joined(separator: " ")) }
       current = []
     }
     for line in raw.components(separatedBy: .newlines).map({ $0.trimmingCharacters(in: .whitespaces) }) {
-      if line.isEmpty { close(); continue }
-      if line.allSatisfy({ $0 == "-" || $0 == "=" }) { close(); continue }
+      if line.isEmpty || line.allSatisfy({ $0 == "-" || $0 == "=" }) { close(); continue }
+      if current.isEmpty, isHeading(line) {
+        result.append(line)
+        continue
+      }
       current.append(line)
     }
     close()
     return result
+  }
+
+  // Um título: a primeira linha de um bloco, com letras e nenhuma minúscula, curta e sem a vírgula ou
+  // o ponto de uma frase. Os avisos de garantia, também em maiúsculas, começam com linhas longas que
+  // continuam na seguinte, e ficam inteiros.
+  static func isHeading(_ line: String) -> Bool {
+    line.count <= 40 && line.contains(where: \.isLetter) && !line.contains(where: \.isLowercase)
+      && !line.hasSuffix(",") && !line.hasSuffix(".")
+  }
+}
+
+// Um link para fora do app, com a seta "arrow.up.right" à direita, no lugar e no cinza da seta de
+// navegação da List, para não parecer texto parado. O texto segue o tint branco da raiz.
+private struct SourceLink: View {
+  let title: LocalizedStringKey
+  let destination: URL
+
+  init(_ title: LocalizedStringKey, destination: URL) {
+    self.title = title
+    self.destination = destination
+  }
+
+  var body: some View {
+    Link(destination: destination) {
+      HStack(spacing: HexSpacing.s) {
+        Text(title)
+        Spacer(minLength: 0)
+        Image(systemName: "arrow.up.right")
+          .font(.body.weight(.semibold))
+          .imageScale(.small)
+          .foregroundStyle(.tertiary)
+          .accessibilityHidden(true)
+      }
+    }
   }
 }
 
