@@ -4,6 +4,9 @@
 // com o seu NavigationStack. As Rotinas e os Exercícios mostram um ContentUnavailableView até as
 // Tasks 9 e 11. O detalhe de um erro vai para o log, nunca para a tela.
 //
+// Antes das abas, a primeira abertura (Task 7), quando o documento foi criado agora ou quando este
+// aparelho nunca a viu (OnboardingLaunch.shouldShow). No fim dela, as abas entram com um esmaecido.
+//
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: as três abas (escolha 1 do plano), com
 // as Rotinas primeiro.
 import HexDesign
@@ -19,8 +22,35 @@ struct RootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     case .failed:
       FailureView()
-    case .ready:
-      RootTabs(model: model)
+    case .ready(let status):
+      ReadyRoot(model: model, origin: status.origin)
+    }
+  }
+}
+
+// O documento aberto: a primeira abertura, quando ela aparece, e depois as abas. A decisão sai uma vez
+// só, quando o documento abre, com a marca do App Group (OnboardingMark) e os argumentos de início.
+private struct ReadyRoot: View {
+  let model: AppModel
+  @State private var onboarding: Bool
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  init(model: AppModel, origin: AppModel.Origin) {
+    self.model = model
+    _onboarding = State(initialValue: OnboardingLaunch.shouldShow(origin: origin, seen: OnboardingMark.appGroup().seen))
+  }
+
+  var body: some View {
+    ZStack {
+      if onboarding {
+        OnboardingView(model: model) {
+          withAnimation(HexMotion.enter.animation(reduceMotion: reduceMotion)) { onboarding = false }
+        }
+        .transition(.opacity)
+      } else {
+        RootTabs(model: model)
+          .transition(.opacity)
+      }
     }
   }
 }
@@ -34,7 +64,9 @@ enum RootTab: String, CaseIterable, Hashable {
   //   -HexGymTab <rotinas|exercicios|ajustes>   abre nessa aba
   //   -HexGymGallery YES                        sem -HexGymTab, abre nos Ajustes, com a galeria aberta
   //   -HexGymSettingsOpen licenses              com -HexGymTab ajustes, as Licenças (SettingsLaunch)
-  // Sem eles, ou com um valor que não é aba, as Rotinas.
+  // Sem eles, ou com um valor que não é aba, as Rotinas. Desde a Task 7, os prints e os testes de
+  // interface põem também -HexGymSkipOnboarding YES, para a primeira abertura não ficar na frente das
+  // abas num simulador que nunca a viu (OnboardingLaunch).
   static func launch(_ defaults: UserDefaults = .standard) -> RootTab {
     if let raw = defaults.string(forKey: "HexGymTab"), let tab = RootTab(rawValue: raw) { return tab }
     return GalleryLaunch.opensGallery ? .settings : .routines

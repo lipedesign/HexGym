@@ -62,6 +62,10 @@ struct SettingsView: View {
       Picker("Unit", selection: binding(values.unit, SettingsChoice.unit)) {
         ForEach([WeightUnit.kg, .lb], id: \.self) { Text(verbatim: rows.unit($0)).tag($0) }
       }
+      // O rótulo de cada opção vale no menu aberto e na linha fechada (#94, conferido no simulador com a
+      // acessibilidade do sistema carregada): no menu, o VoiceOver lê "1 min 30 s" onde a tela mostra
+      // "1:30", e a linha fechada diz "Descanso padrão, 1 min 30 s". Por isso, nenhum accessibilityValue
+      // no Picker: ele repetiria o tempo depois do rótulo.
       Picker("Default rest", selection: binding(values.restSec, SettingsChoice.rest)) {
         ForEach(SettingsRows.restOptions(current: values.restSec), id: \.self) { seconds in
           Text(verbatim: rows.rest(seconds))
@@ -69,7 +73,6 @@ struct SettingsView: View {
             .tag(seconds)
         }
       }
-      .accessibilityValue(Text(verbatim: rows.spokenRest(values.restSec)))
       Picker("Effort scale", selection: binding(values.effort, SettingsChoice.effort)) {
         ForEach(EffortChoice.allCases, id: \.self) { Text(verbatim: rows.effort($0)).tag($0) }
       }
@@ -210,7 +213,8 @@ enum SettingsAnchor {
 }
 
 // Os argumentos de início dos Ajustes, como os da galeria (GalleryLaunch), do domínio dos argumentos
-// dos UserDefaults padrão, que não fica gravado:
+// dos UserDefaults padrão, que não fica gravado. Com -HexGymSkipOnboarding YES junto, desde a Task 7,
+// para a primeira abertura não aparecer antes (OnboardingLaunch):
 //   -HexGymTab ajustes             abre nos Ajustes (RootTab.launch)
 //   -HexGymSection appearance      rola até uma seção (SettingsAnchor); a galeria lê a mesma chave
 //   -HexGymSettingsScript demo     o roteiro do vídeo do PR: troca a unidade e o tema
@@ -285,8 +289,8 @@ struct WholePointHeight: Layout {
 // o seletor da galeria, com pelo menos 44 pt de altura. Os quatro dividem uma linha da List, e por isso
 // o botão é plain: no estilo padrão, um toque na linha apertaria os quatro. O fundo da linha é o
 // secondarySystemGroupedBackground, o mesmo cinza do cartão do sistema (SystemCardTests), onde a cor do
-// tema pode ficar (#71).
-private struct ThemeChoiceRow: View {
+// tema pode ficar (#71). A primeira abertura usa as mesmas linhas, no passo do tema.
+struct ThemeChoiceRow: View {
   let theme: HexTheme
   let isSelected: Bool
   let select: () -> Void
