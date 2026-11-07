@@ -13,6 +13,7 @@
 		0953718FEB0A988BEE83AB0D /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 5E24FEE5B721DD7596AA690F /* HexDesign */; };
 		0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */ = {isa = PBXBuildFile; productRef = F7D667231290D9949914F205 /* HexEngine */; };
 		0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */ = {isa = PBXBuildFile; productRef = FD10DF20928C0DA753FF1560 /* HexStore */; };
+		5F8A2671B61085C847BBD79F /* HexBody in Frameworks */ = {isa = PBXBuildFile; productRef = 364092657B63B37F9224E843 /* HexBody */; };
 		7D8B27A75A0672F92F9AD7CD /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 065F48265460A29DF3541267 /* HexDesign */; };
 		7F77EDAF80727F612A7E91BA /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = A1415B7FF0EAECE2DA7FCDAF /* HexDesign */; };
 		945F248E32746F935A176598 /* HexDesign in Frameworks */ = {isa = PBXBuildFile; productRef = 42AFEE8145ADF29955546C99 /* HexDesign */; };
@@ -126,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F8A2671B61085C847BBD79F /* HexBody in Frameworks */,
 				945F248E32746F935A176598 /* HexDesign in Frameworks */,
 				0A7E58F518548C3667BCAE03 /* HexEngine in Frameworks */,
 				0D9AF0BFB70319B53563FD33 /* HexStore in Frameworks */,
@@ -214,6 +216,7 @@
 			);
 			name = HexGym;
 			packageProductDependencies = (
+				364092657B63B37F9224E843 /* HexBody */,
 				42AFEE8145ADF29955546C99 /* HexDesign */,
 				F7D667231290D9949914F205 /* HexEngine */,
 				FD10DF20928C0DA753FF1560 /* HexStore */,
@@ -358,6 +361,7 @@
 				F47B29B18CB5B56F4F5C6E84 /* XCLocalSwiftPackageReference "Packages/HexEngine" */,
 				F683D71DBDA7846B3CE84AD1 /* XCLocalSwiftPackageReference "Packages/HexStore" */,
 				6FB7F657AB6F3F027C850634 /* XCLocalSwiftPackageReference "Packages/HexDesign" */,
+				64D051F7B3F1AEE98EB90496 /* XCLocalSwiftPackageReference "Packages/HexBody" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63A820911F1A58DC1B3052B6 /* Products */;
@@ -799,6 +803,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/HexDesign;
 		};
+		64D051F7B3F1AEE98EB90496 /* XCLocalSwiftPackageReference "Packages/HexBody" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HexBody;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -825,6 +833,10 @@
 		065F48265460A29DF3541267 /* HexDesign */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HexDesign;
+		};
+		364092657B63B37F9224E843 /* HexBody */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HexBody;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

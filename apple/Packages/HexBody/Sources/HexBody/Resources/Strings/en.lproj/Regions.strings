@@ -1,0 +1,39 @@
+/* Os nomes das 36 regiões do corpo em inglês, pelo id, na ordem do regions_v2.json do gerador
+   (scripts/hexbody/regions/): os nomes anatômicos de costume, no mesmo registro dos de português.
+   Escolha recomendada, com a delegação do Lipe de 03/11/2026. */
+"upperTrapezius" = "Upper trapezius";
+"trapezius" = "Middle trapezius";
+"lowerTrapezius" = "Lower trapezius";
+"frontDeltoid" = "Anterior deltoid";
+"deltoids" = "Lateral deltoid";
+"rearDeltoid" = "Posterior deltoid";
+"rotatorCuff" = "Rotator cuff";
+"upperChest" = "Upper chest";
+"chest" = "Mid chest";
+"lowerChest" = "Lower chest";
+"upperBack" = "Latissimus dorsi";
+"teresMajor" = "Teres major";
+"rhomboids" = "Rhomboids";
+"serratus" = "Serratus anterior";
+"biceps" = "Biceps";
+"brachialis" = "Brachialis";
+"tricepsLongHead" = "Triceps, long head";
+"triceps" = "Triceps, lateral and medial heads";
+"forearm" = "Forearm";
+"upperAbs" = "Rectus abdominis";
+"lowerAbs" = "Lower abs";
+"obliques" = "External oblique";
+"lowerBack" = "Lower back";
+"gluteal" = "Gluteus maximus";
+"gluteusMedius" = "Gluteus medius";
+"quadriceps" = "Rectus femoris";
+"innerQuad" = "Vastus medialis";
+"outerQuad" = "Vastus lateralis";
+"hamstring" = "Hamstrings";
+"adductors" = "Adductors";
+"hipFlexors" = "Hip flexors";
+"calves" = "Gastrocnemius";
+"soleus" = "Soleus";
+"tibialis" = "Tibialis anterior";
+"sternocleidomastoid" = "Sternocleidomastoid";
+"neckBack" = "Back of the neck (splenius and levator scapulae)";

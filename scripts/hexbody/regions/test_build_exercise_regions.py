@@ -4,8 +4,8 @@
     python3 -I scripts/hexbody/regions/run_tests.py
 
 Lê só o texto do catálogo, como o gerador. Cada caso é um exercício real pelo id. Os testes do
---check rodam o gerador num processo à parte, contra uma pasta temporária (--out), e nunca
-gravam nada nesta pasta.
+--check rodam o gerador num processo à parte, contra uma pasta temporária (--out, e --app para o
+JSON do app), e nunca gravam nada nesta pasta nem no pacote HexBody.
 """
 import json
 import shutil
@@ -27,21 +27,25 @@ def regions(id_):
 
 SCRIPT = Path(B.__file__).resolve()
 JSONS = ('exercise_regions_v2.json', 'regions_v2.json')
+APP = B.APP_JSON.name   # exercise-regions.json, o JSON do pacote HexBody
 SEATED_ABDUCTIONS = ('0597', '3006', '3611', '3005')   # as duas abduções sentadas e os desenhos delas
 
 
 def run_check(folder):
-    """O --check contra a pasta, num processo à parte, como o check.mjs roda."""
-    return subprocess.run([sys.executable, '-I', str(SCRIPT), '--check', '--out', str(folder)],
+    """O --check contra a pasta, num processo à parte, como o check.mjs roda. O JSON do app é o
+    da mesma pasta."""
+    return subprocess.run([sys.executable, '-I', str(SCRIPT), '--check', '--out', str(folder), '--app', str(folder / APP)],
                           capture_output=True, text=True)
 
 
 def copy_of_jsons(test):
-    """Uma pasta temporária com uma cópia dos dois JSON do repositório; sai no fim do teste."""
+    """Uma pasta temporária com uma cópia dos três JSON do repositório (os dois desta pasta e o do
+    app); sai no fim do teste."""
     tmp = Path(tempfile.mkdtemp(prefix='hexgym-regions-'))
     test.addCleanup(shutil.rmtree, tmp, True)
     for name in JSONS:
         shutil.copyfile(B.HERE / name, tmp / name)
+    shutil.copyfile(B.APP_JSON, tmp / APP)
     return tmp
 
 
@@ -291,6 +295,21 @@ class Check(unittest.TestCase):
         self.assertIn('0025 (barbell bench press)', r.stderr)
         self.assertIn('(primary)', r.stderr)
         self.assertEqual(r.stderr.count('não bate'), 1, r.stderr)   # só o 0025, nenhum outro
+
+    def test_check_fails_when_the_app_json_is_stale(self):
+        # O JSON do app perde o peito médio no primário do 0025; os dois JSON desta pasta ficam iguais.
+        tmp = copy_of_jsons(self)
+        path = tmp / APP
+        app = json.loads(path.read_text(encoding='utf-8'))
+        chest = [r['id'] for r in app['regions']].index('chest')
+        app['exercises']['0025'][0].remove(chest)
+        stale = json.dumps(app, separators=(',', ':'))
+        path.write_text(stale, encoding='utf-8')
+        r = run_check(tmp)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(f'{APP}: o exercício 0025 (barbell bench press) não bate com o catálogo (primary)', r.stderr)
+        self.assertEqual(r.stderr.count('não bate'), 1, r.stderr)   # só o 0025, e só no JSON do app
+        self.assertEqual(path.read_text(encoding='utf-8'), stale, 'o --check não grava nada')
 
 
 if __name__ == '__main__':
