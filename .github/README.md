@@ -9,12 +9,13 @@
 <p align="center">
   <a href="https://github.com/DuarteSantos8/openGym">Fork do openGym</a> ·
   <a href="https://github.com/lipedesign/HexGym/milestones">As fases</a> ·
+  <a href="https://github.com/users/lipedesign/projects/6">O quadro (privado)</a> ·
   <a href="https://github.com/lipedesign/HexGym/blob/develop/docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md">Documento de design</a> ·
   <a href="https://github.com/lipedesign/HexGym/blob/develop/LICENSE">Licença AGPL-3.0</a>
 </p>
 
 > [!NOTE]
-> Em construção. A fundação (fase 0) e o design system (fase 1) estão em andamento, e ainda não há app para baixar. As imagens desta página mostram o conceito de design, feito em HTML, e não o app rodando.
+> Em construção, e ainda não há app para baixar. Na fundação (fase 0), o app já existe no Xcode e traz o motor do openGym: ele abre no simulador com o motor carregado e cria ou abre o documento de dados, ainda sem telas. O que falta nela espera o dono do projeto, como a CI, o registro do app no App Store Connect e o TestFlight, antes da versão 0.1.0. No design system (fase 1), as cores, a tipografia, o movimento, os componentes e a [documentação](/docs/hexgym/design-system/README.md) já entraram, e faltam a galeria dentro do app, a versão do Apple Watch e o ícone. As imagens desta página mostram o conceito de design, feito em HTML, e não o app rodando.
 
 ## O que é
 
@@ -40,8 +41,8 @@ Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight ex
 
 | Fase | O que entra | Estado |
 | --- | --- | --- |
-| [0. Fundação](https://github.com/lipedesign/HexGym/milestone/1) | O repositório e o jeito de trabalhar, o projeto do Xcode e o motor do openGym rodando no iPhone, ainda sem telas | Em andamento |
-| [1. Design system](https://github.com/lipedesign/HexGym/milestone/2) | As cores dos quatro temas, tipografia, espaçamento, movimento e vibrações, os componentes próprios e uma galeria dentro do app | Em andamento |
+| [0. Fundação](https://github.com/lipedesign/HexGym/milestone/1) | O repositório e o jeito de trabalhar, o projeto do Xcode e o motor do openGym rodando no iPhone, ainda sem telas | Em andamento: falta o que espera o dono do projeto |
+| [1. Design system](https://github.com/lipedesign/HexGym/milestone/2) | As cores dos quatro temas, tipografia, espaçamento, movimento e vibrações, os componentes próprios e uma galeria dentro do app | Em andamento: faltam a galeria, o Watch e o ícone |
 | [2. Biblioteca e rotinas](https://github.com/lipedesign/HexGym/milestone/3) | A primeira abertura, os 5.632 exercícios com busca, filtros e arte própria, e a criação de rotinas e planos | A fazer |
 | [3. Treino no iPhone](https://github.com/lipedesign/HexGym/milestone/4) | A tela inicial, o treino com séries, carga e descanso, a Live Activity na Dynamic Island, o recorde, a progressão e o histórico | A fazer |
 | [4. Apple Watch](https://github.com/lipedesign/HexGym/milestone/5) | O treino pelo pulso, com o anel de descanso, as complicações e o treino longe do iPhone | A fazer |
@@ -53,10 +54,44 @@ Cada fase é um marco no GitHub e termina numa versão. O primeiro TestFlight ex
 ## Como é feito
 
 - O app vai ser escrito em SwiftUI. As regras de treino continuam em JavaScript, em `frontend/src/lib`, como no openGym: um script junta esses módulos num arquivo só, o HexEngine, que o app vai rodar pelo JavaScriptCore. Assim os dois apps vão usar o mesmo código e os mesmos testes, e as atualizações do openGym vão chegar junto.
-- O trabalho anda por issues, com um [marco por fase](https://github.com/lipedesign/HexGym/milestones), e segue o Git Flow: tudo entra na `develop` por pull request, e cada fase termina numa versão na `main`.
+- O trabalho anda por issues, com um [marco por fase](https://github.com/lipedesign/HexGym/milestones), e segue o Git Flow: tudo entra na `develop` por pull request, e cada fase termina numa versão na `main`. As issues de todas as fases ficam no [quadro do projeto](https://github.com/users/lipedesign/projects/6), que é privado: quem não é do projeto vê uma página de erro, e os marcos mostram as mesmas issues.
+- Como uma issue chega ao merge, as regras do pull request e o papel do relentless estão no [CONTRIBUTING](/.github/CONTRIBUTING.md). Para avisar de uma falha de segurança sem abrir issue pública, veja o [SECURITY](/.github/SECURITY.md).
 - O código é escrito com o [Claude Code](https://claude.com/claude-code) e o plugin [relentless](https://github.com/marcelusfernandes/relentless). Cada pull request passa por QA e por uma revisão isolada antes do merge, e as decisões que duram ficam em [`docs/decisions`](https://github.com/lipedesign/HexGym/tree/develop/docs/decisions).
 - O [documento de design](https://github.com/lipedesign/HexGym/blob/develop/docs/superpowers/specs/2026-10-31-hexgym-native-app-design.md) diz o que o HexGym vai ser, as fases e as decisões tomadas até aqui.
 - A marca usa a fonte [Barlow Condensed](https://fonts.google.com/specimen/Barlow+Condensed), sob a SIL Open Font License 1.1.
+
+## Como compilar
+
+Hoje o app compila e abre no simulador do iPhone, ainda sem telas, e o app do Watch compila ao lado dele. Para isso, é preciso um Mac com:
+
+- o Xcode 27.2, o estável, em `/Applications/Xcode.app`, e um simulador de iPhone com iOS 26 ou mais novo. O Xcode beta não serve: a Apple não aceita no TestFlight externo um build feito com ele, e os scripts do HexGym não o escolhem sozinhos, só quando ele já vem no `DEVELOPER_DIR` do ambiente;
+- o Node 22, a versão que o openGym usa.
+
+Depois de clonar, na pasta do repositório:
+
+```bash
+cd frontend && npm ci
+cd ..
+node scripts/hexgym/check.mjs
+```
+
+O `npm ci` instala o que o frontend do openGym usa, e a parte do motor precisa dele. O `check.mjs` é o comando de teste do HexGym: o QA roda o mesmo comando, e a CI do HexGym vai rodar o mesmo quando entrar. Ele roda as cinco partes, nesta ordem:
+
+| Parte | O que confere |
+| --- | --- |
+| `scripts` | Os testes dos scripts do HexGym |
+| `engine` | O script do motor e os casos gravados em dia, e os testes do openGym rodando contra o script do motor |
+| `load` | O teste de carga do motor no JavaScriptCore |
+| `packages` | O `swift test` dos pacotes HexEngine, HexStore e HexDesign |
+| `app` | O build do app e do Watch, e os testes do app no simulador |
+
+Uma parte roda sozinha pelo nome, como `node scripts/hexgym/check.mjs app`, e o `node scripts/hexgym/check.mjs --list` mostra os comandos sem rodar nada.
+
+Os comandos do HexGym passam o Xcode pelo `DEVELOPER_DIR`: o do ambiente, se houver, senão o `/Applications/Xcode.app`, e o `xcode-select` só conta quando nenhum dos dois existe. O `node scripts/hexgym/xcode.mjs` diz qual Xcode eles usam. Para compilar o app à mão, sem assinatura:
+
+```bash
+DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs) xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym -destination "generic/platform=iOS Simulator" -derivedDataPath apple/DerivedData CODE_SIGNING_ALLOWED=NO build
+```
 
 ## Licença
 
