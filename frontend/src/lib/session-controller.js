@@ -36,6 +36,15 @@
 //                swapGroupSheet (1670-1683) volta no result. O marco, como em Workout.jsx:1078-1093.
 //   exercise.remove
 //                views/Workout.jsx:923-942 (removeActiveExercise); o marco refeito em 1078-1080.
+//   finish       sheets.jsx:3738-3798 (doFinishWorkout), só o treino que não é passado: os recordes
+//                em 3749-3758, o treino salvo em 3759-3764, o additions em 3765-3766, o exWeights,
+//                o histórico, o active e o refillAfter em 3778-3788, o stopRest em 3791. O resumo é o
+//                que o FinishSummary mostra (3676-3704: a duração, o volume, as séries e os recordes
+//                em 3684-3691, o LastAndNext de 3614-3615 e o KeepInRoutine de 3656). Sem série
+//                feita, grava do mesmo jeito, como o "Finish anyway" do finishWorkout (3711). O
+//                sessionEnd e o refillAfter recebem o now; o routineAdditions passa pelo additionsOf,
+//                porque o groupIds de lá chama o uid().
+//   discard      views/Workout.jsx:1563 (discardNow), sem o markDiscarded do Watch.
 // O descanso, o timer do store/useUI.js no openGym, mora aqui em active.rest (escolha 13):
 // startRest em useUI.js:284-307 (começar troca o que estava contando, e 0 s não começa nenhum) e o
 // tique em 166-209 (a pausa de trocar de lado some quando acaba, 177-183; o descanso comum fica
@@ -47,7 +56,7 @@
 
 import { draftOf, clone } from './state-core.js'
 import { isoOf } from './format.js'
-import { t } from './i18n-core.js'
+import { exerciseNameFor, t } from './i18n-core.js'
 import { buildCombinedEntries, deriveSessionName } from './session-merge.js'
 import {
   insertionIndexAfterCurrentUnit, nextUnfinishedUnit, ownSetRest, restAfterSet, restOnRecheck, restSecFor,
@@ -55,19 +64,28 @@ import {
 } from './supersetFlow.js'
 import { pyramidRestFor } from './pyramid.js'
 import {
-  EFFORT, bestWeightForEntry, cascadeWeight, cleanupSg, effortOf, freestyleConfig, isPerSide, lastBW, modeOf,
-  pickedExerciseConfig, removeRowAt, repStep, setSpanAt, stepEffort, supersetUnits, unitOf,
+  EFFORT, bestWeightFor, bestWeightForEntry, cascadeWeight, cleanupSg, effortOf, freestyleConfig, isPerSide, lastBW, modeOf,
+  pickedExerciseConfig, removeRowAt, repStep, sessionVolume, setSpanAt, setsDone, stepEffort, supersetUnits, unitOf,
+  workSetsDone, workoutVolume,
 } from './history.js'
 import { stepWeight, weightIncrement } from './progression.js'
-import { ownedWeightsFor, stepOwned } from './dumbbells.js'
+import { entryDbLoad, ownedWeightsFor, stepOwned } from './dumbbells.js'
 import { inclineFrom } from './incline.js'
-import { WEIGHT_ORIGIN_MANUAL, isSideSet, isWarmupRow, makeSideSet, setSideField, toggleSide } from './workout-model.js'
+import {
+  WEIGHT_ORIGIN_MANUAL, hasCompletedWork, isSideSet, isWarmupRow, makeSideSet, setSideField, toggleSide,
+} from './workout-model.js'
 import { REST_MAX } from './duration.js'
 import { buildSessionEntry, builtOutOfProgression } from './session-start.js'
 import { joinSessionNoProg } from './session-noprog.js'
 import { sessionHistory } from './backfill.js'
 import { swapActiveExercise } from './active-exercise-swap.js'
-import { EXIDX } from './exercises.js'
+import { EXIDX, beatsWeight, betterWeight, isCustomEx } from './exercises.js'
+import { buildCompletedWorkout, sessionEnd } from './finish-workout.js'
+import { is1RMRecord } from './onerm.js'
+import { finishCompare } from './finish-compare.js'
+import { routineAdditions } from './session-routines.js'
+import { refillAfter } from './rotation.js'
+import { exerciseMuscleSnapshot } from './muscles.js'
 
 // A pausa entre os dois lados de uma série com tempo, copiada do views/Workout.jsx:108 (está na
 // tela do openGym, não no lib).
@@ -165,6 +183,52 @@ function rowAt(A, a) {
   need(isIndex(a.set, e.sets.length), a.type, `não existe a série ${a.set} na entrada ${a.entry}`)
   need(isMap(e.sets[a.set]), a.type, `a série ${a.set} não é um objeto`)
   return e
+}
+
+// O nome de um exercício no resumo, como o FinishSummary e o LastAndNext mostram
+// (sheets.jsx:3625 e 3690-3691): o do idioma, ou o id quando o exercício não existe neste aparelho.
+const exName = id => (EXIDX[id] ? exerciseNameFor(EXIDX[id]) : id)
+
+// O sg de uma entrada como o copiedEntry do session-routines.js lê (o scalarGroup dele).
+function groupOf(e) {
+  const v = e?.sg ?? e?.target?.sg
+  return (typeof v === 'string' || typeof v === 'number') && String(v) ? String(v) : null
+}
+
+/**
+ * O routineAdditions do session-routines.js sem o uid(). O groupIds de lá dá a cada superset das
+ * cópias um sg novo pelo uid() do format.js, que lê o relógio e o Math.random. Aqui ele recebe as
+ * entradas sem sg, e o agrupamento que o groupIds faria volta depois com um rótulo fixo: um sg
+ * para cada sequência de cópias vizinhas com o mesmo sg, e nenhum para a que fica sozinha. O rótulo
+ * só diz quem anda junto, porque o addToRoutine dá a cada grupo um sg novo ao gravar na rotina
+ * (session-routines.js:174).
+ */
+function additionsOf(A, routines) {
+  const bare = {
+    ...A,
+    entries: A.entries.map(e => {
+      if (!isMap(e)) return e
+      const { sg: _sg, ...rest } = e
+      if (isMap(rest.target) && 'sg' in rest.target) {
+        const { sg: _tsg, ...target } = rest.target
+        rest.target = target
+      }
+      return rest
+    }),
+  }
+  return routineAdditions(bare, routines).map(add => {
+    // A entrada de cada cópia: a primeira com o mesmo id, como o routineAdditions escolhe.
+    const raw = add.ex.map(cfg => groupOf(A.entries.find(e => isMap(e) && e.addedInSession === true && e.rid === add.routineId
+      && e.id === cfg.id && (e.sets || []).some(hasCompletedWork))))
+    const ex = add.ex.map(cfg => ({ ...cfg }))
+    for (let i = 0; i < ex.length;) {
+      let end = i
+      while (raw[i] != null && end + 1 < ex.length && raw[end + 1] === raw[i]) end++
+      if (end > i) for (let j = i; j <= end; j++) ex[j].sg = `sg-${add.routineId}-${i}`
+      i = end + 1
+    }
+    return { ...add, ex }
+  })
 }
 
 // As colunas que a tela do openGym mostra para uma série, pelo modo (Workout.jsx:297-323): carga,
@@ -548,6 +612,78 @@ const ACTIONS = {
       return null
     },
   },
+
+  // O doFinishWorkout do sheets.jsx:3738-3798, no treino que não é passado, com o now onde lá se lê
+  // o relógio (o sessionEnd e o refillAfter). Sem nenhuma série feita, grava do mesmo jeito, como o
+  // "Finish anyway" de lá: quem pergunta antes é a tela. O háptico de recorde não sai daqui: quem
+  // toca é o carimbo do resumo, e o run devolve o que o summary precisa para montar o resumo.
+  finish: {
+    activity: 'activity.end',
+    run(s, a, S, now, effects) {
+      const A = S.active
+      need(isMap(A) && Array.isArray(A.entries), a.type, 'não há treino em andamento')
+      need(!A.backfill && !A.editingWorkoutId, a.type, 'o treino passado e a edição de um treino salvo ficam para a fase 5')
+      // Os recordes contra o histórico de antes (sheets.jsx:3749-3758): a carga melhor das séries
+      // feitas que não são aquecimento, lida no sentido do halter desta sessão; e o 1RM estimado
+      // maior de um exercício que não bateu a carga.
+      const prs = []
+      const loads = []
+      const e1rm = []
+      A.entries.forEach(e => {
+        const ws = (Array.isArray(e?.sets) ? e.sets : []).filter(x => x.done && !isWarmupRow(x)).map(x => x.w).filter(w => w > 0)
+        const mx = ws.length ? ws.reduce((x, y) => betterWeight(e.id, x, y)) : 0
+        if (beatsWeight(e.id, mx, bestWeightFor(S, e.id, entryDbLoad(e)))) {
+          prs.push(e.id)
+          loads.push({ id: e.id, name: exName(e.id), w: mx })
+        }
+        const rec = is1RMRecord(S, e.id, e)
+        if (rec && !prs.includes(e.id)) e1rm.push({ id: e.id, name: exName(e.id), e1rm: rec.est })
+      })
+      // O treino salvo, uma cópia: as linhas que o buildCompletedWorkout passa adiante são as do
+      // active de antes, que não se mudam (sheets.jsx:3759-3764).
+      const w = clone(buildCompletedWorkout(A, {
+        end: sessionEnd(A, now),
+        prs,
+        snapshotFor: e => (isCustomEx(EXIDX[e.id]) ? exerciseMuscleSnapshot(EXIDX[e.id]) : null),
+      }))
+      w.vol = workoutVolume(w)
+      // Lido antes de o treino sair, como lá (sheets.jsx:3765-3766).
+      const additions = additionsOf(A, S.routines)
+      // O update de lá (sheets.jsx:3778-3788). O histórico ganha o treino sem copiar os outros.
+      const exWeights = isMap(s.exWeights) ? s.exWeights : (s.exWeights = {})
+      w.entries.forEach(e => {
+        const mx = bestWeightForEntry(e)
+        if (mx > 0 && beatsWeight(e.id, mx, (exWeights[e.id] || {}).w || 0)) exWeights[e.id] = { w: mx, d: w.d }
+      })
+      s.workouts = [...(Array.isArray(S.workouts) ? S.workouts : []), w]
+      s.active = null
+      refillAfter(s, w, isoOf(new Date(now)), now)
+      effects.push({ type: 'workout.finished', id: w.id })
+      return { w, loads, e1rm, additions }
+    },
+    // O resumo, do documento já gravado, como o FinishSummary lê (sheets.jsx:3684-3691, e o
+    // LastAndNext em 3614-3615).
+    summary(next, { w, loads, e1rm, additions }) {
+      return {
+        id: w.id, name: w.name, start: w.start, end: w.end, durationMs: w.end - w.start,
+        volume: sessionVolume(w, next), unit: next.unit,
+        sets: { done: setsDone(w), work: workSetsDone(w) },
+        prs: loads, e1rm,
+        compare: finishCompare(next, w).map(row => ({ id: row.id, name: exName(row.id), ...row })),
+        additions,
+      }
+    },
+  },
+
+  // O discardNow do Workout.jsx:1563: o treino sai sem ir para o histórico.
+  discard: {
+    activity: 'activity.end',
+    run(s, a) {
+      activeOf(s, a.type)
+      s.active = null
+      return null
+    },
+  },
 }
 
 // Se o rascunho saiu diferente do documento de antes, como o changedFrom do actions.js: o campo que
@@ -576,7 +712,9 @@ function restEffect(before, after) {
  *   { type: 'workout.complete' }                     quando a última série do treino fica feita;
  *   { type: 'rest.started', endsAt, total, kind }    quando o descanso começa ou muda;
  *   { type: 'rest.cleared' }                         quando ele acaba;
- *   { type: 'activity.start' } ou { type: 'activity.update' }, por último, quando o treino mudou.
+ *   { type: 'workout.finished', id }                 quando o finish grava o treino;
+ *   { type: 'activity.start' }, { type: 'activity.update' } ou { type: 'activity.end' }, por
+ *                                                    último, quando o treino mudou.
  */
 export function step(S, action, now) {
   need(isMap(S), 'step', 'o documento precisa ser um objeto')
@@ -586,8 +724,11 @@ export function step(S, action, now) {
   const spec = ACTIONS[action.type]
   const draft = draftOf(S)
   const effects = []
-  const result = spec.run(draft.S, action, S, now, effects) ?? null
+  let result = spec.run(draft.S, action, S, now, effects) ?? null
   const next = draft.done()
+  // O resultado que se lê do documento novo (o resumo do finish) é montado só agora, para a leitura
+  // não copiar os campos do rascunho.
+  if (spec.summary) result = spec.summary(next, result)
   if (!changedFrom(S, next)) return { state: S, effects: [], result }
   // Um active do openGym, sem marco, ganha o de antes da ação, como o useRef nasce com a tela.
   if (isMap(next.active) && next.active !== S.active && isMap(S.active) && !Array.isArray(next.active.progress)) next.active.progress = progressOf(S.active)
