@@ -607,6 +607,23 @@ describe('o controlador do treino: exercícios no meio do treino', () => {
     expect(swapped.state.active.cur).toBe(0)
     expect(swapped.state.active.rest).toBe(null)
     expect(types(swapped)).toEqual(['rest.cleared', 'activity.update'])
+
+    // O marco na troca no lugar não é refeito como as séries feitas de agora: o número de entradas
+    // não muda (Workout.jsx:1078-1080), e ele só abaixa quando a nova tem menos séries (1084-1093).
+    // Marcada e desmarcada, a série deixa o marco em 1; com a nova de mais séries, ele fica.
+    const undone = mark(mark(begin(doc(), ['rt']), 0, 0, true, NOW).state, 0, 0, false, NOW + 5 * SEC).state
+    expect(undone.active.progress).toEqual([1, 0])
+    const more = replace(undone, 0, CURL, {}, NOW + 10 * SEC).state.active
+    expect(more.entries[0].sets.length).toBeGreaterThanOrEqual(undone.active.entries[0].sets.length)
+    expect(more.progress).toEqual([1, 0])
+    // Com a nova de menos séries, o marco abaixa até as feitas dela.
+    const S5 = doc()
+    S5.routines.push({ id: 'r5', name: 'Five', ex: [{ id: SQUAT, sets: 5, reps: 5, weight: 60, mode: 'reps' }] })
+    const undone5 = mark(mark(begin(S5, ['r5']), 0, 0, true, NOW).state, 0, 0, false, NOW + 5 * SEC).state
+    expect(undone5.active.progress).toEqual([1])
+    const fewer = replace(undone5, 0, CURL, {}, NOW + 10 * SEC).state.active
+    expect(fewer.entries[0].sets.length).toBeLessThan(5)
+    expect(fewer.progress).toEqual([0])
   })
 
   it('com séries feitas, sem confirmLogged, devolve needs confirm e o mesmo S; com ele, a troca entra ao lado e o descanso acaba', () => {
