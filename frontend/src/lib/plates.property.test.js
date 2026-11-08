@@ -1,8 +1,11 @@
 /* What any plate answer must satisfy, for any weight and any inventory (fast-check). plates.test.js
  * has the worked examples (the rack, the home gym with one pair of each); these are the rules a
  * lifter relies on without checking: the plates add up to what the app says is on the bar, it
- * never hands out plates you do not own, it never loads more than asked, nothing lighter than
- * the best possible load is offered, and owning more plates never makes the answer worse.
+ * never hands out plates you do not own, it never loads more than asked, the load is the heaviest
+ * these plates can make without going over, and owning more plates never makes the answer worse.
+ * Which plates make that load is plateStack's rule: heaviest first when that lands exactly, the
+ * way a bar is loaded, even when another stack would need fewer plates; the fewest plates only
+ * when heaviest first misses.
  */
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
@@ -20,6 +23,14 @@ const inventory = (unit = 'kg', maxSizes = 6, maxPairs = 4) =>
     .map(inv => inv.sort((a, b) => b.w - a.w))
 // Weights as typed: mostly on the quarter grid, sometimes any decimal.
 const weight = fc.oneof(fc.integer({ min: 0, max: 1200 }).map(x => x / 4), fc.double({ min: 0, max: 400, noNaN: true }))
+// A small inventory and a weight: half the time as typed, half the time some of those very plates
+// added up, so the weight can always be loaded. A typed weight seldom lands exactly heaviest first
+// while another stack has fewer plates; a loadable one does now and then (about one case in a
+// thousand). What holds those cases in every run are the fixed `examples` below.
+const small = inventory('kg', 4, 3)
+const loadable = small.chain(inv => fc.tuple(...inv.map(p => fc.integer({ min: 0, max: p.n })))
+  .map(ks => [ks.reduce((s, k, i) => s + k * inv[i].w, 0), inv]))
+const weightAndSmall = fc.oneof(fc.tuple(weight, small), loadable)
 
 // Every load these plates can make (in quarter-units) with the fewest plates for each: a brute
 // force over small inventories to hold the clever answer against.
@@ -33,6 +44,41 @@ function reachable(inv) {
     }
     best = next
   }
+  return best
+}
+
+// Heaviest first, as a lifter loads a bar: as many of each size as still fit, biggest size first.
+// Written again here, not taken from plates.js, so the test does not lean on the code it checks.
+// `exact` says whether it lands on the weight (in quarter-units, like the rest).
+function heaviestFirst(w, inv) {
+  let left = Math.floor(Math.max(0, w) * Q)
+  const plates = []
+  for (const { w: size, n } of [...inv].sort((a, b) => b.w - a.w)) {
+    const unit = Math.round(size * Q)
+    for (let k = Math.min(n, Math.floor(left / unit)); k > 0; k--) { plates.push(size); left -= unit }
+  }
+  return { plates, exact: left === 0 }
+}
+
+// When heaviest first misses, the stack plateStack promises for `load` (quarter-units): the fewest
+// plates, and among stacks with that many, the heaviest plate in each place, in order. A brute
+// force over every count of every size, fine for small inventories.
+function fewestHeaviest(inv, load) {
+  const sizes = [...inv].sort((a, b) => b.w - a.w)
+  // Fewer plates wins; with as many, the heavier plate at the first place they differ.
+  const better = (a, b) => {
+    if (a.length !== b.length) return a.length < b.length
+    const j = a.findIndex((x, i) => x !== b[i])
+    return j >= 0 && a[j] > b[j]
+  }
+  let best = null
+  const walk = (i, left, stack) => {
+    if (left === 0) { if (!best || better(stack, best)) best = [...stack]; return }
+    if (i === sizes.length) return
+    const unit = Math.round(sizes[i].w * Q)
+    for (let k = 0; k <= sizes[i].n && k * unit <= left; k++) walk(i + 1, left - k * unit, [...stack, ...Array(k).fill(sizes[i].w)])
+  }
+  walk(0, load, [])
   return best
 }
 
@@ -63,15 +109,37 @@ describe('plates for a weight', () => {
     }), RUNS)
   })
 
-  it('are the heaviest load you can make without going over, with the fewest plates', () => {
-    fc.assert(fc.property(weight, inventory('kg', 4, 3), (w, inv) => {
+  it('are the heaviest load you can make without going over', () => {
+    fc.assert(fc.property(weightAndSmall, ([w, inv]) => {
       const { plates } = plateStack(w, inv)
+      const target = Math.floor(Math.max(0, w) * Q)
+      const bestSum = Math.max(...[...reachable(inv).keys()].filter(s => s <= target))
+      expect(Math.round(sum(plates) * Q)).toBe(bestSum)
+    }), RUNS)
+  })
+
+  it('are the heaviest-first stack when it lands exactly, and the fewest plates only when it misses, heavier on ties', () => {
+    fc.assert(fc.property(weightAndSmall, ([w, inv]) => {
+      const { plates } = plateStack(w, inv)
+      const greedy = heaviestFirst(w, inv)
+      // Landing exactly, heaviest first wins even with more plates (55 from 25, 25, 2.5, 2.5
+      // and not 25, 15, 15: plates.test.js).
+      if (greedy.exact) { expect(plates).toEqual(greedy.plates); return }
       const target = Math.floor(Math.max(0, w) * Q)
       const options = reachable(inv)
       const bestSum = Math.max(...[...options.keys()].filter(s => s <= target))
       expect(Math.round(sum(plates) * Q)).toBe(bestSum)
       expect(plates.length).toBe(options.get(bestSum))
-    }), RUNS)
+      // Among stacks with that many plates, the heaviest plate in each place.
+      expect(plates).toEqual(fewestHeaviest(inv, bestSum))
+    }), {
+      ...RUNS,
+      examples: [
+        [[55, [{ w: 25, n: 2 }, { w: 15, n: 2 }, { w: 2.5, n: 2 }]]], // heaviest first lands, with more plates
+        [[40, [{ w: 25, n: 2 }, { w: 20, n: 2 }, { w: 10, n: 2 }]]], // heaviest first misses: 20 + 20, not 20 + 10 + 10
+        [[55, [{ w: 25, n: 2 }, { w: 20, n: 2 }, { w: 15, n: 2 }]]], // a tie of three plates: 25 + 15 + 15, not 20 + 20 + 15
+      ],
+    })
   })
 
   it('never get worse when you own more plates', () => {

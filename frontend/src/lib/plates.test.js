@@ -96,6 +96,22 @@ describe('plateStack', () => {
     expect(plateStack(100, homeInv)).toEqual({ plates: [45, 35, 15, 5], missing: 0 })
   })
 
+  test('heaviest first wins when it lands exactly, even with more plates than the fewest', () => {
+    // 25 + 15 + 15 is three plates, but heaviest first lands on 55 with four, and that is the
+    // answer, the way a bar is loaded. A test asking for the fewest plates fails on this one.
+    expect(plateStack(55, [{ w: 25, n: 2 }, { w: 15, n: 2 }, { w: 2.5, n: 2 }])).toEqual({ plates: [25, 25, 2.5, 2.5], missing: 0 })
+  })
+
+  test('when greedy misses and more than one stack hits, the one with fewer plates', () => {
+    // greedy takes 25 + 10 and is 5 short; 20 + 10 + 10 hits with three plates, 20 + 20 with two
+    expect(plateStack(40, [{ w: 25, n: 2 }, { w: 20, n: 2 }, { w: 10, n: 2 }])).toEqual({ plates: [20, 20], missing: 0 })
+  })
+
+  test('when greedy misses and two stacks hit with as few plates, the heavier plates', () => {
+    // greedy takes 25 + 25 and is 5 short; 25 + 15 + 15 and 20 + 20 + 15 both hit with three
+    expect(plateStack(55, [{ w: 25, n: 2 }, { w: 20, n: 2 }, { w: 15, n: 2 }])).toEqual({ plates: [25, 15, 15], missing: 0 })
+  })
+
   test('what cannot be loaded says how much is missing, from the closest load below', () => {
     expect(plateStack(140, homeInv)).toEqual({ plates: [45, 35, 25, 15, 10, 5, 2.5], missing: 2.5 })
     expect(plateStack(12.5, [{ w: 10, n: 1 }, { w: 5, n: 1 }])).toEqual({ plates: [10], missing: 2.5 })
