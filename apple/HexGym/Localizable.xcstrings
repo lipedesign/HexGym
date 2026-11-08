@@ -72,6 +72,9 @@
         }
       }
     },
+    "%@%@" : {
+      "shouldTranslate" : false
+    },
     "%@, already has this exercise" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -734,6 +737,17 @@
         }
       }
     },
+    "Description in English" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descrição em inglês"
+          }
+        }
+      }
+    },
     "Design system" : {
       "localizations" : {
         "pt-BR" : {
@@ -1221,6 +1235,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dentro de um cartão, os botões − e + ficam com o fundo do próprio cartão, e o contorno deles some."
+          }
+        }
+      }
+    },
+    "Instructions and description in English" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruções e descrição em inglês"
+          }
+        }
+      }
+    },
+    "Instructions in English" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instruções em inglês"
           }
         }
       }

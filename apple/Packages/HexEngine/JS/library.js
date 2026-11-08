@@ -8,7 +8,8 @@ import { BODYPARTS, EXIDX, allExercises, categoriesOf, equipmentOf, isCustomEx, 
 import { aliasSnapshot } from '../../../../frontend/src/lib/exercise-aliases.js'
 import { MUSCLES, MUSCLE_NAME, matchesMuscleGroups, muscleWeightsOf } from '../../../../frontend/src/lib/muscles.js'
 import { favIds, sortFavouritesFirst } from '../../../../frontend/src/lib/favourites.js'
-import { descFor, exerciseNameFor, getVersion, instrFor, t } from '../../../../frontend/src/lib/i18n-core.js'
+import { descFor, exerciseNameFor, getVersion, instrFor, instrTranslated, t } from '../../../../frontend/src/lib/i18n-core.js'
+import { descTranslated } from './language.js'
 
 // Uma lista de texto vinda do Swift; o que não é lista conta como nenhum filtro.
 const strings = value => (Array.isArray(value) ? value.filter(v => typeof v === 'string') : [])
@@ -74,7 +75,10 @@ export function search(S, query) {
 }
 
 // O detalhe de um exercício, com o nome em inglês, os passos e a descrição no idioma (o inglês
-// quando o idioma não tem). Um id que não existe (apagado, ou personalizado de outro aparelho) é o
+// quando o idioma não tem). O instructionsTranslated e o descriptionTranslated dizem se os passos e a
+// descrição vieram do pacote do idioma, pelo instrTranslated do openGym e pelo descTranslated do
+// language.js: false é o inglês do fallback, o texto de um personalizado ou nenhum texto; em inglês,
+// os dois são false, como no openGym, e a tela só avisa fora do inglês (issue #114). Um id que não existe (apagado, ou personalizado de outro aparelho) é o
 // "Exercício desconhecido" do openGym (exOr), com known: false, e não derruba a tela.
 export function exercise(S, id) {
   const favourite = favIds(S).includes(id)
@@ -82,7 +86,8 @@ export function exercise(S, id) {
   if (!e) {
     return {
       id: String(id), name: t('Unknown exercise'), nameEnglish: '', bp: '', equipment: [], category: null, muscles: {},
-      muscleNames: {}, instructions: [], description: null, favourite, custom: false, known: false,
+      muscleNames: {}, instructions: [], description: null, instructionsTranslated: false, descriptionTranslated: false,
+      favourite, custom: false, known: false,
     }
   }
   const { custom, ...rest } = summary(e, new Set(favIds(S)))
@@ -94,6 +99,8 @@ export function exercise(S, id) {
     muscleNames: Object.fromEntries(Object.keys(rest.muscles).map(m => [m, t(MUSCLE_NAME[m] || m)])),
     instructions: strings(instrFor(e)),
     description: descFor(e) || null,
+    instructionsTranslated: instrTranslated(e),
+    descriptionTranslated: descTranslated(e),
     custom,
     known: true,
   }
