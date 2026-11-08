@@ -10,7 +10,8 @@
 // em 2; o campo da nota volta para o texto cortado; a faixa do desfazer guarda o prazo; e o editor cai
 // no estado de erro quando a leitura falha. Os da issue #118: a edição de um exercício acha o slot pelo
 // id no motor a cada toque, e um slot que saiu não grava em outro; apagar e reordenar em seguida move a
-// rotina certa, e o reordenar acha as rotinas pelo id quando a lista mudou por baixo.
+// rotina certa, e o reordenar acha as rotinas pelo id quando a lista mudou por baixo. O do achado 1 do QA
+// do PR #122: com o exercício repetido, a cópia aberta que sai por baixo não leva a edição para a outra.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -340,6 +341,31 @@ import Testing
     _ = editor.typeNote("Não é este")
     await editor.flush()
     #expect(try await engine.routines().first?.slots == before, "nenhum outro exercício muda")
+  }
+
+  @Test func aRepeatedExerciseWhoseOpenCopyLeavesDoesNotWriteToTheOtherCopy() async throws {  // achado 1 do QA do PR #122
+    let engine = try await engine()
+    let screen = try await editor(engine, ["0025", "1048", "0025"])
+    let rows = try #require(screen.content?.slots)
+    #expect(rows.map(\.id) == ["0025#0", "1048#0", "0025#1"])
+    let editor = try #require(await screen.slotEditor(rows[0].id))
+    // Com a tela da primeira cópia aberta, ela sai por baixo: a outra cópia passa a ser a "0025#0".
+    _ = try await engine.apply(.removeSlot(routineID: screen.id, index: 0))
+    let before = try #require(try await engine.routines().first?.slots)
+    editor.stepSets(.up)
+    _ = editor.typeNote("Só a primeira")
+    await editor.flush()
+    #expect(try await engine.routines().first?.slots == before, "a outra cópia não muda")
+    // Uma cópia que entra por baixo, antes da aberta, também para a edição, em vez de gravar na cópia
+    // que entrou.
+    await screen.load()
+    #expect(screen.content?.slots.map(\.id) == ["1048#0", "0025#0"])
+    let second = try #require(await screen.slotEditor("0025#0"))
+    _ = try await engine.apply(.addExercises(routineID: screen.id, exerciseIDs: ["0025"], at: 0))
+    let added = try #require(try await engine.routines().first?.slots)
+    second.stepSets(.up)
+    await second.flush()
+    #expect(try await engine.routines().first?.slots == added)
   }
 
   // Uma tela da lista em que o routine.delete demora a chegar ao motor, como num aparelho lento.

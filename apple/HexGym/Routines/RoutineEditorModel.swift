@@ -736,8 +736,9 @@ nonisolated enum RoutineActionError: Error {
       guard let slots = try await engine.routines().first(where: { $0.id == id })?.slots, let slot = slots[safe: index] else { return nil }
       // O id da linha pelo que o motor tem, o mesmo que o SlotEditor usa para achar o exercício a cada ação.
       let engineRowID = RoutineEditorModel.rowIDs(slots.map(\.id))[index]
-      return SlotEditorScreen(routineID: id, rowID: engineRowID, index: index, row: row, slot: slot, unit: settings.unit, locale: locale,
-                              engine: engine, perform: perform)
+      let copies = slots.filter { $0.id == slot.id }.count
+      return SlotEditorScreen(routineID: id, rowID: engineRowID, copies: copies, index: index, row: row, slot: slot, unit: settings.unit,
+                              locale: locale, engine: engine, perform: perform)
     } catch {
       RoutinesScreen.log("não deu para abrir o exercício", error)
       return nil
