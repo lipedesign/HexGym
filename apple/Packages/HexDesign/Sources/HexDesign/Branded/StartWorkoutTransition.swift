@@ -4,8 +4,8 @@
 // animações, e a tela aparece sem se mover (Foco da revisão, item 4). A tela entra pelo caminho do
 // NavigationStack(path:): no simulador do iOS 27, com navigationDestination(isPresented:), a transação
 // não chega ao empurrão da pilha e a tela desliza da direita (Task 10). O zoom não existe no macOS, que
-// está no pacote só para os testes. A tela do treino de verdade é da fase 3; aqui a transição aparece
-// na galeria (Task 10).
+// está no pacote só para os testes. A tela do treino de verdade é da fase 3 (Task 8 de lá), que abre num
+// fullScreenCover, com o mesmo zoom; aqui a transição aparece também na galeria (Task 10).
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: com Reduzir Movimento, a tela do treino
 // entrando sem animação, no lugar do zoom.
@@ -37,6 +37,18 @@ extension View {
     modifier(StartWorkoutDestination(id: id, namespace: namespace))
   }
 }
+
+#if os(iOS)
+extension ToolbarContent {
+  // Um botão da barra de onde o zoom sai, como o "Começar" do editor de rotina (Task 8 do plano da fase
+  // 3): o item da barra vira a origem pelo matchedTransitionSource dos itens de barra do iOS 26, porque o
+  // da view, dentro do item, não chega ao botão que a barra desenha. Só no iPhone: o Watch não tem a
+  // barra, e o macOS fica no pacote só para os testes.
+  public func hexStartWorkoutSource(id: some Hashable, in namespace: Namespace.ID) -> some ToolbarContent {
+    matchedTransitionSource(id: id, in: namespace)
+  }
+}
+#endif
 
 // Lê o Reduzir Movimento do ambiente e só põe o zoom fora do macOS.
 private struct StartWorkoutDestination<ID: Hashable>: ViewModifier {

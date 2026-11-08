@@ -14,6 +14,11 @@
 // A regra da #71 vale aqui: o texto fica em branco e nos cinzas do sistema; a cor do tema só aparece no
 // ícone e na marca do superset, sobre o cartão do sistema, e no botão principal.
 //
+// Na barra, o "Começar" começa o treino desta rotina e abre a tela do treino pelo zoom, com o botão de
+// origem (Task 8 do plano da fase 3, escolha 3). Com um treino em andamento, o botão diz "Retomar" e abre
+// o que está aí, como o openGym, porque começar outro apagaria o de agora, e fica ligado mesmo numa rotina
+// vazia. Uma rotina sem exercício não tem o que começar, e o "Começar" fica desligado.
+//
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o título "Editar rotina" na barra (o nome
 // inteiro fica no campo, que quebra a linha); o nome vai ao motor quando o campo perde o foco; a marca do
 // superset é uma barra de 4 pt na cor do tema, sem a divisória entre as linhas dele; o "Trocar exercício"
@@ -37,6 +42,9 @@ struct RoutineEditorView: View {
   @State private var ranLaunch = false
   @FocusState private var nameFocused: Bool
   @Environment(\.dynamicTypeSize) private var typeSize
+  @Environment(\.workoutDoor) private var door
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var ranDemo = false
 
   init(screen: @autoclosure @escaping () -> RoutineEditorScreen, library: LibraryModel) {
     _screen = State(wrappedValue: screen())
@@ -84,6 +92,15 @@ struct RoutineEditorView: View {
     .navigationTitle("Edit routine")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
+      if let door {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button(door.launcher.hasWorkout ? "Resume" : "Start") { start(door.launcher) }
+            // O "Retomar" abre o treino que já existe, e fica ligado mesmo numa rotina vazia (achado 7 do QA
+            // da #160); o "Começar" precisa de um exercício.
+            .disabled(door.launcher.starting || (!door.launcher.hasWorkout && (screen.content?.slots.isEmpty ?? true)))
+        }
+        .hexStartWorkoutSource(id: WorkoutZoom.routine, in: door.namespace)
+      }
       if !(screen.content?.slots.isEmpty ?? true) {
         ToolbarItem(placement: .topBarTrailing) { EditButton() }
       }
@@ -98,6 +115,30 @@ struct RoutineEditorView: View {
     .onChange(of: screen.documentRevision) { Task { await screen.load() } }
     .onDisappear { if nameFocused { Task { await screen.commitName() } } }
     .containerBackground(.clear, for: .navigation)
+  }
+
+  // Com -HexGymWorkoutDemo rotina, o roteiro do vídeo do PR: o "Começar" tocado pelo mesmo caminho, o zoom
+  // da barra até a tela do treino e, depois, a tela fechada pelo zoom de volta.
+  private func runWorkoutDemo() {
+    guard WorkoutLaunch.demo() == "rotina", !ranDemo, let door else { return }
+    ranDemo = true
+    let launcher = door.launcher, reduceMotion = reduceMotion
+    Task {
+      do { try await Task.sleep(for: .seconds(2.5)) } catch { return }
+      start(launcher)
+      do { try await Task.sleep(for: .seconds(3.5)) } catch { return }
+      launcher.close(reduceMotion: reduceMotion)
+    }
+  }
+
+  // O "Começar": o nome que ainda está no campo vai antes, e o treino começa com a rotina como ela está.
+  private func start(_ launcher: WorkoutLauncher) {
+    nameFocused = false
+    let id = screen.id, reduceMotion = reduceMotion
+    Task {
+      await screen.commitName()
+      await launcher.start([id], from: .routine, reduceMotion: reduceMotion)
+    }
   }
 
   @ViewBuilder private var overlay: some View {
@@ -225,6 +266,7 @@ struct RoutineEditorView: View {
       picking = true
     }
     if RoutinesLaunch.script == "demo" { await demo() }
+    runWorkoutDemo()
   }
 
   // O roteiro do vídeo do PR (-HexGymRoutinesScript demo), depois do "Nova rotina" da lista: o nome

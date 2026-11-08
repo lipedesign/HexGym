@@ -54,6 +54,17 @@
         }
       }
     },
+    "%@ at %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a %@"
+          }
+        }
+      }
+    },
     "%@ on the background" : {
       "localizations" : {
         "pt-BR" : {
@@ -115,6 +126,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, já tem este exercício"
+          }
+        }
+      }
+    },
+    "%@, done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, feita"
+          }
+        }
+      }
+    },
+    "%@, done (warm-up)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, feito"
           }
         }
       }
@@ -444,6 +477,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adicionado a %@"
+          }
+        }
+      }
+    },
+    "All sets done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas as séries feitas"
           }
         }
       }
@@ -808,6 +852,16 @@
         }
       }
     },
+    "Couldn't start the workout." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para começar o treino."
+          }
+        }
+      }
+    },
     "Crown" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1130,6 +1184,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtros"
+          }
+        }
+      }
+    },
+    "Finish" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminar"
           }
         }
       }
@@ -1624,6 +1688,16 @@
         }
       }
     },
+    "Minimize" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimizar"
+          }
+        }
+      }
+    },
     "Mode" : {
       "localizations" : {
         "pt-BR" : {
@@ -1738,6 +1812,17 @@
         }
       }
     },
+    "Next set" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próxima série"
+          }
+        }
+      }
+    },
     "No exercises" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1745,6 +1830,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nenhum exercício"
+          }
+        }
+      }
+    },
+    "No exercises yet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ainda sem exercícios."
           }
         }
       }
@@ -1828,6 +1924,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Desligado"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
           }
         }
       }
@@ -2192,6 +2298,16 @@
         }
       }
     },
+    "Resume" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retomar"
+          }
+        }
+      }
+    },
     "Routine deleted" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2266,6 +2382,16 @@
         }
       }
     },
+    "Seconds" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segundos"
+          }
+        }
+      }
+    },
     "See them in a sheet" : {
       "localizations" : {
         "pt-BR" : {
@@ -2282,6 +2408,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Separar"
+          }
+        }
+      }
+    },
+    "Set %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %lld"
+          }
+        }
+      }
+    },
+    "Set %lld done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %lld concluída"
+          }
+        }
+      }
+    },
+    "Set %lld of %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %1$lld de %2$lld"
           }
         }
       }
@@ -2395,6 +2554,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Estrela"
+          }
+        }
+      }
+    },
+    "Start" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar"
           }
         }
       }
@@ -2513,6 +2682,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Domingo"
+          }
+        }
+      }
+    },
+    "Superset %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Superset %@"
+          }
+        }
+      }
+    },
+    "Superset %@, %lld of %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Superset %1$@, %2$lld de %3$lld"
           }
         }
       }
@@ -2908,6 +3099,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versão"
+          }
+        }
+      }
+    },
+    "Warm-up %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aquecimento %lld"
+          }
+        }
+      }
+    },
+    "Warm-up %lld done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aquecimento %lld concluído"
           }
         }
       }

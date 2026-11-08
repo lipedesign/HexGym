@@ -3,7 +3,8 @@
 // o que o VoiceOver diz: o cartão de hoje, o botão principal, o "Escolher outro treino" com as rotinas e o
 // treino livre, o treino em andamento ("5 de 18 séries"), a semana com as letras e a fala, a sequência de
 // semanas, os treinos da semana e do histórico, e o último treino. O HomeScreen é o estado da tela: lê no
-// motor, fora da thread principal, e começa o treino pelo WorkoutSession. A tela não calcula nada no body.
+// motor, fora da thread principal. Quem começa o treino é o WorkoutLauncher (Task 8), que também abre a
+// tela do treino. A tela não calcula nada no body.
 //
 // Toda regra fica no motor (seção 8.2): o status de hoje (planned, rest, none ou done), as rotinas do dia
 // pelo effectiveRoutineIds, a semana na ordem do weekStart, o streakWeeks, o weekTally e o último treino
@@ -346,16 +347,14 @@ nonisolated struct HomeModel: Equatable, Sendable {
   }
 }
 
-// O estado da tela inicial: o modelo, lido no motor fora da thread principal, e o começo de um treino
-// pelo WorkoutSession (o motor e a gravação do AppModel). A tela lê de novo a cada revision do documento,
-// e ao voltar para a frente (o dia pode ter virado).
+// O estado da tela inicial: o modelo, lido no motor fora da thread principal. A tela lê de novo a cada
+// revision do documento (o começo de um treino também, uma vez só), e ao voltar para a frente (o dia pode
+// ter virado).
 @Observable @MainActor final class HomeScreen {
   enum Phase: Equatable { case loading, ready, failed }
 
   private(set) var phase = Phase.loading
   private(set) var model: HomeModel?
-  // Um treino sendo começado, para um segundo toque não começar outro.
-  private(set) var starting = false
 
   // O revision do documento, lido pela tela para ler de novo depois de uma ação.
   var documentRevision: Int { revision() }
@@ -363,21 +362,18 @@ nonisolated struct HomeModel: Equatable, Sendable {
   @ObservationIgnored let text: HomeText
   @ObservationIgnored private let engine: HexEngine
   @ObservationIgnored private let revision: () -> Int
-  @ObservationIgnored private let perform: (SessionAction) async throws -> SessionOutcome
 
   private static let logger = Logger(subsystem: "app.hexgym", category: "home")
 
-  init(engine: HexEngine, locale: Locale = .current, revision: @escaping () -> Int = { 0 },
-       perform: @escaping (SessionAction) async throws -> SessionOutcome) {
+  init(engine: HexEngine, locale: Locale = .current, revision: @escaping () -> Int = { 0 }) {
     self.engine = engine
     self.revision = revision
-    self.perform = perform
     text = HomeText(locale: locale)
   }
 
-  // O app de verdade: o motor, o revision e o treino do AppModel.
+  // O app de verdade: o motor e o revision do AppModel.
   convenience init(app: AppModel) {
-    self.init(engine: app.engine, revision: { app.revision }, perform: { try await app.session.perform($0) })
+    self.init(engine: app.engine, revision: { app.revision })
   }
 
   func load() async {
@@ -391,24 +387,6 @@ nonisolated struct HomeModel: Equatable, Sendable {
       Self.log("não deu para ler a tela inicial", error)
       if phase == .loading { phase = .failed }
     }
-  }
-
-  // Começa o treino das rotinas dadas, ou o treino livre, sem rotina. O id do treino vem daqui (a escolha
-  // 12 do plano: o uid() do openGym não entra no motor). Até a Task 8, nenhuma tela abre: o Início passa
-  // a mostrar o treino em andamento.
-  func start(_ routineIDs: [String]) async {
-    guard !starting else { return }
-    starting = true
-    defer { starting = false }
-    let before = revision()
-    do {
-      _ = try await perform(.start(routineIDs: routineIDs, id: UUID().uuidString.lowercased()))
-    } catch {
-      Self.log("não deu para começar o treino", error)
-    }
-    // Com o documento mudado, o revision sobe e a tela já lê de novo (o onChange do HomeView): ler aqui
-    // também seria ler o motor duas vezes.
-    if revision() == before { await load() }
   }
 
   private static func log(_ what: String, _ error: any Error) {
