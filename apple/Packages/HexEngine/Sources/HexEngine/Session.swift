@@ -196,6 +196,9 @@ public struct ActiveWorkout: Codable, Equatable, Sendable {
     public let w: Double?, r: Int?, sec: Int?, rir: Double?, rpe: Double?
     public let done: Bool, warmup: Bool
     public let kind: String         // normal, drop, restpause, sides ou cardio
+    // L ou R numa série com tempo por lado, que o openGym monta como um par de linhas, uma de cada
+    // lado; nil nas outras (a série com lados de repetições leva os dois lados numa linha só).
+    public let side: String?
     public let line: String         // "60 kg × 8"
   }
 

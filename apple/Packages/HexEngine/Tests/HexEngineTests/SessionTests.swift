@@ -108,3 +108,24 @@ private func withRoutine() async throws -> (HexEngine, String) {
   #expect(summary.compare[0].next?.kind == "up")
   #expect(try await engine.activeWorkout(now: monday + 700) == nil)
 }
+
+// A série com tempo por lado chega ao Swift com o lado de cada linha, e a Live Activity conta os pares; a
+// faixa da progressão dupla sai com o hífen comum (issue #161).
+@Test func aTimedPerSideSetDecodesWithItsSideAndTheRangeWithAPlainHyphen() async throws {
+  let engine = try await loaded("pt-BR")
+  let fresh = try await engine.freshDocument()
+  var doc = try #require(try JSONSerialization.jsonObject(with: fresh) as? [String: Any])
+  doc["routines"] = [["id": "r1", "name": "Core", "emoji": "barbell", "ex": [
+    ["id": "0715", "sets": 2, "sec": 30, "weight": 0, "mode": "time", "side": true],
+    ["id": "0025", "sets": 3, "reps": 12, "repsMin": 8, "weight": 60, "mode": "reps", "prog": "double"],
+  ]]]
+  let data = try JSONSerialization.data(withJSONObject: doc)
+  try await engine.restore(data)
+  _ = try await engine.session(.start(routineIDs: ["r1"], id: "w1"), now: monday)
+  let w = try #require(try await engine.activeWorkout(now: monday))
+  #expect(w.entries[0].sets.map(\.side) == ["L", "R", "L", "R"])
+  #expect(w.entries[1].sets.map(\.side) == [nil, nil, nil])
+  #expect(w.entries.map(\.target) == ["2 × 0:30 · por lado", "3 × 8-12 · 60 kg"])
+  let live = try #require(try await engine.liveActivity(now: monday))
+  #expect(live.cur?.setLine == "Série 1 de 2 (Esquerda) · 0:30")
+}

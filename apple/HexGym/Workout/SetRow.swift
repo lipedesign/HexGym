@@ -1,6 +1,7 @@
 // Uma série no cartão do exercício (Task 8 do plano da fase 3, escolha 4): o número (o aquecimento com a
 // chama, como o openGym marca), a linha curta do motor ("60 kg × 8", ou o texto do openGym num drop set,
-// num rest-pause, numa série com lados ou no cardio) e a marca de feita. Tocar na linha faz dela a série
+// num rest-pause, numa série com lados ou no cardio), o lado numa série com tempo por lado ("Esquerda") e
+// a marca de feita. Tocar na linha faz dela a série
 // do painel; a marca manda ao motor o contrário do que ela está. A série do painel fica destacada por um
 // contorno na cor do tema, que não é texto, e por um fundo claro.
 //
@@ -33,6 +34,7 @@ struct SetRow: View {
             .foregroundStyle(Color.white)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
+          if let side = row.side { SideTag(side: side) }
         }
         .padding(.vertical, HexSpacing.xxs)
         .frame(maxWidth: .infinity, minHeight: HexTarget.minimum, alignment: .leading)
@@ -73,6 +75,24 @@ struct SetRow: View {
         .fill(Color.white.opacity(0.12))
         .overlay { shape.strokeBorder(Color(palette.accent), lineWidth: 2) }
     }
+  }
+}
+
+// O lado de uma série com tempo por lado, "Esquerda" ou "Direita", numa pílula depois da linha, como a
+// sidepill do openGym (views/Workout.jsx:650, issue #161). No vidro, em branco (#71), com o fundo claro
+// da pílula. O VoiceOver já ouve o lado na fala da linha ("Série 1 (Esquerda)").
+private struct SideTag: View {
+  let side: String
+
+  var body: some View {
+    Text(verbatim: side)
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(Color.white)
+      .padding(.horizontal, HexSpacing.xs)
+      .padding(.vertical, 2)
+      .background(Capsule().fill(Color.white.opacity(0.16)))
+      .fixedSize()
+      .accessibilityHidden(true)
   }
 }
 

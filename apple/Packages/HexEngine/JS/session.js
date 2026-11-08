@@ -11,7 +11,7 @@ import { clone } from '../../../../frontend/src/lib/state-core.js'
 import { stampChange } from '../../../../frontend/src/lib/sync-merge.js'
 import { restNow, step } from '../../../../frontend/src/lib/session-controller.js'
 import {
-  effectiveRoutineIds, effortOf, exLine, isBw, modeOf, nextTrainingDay, setUnitsTotal, setLabel, setsDone, setsDoneActive, streakWeeks,
+  effectiveRoutineIds, effortOf, isBw, modeOf, nextTrainingDay, setUnitsTotal, setsDone, setsDoneActive, streakWeeks,
   supersetUnits, workoutDay, workoutDuration,
 } from '../../../../frontend/src/lib/history.js'
 import { nextUnfinishedUnit } from '../../../../frontend/src/lib/supersetFlow.js'
@@ -26,6 +26,7 @@ import { weightIncrement } from '../../../../frontend/src/lib/progression.js'
 import { exerciseNameFor, t } from '../../../../frontend/src/lib/i18n-core.js'
 import { legacySyncKey } from '../../../../frontend/src/lib/workout-date.js'
 import { glyphStr } from '../../../../api/coach/core/glyphs.js'
+import { setText, targetText } from './texts.js'
 
 // As séries depois da atual que a Live Activity leva, para o "Série feita" dela andar sem o app
 // (o LIVE_AHEAD do lib/live-activity.js do openGym).
@@ -111,7 +112,8 @@ function kindOf(mode, s) {
 // A linha curta de uma série: "60 kg × 8" na série comum de repetições com carga. A série com lados,
 // o drop set, o rest-pause, o peso do corpo, o halter que diz "cada" ou "total", a de tempo e o
 // cardio leem como o setLabel do openGym os escreve ("L 15×8 · R 15×7", "0:45 · 10",
-// "20 min @ 8 km/h"), porque é lá que mora o formato de cada um.
+// "20 min @ 8 km/h"), porque é lá que mora o formato de cada um, sem a meia-risca do lado ainda não
+// feito (o setText do texts.js, issue #161).
 export function lineOf(S, e, s) {
   const cfg = cfgOf(e)
   const mode = modeOf(cfg)
@@ -119,12 +121,31 @@ export function lineOf(S, e, s) {
     && !(bellsIn(cfg) === 2 && dbLoadOf(cfg.dbLoad))
   if (plain) return `${fmtNum(Number(s.w) || 0)} ${S.unit === 'lb' ? 'lb' : 'kg'} × ${Number(s.r) || 0}`
   try {
-    return setLabel(e.id, s, e.target, speedUnitOf(S))
+    return setText(e.id, s, e.target, speedUnitOf(S))
   } catch {
     // Uma série que o setLabel não lê (um treino estragado de outro aparelho) fica sem linha, e a
     // tela continua.
     return ''
   }
+}
+
+// O lado de uma linha de uma série com tempo por lado, L ou R, ou null. O buildWorkSets e o set.add do
+// openGym (history.js e session-controller.js) montam cada série dela como um par de linhas, a do lado
+// esquerdo e a do direito, com o side em cada uma; a série com lados de repetições (o isSideSet) é uma
+// linha só, com os dois lados dentro, e não tem side.
+export const sideOf = s => (isMap(s) && (s.side === 'L' || s.side === 'R') ? s.side : null)
+
+/**
+ * O número de uma linha, como o setNumberAt do openGym (views/Workout.jsx:850, copiado porque o
+ * Workout.jsx importa o React e não entra no motor): o aquecimento e as de trabalho contam cada um à
+ * parte, e o par esquerdo e direito de uma série com tempo por lado é uma série só ("Série 1" duas
+ * vezes, e não 1 e 2).
+ */
+export function setNumberAt(sets, i) {
+  const s = sets[i]
+  const warm = isWarmupRow(s)
+  const phase = sets.slice(0, i + 1).filter(x => isWarmupRow(x) === warm).length
+  return sideOf(s) ? Math.ceil(phase / 2) : phase
 }
 
 // O passo da carga na unidade do perfil, como o slotSummary do actions.js: o inc do alvo no modo de
@@ -201,7 +222,8 @@ export function activeWorkout(S, now) {
         mode,
         sg: groupOf(e),
         sgLetter: letters.get(index) ?? null,
-        target: exLine(cfg, unit, speedUnitOf(S)),
+        // O alvo do exLine do openGym, sem meia-risca e sem "undefined" (o targetText, issue #161).
+        target: targetText(cfg, unit, speedUnitOf(S)),
         increment: incrementOf(cfg, unit),
         sets: list(e?.sets).map((s, i) => (isMap(s) ? {
           index: i,
@@ -209,8 +231,11 @@ export function activeWorkout(S, now) {
           done: s.done === true,
           warmup: isWarmupRow(s),
           kind: kindOf(mode, s),
+          // O lado de uma série com tempo por lado, para a tela mostrar o par como o openGym
+          // (o sideTagOf do views/Workout.jsx:457, issue #161).
+          side: sideOf(s),
           line: lineOf(S, e, s),
-        } : { index: i, w: null, r: null, sec: null, rir: null, rpe: null, done: false, warmup: false, kind: 'normal', line: '' })),
+        } : { index: i, w: null, r: null, sec: null, rir: null, rpe: null, done: false, warmup: false, kind: 'normal', side: null, line: '' })),
       }
     }),
   }
@@ -392,15 +417,21 @@ function utf8Length(text) {
 export const liveBytes = model => utf8Length(JSON.stringify(model))
 
 // Uma série na Live Activity, como o setView do lib/live-activity.js: o exercício com as maiúsculas
-// da tela (exerciseNameText) e "Série 2 de 3 · 60 kg × 8" (ou "Aquecimento 1 · ...").
+// da tela (exerciseNameText) e "Série 2 de 3 · 60 kg × 8" (ou "Aquecimento 1 · ..."). Numa série com
+// tempo por lado, o número e a conta são os do par, como a tela do treino, e o lado vem depois, como o
+// 'Set {0} ({1})' do openGym: "Série 1 de 2 (Esquerda) · 0:30" (issue #161; o setView de lá conta as
+// metades).
 function liveItem(S, A, ref, restAfter) {
   const e = A.entries[ref.entry]
   const s = e.sets[ref.set]
   const sets = list(e.sets).filter(isMap)
   const warmup = isWarmupRow(s)
   const work = sets.filter(x => !isWarmupRow(x))
-  const n = warmup ? sets.filter(isWarmupRow).indexOf(s) + 1 : work.indexOf(s) + 1
-  const label = warmup ? `${t('Warm-up')} ${n}` : t('Set {0} of {1}', n, work.length)
+  const n = setNumberAt(sets, sets.indexOf(s))
+  const pairs = Math.max(0, ...work.map((_, j) => setNumberAt(work, j)))
+  const side = sideOf(s)
+  const tag = side ? ` (${t(side === 'L' ? 'Left' : 'Right')})` : ''
+  const label = (warmup ? `${t('Warm-up')} ${n}` : t('Set {0} of {1}', n, pairs)) + tag
   const line = lineOf(S, e, s)
   return {
     entry: ref.entry,

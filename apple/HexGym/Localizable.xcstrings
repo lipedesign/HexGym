@@ -1572,6 +1572,17 @@
         }
       }
     },
+    "Left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esquerda"
+          }
+        }
+      }
+    },
     "Legs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2308,6 +2319,17 @@
         }
       }
     },
+    "Right" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direita"
+          }
+        }
+      }
+    },
     "Routine deleted" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2419,6 +2441,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Série %lld"
+          }
+        }
+      }
+    },
+    "Set %lld (%@)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %1$lld (%2$@)"
+          }
+        }
+      }
+    },
+    "Set %lld (%@) done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %1$lld (%2$@) concluída"
           }
         }
       }
