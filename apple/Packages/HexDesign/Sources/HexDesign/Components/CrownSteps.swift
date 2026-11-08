@@ -9,8 +9,10 @@
 public enum CrownSteps {
   // Os passos entre duas leituras da coroa: o dente mais perto de new menos o dente mais perto de old,
   // .up quando o número é positivo e .down quando é negativo. Um valor que não é finito não dá passo
-  // nenhum. Com o dente mais perto, o passo acontece a meio caminho entre dois dentes, igual nos dois
-  // sentidos: um toque mínimo que sai do dente e volta não dá passo nenhum. Com o floor (até a #121),
+  // nenhum. Com o dente mais perto, o passo acontece quando a coroa passa do meio caminho entre dois
+  // dentes: um toque mínimo que sai do dente e volta não dá passo nenhum, nos dois sentidos. No meio
+  // exato, o rounded() vai para longe do zero, e um giro que para ali e volta ainda dá um passo e o de
+  // volta (raro, porque a coroa descansa no dente; a histerese fica na issue #128). Com o floor (até a #121),
   // o mesmo toque para baixo dava -1 e depois +1, e para cima não dava nada (achado no QA da PR #86).
   public static func steps(from old: Double, to new: Double) -> [StepDirection] {
     guard old.isFinite, new.isFinite else { return [] }

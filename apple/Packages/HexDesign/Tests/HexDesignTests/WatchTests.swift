@@ -17,7 +17,8 @@ import Testing
 }
 // Achado no QA da PR #86 (#121): com o floor, um toque mínimo para baixo que voltava ao dente dava -1 e
 // depois +1, e o mesmo toque para cima não dava nada. Com o arredondamento, o toque mínimo e a volta não
-// dão passo nenhum, nos dois sentidos, e meio dente é a fronteira de um passo.
+// dão passo nenhum, nos dois sentidos, e meio dente é a fronteira de um passo (no meio exato, o
+// arredondamento vai para longe do zero; a histerese fica na issue #128).
 @Test func aNudgeThatComesBackIsNoStep() {
   for path in [[3, 2.99, 3], [3, 3.01, 3], [0, -0.01, 0], [0, 0.01, 0], [-2, -2.01, -2], [-2, -1.99, -2]] {
     #expect(zip(path, path.dropFirst()).flatMap { CrownSteps.steps(from: $0, to: $1) } == [], "\(path)")

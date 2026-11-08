@@ -59,7 +59,7 @@ func cyrillicAndGreekFallBackToSFProCompressed(weight: HexWeight) {      // Foco
 }
 // O grego em caixa alta (#121, achado no QA da PR #86): a regra do grego tira o tonos das maiúsculas. O
 // textCase do SwiftUI segue o locale do ambiente, e no iPhone e no Watch em português ou em inglês ele
-// deixava "ΠΙΈΣΕΙΣ ΠΆΓΚΟΥ" (no Mac, tira sempre). O HexCase põe cada trecho em grego em maiúsculas com o
+// deixava "ΠΙΈΣΕΙΣ ΠΆΓΚΟΥ" (no Mac, em português e em inglês, tira). O HexCase põe cada trecho em grego em maiúsculas com o
 // locale do grego, e o resto com o locale de quem lê: no turco, o i do latim continua virando İ.
 @Test func greekCapitalsDropTheTonos() {
   for locale in [br, en] {

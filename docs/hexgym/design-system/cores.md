@@ -92,7 +92,7 @@ Quem mudar uma cor e passar da regra vê o teste cair.
 
 ### A folga do botão principal no Ultravioleta
 
-O branco sobre o #6F5CFF, o rótulo do botão principal no Ultravioleta escuro, passa a regra de 4,5 por 0,02: é o par com menos folga de todos (achado no QA da PR #86). A cor fica como está, e a folga fica escrita no teste. Escolha recomendada, com a delegação do Lipe de 03/11/2026 (#121). O porquê:
+O branco sobre o #6F5CFF, o rótulo do botão principal no Ultravioleta escuro, passa a regra de 4,5 por 0,015 (4,515:1, que arredonda para 4,52): é o par com menos folga de todos, e o segundo, o Cobre escuro com alto contraste, fica a 0,028 (achado no QA da PR #86). A cor fica como está, e a folga fica escrita no teste. Escolha recomendada, com a delegação do Lipe de 03/11/2026 (#121). O porquê:
 
 - **O #6F5CFF é uma cor aprovada.** Ele está na seção 6 do documento de design, aprovado em 31/10/2026 ("botão #6F5CFF com rótulo branco"), no estudo de cor, e nos valores da Task 1 que as decisões visuais de 03/11/2026 aceitaram. A recomendação de partida era escurecer o roxo até uns 4,8:1, com a condição de manter a cor se as decisões da fase 1 fixassem o hex; elas fixam, e a #121 não reabre essas decisões.
 - **Passa a regra.** 4,52 está acima de 4,5, na conta da WCAG 2.2 que o pacote usa, e o simulador do Watch mediu os mesmos 4,52:1 no pior pixel do botão. Com Aumentar Contraste, o botão já vira #8A88FF com rótulo preto, a 7,05:1.

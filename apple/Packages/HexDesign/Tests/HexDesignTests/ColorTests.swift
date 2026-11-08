@@ -29,7 +29,7 @@ func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
   for pair in pairs(theme, increased: increased) { #expect(pair.contrast >= pair.rule, "\(pair.name)") }
 }
 // A folga do botão principal no Ultravioleta (#121, achado no QA da PR #86): o branco sobre o #6F5CFF
-// passa a regra de 4,5 por 0,02, e é o par com menos folga de todos. O #6F5CFF é o botão aprovado na
+// passa a regra de 4,5 por 0,015 (4,515:1), e é o par com menos folga de todos. O #6F5CFF é o botão aprovado na
 // seção 6 do design doc e nas decisões de 03/11/2026, e fica (escolha recomendada, com a delegação do
 // Lipe de 03/11/2026). Este teste diz a folga: quem mudar uma cor e deixar outro par mais perto da regra,
 // ou mudar a folga deste, vê o teste cair e atualiza o cores.md.

@@ -2,7 +2,7 @@
 // tonos das maiúsculas ("Πιέσεις πάγκου" vira "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ"), e quem sabe disso é o locale do grego.
 // O textCase do SwiftUI põe em maiúsculas com o locale do ambiente: no iPhone e no Watch em português ou
 // em inglês, o grego ficava com o tonos ("ΠΙΈΣΕΙΣ ΠΆΓΚΟΥ"), medido no simulador do Watch. No Mac dos
-// testes, ele tira o tonos com qualquer locale.
+// testes, em português e em inglês, ele tira o tonos (no turco, não).
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: pôr em maiúsculas com o locale do próprio
 // texto nos trechos em grego, e o resto com o locale de quem lê.
