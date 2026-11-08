@@ -1,6 +1,6 @@
-// Os cinco documentos preparados (Task 6 do plano da fase 3), como texto JSON, no formato do
-// documento do openGym, com a chave _fixtureNow, o instante em que cada um "está" (o FixtureLoader
-// leva tudo para hoje e tira a chave). Foram montados pelo próprio motor (o runtime.js e o
+// Os sete documentos preparados (os cinco da Task 6 do plano da fase 3 e os dois do Início da Task 7),
+// como texto JSON, no formato do documento do openGym, com a chave _fixtureNow, o instante em que cada
+// um "está" (o FixtureLoader leva tudo para hoje e tira a chave). Foram montados pelo próprio motor (o runtime.js e o
 // controlador do treino: começar, mudar a carga, marcar, terminar) num relógio de São Paulo, com o
 // _fixtureNow na segunda, 9 de novembro de 2026, 12 h em UTC, e por isso abrem como o app abriria:
 //   semana-ppl           as três rotinas do PPL na semana (Push na segunda, Pull na quarta e Legs na
@@ -13,13 +13,20 @@
 //   vazio                o documento novo, o do primeiro uso;
 //   veio-do-opengym      um treino do openGym, sem rest e sem progress, em lista, com aquecimento,
 //                        drop set, rest-pause, lados, cardio, série com tempo, pirâmide, noProg e um
-//                        exercício que não existe neste aparelho (Foco da revisão 4).
+//                        exercício que não existe neste aparelho (Foco da revisão 4);
+//   dia-de-descanso      o semana-ppl com o hoje marcado como descanso no dayPlan: "Dia de descanso" e a
+//                        próxima sessão da semana, qualquer que seja o dia do print (Task 7, rodada 2 do
+//                        PR #157);
+//   nada-marcado         o semana-ppl sem a semana e sem o dayPlan: as rotinas e o histórico, e nada
+//                        marcado para hoje nem para os próximos dias (Task 7, rodada 2 do PR #157).
+// Os dois últimos saem do texto do semana-ppl, trocando só o plano, para o histórico ser o mesmo.
 //
 // Inteiro dentro do #if DEBUG, como o FixtureLoader: nada daqui entra no build Release.
 
 #if DEBUG
 enum FixtureDocuments {
-  static let names = ["semana-ppl", "treino-em-andamento", "descanso", "vazio", "veio-do-opengym"]
+  static let names = ["semana-ppl", "treino-em-andamento", "descanso", "vazio", "veio-do-opengym", "dia-de-descanso",
+                       "nada-marcado"]
 
   static func text(named name: String) -> String? {
     switch name {
@@ -28,8 +35,22 @@ enum FixtureDocuments {
     case "descanso": descanso
     case "vazio": vazio
     case "veio-do-opengym": veioDoOpenGym
+    case "dia-de-descanso": diaDeDescanso
+    case "nada-marcado": nadaMarcado
     default: nil
     }
+  }
+
+  // O plano do semana-ppl, que os dois documentos do Início trocam.
+  private static let pplWeek = #""week": {"1":["r-push"],"3":["r-pull"],"5":["r-legs"]},"#
+  private static let pplDayPlan = #""dayPlan": {"2026-11-09":"r-push"},"#
+
+  static var diaDeDescanso: String {
+    semanaPPL.replacing(pplDayPlan, with: #""dayPlan": {"2026-11-09":"rest"},"#)
+  }
+
+  static var nadaMarcado: String {
+    semanaPPL.replacing(pplWeek, with: #""week": {},"#).replacing(pplDayPlan, with: #""dayPlan": {},"#)
   }
 
   static let semanaPPL = #"""

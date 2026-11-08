@@ -51,11 +51,15 @@ public struct SlantedSegments: View {
   }
 }
 
-// Um paralelogramo inclinado 18°: o alto puxa para a direita.
-struct SlantedSegment: Shape {
+// Um paralelogramo inclinado 18°: o alto puxa para a direita. Público para outras linhas de segmentos
+// com estados próprios, como a semana do Início (Task 7 do plano da fase 3), que pinta cheio, contornado
+// ou vazio; quem desenha põe o flipsForRightToLeftLayoutDirection, como a linha acima.
+public struct SlantedSegment: Shape {
   static let slant = 18.0
 
-  func path(in rect: CGRect) -> Path {
+  public init() {}
+
+  public func path(in rect: CGRect) -> Path {
     let shift = min(rect.height * tan(Self.slant * .pi / 180), rect.width / 2)
     var path = Path()
     path.move(to: CGPoint(x: rect.minX + shift, y: rect.minY))

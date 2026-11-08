@@ -21,6 +21,39 @@
         }
       }
     },
+    "%@ (done)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (concluído)"
+          }
+        }
+      }
+    },
+    "%@ (in progress)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (em andamento)"
+          }
+        }
+      }
+    },
+    "%@ and %lld more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ e mais %2$lld"
+          }
+        }
+      }
+    },
     "%@ on the background" : {
       "localizations" : {
         "pt-BR" : {
@@ -152,6 +185,61 @@
         }
       }
     },
+    "%lld sets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld séries"
+          }
+        }
+      }
+    },
+    "%lld this week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld esta semana"
+          }
+        }
+      }
+    },
+    "%lld week streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sequência de %lld semanas"
+          }
+        }
+      }
+    },
+    "%lld workouts total" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld treinos no total"
+          }
+        }
+      }
+    },
+    "%lldh %lldm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld h %2$lld min"
+          }
+        }
+      }
+    },
     "1 day per week" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -170,6 +258,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 exercício"
+          }
+        }
+      }
+    },
+    "1 set" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 série"
+          }
+        }
+      }
+    },
+    "1 week streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sequência de 1 semana"
+          }
+        }
+      }
+    },
+    "1 workout total" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 treino no total"
           }
         }
       }
@@ -553,6 +674,17 @@
         }
       }
     },
+    "Choose a different workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher outro treino"
+          }
+        }
+      }
+    },
     "Choose the routines for this day" : {
       "localizations" : {
         "pt-BR" : {
@@ -599,6 +731,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuar"
+          }
+        }
+      }
+    },
+    "Continue workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar treino"
           }
         }
       }
@@ -819,6 +962,16 @@
         }
       }
     },
+    "Duration" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duração"
+          }
+        }
+      }
+    },
     "Duration and speed for cardio come in a later version." : {
       "localizations" : {
         "pt-BR" : {
@@ -1024,6 +1177,17 @@
         }
       }
     },
+    "Freestyle workout (pick as you go)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treino livre (escolha durante o treino)"
+          }
+        }
+      }
+    },
     "Fri" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1087,6 +1251,17 @@
         }
       }
     },
+    "Go to Routines" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir para Rotinas"
+          }
+        }
+      }
+    },
     "Grip, bench, setup" : {
       "localizations" : {
         "pt-BR" : {
@@ -1144,6 +1319,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prévia de alto contraste"
+          }
+        }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Histórico"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Início"
           }
         }
       }
@@ -1299,6 +1494,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quilos (kg)"
+          }
+        }
+      }
+    },
+    "Last workout" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último treino"
           }
         }
       }
@@ -1522,6 +1727,17 @@
         }
       }
     },
+    "Next session: %@, %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próxima sessão: %1$@, %2$@"
+          }
+        }
+      }
+    },
     "No exercises" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1581,6 +1797,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nota"
+          }
+        }
+      }
+    },
+    "Nothing planned for today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada marcado para hoje"
           }
         }
       }
@@ -1732,6 +1959,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Escolha a sua cor"
+          }
+        }
+      }
+    },
+    "Planned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planejado"
           }
         }
       }
@@ -2058,6 +2296,17 @@
         }
       }
     },
+    "Set up your weekly routine to get going, or grab a ready-made starter plan." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure sua rotina semanal para começar, ou pegue um plano inicial já pronto."
+          }
+        }
+      }
+    },
     "Sets" : {
       "localizations" : {
         "pt-BR" : {
@@ -2156,6 +2405,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Começar um descanso de 90 s"
+          }
+        }
+      }
+    },
+    "Start freestyle workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar treino livre"
           }
         }
       }
@@ -2535,6 +2795,28 @@
         }
       }
     },
+    "Today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoje"
+          }
+        }
+      }
+    },
+    "Trained" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treinado"
+          }
+        }
+      }
+    },
     "Trophy" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2713,6 +2995,17 @@
         }
       }
     },
+    "Workout done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treino concluído"
+          }
+        }
+      }
+    },
     "Workout inputs" : {
       "localizations" : {
         "pt-BR" : {
@@ -2739,6 +3032,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dá para trocar depois nos Ajustes."
+          }
+        }
+      }
+    },
+    "Your finished workouts will show up here." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os treinos que você terminar vão aparecer aqui."
           }
         }
       }

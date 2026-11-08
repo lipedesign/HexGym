@@ -16,6 +16,7 @@ import {
 } from '../../../../frontend/src/lib/history.js'
 import { nextUnfinishedUnit } from '../../../../frontend/src/lib/supersetFlow.js'
 import { queueOf, weekTally } from '../../../../frontend/src/lib/queue.js'
+import { scheduleModeOf } from '../../../../frontend/src/lib/rotation.js'
 import { fmtNum, isoOf, startOfWeek, weekOrder, weekStartOf, exerciseNameText } from '../../../../frontend/src/lib/format.js'
 import { speedUnitOf } from '../../../../frontend/src/lib/speed.js'
 import { bellsIn, dbLoadOf } from '../../../../frontend/src/lib/dumbbells.js'
@@ -265,7 +266,10 @@ function newest(workouts) {
  * feitas e há treino no dia (o doneToday do views/Home.jsx:59-62, que num dia de descanso vale para
  * qualquer treino do dia); planned com rotinas para hoje; rest num dia sem rotina de uma semana que
  * tem treino em outro dia (o nextTrainingDay) ou num dia marcado como descanso; none sem nada
- * planejado. O total é o número de treinos do histórico.
+ * planejado. O total é o número de treinos do histórico. O next é o próximo dia com treino depois de
+ * hoje (o dia da semana, 0 no domingo, e o nome da primeira rotina dele), pela regra do
+ * views/Home.jsx:83-95: só sem treino em andamento, sem rotina hoje e fora de um rodízio do próprio
+ * app; null nos outros casos.
  */
 export function home(S0, now) {
   const S = planned(S0)
@@ -290,10 +294,15 @@ export function home(S0, now) {
 
   const A = runningOf(S)
   const last = newest(S.workouts)
+  const liveQ = queueOf(S)
+  const rotating = scheduleModeOf(S) === 'rotation'
+  const plannerQueue = !!liveQ && !liveQ.rotationId
+  const after = !S.active && !routines.length && !(rotating && !plannerQueue) ? nextTrainingDay(S, today) : null
   return {
     today: { date: today, status, routines: routines.map(r => ({ id: String(r.id), name: typeof r.name === 'string' ? r.name : '', glyph: glyphStr(r.emoji) })) },
     active: A ? { name: typeof A.name === 'string' ? A.name : '', start: num(A.start), done: setsDoneActive(A), total: setUnitsTotal(A.entries) } : null,
     week,
+    next: after ? { weekday: after.weekday, name: typeof after.routine?.name === 'string' ? after.routine.name : '' } : null,
     streakWeeks: streakWeeks(S),
     weekCount: weekTally(S, today).done,
     total: S.workouts.length,

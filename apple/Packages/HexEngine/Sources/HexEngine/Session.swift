@@ -218,10 +218,14 @@ public struct HomeSummary: Codable, Equatable, Sendable {
   // O último treino; a key é a do histórico (Workouts.swift), que abre o detalhe também de um treino
   // antigo sem id.
   public struct Last: Codable, Equatable, Sendable { public let key: String; public let id: String?, name: String, d: String?; public let durationMs: Double; public let sets: Int }
+  // O próximo dia com treino depois de hoje, num dia sem rotina e sem treino em andamento: o dia da
+  // semana (0 no domingo) e o nome da primeira rotina dele (o next do views/Home.jsx).
+  public struct Next: Codable, Equatable, Sendable { public let weekday: Int; public let name: String }
 
   public let today: Today
   public let active: Active?
   public let week: [Day]
+  public let next: Next?
   public let streakWeeks: Int, weekCount: Int, total: Int
   public let last: Last?
 }

@@ -152,6 +152,8 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.deepEqual([monday.active, monday.streakWeeks, monday.weekCount, monday.total, monday.last], [null, 0, 0, 0, null])
   const sunday = new Date(2026, 10, 15, 10).getTime()
   assert.deepEqual([homeAt(sunday).today.status, homeAt(sunday).today.routines], ['rest', []])
+  // A próxima sessão do dia de descanso (o next do views/Home.jsx:95): o Push de segunda; num dia de treino, nenhuma.
+  assert.deepEqual([monday.next, homeAt(sunday).next], [null, { weekday: 1, name: 'Push' }])
 
   act({ type: 'start', routineIds: ['r-push'], id: 'w-1' })
   act({ type: 'set.mark', entry: 0, set: 0, done: true }, NOW + MIN)
@@ -163,13 +165,21 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.deepEqual([after.streakWeeks, after.weekCount, after.total], [1, 1, 1])
   assert.deepEqual(after.last, { key: 'w-1', id: 'w-1', name: 'Push', d: '2026-11-09', durationMs: 20 * MIN, sets: 1 })
 
+  // Sem próxima sessão também com um treino em andamento num dia de descanso, e na rotação do próprio app
+  // (as duas outras partes da regra do views/Home.jsx:95).
+  open(PPL)
+  act({ type: 'start', routineIds: ['r-pull'], id: 'w-2' }, sunday)
+  assert.deepEqual([homeAt(sunday + MIN).today.status, homeAt(sunday + MIN).next], ['rest', null])
+  open({ ...PPL, scheduleMode: 'rotation' })
+  assert.deepEqual([homeAt(sunday).today.status, homeAt(sunday).next], ['rest', null])
+
   // A semana que começa no domingo, e o documento novo, sem rotinas e sem histórico (Foco da revisão 5).
   open({ ...PPL, weekStart: 0 })
   assert.deepEqual(homeAt(NOW).week.map(d => d.day), [0, 1, 2, 3, 4, 5, 6])
   assert.equal(homeAt(NOW).week[0].date, '2026-11-08')
   open()
   const empty = homeAt(NOW)
-  assert.deepEqual([empty.today.status, empty.today.routines, empty.streakWeeks, empty.weekCount, empty.total, empty.last], ['none', [], 0, 0, 0, null])
+  assert.deepEqual([empty.today.status, empty.today.routines, empty.streakWeeks, empty.weekCount, empty.total, empty.last, empty.next], ['none', [], 0, 0, 0, null, null])
 })
 
 test('liveActivity carries the next set, the rest and up to 8 sets after it, within the byte budget', () => {

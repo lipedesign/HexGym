@@ -1,5 +1,6 @@
-// Os testes dos documentos preparados (Task 6 do plano da fase 3): os cinco abrem no motor de
-// verdade, com o que cada um promete, e o relógio de cada um vai para hoje na carga (FixtureLoader).
+// Os testes dos documentos preparados (os cinco da Task 6 do plano da fase 3 e os dois do Início da
+// Task 7): os sete abrem no motor de verdade, com o que cada um promete, e o relógio de cada um vai
+// para hoje na carga (FixtureLoader).
 // O segundo roda sete dias seguidos, um de cada dia da semana, porque o print pode sair em qualquer um.
 
 import Foundation
@@ -18,11 +19,11 @@ import Testing
     return f.string(from: date)
   }
 
-  @Test func theFiveDocumentsOpenInTheEngine() async throws {
+  @Test func theSevenDocumentsOpenInTheEngine() async throws {
     let engine = HexEngine(language: "pt-BR")
     _ = try await engine.load()
     let now = Date.now
-    #expect(FixtureDocuments.names.count == 5)
+    #expect(FixtureDocuments.names.count == 7)
     for name in FixtureDocuments.names {
       let data = try FixtureLoader.document(named: name, now: now)
       let object = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any], "\(name)")
@@ -51,6 +52,16 @@ import Testing
         #expect(rows.contains { $0.warmup }); #expect(w.entries.contains { $0.mode == "time" })
         #expect(w.entries.contains { !$0.known }); #expect(rows.allSatisfy { !$0.line.isEmpty })
         #expect(w.rest == nil as ActiveWorkout.Rest?); #expect(w.start != nil)
+      case "dia-de-descanso":
+        // O semana-ppl com o hoje de descanso: a próxima sessão é a da semana, e o histórico é o mesmo.
+        #expect(workout == nil); #expect(home.total == 12)
+        #expect(home.today.status == "rest"); #expect(home.today.routines.isEmpty)
+        #expect(home.next != nil)
+        #expect((object["dayPlan"] as? [String: String])?.values.sorted() == ["rest"])
+      case "nada-marcado":
+        #expect(workout == nil); #expect(home.total == 12)
+        #expect(home.today.status == "none"); #expect(home.next == nil)
+        #expect(home.week.allSatisfy { !$0.planned })
       default:
         Issue.record("documento sem conferência: \(name)")
       }
@@ -84,6 +95,11 @@ import Testing
       let lastKey = try #require(home.last?.key)
       let lastStart = try #require(try await engine.workoutDetail(lastKey)?.start)
       #expect(iso(lastStart) == home.last?.d)
+
+      // O dia-de-descanso é dia de descanso qualquer que seja o dia da semana, com a próxima sessão.
+      try await engine.restore(FixtureLoader.document(named: "dia-de-descanso", now: now))
+      let rest = try await engine.home(now: now)
+      #expect(rest.today.status == "rest"); #expect(rest.next != nil)
 
       // Em qualquer fuso, o start de cada treino do histórico cai no dia do d dele, e a duração fica a
       // mesma (rodada 2 do PR #156).
