@@ -119,9 +119,9 @@ nonisolated struct SlotRow: Identifiable, Equatable, Sendable {
   enum Mark: Sendable { case first, middle, last }
 
   // O id do exercício e quantas vezes ele já apareceu antes na rotina ("0025#0"): o mesmo exercício
-  // pode estar duas vezes, e a linha não muda de identidade quando outra sai ou troca de lugar.
+  // pode estar duas vezes, e a linha não muda de identidade quando outra sai ou troca de lugar. As ações
+  // da linha acham a posição dela por este id, na hora (RoutineEditorScreen.position).
   let id: String
-  let index: Int
   let exerciseID: String
   let name: String
   let known: Bool
@@ -180,7 +180,7 @@ nonisolated struct RoutineEditorModel: Sendable {
       if let load { spoken.append(load.spoken) }
       if !partners.isEmpty { spoken.append(text.superset(with: partners)) }
       return SlotRow(
-        id: "\(slot.id)#\(occurrence)", index: index, exerciseID: slot.id, name: name, known: slot.known,
+        id: "\(slot.id)#\(occurrence)", exerciseID: slot.id, name: name, known: slot.known,
         setsReps: slot.setsReps, detail: ([slot.setsReps] + (load.map { [$0.text] } ?? [])).joined(separator: LibraryNames.separator),
         superset: mark, canJoinNext: index + 1 < slots.count && !group.contains(index + 1), canSeparate: mark != nil,
         spoken: spoken.joined(separator: ", "))
@@ -241,6 +241,8 @@ nonisolated struct SlotDraft: Equatable, Sendable {
   private(set) var mode: SlotMode
   private(set) var note: String
   let increment: Double
+  // O passo das repetições do motor: 2 num exercício por lado, 1 nos outros.
+  let repStep: Int
   let unit: WeightUnit
 
   // Os padrões de um campo que o slot não tem são os do openGym (setsRepsOf e o salvar da sheet): 1
@@ -254,6 +256,7 @@ nonisolated struct SlotDraft: Equatable, Sendable {
     mode = slot.mode.flatMap(SlotMode.init(rawValue:)) ?? .reps
     note = slot.note ?? ""
     increment = slot.increment
+    repStep = max(1, slot.repStep)
     self.unit = unit
   }
 
@@ -264,10 +267,12 @@ nonisolated struct SlotDraft: Equatable, Sendable {
     return SlotFields(sets: next)
   }
 
-  // Uma faixa (8 a 12) desce junto quando o topo fica abaixo do começo dela: o motor recusa um repsMin
-  // acima das repetições.
+  // Um passo do repStep: de 2 em 2 num exercício por lado (20, 22, 24), como o Stepper da sheet do
+  // openGym. Um valor ímpar que veio do openGym anda do mesmo jeito (11, 13, 15), como lá, que só soma o
+  // passo; os limites de 1 e 100 ficam. Uma faixa (8 a 12) desce junto quando o topo fica abaixo do
+  // começo dela: o motor recusa um repsMin acima das repetições.
   mutating func stepReps(_ direction: StepDirection) -> SlotFields? {
-    let next = Self.clamp(reps + direction.sign, Self.repsRange)
+    let next = Self.clamp(reps + direction.sign * repStep, Self.repsRange)
     guard next != reps else { return nil }
     reps = next
     var fields = SlotFields(reps: next)
@@ -344,12 +349,28 @@ extension StepDirection {
   nonisolated var sign: Int { self == .up ? 1 : -1 }
 }
 
-// O desfazer de uma rotina apagada, enquanto a faixa aparece: o texto e a ação.
+// O desfazer de uma rotina apagada, enquanto a faixa aparece: o texto, a ação e o instante em que a
+// rotina saiu. O prazo conta desse instante: a faixa que volta (outra aba, o editor por cima) fica só o
+// que faltava, e não começa de novo.
 nonisolated struct RoutineUndo: Identifiable, Sendable {
+  static let shown = Duration.seconds(5)
+  // Com o VoiceOver, mais tempo para chegar ao botão.
+  static let shownWithVoiceOver = Duration.seconds(15)
+
   // Sobe a cada rotina apagada: a faixa de uma remoção nova recomeça a contar.
   let id: Int
   let message: String
   let action: EngineAction
+  var created = ContinuousClock.now
+
+  func deadline(voiceOver: Bool) -> ContinuousClock.Instant {
+    created + (voiceOver ? Self.shownWithVoiceOver : Self.shown)
+  }
+
+  // O que falta do prazo; zero quando ele já passou.
+  func remaining(voiceOver: Bool, now: ContinuousClock.Instant = .now) -> Duration {
+    max(.zero, deadline(voiceOver: voiceOver) - now)
+  }
 }
 
 // Os ajustes que as telas das rotinas leem: a semana e a unidade.
@@ -383,6 +404,7 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   @ObservationIgnored private let revision: () -> Int
   @ObservationIgnored let perform: (EngineAction) async throws -> ActionOutcome
   @ObservationIgnored private var undos = 0
+  @ObservationIgnored private var announced: Int?
 
   private static let logger = Logger(subsystem: "app.hexgym", category: "routines")
 
@@ -462,6 +484,14 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     if undo?.id == id { undo = nil }
   }
 
+  // Se a faixa desse desfazer ainda não foi anunciada ao VoiceOver; marca como anunciada. A faixa que
+  // volta não anuncia de novo.
+  func shouldAnnounce(_ id: Int) -> Bool {
+    guard announced != id else { return false }
+    announced = id
+    return true
+  }
+
   // O reordenar da List: a linha muda de lugar na hora, e a ação vai ao motor.
   @discardableResult func move(from source: IndexSet, to offset: Int) -> Task<Void, Never>? {
     guard let from = source.first, source.count == 1, rows.indices.contains(from) else { return nil }
@@ -493,7 +523,7 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
 // O estado do editor de uma rotina: o nome no campo, o ícone e os exercícios, e as ações sobre eles. A
 // tela muda na hora (a ordem, uma linha que sai) e lê de novo do motor depois de cada ação.
 @Observable @MainActor final class RoutineEditorScreen {
-  enum Phase: Equatable { case loading, ready, gone }
+  enum Phase: Equatable { case loading, ready, gone, failed }
 
   let id: String
   private(set) var phase = Phase.loading
@@ -514,6 +544,12 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   @ObservationIgnored let locale: Locale
   @ObservationIgnored private let revision: () -> Int
   @ObservationIgnored let perform: (EngineAction) async throws -> ActionOutcome
+  // A última ação mandada: cada uma espera a de antes, para o motor receber na ordem dos toques, e a
+  // posição de cada linha, achada na tela na hora do toque, valer no motor também.
+  @ObservationIgnored private var last: Task<Void, Never>?
+  // As ações ainda no caminho: enquanto houver alguma, uma leitura do motor não troca a tela, que já
+  // mostra o resultado delas.
+  @ObservationIgnored private var pending = 0
 
   init(id: String, isNew: Bool = false, engine: HexEngine, locale: Locale = .current, revision: @escaping () -> Int = { 0 },
        perform: @escaping (EngineAction) async throws -> ActionOutcome) {
@@ -527,11 +563,15 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   }
 
   func load() async {
+    guard pending == 0 else { return }
     do {
       settings = RoutineSettings(try await engine.settings())
       let language = Locale(identifier: try await engine.load().language)
       let model = RoutineEditorModel(routines: try await engine.routines(), weekStart: settings.weekStart, unit: settings.unit, text: text,
                                      language: language)
+      // Uma ação saiu enquanto o motor era lido: a tela já mostra o resultado dela, e a leitura do fim
+      // dela vem depois.
+      guard pending == 0 else { return }
       guard let content = model.editor(id) else {
         phase = .gone
         return
@@ -544,6 +584,7 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
       phase = .ready
     } catch {
       RoutinesScreen.log("não deu para ler a rotina", error)
+      if phase == .loading { phase = .failed }
     }
   }
 
@@ -569,38 +610,50 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     await run("não deu para pôr os exercícios", .addExercises(routineID: id, exerciseIDs: exerciseIDs, at: nil))
   }
 
+  // A posição de agora de uma linha, pelo id dela: a tela pode já ter tirado ou mudado de lugar outras
+  // linhas, e o index da linha fica velho até a leitura do motor chegar.
+  func position(of rowID: String) -> Int? {
+    content?.slots.firstIndex { $0.id == rowID }
+  }
+
   // A linha sai na hora, e a ação vai ao motor.
-  @discardableResult func remove(_ index: Int) -> Task<Void, Never> {
-    if let content { self.content = content.removing(index) }
-    return Task { await run("não deu para tirar o exercício", .removeSlot(routineID: id, index: index)) }
+  @discardableResult func remove(_ rowID: String) -> Task<Void, Never>? {
+    guard let content, let index = position(of: rowID) else { return nil }
+    self.content = content.removing(index)
+    return send("não deu para tirar o exercício", .removeSlot(routineID: id, index: index))
   }
 
-  func replace(_ index: Int, with exerciseID: String) async {
-    await run("não deu para trocar o exercício", .replaceSlot(routineID: id, index: index, exerciseID: exerciseID))
+  @discardableResult func replace(_ rowID: String, with exerciseID: String) -> Task<Void, Never>? {
+    guard let index = position(of: rowID) else { return nil }
+    return send("não deu para trocar o exercício", .replaceSlot(routineID: id, index: index, exerciseID: exerciseID))
   }
 
-  func joinWithNext(_ index: Int) async {
-    await run("não deu para juntar o superset", .superset(routineID: id, index: index))
+  @discardableResult func joinWithNext(_ rowID: String) -> Task<Void, Never>? {
+    guard let index = position(of: rowID) else { return nil }
+    return send("não deu para juntar o superset", .superset(routineID: id, index: index))
   }
 
-  func separate(_ index: Int) async {
-    await run("não deu para separar o superset", .unsuperset(routineID: id, index: index))
+  @discardableResult func separate(_ rowID: String) -> Task<Void, Never>? {
+    guard let index = position(of: rowID) else { return nil }
+    return send("não deu para separar o superset", .unsuperset(routineID: id, index: index))
   }
 
-  // A linha muda de lugar na hora, e a ação vai ao motor.
+  // A linha muda de lugar na hora, e a ação vai ao motor. As posições do .onMove são as da tela de agora.
   @discardableResult func move(from source: IndexSet, to offset: Int) -> Task<Void, Never>? {
     guard let content, let from = source.first, source.count == 1, content.slots.indices.contains(from) else { return nil }
     let to = RoutineEditorModel.moveTarget(from: from, offset: offset)
     guard from != to, content.slots.indices.contains(to) else { return nil }
     self.content = content.moving(from: from, to: to)
-    return Task { await run("não deu para mover o exercício", .moveSlot(routineID: id, from: from, to: to)) }
+    return send("não deu para mover o exercício", .moveSlot(routineID: id, from: from, to: to))
   }
 
-  // O SlotEditor de um exercício, com o que o motor tem dele agora.
-  func slotEditor(_ index: Int) async -> SlotEditorScreen? {
+  // O SlotEditor de um exercício, com o que o motor tem dele agora: depois das ações no caminho, na
+  // posição de agora da linha.
+  func slotEditor(_ rowID: String) async -> SlotEditorScreen? {
+    await last?.value
+    guard let index = position(of: rowID), let row = content?.slots[index] else { return nil }
     do {
-      guard let slot = try await engine.routines().first(where: { $0.id == id })?.slots[safe: index],
-            let row = content?.slots[safe: index] else { return nil }
+      guard let slot = try await engine.routines().first(where: { $0.id == id })?.slots[safe: index] else { return nil }
       return SlotEditorScreen(routineID: id, index: index, row: row, slot: slot, unit: settings.unit, locale: locale, perform: perform)
     } catch {
       RoutinesScreen.log("não deu para abrir o exercício", error)
@@ -608,13 +661,32 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     }
   }
 
-  private func run(_ what: String, _ action: EngineAction) async {
-    do {
-      _ = try await perform(action)
-    } catch {
-      RoutinesScreen.log(what, error)
+  // O SlotEditor da linha dessa posição, para os argumentos de início e o roteiro do vídeo.
+  func slotEditor(at index: Int) async -> SlotEditorScreen? {
+    guard let row = content?.slots[safe: index] else { return nil }
+    return await slotEditor(row.id)
+  }
+
+  // A ação vai ao motor depois da de antes; a tela lê o motor de novo quando a última chega.
+  private func send(_ what: String, _ action: EngineAction) -> Task<Void, Never> {
+    let previous = last
+    pending += 1
+    let task = Task {
+      await previous?.value
+      do {
+        _ = try await perform(action)
+      } catch {
+        RoutinesScreen.log(what, error)
+      }
+      pending -= 1
+      await load()
     }
-    await load()
+    last = task
+    return task
+  }
+
+  private func run(_ what: String, _ action: EngineAction) async {
+    await send(what, action).value
   }
 }
 

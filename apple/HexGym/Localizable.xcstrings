@@ -987,6 +987,16 @@
         }
       }
     },
+    "Grip, bench, setup" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pegada, banco, ajuste"
+          }
+        }
+      }
+    },
     "Headline" : {
       "localizations" : {
         "pt-BR" : {

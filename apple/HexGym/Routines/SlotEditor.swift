@@ -36,14 +36,17 @@ import SwiftUI
   var secondsText: String { RestRingModel.time(draft.seconds) }
   var secondsSpoken: String { SettingsRows(locale: locale).spokenRest(draft.seconds) }
 
-  // O campo da nota: a tela mostra o texto cortado na hora, e ele vai ao motor depois.
-  var note: String {
-    get { draft.note }
-    set {
-      guard let fields = draft.setNote(newValue) else { return }
+  var note: String { draft.note }
+
+  // O que a pessoa escreveu no campo da nota: devolve o texto que o campo deve mostrar, cortado nas 500
+  // unidades, e a nota vai ao motor depois. Quando o corte muda o que chegou, o campo volta para o
+  // cortado, mesmo que a nota não mude (a pessoa escreveu além do limite).
+  func typeNote(_ text: String) -> String {
+    if let fields = draft.setNote(text) {
       pendingNote = fields
       scheduleNote()
     }
+    return draft.note
   }
 
   @ObservationIgnored private let perform: (EngineAction) async throws -> ActionOutcome
@@ -110,8 +113,18 @@ import SwiftUI
 struct SlotEditor: View {
   let screen: SlotEditorScreen
 
+  // O texto do campo da nota. O TextField fica com o que a pessoa escreveu quando o valor de uma
+  // Binding não muda; com o estado da tela, o onChange põe o texto cortado de volta.
+  @State private var noteText: String
+  @FocusState private var noteFocused: Bool
+
   @Environment(\.dismiss) private var dismiss
   @Environment(\.dynamicTypeSize) private var typeSize
+
+  init(screen: SlotEditorScreen) {
+    self.screen = screen
+    _noteText = State(initialValue: screen.note)
+  }
 
   var body: some View {
     NavigationStack {
@@ -206,12 +219,31 @@ struct SlotEditor: View {
   private var note: some View {
     VStack(alignment: .leading, spacing: HexSpacing.xs) {
       FieldLabel("Note")
-      TextField("Note", text: Binding(get: { screen.note }, set: { screen.note = $0 }), axis: .vertical)
-        .lineLimit(1...8)
-        .accessibilityLabel(Text("Note"))
-        .padding(HexSpacing.s)
-        .frame(minHeight: HexTarget.minimum)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: HexRadius.chip, style: .continuous))
+      // O exemplo fica num texto atrás do campo, e não no placeholder do sistema, que é de uma linha só e
+      // corta nos tamanhos de acessibilidade. O VoiceOver lê o rótulo "Nota", sem o exemplo.
+      ZStack(alignment: .topLeading) {
+        Text("Grip, bench, setup")
+          .foregroundStyle(.tertiary)
+          .fixedSize(horizontal: false, vertical: true)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .opacity(noteText.isEmpty ? 1 : 0)
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
+        TextField(text: $noteText, prompt: Text(verbatim: ""), axis: .vertical) { Text("Note") }
+          .lineLimit(1...8)
+          .focused($noteFocused)
+          .accessibilityLabel(Text("Note"))
+          .onChange(of: noteText) { _, typed in
+            let shown = screen.typeNote(typed)
+            if shown != typed { noteText = shown }
+          }
+      }
+      .padding(HexSpacing.s)
+      // Um toque em qualquer ponto da caixa abre o teclado, também no exemplo de duas linhas.
+      .contentShape(Rectangle())
+      .onTapGesture { noteFocused = true }
+      .frame(minHeight: HexTarget.minimum)
+      .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: HexRadius.chip, style: .continuous))
     }
   }
 }

@@ -104,7 +104,7 @@ struct RoutineEditorView: View {
     switch screen.phase {
     case .loading:
       ProgressView()
-    case .gone:
+    case .gone, .failed:
       ContentUnavailableView {
         Label("Couldn't open the routines.", systemImage: "exclamationmark.triangle")
       }
@@ -136,13 +136,13 @@ struct RoutineEditorView: View {
   }
 
   private func slotRow(_ row: SlotRow) -> some View {
-    Button { open(row.index) } label: {
+    Button { open(row.id) } label: {
       SlotListRow(row: row)
     }
     .accessibilityLabel(Text(verbatim: row.spoken))
     .listRowSeparator(row.superset == .first || row.superset == .middle ? .hidden : .automatic, edges: .bottom)
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      Button(role: .destructive) { screen.remove(row.index) } label: {
+      Button(role: .destructive) { screen.remove(row.id) } label: {
         Label("Remove", systemImage: "minus.circle")
       }
       Button { replacing = row } label: {
@@ -154,17 +154,17 @@ struct RoutineEditorView: View {
       supersetButtons(row)
       Divider()
       Button { replacing = row } label: { Label("Replace exercise", systemImage: "arrow.triangle.2.circlepath") }
-      Button(role: .destructive) { screen.remove(row.index) } label: { Label("Remove", systemImage: "minus.circle") }
+      Button(role: .destructive) { screen.remove(row.id) } label: { Label("Remove", systemImage: "minus.circle") }
     }
     .accessibilityActions { supersetButtons(row) }
   }
 
   @ViewBuilder private func supersetButtons(_ row: SlotRow) -> some View {
     if row.canJoinNext {
-      Button { Task { await screen.joinWithNext(row.index) } } label: { Label("Join with next", systemImage: "link") }
+      Button { screen.joinWithNext(row.id) } label: { Label("Join with next", systemImage: "link") }
     }
     if row.canSeparate {
-      Button { Task { await screen.separate(row.index) } } label: { Label("Separate", systemImage: "link.badge.plus") }
+      Button { screen.separate(row.id) } label: { Label("Separate", systemImage: "link.badge.plus") }
     }
   }
 
@@ -189,7 +189,7 @@ struct RoutineEditorView: View {
       LibraryView(model: library, selection: $replacement, pickOne: true, onAdd: { ids in
         replacing = nil
         guard let id = ids.first else { return }
-        Task { await screen.replace(row.index, with: id) }
+        screen.replace(row.id, with: id)
       })
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
@@ -199,10 +199,10 @@ struct RoutineEditorView: View {
     }
   }
 
-  private func open(_ index: Int) {
+  private func open(_ rowID: String) {
     Task {
       if nameFocused { nameFocused = false }
-      slotEditor = await screen.slotEditor(index)
+      slotEditor = await screen.slotEditor(rowID)
     }
   }
 
@@ -218,7 +218,7 @@ struct RoutineEditorView: View {
       proxy.scrollTo(EditorAnchor.bottom, anchor: .bottom)
     }
     if let index = RoutinesLaunch.slot {
-      slotEditor = await screen.slotEditor(index)
+      slotEditor = await screen.slotEditor(at: index)
     } else if RoutinesLaunch.open == "pick" {
       // A busca do -HexGymLibraryQuery, a LibraryView da escolha aplica ao abrir, como na aba Exercícios.
       picked = RoutinesLaunch.picks
@@ -233,47 +233,47 @@ struct RoutineEditorView: View {
   // SlotEditor, com uma série a mais e a carga subindo.
   private func demo() async {
     func wait(_ seconds: Double) async { try? await Task.sleep(for: .seconds(seconds)) }
-    await wait(0.6)
+    await wait(0.4)
     nameFocused = true
     for letter in "Peito e tríceps" {
       screen.name.append(letter)
-      await wait(0.07)
+      await wait(0.05)
     }
-    await wait(0.4)
+    await wait(0.3)
     nameFocused = false
-    await wait(0.6)
+    await wait(0.4)
     await screen.setGlyph("arm")
-    await wait(0.8)
+    await wait(0.6)
     picking = true
-    await wait(1.0)
+    await wait(0.8)
     for (query, id) in [("supino", "0025"), ("tríceps", nil as String?), ("crucifixo", nil)] {
       var next = LibraryQuery()
       next.query = query
       library.update(query: next)
       await library.settled()
-      await wait(0.6)
+      await wait(0.45)
       guard let pick = id ?? library.results.first(where: { !picked.contains($0.id) })?.id else { continue }
       picked.append(pick)
-      await wait(0.6)
+      await wait(0.45)
     }
-    await wait(0.4)
+    await wait(0.3)
     let ids = picked
     picking = false
     await screen.add(ids)
     var reset = LibraryQuery()
     reset.query = ""
     library.update(query: reset)
-    await wait(1.0)
-    guard let editor = await screen.slotEditor(0) else { return }
+    await wait(0.8)
+    guard let editor = await screen.slotEditor(at: 0) else { return }
     slotEditor = editor
-    await wait(1.0)
+    await wait(0.8)
     editor.stepSets(.up)
-    await wait(0.6)
+    await wait(0.4)
     for _ in 0..<4 {
       editor.stepLoad(.up)
-      await wait(0.4)
+      await wait(0.3)
     }
-    await wait(0.8)
+    await wait(0.7)
     slotEditor = nil
   }
 }

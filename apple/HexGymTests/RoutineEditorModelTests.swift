@@ -5,7 +5,10 @@
 // mais mostra "Exercício desconhecido" na linha, sem derrubar a tela, com o superset dito no rótulo do
 // VoiceOver (Foco da revisão 1). Os dois das Notas da issue (achados do QA do PR #108): a nota é cortada
 // pelo utf16.count, como o motor mede os 500 do NOTE_MAX; e uma carga acima do limite da unidade abre
-// como está, mas o editor só manda de volta um valor dentro do limite.
+// como está, mas o editor só manda de volta um valor dentro do limite. Os do QA do PR #115: duas
+// remoções seguidas e as ações depois de mover acham a linha pelo id; as repetições por lado andam de 2
+// em 2; o campo da nota volta para o texto cortado; a faixa do desfazer guarda o prazo; e o editor cai
+// no estado de erro quando a leitura falha.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -186,5 +189,128 @@ import Testing
     await #expect(throws: EngineError.self) {
       _ = try await engine.apply(.updateSlot(routineID: "r1", index: 0, fields: SlotFields(weight: 2204.5)))
     }
+  }
+
+  // Os achados do QA do PR #115.
+
+  // O editor de uma rotina nova com estes exercícios, com as ações indo direto ao motor.
+  func editor(_ engine: HexEngine, _ exerciseIDs: [String]) async throws -> RoutineEditorScreen {
+    let id = try #require(try await engine.apply(.createRoutine(name: "Teste")).id)
+    _ = try await engine.apply(.addExercises(routineID: id, exerciseIDs: exerciseIDs, at: nil))
+    let screen = RoutineEditorScreen(id: id, engine: engine, locale: portuguese) { try await engine.apply($0) }
+    await screen.load()
+    return screen
+  }
+
+  @Test func twoRemovalsInARowTakeOutTheTwoRowsTapped() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["1060", "0025", "1048"])
+    let rows = try #require(screen.content?.slots)
+    #expect(rows.map(\.exerciseID) == ["1060", "0025", "1048"])
+    // Dois toques seguidos, sem esperar o motor: o segundo acha o 0025 na posição 0 da tela de agora.
+    let first = screen.remove(rows[0].id)
+    #expect(screen.content?.slots.map(\.exerciseID) == ["0025", "1048"])
+    #expect(screen.position(of: rows[1].id) == 0)
+    let second = screen.remove(rows[1].id)
+    #expect(screen.content?.slots.map(\.exerciseID) == ["1048"])
+    await first?.value
+    await second?.value
+    #expect(try await engine.routines().first?.slots.map(\.id) == ["1048"])
+    #expect(screen.content?.slots.map(\.exerciseID) == ["1048"])
+    // Uma linha que já saiu não manda nada.
+    #expect(screen.remove(rows[0].id) == nil)
+  }
+
+  @Test func theRowActionsFindTheRowByItsIDAfterAMove() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["1060", "0025", "1048"])
+    let rows = try #require(screen.content?.slots)
+    // O 1048 vai para o começo e, logo depois, sem esperar o motor, o 1060 (que estava na posição 0 e
+    // agora está na 1) junta com o próximo, o 0025.
+    let moved = screen.move(from: IndexSet(integer: 2), to: 0)
+    let joined = screen.joinWithNext(rows[0].id)
+    await moved?.value
+    await joined?.value
+    let slots = try #require(try await engine.routines().first?.slots)
+    #expect(slots.map(\.id) == ["1048", "1060", "0025"])
+    #expect(slots[0].superset == nil)
+    #expect(slots[1].superset != nil && slots[1].superset == slots[2].superset)
+    // O SlotEditor abre o exercício da linha, onde ela estiver agora.
+    let editor = try #require(await screen.slotEditor(rows[2].id))
+    #expect(editor.index == 0)
+    #expect(editor.draft.reps == 20)
+  }
+
+  @Test func oneSideRepsStepByTwoAndTheOthersByOne() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["1048", "0025"])
+    let slots = try #require(try await engine.routines().first?.slots)
+    #expect(slots.map(\.repStep) == [2, 1])
+    // O 1048 é feito um lado de cada vez: de 20 para 22, e de volta.
+    var side = SlotDraft(slots[0], unit: .kg)
+    #expect(side.reps == 20)
+    let upFields = side.stepReps(.up)
+    #expect(upFields == SlotFields(reps: 22))
+    let up = try #require(upFields)
+    _ = try await engine.apply(.updateSlot(routineID: screen.id, index: 0, fields: up))
+    #expect(try await engine.routines().first?.slots.first?.reps == 22)
+    let downFields = side.stepReps(.down)
+    #expect(downFields == SlotFields(reps: 20))
+    // O de dois lados anda de 1 em 1.
+    var both = SlotDraft(slots[1], unit: .kg)
+    let bothFields = both.stepReps(.up)
+    #expect(bothFields == SlotFields(reps: both.reps))
+    #expect(both.reps == (slots[1].reps ?? 10) + 1)
+    // Um ímpar vindo do openGym anda de 2 em 2 também, como lá; o 100 continua sendo o teto.
+    let odd = try await self.engine(#"""
+      {"routines":[{"id":"r1","name":"Lados","emoji":"dumbbell","ex":[{"id":"1048","sets":3,"reps":11,"side":true},{"id":"1048","sets":3,"reps":99,"side":true}]}]}
+      """#)
+    let oddSlots = try #require(try await odd.routines().first?.slots)
+    var eleven = SlotDraft(oddSlots[0], unit: .kg)
+    let elevenFields = eleven.stepReps(.up)
+    #expect(elevenFields == SlotFields(reps: 13))
+    var top = SlotDraft(oddSlots[1], unit: .kg)
+    let topFields = top.stepReps(.up)
+    #expect(topFields == SlotFields(reps: 100))
+  }
+
+  @Test func typingPastTheLimitPutsTheCutNoteBackInTheField() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["0025"])
+    let full = String(repeating: "a", count: 500)
+    let editor = try #require(await screen.slotEditor(at: 0))
+    #expect(editor.typeNote(full) == full)
+    // Mais três letras no fim: a nota não muda, mas o campo volta para as 500 unidades.
+    let typed = full + "bcd"
+    let shown = editor.typeNote(typed)
+    #expect(shown == full && shown != typed)
+    #expect(shown.utf16.count == 500)
+    await editor.flush()
+    #expect(try await engine.routines().first?.slots.first?.note == full)
+  }
+
+  @Test func theUndoBannerKeepsItsDeadlineAcrossALeaveAndComeBack() async throws {
+    let now = ContinuousClock.now
+    let undo = RoutineUndo(id: 1, message: "Rotina apagada", action: .deleteRoutine(id: "r1"), created: now - .seconds(3))
+    // A faixa que volta 3 s depois fica os 2 s que faltavam (12 s com o VoiceOver), e não 5 s de novo.
+    #expect(undo.remaining(voiceOver: false, now: now) == .seconds(2))
+    #expect(undo.remaining(voiceOver: true, now: now) == .seconds(12))
+    // Passado o prazo, sai na hora.
+    #expect(undo.remaining(voiceOver: false, now: now + .seconds(5)) == .zero)
+    #expect(undo.remaining(voiceOver: true, now: now + .seconds(20)) == .zero)
+    // O VoiceOver anuncia a faixa uma vez só.
+    let screen = screen(try await engine())
+    #expect(screen.shouldAnnounce(1))
+    #expect(!screen.shouldAnnounce(1))
+    #expect(screen.shouldAnnounce(2))
+  }
+
+  @Test func anEditorWhoseReadFailsShowsTheErrorAndNotTheSpinner() async {
+    // Um motor que não carregou: toda leitura falha.
+    let engine = HexEngine(language: "pt-BR")
+    let screen = RoutineEditorScreen(id: "r1", engine: engine, locale: portuguese) { try await engine.apply($0) }
+    #expect(screen.phase == .loading)
+    await screen.load()
+    #expect(screen.phase == .failed)
   }
 }

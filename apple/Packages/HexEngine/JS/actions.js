@@ -13,7 +13,7 @@
 import { clone, draftOf } from '../../../../frontend/src/lib/state-core.js'
 import { highestStamp, markUndone, stampChange, undoMarks } from '../../../../frontend/src/lib/sync-merge.js'
 import { copyRoutine, deleteRoutine, replaceSlotExercise, restoreRoutine, routineSnapshot } from '../../../../frontend/src/lib/routines.js'
-import { NOTE_MAX, cleanupSg, effortOf, modeOf, pairAdjacent, pickedExerciseConfig, setsRepsOf, unpairSuperset } from '../../../../frontend/src/lib/history.js'
+import { NOTE_MAX, cleanupSg, effortOf, modeOf, pairAdjacent, pickedExerciseConfig, repStep, setsRepsOf, unpairSuperset } from '../../../../frontend/src/lib/history.js'
 import { buildStarterPlan, starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
 import { convertStateUnit } from '../../../../frontend/src/lib/units.js'
 import { favIds, toggleFav } from '../../../../frontend/src/lib/favourites.js'
@@ -373,6 +373,8 @@ function slotSummary(slot, unit) {
     known,
     setsReps: setsRepsOf(slot),
     increment: incrementOf(slot, unit),
+    // O passo das repetições: de 2 em 2 num exercício por lado, como o Stepper da sheet do openGym.
+    repStep: repStep(slot),
     sets: int(slot.sets), reps: int(slot.reps), repsMin: int(slot.repsMin), weight: num(slot.weight), sec: int(slot.sec),
     mode: modeOf(slot),
     note: typeof slot.note === 'string' ? slot.note : null,

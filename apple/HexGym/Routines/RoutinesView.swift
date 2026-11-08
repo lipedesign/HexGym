@@ -149,16 +149,25 @@ struct RoutinesView: View {
     path.append(RoutineRoute(id: id, isNew: true))
   }
 
-  // A faixa aparece com o desfazer novo, o VoiceOver anuncia, e ela some 5 s depois (15 s com o
-  // VoiceOver). Um desfazer novo no meio cancela a espera do anterior; o "Desfazer" tira a faixa na hora.
+  // A faixa aparece com o desfazer novo, o VoiceOver anuncia, e ela some 5 s depois de a rotina sair
+  // (15 s com o VoiceOver). A espera é cancelada quando a pessoa sai da aba ou abre o editor; na volta, a
+  // faixa fica só o que faltava do prazo, sem anunciar de novo, ou sai na hora se ele já passou. Um
+  // desfazer novo no meio cancela a espera do anterior; o "Desfazer" tira a faixa na hora.
   private func showUndo() async {
     guard let undo = screen.undo else {
       withAnimation(HexMotion.change.animation(reduceMotion: reduceMotion)) { banner = nil }
       return
     }
-    withAnimation(HexMotion.enter.animation(reduceMotion: reduceMotion)) { banner = undo }
-    AccessibilityNotification.Announcement(undo.message).post()
-    do { try await Task.sleep(for: .seconds(voiceOver ? 15 : 5)) } catch { return }
+    let remaining = undo.remaining(voiceOver: voiceOver)
+    guard remaining > .zero else {
+      screen.dismissUndo(undo.id)
+      return
+    }
+    if banner?.id != undo.id {
+      withAnimation(HexMotion.enter.animation(reduceMotion: reduceMotion)) { banner = undo }
+    }
+    if screen.shouldAnnounce(undo.id) { AccessibilityNotification.Announcement(undo.message).post() }
+    do { try await Task.sleep(for: remaining) } catch { return }
     screen.dismissUndo(undo.id)
   }
 
@@ -177,7 +186,7 @@ struct RoutinesView: View {
       if let first = screen.rows.first { screen.delete(first.id) }
     case "demo":
       // O vídeo: "Nova rotina" pelo mesmo caminho do botão; o resto, no editor (RoutineEditorView).
-      try? await Task.sleep(for: .seconds(1.2))
+      try? await Task.sleep(for: .seconds(0.8))
       await create()
     default:
       break
