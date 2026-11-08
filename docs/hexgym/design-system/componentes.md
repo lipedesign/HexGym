@@ -168,6 +168,8 @@ SlantedSegments(total: 5, done: 3)
 
 **Testes:** `segmentsLightFromTheStartOfTheLine`, `segmentsSayWhereYouAre`, `otherLanguagesCountSetsInEnglish` e `zeroSetsArePluralInPortuguese`.
 
+**A forma sozinha:** o paralelogramo de um segmento é público, como `SlantedSegment()`, para uma linha com estados próprios. A semana do Início (fase 3) usa ele: cheio no dia treinado, contornado no planejado e no destaque a 35% no hoje. Quem desenha põe o `.flipsForRightToLeftLayoutDirection(true)`, como a linha de séries.
+
 **No simulador:** os segmentos, o carimbo e o anel na galeria do iPhone, no tamanho de texto padrão e em AX5. Em AX5, a linha de segmentos e o anel cabem na largura da tela, sem cortar.
 
 ![Os segmentos com 0, 3 e 5 de 5, o carimbo e o anel de descanso, no simulador](imagens/simulador-segmentos-carimbo-anel.png)
