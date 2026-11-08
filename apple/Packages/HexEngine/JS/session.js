@@ -471,7 +471,8 @@ export function liveEvents(S, events, now) {
     if (!A || ev.wid !== String(A.id)) continue
     const seen = list(A.liveSeen)
     if (seen.includes(ev.id)) continue
-    const at = Number.isFinite(ev.at) ? ev.at : now
+    // O at vem do Swift com fração de ms (o Date em ms), e a série guarda ms inteiros, como o Date.now.
+    const at = Number.isFinite(ev.at) ? Math.round(ev.at) : now
     const action = actionOf(A, ev, at, now)
     if (action) {
       let out = null

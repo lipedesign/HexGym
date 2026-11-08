@@ -199,6 +199,29 @@ test('liveActivity carries the next set, the rest and up to 8 sets after it, wit
   assert.equal(Array.from(big.cur.exercise).length, LIVE_NAME_MAX); assert.equal(Array.from(big.name).length, LIVE_NAME_MAX)
   assert.ok(liveBytes(big) < LIVE_BUDGET, `${liveBytes(big)} bytes`)
 
+  // Nomes de 4 bytes por letra e drop sets de 20 quedas passam do orçamento com as 8 séries pela
+  // frente: o ahead encolhe do fim até o JSON caber nos 3.600 bytes.
+  const drops = Array.from({ length: 20 }, (_, k) => ({ w: 58 - 2 * k, r: 6 }))
+  const heavy = { id: 'custom-quedas', n: '💪'.repeat(70), bp: 'chest', custom: true }
+  open({ customEx: [heavy], active: {
+    id: 'w-4', d: isoOf(new Date(NOW)), start: NOW, routineIds: [], name: '💪'.repeat(70), bw: null, cur: 0, workoutView: 'cards',
+    entries: [{ id: 'custom-quedas', target: { mode: 'reps', sets: 12, reps: 8, weight: 60 }, sets: Array.from({ length: 12 }, () => ({ w: 60, r: 8, done: false, type: 'dropset', drops })) }],
+  } })
+  const trimmed = live(NOW)
+  assert.ok(trimmed.ahead.length > 0 && trimmed.ahead.length < LIVE_AHEAD, `${trimmed.ahead.length} séries pela frente`)
+  assert.ok(liveBytes(trimmed) <= LIVE_BUDGET, `${liveBytes(trimmed)} bytes`)
+  assert.deepEqual(trimmed.ahead.map(x => x.set), Array.from({ length: trimmed.ahead.length }, (_, k) => k + 1))
+
+  // O done e o total da Live Activity contam linhas, como o buildLiveActivity do openGym: a série
+  // com lados é uma linha, feita só com os dois lados feitos. A tela do treino conta por lado.
+  const sideRow = (L, R) => ({ w: 10, r: 16, done: L && R, sides: { L: { w: 10, r: 8, done: L }, R: { w: 10, r: 8, done: R } } })
+  open({ active: {
+    id: 'w-5', d: isoOf(new Date(NOW)), start: NOW, routineIds: [], name: 'Livre', bw: null, cur: 0, workoutView: 'cards',
+    entries: [{ id: CURL, target: { mode: 'reps', side: true }, sets: [sideRow(true, true), sideRow(true, false)] }],
+  } })
+  assert.deepEqual([live(NOW).done, live(NOW).total], [1, 2])
+  assert.deepEqual([active(NOW).done, active(NOW).total], [3, 4])
+
   // A pausa de trocar de lado não aparece na Live Activity.
   const side = { sec: 30, w: 0, done: false }
   open({ active: {
@@ -215,12 +238,14 @@ test('liveEvents applies each event once, at the tap, and ignores what no longer
   act({ type: 'start', routineIds: ['r-push'], id: 'w-1' })
   const tap = (id, extra) => ({ id, wid: 'w-1', kind: 'set.done', entry: 0, set: 0, exId: BENCH, at: NOW + MIN, ...extra })
 
-  // O mesmo set.done duas vezes marca uma vez só (Foco da revisão 3).
-  const first = events([tap('e-1'), tap('e-1')], NOW + MIN + 5 * SEC)
+  // O mesmo set.done duas vezes marca uma vez só (Foco da revisão 3). O at do Swift chega com fração
+  // de ms, e a série guarda o ms inteiro.
+  const first = events([tap('e-1', { at: NOW + MIN + 0.4 }), tap('e-1', { at: NOW + MIN + 0.4 })], NOW + MIN + 5 * SEC)
   assert.deepEqual(first.applied, ['e-1'])
   assert.deepEqual(types(first.effects), ['haptic', 'rest.started', 'activity.update'])
   assert.deepEqual(first.effects[1], { type: 'rest.started', endsAt: NOW + MIN + 90 * SEC, total: 90, kind: 'rest' })
   assert.equal(doc().active.entries[0].sets[0].at, NOW + MIN); assert.equal(doc()._ts, NOW + MIN + 5 * SEC)
+  assert.deepEqual(doc().active.liveSeen, ['e-1'])
   // Um set.done de uma série já feita, e um evento de outro treino, não mudam nada.
   const before = doc().active
   assert.deepEqual(events([tap('e-2'), tap('e-3', { wid: 'outro', set: 1 })], NOW + 2 * MIN), { applied: [], effects: [] })
@@ -233,6 +258,14 @@ test('liveEvents applies each event once, at the tap, and ignores what no longer
   assert.ok(!types(late.effects).includes('rest.started')); assert.equal(doc().active.rest, null)
   const soon = events([tap('e-5', { set: 2, at: NOW + 24 * MIN })], NOW + 24 * MIN + 30 * SEC)
   assert.deepEqual(soon.effects.find(e => e.type === 'rest.started'), { type: 'rest.started', endsAt: NOW + 24 * MIN + 90 * SEC, total: 90, kind: 'rest' })
+  // O mesmo "+15 s" duas vezes soma 15 s uma vez só: o id já visto não roda de novo.
+  const plus = { id: 'e-r1', wid: 'w-1', kind: 'rest.adjust', by: 15, at: NOW + 24 * MIN + 35 * SEC }
+  const added = events([plus, plus], NOW + 24 * MIN + 40 * SEC)
+  assert.deepEqual(added.applied, ['e-r1'])
+  assert.equal(doc().active.rest.endsAt, NOW + 24 * MIN + 105 * SEC)
+  assert.deepEqual(added.effects, [{ type: 'rest.started', endsAt: NOW + 24 * MIN + 105 * SEC, total: 90, kind: 'rest' }, { type: 'activity.update' }])
+  assert.deepEqual(events([plus], NOW + 24 * MIN + 45 * SEC), { applied: [], effects: [] })
+  assert.equal(doc().active.rest.endsAt, NOW + 24 * MIN + 105 * SEC)
 
   // Adicionar um exercício muda as posições: o evento acha a entrada pelo exId (escolha do tech lead
   // nesta Task), e o de um exercício que saiu do treino é ignorado.
@@ -254,6 +287,11 @@ test('liveEvents applies each event once, at the tap, and ignores what no longer
   const pause = doc().active.rest
   assert.deepEqual(events([{ id: 'e-8', wid: 'w-2', kind: 'rest.skip', at: NOW + 2 * SEC }], NOW + 3 * SEC), { applied: [], effects: [] })
   assert.deepEqual(doc().active.rest, pause)
+  assert.deepEqual(doc().active.liveSeen, ['e-8'])
+  // O treino guarda os últimos 64 ids vistos, e o mais velho sai.
+  const many = Array.from({ length: 70 }, (_, k) => ({ id: `x-${k}`, wid: 'w-2', kind: 'rest.skip', at: NOW + 4 * SEC }))
+  events(many, NOW + 5 * SEC)
+  assert.deepEqual(doc().active.liveSeen, many.slice(-64).map(e => e.id))
 })
 
 test('a workout with a rest, reopened by restore, keeps counting from the endsAt', () => {
