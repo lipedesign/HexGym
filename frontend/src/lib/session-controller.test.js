@@ -745,7 +745,7 @@ describe('o controlador do treino: o fim', () => {
     }))
     return S
   }
-  // O treino salvo como o doFinishWorkout monta, pelas funções do lib (sheets.jsx:3756-3761).
+  // O treino salvo como o doFinishWorkout monta, pelas funções do lib (sheets.jsx:3759-3764).
   const built = (A, now, prs) => {
     const w = buildCompletedWorkout(A, {
       end: sessionEnd(A, now), prs,
@@ -903,6 +903,21 @@ describe('o controlador do treino: o fim', () => {
     expect(r.additions[0].ex[0].sg).toBeTruthy()
     expect(r.additions[0].ex[0].sg).toBe(r.additions[0].ex[1].sg)
     expect(again.result).toEqual(r)
+
+    // Dois supersets postos na mesma rotina, e um exercício sozinho: cada grupo tem um sg só dele,
+    // como o groupIds faz, e o que fica sozinho não tem sg.
+    let G = begin(doc(), ['rt'])
+    G = step(G, { type: 'exercise.add', exerciseIds: [CURL, PLANK, '0031', '0027', '0285'] }, NOW + MIN).state
+    ;['ga', 'ga', 'gb', 'gb', 'gc'].forEach((sg, i) => { G.active.entries[i + 1].sg = sg })
+    G = markAll(G, NOW + 2 * MIN)
+    const groups = finish(G, NOW + 20 * MIN).result.additions
+    const real = routineAdditions(G.active, G.routines)
+    // Cada cópia com o índice da primeira do seu grupo, ou null sem grupo.
+    const partition = ex => ex.map(c => (c.sg == null ? null : ex.findIndex(d => d.sg === c.sg)))
+    expect(groups.map(a => a.ex.map(c => c.id))).toEqual([[CURL, PLANK, '0031', '0027', '0285']])
+    expect(partition(real[0].ex)).toEqual([0, 0, 2, 2, null])
+    expect(partition(groups[0].ex)).toEqual(partition(real[0].ex))
+    expect(groups[0].ex[0].sg).not.toBe(groups[0].ex[2].sg)
   })
 
   it('a progressão aplicada: a linear 3 × 5 a 60 kg toda feita dá 62,5 no compare e no start seguinte; com uma série que falhou, fica em 60', () => {
