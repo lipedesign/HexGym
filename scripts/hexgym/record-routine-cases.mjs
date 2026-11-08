@@ -20,8 +20,10 @@
 // A grade da carga (escolha recomendada, com a delegação do Lipe de 03/11/2026): a grade inteira do QA
 // do PR #115 (282.884 casos) daria um arquivo de vários megabytes, então ficam as bordas:
 //   - os incrementos de cada unidade são os do QA (0,5, 1, 1,25, 2, 2,5, 5 e 10, que têm os padrões das
-//     duas unidades) e cada um deles trazido da outra unidade pelo convertWeight do openGym, como a
-//     troca de unidade faz com o inc de um exercício (1,25 kg vira 3 lb);
+//     duas unidades), o 0,1 e o 0,2 (QA do PR #148: num incremento menor que 0,25, a borda de 0,1 do
+//     "na grade" chega perto do meio do passo, e só ali um arredondamento trocado ou uma borda que
+//     encolhe com o incremento mudam a resposta) e cada um deles trazido da outra unidade pelo
+//     convertWeight do openGym, como a troca de unidade faz com o inc de um exercício (1,25 kg vira 3 lb);
 //   - as cargas, de 0 a 1.010: de 0 a 3, de 0,05 em 0,05 (o piso do 0 para baixo); em volta de
 //     múltiplos do incremento (os primeiros e os vizinhos de 100, 250, 500, 1.000 e 1.010), a 0, 0,05,
 //     0,1 e 0,15 para cada lado, que é a borda do "na grade" do addStep; de 10,05 em 10,05, para as
@@ -30,8 +32,8 @@
 //     múltiplo de 2,5 da outra unidade até 1.010, convertido pelo convertWeight.
 //
 // O glyphs.js importa o Icon.jsx, que o Node não lê, e não exporta o LEGACY. O gravador lê o glyphs.js
-// como texto, troca aquele import por uma lista vazia de ICON_NAMES, exporta o LEGACY e importa o
-// resultado. Com a lista vazia, o glyphOf só responde como o de verdade para uma entrada que não é o
+// como texto, troca aquele import por uma lista vazia de ICON_NAMES, exporta o LEGACY (se ele já não
+// for um export const) e importa o resultado. Com a lista vazia, o glyphOf só responde como o de verdade para uma entrada que não é o
 // nome de um ícone; por isso, toda entrada aqui é vazia ou tem um caractere fora do ASCII, e os nomes
 // dos ícones são ASCII.
 //
@@ -51,8 +53,8 @@ export const CASES_FILE = 'apple/HexGymTests/RoutineCases.json'
 const LIB = path.join(ROOT, 'frontend', 'src', 'lib')
 const ICON_IMPORT = "import { ICON_NAMES } from '../components/Icon.jsx'"
 
-// Os incrementos do QA do PR #115, e o limite de cima da grade.
-const BASE_INCREMENTS = [0.5, 1, 1.25, 2, 2.5, 5, 10]
+// Os incrementos do QA do PR #115, mais os dois pequenos do QA do PR #148, e o limite de cima da grade.
+const BASE_INCREMENTS = [0.1, 0.2, 0.5, 1, 1.25, 2, 2.5, 5, 10]
 const TOP = 1010
 
 // Um número com até duas casas, o double mais perto do decimal, como uma carga digitada ou gravada.
@@ -60,14 +62,26 @@ const two = x => Number(x.toFixed(2))
 // De from a to, de by em by, com cada valor no double do decimal.
 const range = (from, to, by) => Array.from({ length: Math.round((to - from) / by) + 1 }, (_, i) => two(from + i * by))
 
-// O glyphs.js do openGym, importado sem o Icon.jsx e com o LEGACY exportado. Um import a mais no
-// arquivo quebra o import do data: (ele não acha caminho relativo), e o erro sobe.
-export async function loadGlyphs() {
-  const source = fs.readFileSync(path.join(LIB, 'glyphs.js'), 'utf8')
-  if (source.split(ICON_IMPORT).length !== 2) throw new Error(`o frontend/src/lib/glyphs.js não tem, uma vez só, a linha: ${ICON_IMPORT}`)
-  if (!/^const LEGACY = \{/m.test(source)) throw new Error('o frontend/src/lib/glyphs.js não tem mais o const LEGACY')
-  const code = source.replace(ICON_IMPORT, 'const ICON_NAMES = []') + '\nexport { LEGACY }\n'
-  return import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
+// O glyphs.js do openGym, importado sem o Icon.jsx e com o LEGACY exportado. O source é o texto do
+// arquivo; o teste do script passa outro. Um export const LEGACY já sai exportado, e um const LEGACY
+// ganha o export no fim. Um import a mais no arquivo quebra o import do data: (ele não acha o caminho
+// a partir dele), e a mensagem diz qual, sem a URL em base64, que tem o arquivo inteiro.
+const DATA_URL = /data:text\/javascript;base64,[A-Za-z0-9+/=]+/g
+export async function loadGlyphs(source = fs.readFileSync(path.join(LIB, 'glyphs.js'), 'utf8')) {
+  const file = 'frontend/src/lib/glyphs.js'
+  if (source.split(ICON_IMPORT).length !== 2) throw new Error(`o ${file} não tem, uma vez só, a linha: ${ICON_IMPORT}`)
+  const exported = /^export const LEGACY = \{/m.test(source)
+  if (!exported && !/^const LEGACY = \{/m.test(source)) throw new Error(`o ${file} não tem o const LEGACY nem o export const LEGACY`)
+  const code = source.replace(ICON_IMPORT, 'const ICON_NAMES = []') + (exported ? '' : '\nexport { LEGACY }\n')
+  try {
+    return await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
+  } catch (err) {
+    if (err.code === 'ERR_UNSUPPORTED_RESOLVE_REQUEST') {
+      const which = err.message.match(/specifier "([^"]+)"/)?.[1]
+      throw new Error(`o ${file} importa outro módulo além do Icon.jsx${which ? ` (${which})` : ''}`)
+    }
+    throw new Error(`o ${file} não carregou: ${String(err.message).replace(DATA_URL, file)}`)
+  }
 }
 
 // Os pontos de código de um texto, em hexadecimal maiúsculo, separados por espaço.
@@ -110,11 +124,13 @@ export async function buildCases() {
   const legacy = Object.entries(LEGACY).map(([emoji, key]) => ({ emoji, codes: codesOf(emoji), key }))
 
   // Cada emoji antigo como está, com um tom de pele, com e sem o seletor de variação, com o seletor
-  // na frente e com um ZWJ a mais; e entradas que caem no padrão ou só no primeiro caractere.
+  // ou o ZWJ na frente (QA do PR #148: só ali o corte do ZWJ muda a resposta) e com um ZWJ a mais; e
+  // entradas que caem no padrão ou só no primeiro caractere.
   const strip = text => [...text].filter(c => c !== '\u{FE0F}' && c !== '\u{200D}').join('')
   const inputs = ['', '\u{FE0F}', '\u{200D}', '\u{FE0F}\u{200D}', '🐙', '🐙💪', '💪🐙', '❤️', '♀️', '🏳️‍🌈', '🇧🇷', '🏋️‍♂️', '💪🏽']
   for (const emoji of Object.keys(LEGACY)) {
-    inputs.push(emoji, `${emoji}\u{1F3FD}`, `${emoji}\u{FE0F}`, strip(emoji), `\u{FE0F}${emoji}`, `${emoji}\u{200D}\u{2642}\u{FE0F}`)
+    inputs.push(emoji, `${emoji}\u{1F3FD}`, `${emoji}\u{FE0F}`, strip(emoji), `\u{FE0F}${emoji}`, `\u{200D}${emoji}`,
+      `${emoji}\u{200D}\u{2642}\u{FE0F}`)
   }
   const glyphs = []
   for (const input of [...new Set(inputs)]) {

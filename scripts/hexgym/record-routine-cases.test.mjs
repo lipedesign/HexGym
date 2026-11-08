@@ -10,7 +10,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { addStep } from '../../frontend/src/lib/progression.js'
-import { CASES_FILE, codesOf, main, recordText } from './record-routine-cases.mjs'
+import { CASES_FILE, codesOf, loadGlyphs, main, recordText } from './record-routine-cases.mjs'
 
 // Uma pasta temporária, que sai no fim do teste, e o console calado, para a saída do teste ficar limpa.
 function sandbox(t) {
@@ -31,7 +31,7 @@ test('the cases cover kg and lb, the loads from 0 to 1010 and both directions, a
   assert.deepEqual([...new Set(groups.map(g => g.unit))], ['kg', 'lb'])
   for (const unit of ['kg', 'lb']) {
     const incs = groups.filter(g => g.unit === unit).map(g => g.increment)
-    for (const inc of [0.5, 1, 1.25, 2, 2.5, 5, 10]) assert.ok(incs.includes(inc), `${unit} sem o incremento ${inc}`)
+    for (const inc of [0.1, 0.2, 0.5, 1, 1.25, 2, 2.5, 5, 10]) assert.ok(incs.includes(inc), `${unit} sem o incremento ${inc}`)
   }
   // O 1,25 kg trazido para lb pelo convertWeight.
   assert.ok(groups.some(g => g.unit === 'lb' && g.increment === 3))
@@ -50,6 +50,39 @@ test('the cases cover kg and lb, the loads from 0 to 1010 and both directions, a
   // Com o tom de pele, o mapa não acha, e o glyphOf tenta de novo com o primeiro caractere.
   assert.equal(glyphOf.find(e => e.input === '💪🏽').key, 'arm')
   assert.equal(glyphOf.find(e => e.input === '🐙').key, 'figureStrength')
+  // Cada emoji antigo também com o ZWJ na frente (QA do PR #148). O corte tira o ZWJ e acha o 💪; o
+  // ⛰️ não, porque o primeiro caractere fica sem o seletor, e o LEGACY só tem o ⛰️ com ele.
+  for (const e of legacy) assert.ok(glyphOf.some(g => g.codes === `200D ${e.codes}`), `sem o ZWJ na frente de ${e.codes}`)
+  assert.equal(glyphOf.find(g => g.codes === '200D 1F4AA').key, 'arm')
+  assert.equal(glyphOf.find(g => g.codes === '200D 26F0 FE0F').key, 'figureStrength')
+})
+
+// O glyphs.js de verdade, com uma mudança no texto.
+const glyphsSource = () => fs.readFileSync(new URL('../../frontend/src/lib/glyphs.js', import.meta.url), 'utf8')
+
+test('the glyphs.js loader takes an exported LEGACY as it is', async () => {
+  const source = glyphsSource().replace(/^const LEGACY = \{/m, 'export const LEGACY = {')
+  const { LEGACY, glyphOf } = await loadGlyphs(source)
+  assert.equal(Object.keys(LEGACY).length, 42)
+  assert.equal(glyphOf('💪'), 'arm')
+  // Sem o const LEGACY nos dois jeitos, a mensagem diz isso.
+  await assert.rejects(loadGlyphs(glyphsSource().replace(/^const LEGACY = /m, 'const OLD = ')),
+    { message: 'o frontend/src/lib/glyphs.js não tem o const LEGACY nem o export const LEGACY' })
+})
+
+test('an extra import in glyphs.js says which one, without the base64 URL', async () => {
+  const source = `import { x } from './outro.js'\n${glyphsSource()}`
+  await assert.rejects(loadGlyphs(source), err => {
+    assert.equal(err.message, 'o frontend/src/lib/glyphs.js importa outro módulo além do Icon.jsx (./outro.js)')
+    assert.doesNotMatch(err.message, /base64/)
+    return true
+  })
+  // Outro erro ao carregar também sai sem a URL.
+  await assert.rejects(loadGlyphs(`${glyphsSource()}\nexport const = 1\n`), err => {
+    assert.match(err.message, /^o frontend\/src\/lib\/glyphs\.js não carregou: /)
+    assert.doesNotMatch(err.message, /base64/)
+    return true
+  })
 })
 
 test('--check fails when the file is stale or missing, and recording brings it back', async t => {
