@@ -38,7 +38,7 @@ nonisolated struct WeekPlanText: Sendable {
   private let shortDays, fullDays, sentenceDays: [String]
   let rest: String
   let restDay: String
-  private let oneDay, manyDays, changesFormat: String
+  private let oneDay, manyDays, changesFormat, loadedFormat, loadTitleFormat: String
   private let names, abouts: [String: String]
   let routines: RoutineEditorText
 
@@ -62,6 +62,8 @@ nonisolated struct WeekPlanText: Sendable {
     oneDay = AppText.text("1 day per week", locale: locale)
     manyDays = AppText.text("%lld days per week", locale: locale)
     changesFormat = AppText.text("This plan changes %@.", locale: locale)
+    loadedFormat = AppText.text("%@ plan loaded", locale: locale)
+    loadTitleFormat = AppText.text("Load the %@ plan?", locale: locale)
     // Os nomes e as descrições do PLAN_COPY do sheets.jsx, no catálogo do app.
     names = [
       "ppl": AppText.text("Push / Pull / Legs", locale: locale),
@@ -89,6 +91,16 @@ nonisolated struct WeekPlanText: Sendable {
   // "Este plano troca segunda, quarta e sexta."
   func changes(_ days: [Int]) -> String {
     String(format: changesFormat, locale: locale, list(days.map { sentenceDays[$0] }))
+  }
+
+  // "Plano Empurrar, puxar, pernas carregado", o anúncio do VoiceOver.
+  func loaded(_ planName: String) -> String {
+    String(format: loadedFormat, locale: locale, planName)
+  }
+
+  // "Carregar o plano Corpo inteiro?", o título do aviso.
+  func loadTitle(_ planName: String) -> String {
+    String(format: loadTitleFormat, locale: locale, planName)
   }
 
   func daysPerWeek(_ count: Int) -> String {
@@ -268,6 +280,23 @@ nonisolated struct WeekPlanModel: Sendable {
 
   func planName(_ id: String) -> String {
     text.planName(id) ?? id
+  }
+}
+
+// O anúncio de um plano carregado ("Plano Empurrar, puxar, pernas carregado") sai só depois de um
+// atraso, quando a tela dos planos já fechou e o foco do VoiceOver já assentou na aba: um anúncio feito
+// junto com a troca de foco pode ser cortado por ela (nota 4 do QA do PR #119). A tela passa quem fala
+// (o AccessibilityNotification.Announcement), e o teste, quem escuta.
+nonisolated enum PlanLoadedAnnouncement {
+  static let delay = Duration.milliseconds(700)
+
+  @MainActor @discardableResult
+  static func schedule(_ message: String, after delay: Duration = PlanLoadedAnnouncement.delay,
+                       post: @escaping @MainActor (String) -> Void) -> Task<Void, Never> {
+    Task { @MainActor in
+      do { try await Task.sleep(for: delay) } catch { return }
+      post(message)
+    }
   }
 }
 

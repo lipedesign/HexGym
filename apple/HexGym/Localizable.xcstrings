@@ -21,17 +21,6 @@
         }
       }
     },
-    "%@ loaded" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ carregado"
-          }
-        }
-      }
-    },
     "%@ on the background" : {
       "localizations" : {
         "pt-BR" : {
@@ -48,6 +37,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ no cartão"
+          }
+        }
+      }
+    },
+    "%@ plan loaded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plano %@ carregado"
           }
         }
       }
@@ -1309,22 +1309,23 @@
         }
       }
     },
-    "Load %@?" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carregar %@?"
-          }
-        }
-      }
-    },
     "Load plan" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Carregar plano"
+          }
+        }
+      }
+    },
+    "Load the %@ plan?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregar o plano %@?"
           }
         }
       }

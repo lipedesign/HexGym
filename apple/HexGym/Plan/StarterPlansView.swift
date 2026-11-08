@@ -8,18 +8,21 @@
 // trocar, então o plano entra no primeiro toque.
 //
 // O StarterPlansSheet é o item "Planos prontos" do menu da barra, quando já há rotinas: a mesma lista,
-// numa tela que sobe. Quando o plano troca um dia que tinha rotina, o aviso da Apple
-// (confirmationDialog) diz quais antes de aplicar ("Este plano troca segunda, quarta e sexta."), e as
-// rotinas de antes ficam. Sem dia para trocar, o plano entra no primeiro toque, como no openGym.
+// numa tela que sobe. Quando o plano troca um dia que tinha rotina, o alerta da Apple diz quais antes
+// de aplicar ("Este plano troca segunda, quarta e sexta."), com "Cancelar" e "Carregar plano" sempre à
+// vista (achado 1 do QA do PR #119: o confirmationDialog no iPhone escondia o "Cancelar"), e as rotinas
+// de antes ficam. Sem dia para trocar, o plano entra no primeiro toque, como no openGym.
 //
-// Depois de carregar, o VoiceOver anuncia o plano carregado, como a mensagem do openGym.
+// Depois de carregar, o VoiceOver anuncia "Plano <nome> carregado", como a mensagem do openGym, um pouco
+// depois de a tela fechar (PlanLoadedAnnouncement).
 //
 // A regra da #71 vale aqui: o texto fica em branco e nos cinzas do sistema; a cor do tema só aparece no
 // ícone do plano, sobre o cartão do sistema, e no botão principal.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o ícone da prancheta em cada plano, como o
 // openGym; o título no estilo de título do HexDesign e uma linha sobre o que é uma rotina embaixo dele;
-// no aviso, o "Carregar plano" e a frase de que as rotinas de antes ficam.
+// no aviso, o título "Carregar o plano <nome>?", o "Carregar plano" e a frase de que as rotinas de antes
+// ficam.
 import HexDesign
 import HexEngine
 import SwiftUI
@@ -75,9 +78,11 @@ struct StarterPlansView: View {
     guard loading == nil else { return }
     loading = plan.id
     Task {
-      if await screen.loadPlan(plan.id) { StarterPlanAnnouncement.post(screen.text, plan) }
+      let done = await screen.loadPlan(plan.id)
       await loaded()
       loading = nil
+      // A tela vazia dá lugar à semana, e o foco muda: o anúncio sai depois.
+      if done { StarterPlanAnnouncement.post(screen.text, plan) }
     }
   }
 }
@@ -115,9 +120,9 @@ struct StarterPlansSheet: View {
           Button("Cancel") { dismiss() }
         }
       }
-      .confirmationDialog(confirmTitle, isPresented: confirmingShown, titleVisibility: .visible, presenting: confirming) { plan in
-        Button("Load plan") { load(plan) }
+      .alert(confirmTitle, isPresented: confirmingShown, presenting: confirming) { plan in
         Button("Cancel", role: .cancel) {}
+        Button("Load plan") { load(plan) }
       } message: { plan in
         Text(verbatim: [screen.model?.warning(forPlan: plan.id) ?? "", AppText.text("Your routines stay.", locale: screen.text.locale)]
           .joined(separator: " "))
@@ -128,7 +133,7 @@ struct StarterPlansSheet: View {
 
   private var confirmTitle: Text {
     guard let confirming else { return Text(verbatim: "") }
-    return Text("Load \(confirming.name)?")
+    return Text(verbatim: screen.text.loadTitle(confirming.name))
   }
 
   private var confirmingShown: Binding<Bool> {
@@ -152,8 +157,9 @@ struct StarterPlansSheet: View {
       await loaded()
       loading = nil
       if done {
-        StarterPlanAnnouncement.post(screen.text, plan)
         dismiss()
+        // Depois de a tela fechar, para a troca de foco não cortar a fala.
+        StarterPlanAnnouncement.post(screen.text, plan)
       }
     }
   }
@@ -216,10 +222,10 @@ struct StarterPlanButton: View {
   }
 }
 
-// "Empurrar, puxar, pernas carregado", para o VoiceOver, como a mensagem do openGym.
+// "Plano Empurrar, puxar, pernas carregado", para o VoiceOver, como a mensagem do openGym, com o atraso
+// do PlanLoadedAnnouncement.
 enum StarterPlanAnnouncement {
   @MainActor static func post(_ text: WeekPlanText, _ plan: StarterPlanRow) {
-    let format = AppText.text("%@ loaded", locale: text.locale)
-    AccessibilityNotification.Announcement(String(format: format, locale: text.locale, plan.name)).post()
+    PlanLoadedAnnouncement.schedule(text.loaded(plan.name)) { AccessibilityNotification.Announcement($0).post() }
   }
 }

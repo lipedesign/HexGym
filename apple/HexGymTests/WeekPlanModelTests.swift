@@ -3,7 +3,9 @@
 // curtos e por extenso; um dia sem rotina diz "Descanso", na linha e no VoiceOver; com o motor de
 // verdade, o plano PPL deixa segunda, quarta e sexta com as rotinas dele e os outros dias como estavam;
 // e o aviso de um plano pronto diz só os dias que ele troca de fato, conferido contra o que o motor faz
-// em cada um dos quatro planos (e a tabela dos planos, contra as rotinas que o motor cria).
+// em cada um dos quatro planos (e a tabela dos planos, contra as rotinas que o motor cria). E o da nota 4
+// do QA do PR #119: o anúncio "Plano <nome> carregado" sai só depois de um atraso, quando a tela dos
+// planos já fechou, para a troca de foco não cortar a fala do VoiceOver.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -154,5 +156,28 @@ import Testing
         }
       }
     }
+  }
+
+  @Test func theLoadedAnnouncementWaitsUntilTheSheetHasClosed() async throws {  // nota 4 do QA do PR #119
+    let pt = WeekPlanText(locale: portuguese), en = WeekPlanText(locale: english)
+    #expect(pt.loaded("Empurrar, puxar, pernas") == "Plano Empurrar, puxar, pernas carregado")
+    #expect(en.loaded("Push / Pull / Legs") == "Push / Pull / Legs plan loaded")
+    // O título do aviso, pelo mesmo catálogo.
+    #expect(pt.loadTitle("Corpo inteiro") == "Carregar o plano Corpo inteiro?")
+    #expect(en.loadTitle("Full Body") == "Load the Full Body plan?")
+    // A fala não sai na hora: só depois do atraso, que dá tempo de a tela fechar e o foco assentar.
+    #expect(PlanLoadedAnnouncement.delay >= .milliseconds(500))
+    let spoken = Spoken()
+    let clock = ContinuousClock(), start = clock.now
+    let task = PlanLoadedAnnouncement.schedule("Plano 5×5 carregado") { spoken.lines.append($0) }
+    #expect(spoken.lines.isEmpty, "o anúncio não sai antes de a tela fechar")
+    await task.value
+    #expect(spoken.lines == ["Plano 5×5 carregado"])
+    #expect(clock.now - start >= PlanLoadedAnnouncement.delay)
+  }
+
+  // O que o VoiceOver teria dito, no lugar do anúncio de verdade.
+  @MainActor final class Spoken {
+    var lines: [String] = []
   }
 }
