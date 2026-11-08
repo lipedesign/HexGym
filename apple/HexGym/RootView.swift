@@ -7,6 +7,11 @@
 // (Task 10); o Histórico mostra um ContentUnavailableView até a Task 12 da fase 3. O detalhe de um erro
 // vai para o log, nunca para a tela.
 //
+// A tela do treino (Task 8 da fase 3) cobre as abas, num fullScreenCover, e abre pelo zoom do "Começar
+// treino" (WorkoutLauncher): a origem é o botão principal do Início ou o "Começar" do editor de rotina, que
+// recebem o namespace e o lançador pelo ambiente (workoutDoor). Se o começo falhar, um alerta da Apple
+// diz. Com -HexGymWorkout YES, a tela abre sozinha quando há um treino em andamento.
+//
 // Antes das abas, a primeira abertura (Task 7), quando o documento foi criado agora ou quando este
 // aparelho nunca a viu (OnboardingLaunch.shouldShow). No fim dela, as abas entram com um esmaecido.
 //
@@ -101,6 +106,12 @@ private struct RootTabs: View {
   // A galeria já aberta nos Ajustes quando o app começa com -HexGymGallery YES, ou as Licenças, para os
   // prints e o vídeo (SettingsLaunch.path).
   @State private var settingsPath = SettingsLaunch.path
+  // A tela do treino: quem abre e o estado dela, fora da view (StartWorkoutTransition), e o namespace do
+  // zoom.
+  @State private var launcher: WorkoutLauncher
+  @State private var workout: WorkoutScreen
+  @Namespace private var zoom
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   init(model: AppModel) {
     self.model = model
@@ -108,6 +119,8 @@ private struct RootTabs: View {
     _library = State(initialValue: LibraryModel(app: model))
     _routines = State(initialValue: RoutinesScreen(app: model))
     _pickLibrary = State(initialValue: LibraryModel(app: model))
+    _launcher = State(initialValue: WorkoutLauncher(app: model))
+    _workout = State(initialValue: WorkoutScreen(app: model))
   }
 
   var body: some View {
@@ -146,6 +159,21 @@ private struct RootTabs: View {
         }
         .background { BreathingGlow() }
       }
+    }
+    .environment(\.workoutDoor, WorkoutDoor(namespace: zoom, launcher: launcher))
+    .fullScreenCover(isPresented: $launcher.isPresented) {
+      WorkoutView(screen: workout) { launcher.close(reduceMotion: reduceMotion) }
+        .hexStartWorkoutDestination(id: launcher.source, in: zoom)
+    }
+    .alert("Couldn't start the workout.", isPresented: $launcher.startFailed) {
+      Button("OK", role: .cancel) {}
+    }
+    // O treino em andamento chegou (o -HexGymWorkout YES ou o -HexGymWorkoutDemo inicio), ou acabou com
+    // a tela aberta: a tela fecha.
+    .onChange(of: model.session.workout?.id, initial: true) { _, id in
+      if id == nil, launcher.isPresented { launcher.close(reduceMotion: reduceMotion) }
+      launcher.openOnLaunch()
+      Task { await launcher.runDemo(workout, reduceMotion: reduceMotion) }
     }
   }
 }

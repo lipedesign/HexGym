@@ -421,6 +421,8 @@ NavigationStack(path: $caminho) {
 
 - A origem (`hexStartWorkoutSource`) marca o botão de onde o zoom sai, e o destino (`hexStartWorkoutDestination`) põe o zoom na tela do treino.
 - Quem abre a tela do treino o faz dentro de `withTransaction(StartWorkoutTransition.transaction(reduceMotion:))`.
+- **Num `fullScreenCover`** (a tela do treino do app, Task 8 da fase 3): o destino vai no conteúdo da folha, e o `isPresented` muda dentro da mesma transação. Medido no simulador do iOS 27.0, com o Reduzir Movimento ligado nos Ajustes: a tela aparece e some sem se mover ([prints/137](../prints/137/15-video-reduzir-movimento.mp4)).
+- **Num item da barra:** `hexStartWorkoutSource(id:in:)` também existe para `ToolbarContent` (só no iOS), pelo `matchedTransitionSource` dos itens de barra do iOS 26, para o zoom sair de um botão da barra, como o "Começar" do editor de rotina. Vai no `ToolbarItem`, não no botão de dentro.
 - **Pelo caminho da pilha:** a tela entra com `append` no caminho do `NavigationStack(path:)`. Medido no simulador do iOS 27.0: com `navigationDestination(isPresented:)`, a transação sem animação não chega ao empurrão da pilha, e com Reduzir Movimento a tela entra deslizando da direita; pelo caminho, ela aparece de uma vez.
 
 ![A transição no simulador: o botão, o zoom no meio e a tela do treino](imagens/simulador-transicao.png)

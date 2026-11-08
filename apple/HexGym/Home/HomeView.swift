@@ -13,9 +13,9 @@
 // A tela lê o motor de novo a cada revision do documento e ao voltar para a frente, porque o dia pode ter
 // virado.
 //
-// Até a Task 8, o "Começar treino" começa o treino e o Início passa a mostrar o treino em andamento, sem
-// abrir tela nenhuma, e o "Continuar treino" não abre nada; até a Task 12, o último treino não abre o
-// detalhe.
+// O "Começar treino" começa o treino e abre a tela do treino, e o "Continuar treino" abre a do treino em
+// andamento (Task 8): o botão principal é a origem do zoom, e quem começa e abre é o WorkoutLauncher do
+// RootView, pelo ambiente (workoutDoor). Até a Task 12, o último treino não abre o detalhe.
 //
 // A regra da #71 vale aqui: no cartão de vidro, o texto vai só em branco; a cor do tema fica na semana, na
 // chama da sequência e nos botões, sobre o fundo da tela; o último treino fica no cartão do sistema.
@@ -35,16 +35,16 @@ struct HomeView: View {
   let screen: HomeScreen
   // O botão do app vazio leva para a aba Rotinas.
   let goToRoutines: () -> Void
-  // O "Continuar treino": a tela do treino é da Task 8.
-  var resume: () -> Void = {}
 
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.workoutDoor) private var door
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   var body: some View {
     ScrollViewReader { proxy in
       ScrollView {
         if let model = screen.model {
-          HomeContent(model: model, starting: screen.starting, start: start, goToRoutines: goToRoutines, resume: resume)
+          HomeContent(model: model, starting: door?.launcher.starting ?? false, start: start, goToRoutines: goToRoutines, resume: resume)
         }
       }
       .onChange(of: screen.phase) { _, phase in
@@ -68,8 +68,15 @@ struct HomeView: View {
     .containerBackground(.clear, for: .navigation)
   }
 
+  // Começa o treino e abre a tela pelo zoom do botão principal.
   private func start(_ routineIDs: [String]) {
-    Task { await screen.start(routineIDs) }
+    let reduceMotion = reduceMotion
+    Task { await door?.launcher.start(routineIDs, from: .home, reduceMotion: reduceMotion) }
+  }
+
+  // O "Continuar treino": a tela do treino em andamento, pelo mesmo zoom.
+  private func resume() {
+    door?.launcher.open(from: .home, reduceMotion: reduceMotion)
   }
 
   @ViewBuilder private var overlay: some View {
@@ -98,6 +105,7 @@ private struct HomeContent: View {
       VStack(spacing: HexSpacing.s) {
         TodayCard(model: model, goToRoutines: goToRoutines)
         primary
+          .modifier(WorkoutZoomSource(source: .home))
           .id(HomeAnchor.primary)
         if model.offersChooser {
           chooser

@@ -110,9 +110,34 @@ import os
 
 // O argumento de início da tela do treino, para os prints e os testes: com -HexGymWorkout YES, o app
 // abre na tela do treino quando há um em andamento. Vem do domínio dos argumentos dos UserDefaults
-// padrão, que não fica gravado. Quem abre a tela é a Task 8.
+// padrão, que não fica gravado. Quem abre a tela é o WorkoutLauncher (Task 8), uma vez, sem animação.
 enum WorkoutLaunch {
   static func opensWorkout(_ defaults: UserDefaults = .standard) -> Bool {
     defaults.bool(forKey: "HexGymWorkout")
+  }
+
+  // Com -HexGymWorkoutTop YES junto (Task 8), a tela abre no topo, com o cabeçalho, sem rolar até a série
+  // do painel: só para os prints.
+  static func opensAtTop(_ defaults: UserDefaults = .standard) -> Bool {
+    defaults.bool(forKey: "HexGymWorkoutTop")
+  }
+
+  // Com -HexGymWorkoutEntry <n> junto (Task 8), a tela abre com a última série do exercício n (contando
+  // do 0) logo acima do painel, para o print do superset mostrar os dois cartões do grupo.
+  static func entry(_ defaults: UserDefaults = .standard) -> Int? {
+    defaults.object(forKey: "HexGymWorkoutEntry") == nil ? nil : defaults.integer(forKey: "HexGymWorkoutEntry")
+  }
+
+  // Com -HexGymWorkoutPanel YES junto (Task 8), nos tamanhos de acessibilidade, a tela abre no fim do
+  // painel, que fica na lista, para o print das entradas empilhadas e do botão.
+  static func opensAtPanelEnd(_ defaults: UserDefaults = .standard) -> Bool {
+    defaults.bool(forKey: "HexGymWorkoutPanel")
+  }
+
+  // Com -HexGymWorkoutDemo inicio ou rotina (Task 8), o roteiro de um vídeo do PR: do Início
+  // (WorkoutLauncher.runDemo) ou do editor de rotina (RoutineEditorView), aberto com -HexGymTab rotinas
+  // -HexGymRoutine <id>.
+  static func demo(_ defaults: UserDefaults = .standard) -> String? {
+    defaults.string(forKey: "HexGymWorkoutDemo")
   }
 }

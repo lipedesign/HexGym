@@ -48,13 +48,39 @@ enum FixtureLoader {
       let folder = FileManager.default.temporaryDirectory
         .appending(path: "hexgym-fixture-\(name)-\(UUID().uuidString)", directoryHint: .isDirectory)
       try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-      try document(named: name, now: now).write(to: folder.appending(path: "state.json"), options: .atomic)
+      try withEffort(document(named: name, now: now), effort()).write(to: folder.appending(path: "state.json"), options: .atomic)
       logger.info("documento preparado \(name, privacy: .public) aberto numa pasta temporária")
       return DocumentStore(directory: folder)
     } catch {
       logger.error("não deu para abrir o documento preparado \(name, privacy: .public): \(String(describing: error), privacy: .public)")
       return nil
     }
+  }
+
+  // O esforço por série pedido com -HexGymEffort <rir|rpe> (Task 8 do plano da fase 3), para os prints do
+  // painel do treino com a entrada de esforço: o documento preparado abre com esse effort no perfil, e as
+  // séries por fazer do treino em andamento com um esforço já escolhido (2 de RIR, 8 de RPE), para o
+  // print mostrar a escala com um número. Sem o argumento, ou com outro valor, o documento fica como está.
+  static func effort(_ defaults: UserDefaults = .standard) -> String? {
+    defaults.string(forKey: "HexGymEffort").flatMap { ["rir", "rpe"].contains($0) ? $0 : nil }
+  }
+
+  private static func withEffort(_ data: Data, _ effort: String?) throws -> Data {
+    guard let effort, var doc = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { return data }
+    doc["effort"] = effort
+    if var active = doc["active"] as? [String: Any], let entries = active["entries"] as? [[String: Any]] {
+      active["entries"] = entries.map { entry in
+        var entry = entry
+        entry["sets"] = (entry["sets"] as? [[String: Any]])?.map { set in
+          var set = set
+          if set["done"] as? Bool != true { set[effort] = effort == "rir" ? 2 : 8 }
+          return set
+        }
+        return entry
+      }
+      doc["active"] = active
+    }
+    return try JSONSerialization.data(withJSONObject: doc)
   }
 
   // O documento preparado levado para o now, sem o _fixtureNow.
