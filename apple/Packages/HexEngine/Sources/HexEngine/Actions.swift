@@ -132,6 +132,9 @@ public enum EngineAction: Encodable, Sendable {
   case loadStarterPlan(id: String)
   case setSetting(SettingChange)
   case toggleFavourite(id: String)
+  // Apaga o treino da chave (a do histórico, Workouts.swift) pelo sameWorkout do openGym, sem levar
+  // junto outro treino antigo sem id. Uma chave que não existe volta como o TypeError do motor.
+  case deleteWorkout(key: String)
 
   private enum Keys: String, CodingKey {
     case type, name, id, glyph, from, to, snapshot, routineId, exerciseIds, at, index, exerciseId, fields, day, routineIds, planId
@@ -181,6 +184,8 @@ public enum EngineAction: Encodable, Sendable {
       try type("settings.set"); try c.encode(change.key, forKey: .key); try c.encode(change.value, forKey: .value)
     case .toggleFavourite(let id):
       try type("favourite.toggle"); try c.encode(id, forKey: .id)
+    case .deleteWorkout(let key):
+      try type("workout.delete"); try c.encode(key, forKey: .key)
     }
   }
 

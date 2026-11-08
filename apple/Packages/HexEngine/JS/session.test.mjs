@@ -161,7 +161,7 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.equal(after.today.status, 'done'); assert.equal(after.active, null)
   assert.deepEqual(after.week.map(d => d.trained), [true, false, false, false, false, false, false])
   assert.deepEqual([after.streakWeeks, after.weekCount, after.total], [1, 1, 1])
-  assert.deepEqual(after.last, { id: 'w-1', name: 'Push', d: '2026-11-09', durationMs: 20 * MIN, sets: 1 })
+  assert.deepEqual(after.last, { key: 'w-1', id: 'w-1', name: 'Push', d: '2026-11-09', durationMs: 20 * MIN, sets: 1 })
 
   // A semana que começa no domingo, e o documento novo, sem rotinas e sem histórico (Foco da revisão 5).
   open({ ...PPL, weekStart: 0 })

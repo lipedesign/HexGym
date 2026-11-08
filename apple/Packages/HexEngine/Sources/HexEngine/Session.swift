@@ -215,7 +215,9 @@ public struct HomeSummary: Codable, Equatable, Sendable {
   public struct Today: Codable, Equatable, Sendable { public let date: String, status: String; public let routines: [Routine] }
   public struct Active: Codable, Equatable, Sendable { public let name: String; public let start: Date?; public let done: Int, total: Int }
   public struct Day: Codable, Equatable, Sendable { public let day: Int, date: String; public let trained: Bool, planned: Bool, today: Bool }
-  public struct Last: Codable, Equatable, Sendable { public let id: String?, name: String, d: String?; public let durationMs: Double; public let sets: Int }
+  // O último treino; a key é a do histórico (Workouts.swift), que abre o detalhe também de um treino
+  // antigo sem id.
+  public struct Last: Codable, Equatable, Sendable { public let key: String; public let id: String?, name: String, d: String?; public let durationMs: Double; public let sets: Int }
 
   public let today: Today
   public let active: Active?

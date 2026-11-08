@@ -23,6 +23,7 @@ import { clustersOf, dropsOf, isDropSet, isRestPauseSet, isSideSet, isWarmupRow 
 import { EXIDX, defaultIncrement } from '../../../../frontend/src/lib/exercises.js'
 import { weightIncrement } from '../../../../frontend/src/lib/progression.js'
 import { exerciseNameFor, t } from '../../../../frontend/src/lib/i18n-core.js'
+import { legacySyncKey } from '../../../../frontend/src/lib/workout-date.js'
 import { glyphStr } from '../../../../api/coach/core/glyphs.js'
 
 // As séries depois da atual que a Live Activity leva, para o "Série feita" dela andar sem o app
@@ -73,20 +74,20 @@ export function apply(prev, action, now) {
 
 // A configuração de uma entrada como a tela do openGym monta: o alvo com o id do exercício.
 const cfgOf = e => ({ ...(isMap(e?.target) ? e.target : {}), id: e?.id })
-const knownEx = id => typeof id === 'string' && Object.hasOwn(EXIDX, id)
+export const knownEx = id => typeof id === 'string' && Object.hasOwn(EXIDX, id)
 // O nome de um exercício, ou o "Exercício desconhecido" do openGym (exOr) quando ele não existe
 // neste aparelho (apagado, ou personalizado de outro), sem derrubar a tela (Foco da revisão 5).
-const nameOf = id => (knownEx(id) ? exerciseNameFor(EXIDX[id]) : t('Unknown exercise'))
+export const nameOf = id => (knownEx(id) ? exerciseNameFor(EXIDX[id]) : t('Unknown exercise'))
 
 // O sg de uma entrada, em texto, ou null.
-function groupOf(e) {
+export function groupOf(e) {
   const v = e?.sg
   return (typeof v === 'string' || typeof v === 'number') && String(v) ? String(v) : null
 }
 
 // A letra de cada superset, na ordem em que aparecem: A, B, C... Só os supersets de verdade (dois ou
 // mais exercícios vizinhos com o mesmo sg, as unidades do supersetUnits) ganham letra.
-function supersetLetters(entries) {
+export function supersetLetters(entries) {
   const letters = new Map()
   for (const unit of supersetUnits(entries)) {
     if (unit.length < 2) continue
@@ -110,7 +111,7 @@ function kindOf(mode, s) {
 // o drop set, o rest-pause, o peso do corpo, o halter que diz "cada" ou "total", a de tempo e o
 // cardio leem como o setLabel do openGym os escreve ("L 15×8 · R 15×7", "0:45 · 10",
 // "20 min @ 8 km/h"), porque é lá que mora o formato de cada um.
-function lineOf(S, e, s) {
+export function lineOf(S, e, s) {
   const cfg = cfgOf(e)
   const mode = modeOf(cfg)
   const plain = mode === 'reps' && !isSideSet(s) && !dropsOf(s).length && !clustersOf(s).length && !isBw(cfg)
@@ -226,15 +227,37 @@ const planned = S => ({
   workouts: list(S.workouts).filter(isMap),
 })
 
-// O treino mais novo, pelo dia (workoutDay) e depois o começo.
+// A ordem dos treinos do mais novo para o mais antigo, uma só para o último treino do Início (aqui) e
+// para o Histórico (workouts.js), para os dois nunca discordarem: o dia (workoutDay), depois o
+// começo, e, no mesmo dia e começo, o guardado depois primeiro, como o historyRows do openGym
+// (views/History.jsx:13-19), que desempata pela posição. A chave de cada treino é lida uma vez, porque
+// o workoutDay cria datas, e o histórico pode ter mil treinos.
+const orderKey = (w, i) => ({ w, i, day: workoutDay(w) || '', start: Number(w.start) || 0 })
+const newerFirst = (a, b) => (a.day !== b.day ? (a.day > b.day ? -1 : 1) : a.start !== b.start ? b.start - a.start : b.i - a.i)
+
+/**
+ * A chave de um treino, a do sameWorkout do openGym (lib/workout-date.js): o id, ou o legacySyncKey
+ * ("<dia>|<começo>") quando o treino é antigo e não tem id. É a regra do keyOf do lib/session-edit.js,
+ * porque o syncKeyOf de lá não é exportado. Mora aqui, com a ordem, para o último treino do Início e
+ * o Histórico (workouts.js) darem a mesma chave sem um importar o outro de volta.
+ */
+export const keyOf = w => (w?.id != null ? w.id : legacySyncKey(w))
+// A chave em texto, como o Swift manda de volta e a sincronização guarda (o entryKey do sync-merge.js).
+export const keyText = w => String(keyOf(w))
+
+/** Os treinos do mais novo para o mais antigo, numa lista nova. */
+export function byNewest(workouts) {
+  return workouts.map(orderKey).sort(newerFirst).map(k => k.w)
+}
+
+// O treino mais novo, o primeiro do byNewest, sem ordenar a lista inteira.
 function newest(workouts) {
   let best = null
-  let key = null
-  for (const w of workouts) {
-    const k = [workoutDay(w) || '', Number(w.start) || 0]
-    if (!best || k[0] > key[0] || (k[0] === key[0] && k[1] >= key[1])) { best = w; key = k }
-  }
-  return best
+  workouts.forEach((w, i) => {
+    const k = orderKey(w, i)
+    if (!best || newerFirst(k, best) < 0) best = k
+  })
+  return best ? best.w : null
 }
 
 /**
@@ -274,7 +297,9 @@ export function home(S0, now) {
     streakWeeks: streakWeeks(S),
     weekCount: weekTally(S, today).done,
     total: S.workouts.length,
+    // O último treino leva a chave do Histórico, para o Início abrir o detalhe de um treino antigo sem id.
     last: last ? {
+      key: keyText(last),
       id: last.id != null ? String(last.id) : null,
       name: typeof last.name === 'string' ? last.name : '',
       d: workoutDay(last),
