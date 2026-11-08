@@ -20,6 +20,13 @@
 // 2): o motor muda e carimba o documento, e o app grava pelo DocumentStore. A gravação junta as ações
 // de 0,5 s numa só, e o flush() grava na hora, quando o app vai para o fundo (HexGymApp). As telas
 // leem pelo engine e leem de novo quando o revision sobe.
+//
+// O treino em andamento (Task 6 do plano da fase 3) é o session, o WorkoutSession deste AppModel: as
+// ações do treino passam pelo perform(_: SessionAction), com a mesma gravação das outras ações, e o
+// session executa os efeitos delas (o háptico, o aviso do descanso e a Live Activity).
+//
+// Com -HexGymFixture <nome>, só no build Debug, o live() abre um documento preparado numa pasta
+// temporária nova, nunca no App Group (FixtureLoader).
 
 import Foundation
 import HexEngine
@@ -45,6 +52,12 @@ import os
   // O start() roda uma vez só, mesmo que a janela peça de novo.
   private var started = false
 
+  // O aviso do descanso e a Live Activity do treino, que o session usa.
+  private let alerts: any RestAlerts
+  private let activity: any WorkoutActivityControlling
+  // O treino em andamento, criado na primeira vez que alguém pede.
+  @ObservationIgnored private(set) lazy var session = WorkoutSession(model: self, alerts: alerts, activity: activity)
+
   // As ações de 0,5 s viram uma gravação só.
   static let saveDelay = Duration.milliseconds(500)
   // Há mudança no motor que ainda não foi gravada.
@@ -59,9 +72,13 @@ import os
 
   private static let logger = Logger(subsystem: "app.hexgym", category: "app")
 
-  init(engine: HexEngine, store: DocumentStore?) {
+  // O aviso do descanso e a Live Activity que não fazem nada são os do app até as Tasks 9 e 13.
+  init(engine: HexEngine, store: DocumentStore?,
+       alerts: any RestAlerts = SilentRestAlerts(), activity: any WorkoutActivityControlling = SilentWorkoutActivity()) {
     self.engine = engine
     self.store = store
+    self.alerts = alerts
+    self.activity = activity
   }
 
   func start() async {
@@ -98,11 +115,24 @@ import os
   // um documento que não leu (Foco da revisão 1). Uma ação inválida lança o erro do motor, e nada
   // muda. Devolve o resultado da ação.
   func perform(_ action: EngineAction) async throws -> ActionOutcome {
+    try await change(changed: \ActionOutcome.changed) { try await engine.apply(action) }
+  }
+
+  // Uma ação do treino, com a mesma gravação: o motor roda o controlador do treino e carimba o
+  // documento com o now, que é também o instante da ação (a hora da série marcada, o começo do
+  // descanso). Quem executa os efeitos é o session.
+  func perform(_ action: SessionAction, now: Date = .now) async throws -> SessionOutcome {
+    try await change(changed: \SessionOutcome.changed) { try await engine.session(action, now: now) }
+  }
+
+  // O caminho de toda ação: nada antes de o documento abrir, o revision e a gravação quando ela
+  // mudou o documento, e o flush() esperando por ela enquanto roda no motor.
+  private func change<Outcome>(changed: (Outcome) -> Bool, _ run: () async throws -> Outcome) async throws -> Outcome {
     guard case .ready = state else { throw EngineError.notLoaded }
     applying += 1
     defer { finishApply() }
-    let outcome = try await engine.apply(action)
-    if outcome.changed {
+    let outcome = try await run()
+    if changed(outcome) {
       revision += 1
       dirty = true
       scheduleSave()
@@ -170,6 +200,11 @@ import os
   // O app de verdade: o documento na pasta do App Group. Quando ela não abre, o store é nil, e o
   // appGroupDirectory já disse no log por quê.
   static func live() -> AppModel {
+    #if DEBUG
+    if let fixture = FixtureLoader.requested() {
+      return AppModel(engine: HexEngine(), store: FixtureLoader.store(named: fixture))
+    }
+    #endif
     let store = (try? DocumentStore.appGroupDirectory()).map { DocumentStore(directory: $0) }
     return AppModel(engine: HexEngine(), store: store)
   }
