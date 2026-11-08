@@ -165,6 +165,14 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.deepEqual([after.streakWeeks, after.weekCount, after.total], [1, 1, 1])
   assert.deepEqual(after.last, { key: 'w-1', id: 'w-1', name: 'Push', d: '2026-11-09', durationMs: 20 * MIN, sets: 1 })
 
+  // Sem próxima sessão também com um treino em andamento num dia de descanso, e na rotação do próprio app
+  // (as duas outras partes da regra do views/Home.jsx:95).
+  open(PPL)
+  act({ type: 'start', routineIds: ['r-pull'], id: 'w-2' }, sunday)
+  assert.deepEqual([homeAt(sunday + MIN).today.status, homeAt(sunday + MIN).next], ['rest', null])
+  open({ ...PPL, scheduleMode: 'rotation' })
+  assert.deepEqual([homeAt(sunday).today.status, homeAt(sunday).next], ['rest', null])
+
   // A semana que começa no domingo, e o documento novo, sem rotinas e sem histórico (Foco da revisão 5).
   open({ ...PPL, weekStart: 0 })
   assert.deepEqual(homeAt(NOW).week.map(d => d.day), [0, 1, 2, 3, 4, 5, 6])

@@ -48,7 +48,8 @@ nonisolated struct HomeText: Sendable {
   private let inProgressFormat, doneFormat, moreFormat, weekStreakFormat, thisWeekFormat, workoutsTotalFormat,
       setsFormat, minutesFormat, hoursFormat, nextFormat: String
   // Os dias pelo getDay() (0 é o domingo): a letra embaixo da semana ("S"), o nome no meio de uma frase
-  // ("segunda") e o nome sozinho ("Segunda", o t(DAYN[d]) do openGym).
+  // ("segunda") e o nome sozinho ("Segunda", na "Próxima sessão"). A grafia é a do catálogo do HexGym, a
+  // chave Monday da fase 2: o t(DAYN[d]) do openGym diz "Segunda-feira" (pt.js:48).
   private let letters, sentenceDays, dayNames: [String]
 
   @MainActor init(locale: Locale) {
