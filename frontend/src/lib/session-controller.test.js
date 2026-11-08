@@ -1,13 +1,17 @@
-// O controlador do treino (session-controller.js), Task 1 do plano da fase 3 do HexGym: começar, as
-// séries e o descanso. Os documentos saem do freshState, com as rotinas montadas aqui, e cada
-// resultado esperado vem das mesmas funções do lib que o openGym chama, para o teste seguir o
-// openGym quando ele mudar. Só importa módulos do motor, então roda também contra o script dele.
+// O controlador do treino (session-controller.js), Tasks 1 e 2 do plano da fase 3 do HexGym: começar,
+// as séries, o descanso e os exercícios no meio do treino. Os documentos saem do freshState, com as
+// rotinas montadas aqui, e cada resultado esperado vem das mesmas funções do lib que o openGym
+// chama, para o teste seguir o openGym quando ele mudar. Só importa módulos do motor, então roda
+// também contra o script dele.
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { step } from './session-controller.js'
-import { freshState } from './state-core.js'
+import { clone, freshState } from './state-core.js'
 import { buildCombinedEntries } from './session-merge.js'
 import { restSecFor } from './supersetFlow.js'
-import { bestWeightForEntry as bestWeight } from './history.js'
+import { bestWeightForEntry as bestWeight, freestyleConfig, pickedExerciseConfig } from './history.js'
+import { buildSessionEntry } from './session-start.js'
+import { sessionHistory } from './backfill.js'
+import { swapActiveExercise } from './active-exercise-swap.js'
 import { stepWeight, weightIncrement } from './progression.js'
 import { ownedWeightsFor, stepOwned } from './dumbbells.js'
 import { hasCompletedWork, makeSideSet, toggleSide } from './workout-model.js'
@@ -477,8 +481,228 @@ describe('o controlador do treino: o treino que veio do openGym', () => {
   })
 })
 
+describe('o controlador do treino: exercícios no meio do treino', () => {
+  const add = (S, exerciseIds, now = NOW) => step(S, { type: 'exercise.add', exerciseIds }, now)
+  const replace = (S, entry, exerciseId, extra = {}, now = NOW) => step(S, { type: 'exercise.replace', entry, exerciseId, ...extra }, now)
+  const remove = (S, entry, now = NOW) => step(S, { type: 'exercise.remove', entry }, now)
+  const ids = S => S.active.entries.map(e => e.id)
+  const routine = (S, id) => S.routines.find(r => r.id === id)
+  const withDeload = () => {
+    const S = doc()
+    S.routines.push({ id: 'rd', name: 'Deload', excludeFromProgression: true, ex: [{ id: SQUAT, sets: 2, reps: 5, weight: 40, mode: 'reps' }] })
+    return S
+  }
+  // Um treino gravado de agachamento, para o treino livre ter de onde tirar a semente.
+  const squatDay = {
+    id: 'h1', d: '2026-11-01', start: NOW - 7 * 86400 * SEC, end: NOW - 7 * 86400 * SEC + 3600 * SEC,
+    entries: [{ id: SQUAT, target: { id: SQUAT, sets: 4, reps: 6, weight: 70, mode: 'reps' }, sets: [
+      { w: 70, r: 6, done: true }, { w: 70, r: 6, done: true }, { w: 72.5, r: 5, done: true }, { w: 72.5, r: 5, done: true },
+    ] }],
+  }
+
+  it('exercise.add numa rotina entra depois da unidade atual, com o rid e o addedInSession, e o cur vai para ele; no treino livre, sem rid e com a semente do freestyleConfig', () => {
+    const S = begin(doc(), ['rt'])
+    const cur = S.active.entries[0]
+    const out = add(S, [CURL])
+    const A = out.state.active
+    expect(ids(out.state)).toEqual([SQUAT, CURL, BENCH])
+    expect(A.entries[1]).toEqual({
+      id: CURL, ...buildSessionEntry(S, CURL, pickedExerciseConfig(CURL), routine(S, 'rt'), cur), rid: 'rt', addedInSession: true,
+    })
+    expect(A.cur).toBe(1)
+    expect(A.progress).toEqual([0, 0, 0])
+    expect(out.result).toBe(null)
+    expect(out.effects).toEqual([{ type: 'activity.update' }])
+    // Dois de uma vez entram em ordem, e o cur fica no segundo, como somar um por vez.
+    const two = add(S, [CURL, PLANK]).state.active
+    expect(two.entries.map(e => e.id)).toEqual([SQUAT, CURL, PLANK, BENCH])
+    expect(two.entries[2]).toEqual({
+      id: PLANK, ...buildSessionEntry(S, PLANK, pickedExerciseConfig(PLANK), routine(S, 'rt'), cur), rid: 'rt', addedInSession: true,
+    })
+    expect(two.cur).toBe(2)
+
+    // O treino livre: sem rotina, a semente é o último treino do exercício.
+    const F = begin(doc({ workouts: [squatDay] }), [])
+    const free = add(F, [SQUAT]).state.active
+    const seed = freestyleConfig(sessionHistory(F), { id: SQUAT, ...pickedExerciseConfig(SQUAT) })
+    expect(seed.sets).toBe(4)
+    expect(free.entries).toEqual([{ id: SQUAT, ...buildSessionEntry(F, SQUAT, seed, null, undefined) }])
+    expect('rid' in free.entries[0] || 'addedInSession' in free.entries[0]).toBe(false)
+    expect(free.entries[0].sets.map(s => s.w)).toEqual([70, 70, 72.5, 72.5])
+    expect(free.cur).toBe(0)
+    expect(free.progress).toEqual([0])
+  })
+
+  it('com três ids, eles entram na ordem, depois do superset inteiro', () => {
+    const S = begin(doc(), ['rs'])
+    const A = add(S, [SQUAT, PLANK, RUN]).state.active
+    expect(A.entries.map(e => e.id)).toEqual([CURL, BENCH, SQUAT, PLANK, RUN])
+    expect(A.entries.map(e => e.sg)).toEqual(['g1', 'g1', undefined, undefined, undefined])
+    expect(A.entries.slice(2).every(e => e.rid === 'rs' && e.addedInSession === true)).toBe(true)
+    expect(A.cur).toBe(4)
+    expect(A.progress).toEqual([0, 0, 0, 0, 0])
+  })
+
+  it('o forIdx de um descanso depois do ponto de inserção acompanha, o de antes fica, e o progress fica igual às séries feitas de agora', () => {
+    // O marco do agachamento fica em 1 com a série desmarcada; adicionar refaz o marco pelas feitas.
+    let S = begin(doc(), ['rt'])
+    S = mark(S, 0, 0, true, NOW).state
+    S = mark(S, 0, 0, false, NOW + 5 * SEC).state
+    S = mark(S, 1, 0, true, NOW + 10 * SEC).state
+    S = step(S, { type: 'focus', entry: 0 }, NOW + 11 * SEC).state
+    expect(S.active.progress).toEqual([1, 1])
+    const rest = S.active.rest
+    expect(rest.forIdx).toBe(1)
+    const out = add(S, [CURL], NOW + 20 * SEC)
+    expect(ids(out.state)).toEqual([SQUAT, CURL, BENCH])
+    expect(out.state.active.rest).toEqual({ ...rest, forIdx: 2 })
+    expect(out.state.active.progress).toEqual([0, 0, 1])
+    // O descanso não mudou de tempo, então não há rest.started de novo.
+    expect(out.effects).toEqual([{ type: 'activity.update' }])
+
+    // O descanso da entrada atual, antes do ponto de inserção, fica onde estava.
+    const before = mark(begin(doc(), ['rt']), 0, 0, true, NOW).state
+    const kept = add(before, [CURL], NOW + 10 * SEC).state.active
+    expect(kept.rest).toEqual(before.active.rest)
+    expect(kept.progress).toEqual([1, 0, 0])
+  })
+
+  it('num bloco com noProg, o exercício adicionado sai com noProg; num treino fora da progressão por inteiro, também', () => {
+    const S = begin(withDeload(), ['rd'])
+    expect(S.active.entries[0].noProg).toBe(true)
+    const A = add(S, [BENCH]).state.active
+    expect(A.entries[1]).toEqual({
+      id: BENCH, ...buildSessionEntry(S, BENCH, pickedExerciseConfig(BENCH), routine(S, 'rd'), S.active.entries[0]),
+      rid: 'rd', addedInSession: true, noProg: true,
+    })
+    expect(A.entries[1].plan.kind).toBe('off')
+
+    // O treino inteiro fora da progressão (o menu do cabeçalho): o novo entra fora também (joinSessionNoProg).
+    const whole = begin(doc(), ['ra'])
+    whole.active.noProg = true
+    whole.active.entries[0].noProg = true
+    expect(add(whole, [BENCH]).state.active.entries[1].noProg).toBe(true)
+    // E num bloco comum, o novo conta.
+    expect('noProg' in add(begin(doc(), ['ra']), [BENCH]).state.active.entries[1]).toBe(false)
+  })
+
+  it('exercise.replace sem séries feitas troca no lugar, com o rid e o noProg do lugar, e acaba o descanso', () => {
+    const S = begin(withDeload(), ['rd'])
+    const out = replace(S, 0, BENCH)
+    const want = clone(S.active)
+    const built = buildSessionEntry(S, BENCH, pickedExerciseConfig(BENCH), routine(S, 'rd'), S.active.entries[0])
+    swapActiveExercise(want, 0, { id: BENCH, ...built, rid: 'rd', noProg: true })
+    expect(out.state.active).toEqual(want)
+    const e = out.state.active.entries[0]
+    expect([e.id, e.rid, e.noProg, e.plan.kind]).toEqual([BENCH, 'rd', true, 'off'])
+    expect(out.state.active.entries).toHaveLength(1)
+    expect(out.result).toEqual({ inserted: false, index: 0 })
+
+    // O descanso de outra série acaba com a troca, como o stopRest do commitActiveSwap.
+    const R = mark(step(begin(doc(), ['rt']), { type: 'focus', entry: 1 }, NOW).state, 1, 0, true, NOW).state
+    expect(R.active.rest).not.toBe(null)
+    const swapped = replace(R, 0, CURL, {}, NOW + 10 * SEC)
+    expect(ids(swapped.state)).toEqual([CURL, BENCH])
+    expect(swapped.state.active.entries[0].rid).toBe('rt')
+    expect(swapped.state.active.cur).toBe(0)
+    expect(swapped.state.active.rest).toBe(null)
+    expect(types(swapped)).toEqual(['rest.cleared', 'activity.update'])
+  })
+
+  it('com séries feitas, sem confirmLogged, devolve needs confirm e o mesmo S; com ele, a troca entra ao lado e o descanso acaba', () => {
+    const S = mark(begin(doc(), ['rt']), 0, 0, true, NOW).state
+    expect(S.active.rest).not.toBe(null)
+    const ask = replace(S, 0, CURL, {}, NOW + 10 * SEC)
+    expect(ask.state).toBe(S)
+    expect(ask.effects).toEqual([])
+    expect(ask.result).toEqual({ needs: 'confirm', grouped: false })
+    expect(replace(S, 0, CURL, { confirmLogged: false }).state).toBe(S)
+
+    const out = replace(S, 0, CURL, { confirmLogged: true }, NOW + 10 * SEC)
+    const A = out.state.active
+    expect(ids(out.state)).toEqual([SQUAT, CURL, BENCH])
+    expect(A.entries[0]).toEqual(S.active.entries[0])
+    expect(A.entries[1]).toEqual({
+      id: CURL, ...buildSessionEntry(S, CURL, pickedExerciseConfig(CURL), routine(S, 'rt'), S.active.entries[0]), rid: 'rt',
+    })
+    expect(A.cur).toBe(1)
+    expect(A.rest).toBe(null)
+    expect(A.progress).toEqual([1, 0, 0])
+    expect(out.result).toEqual({ inserted: true, index: 1 })
+    expect(types(out)).toEqual(['rest.cleared', 'activity.update'])
+  })
+
+  it('num superset com séries feitas, confirmLogged sem group devolve needs confirm com grouped; keep fica no grupo e detach sai dele', () => {
+    const S = mark(begin(doc(), ['rs']), 0, 0, true, NOW).state
+    expect(replace(S, 0, SQUAT).result).toEqual({ needs: 'confirm', grouped: true })
+    const ask = replace(S, 0, SQUAT, { confirmLogged: true })
+    expect(ask.state).toBe(S)
+    expect(ask.result).toEqual({ needs: 'confirm', grouped: true })
+
+    const detach = replace(S, 0, SQUAT, { confirmLogged: true, group: 'detach' }).state.active
+    expect(detach.entries.map(e => [e.id, e.sg])).toEqual([[CURL, 'g1'], [BENCH, 'g1'], [SQUAT, undefined]])
+    expect(detach.cur).toBe(2)
+    expect(detach.progress).toEqual([1, 0, 0])
+
+    const keep = replace(S, 0, SQUAT, { confirmLogged: true, group: 'keep' }).state.active
+    expect(keep.entries.map(e => [e.id, e.sg])).toEqual([[CURL, 'g1'], [SQUAT, 'g1'], [BENCH, 'g1']])
+    expect(keep.cur).toBe(1)
+    expect(() => replace(S, 0, SQUAT, { confirmLogged: true, group: 'other' })).toThrow(TypeError)
+  })
+
+  it('exercise.remove tira, limpa o superset desfeito, ajusta o cur e o descanso e refaz o progress', () => {
+    let S = begin(doc(), ['rs', 'ra'])
+    expect(ids(S)).toEqual([CURL, BENCH, SQUAT])
+    S = mark(S, 1, 0, true, NOW).state
+    S = mark(S, 1, 0, false, NOW + 5 * SEC).state
+    S = step(S, { type: 'focus', entry: 2 }, NOW + 6 * SEC).state
+    S = mark(S, 2, 0, true, NOW + 10 * SEC).state
+    expect(S.active.progress).toEqual([0, 1, 1])
+    const rest = S.active.rest
+    expect(rest.forIdx).toBe(2)
+
+    // Tirar o supino desfaz o superset (cleanupSg), puxa o cur e o descanso, e o marco é refeito.
+    const out = remove(S, 1, NOW + 20 * SEC)
+    const A = out.state.active
+    expect(ids(out.state)).toEqual([CURL, SQUAT])
+    expect('sg' in A.entries[0]).toBe(false)
+    expect(A.cur).toBe(1)
+    expect(A.rest).toEqual({ ...rest, forIdx: 1 })
+    expect(A.progress).toEqual([0, 1])
+    expect(out.effects).toEqual([{ type: 'activity.update' }])
+
+    // Tirar o dono do descanso acaba o descanso.
+    const owner = remove(out.state, 1, NOW + 30 * SEC)
+    expect(ids(owner.state)).toEqual([CURL])
+    expect(owner.state.active.rest).toBe(null)
+    expect(owner.state.active.cur).toBe(0)
+    expect(types(owner)).toEqual(['rest.cleared', 'activity.update'])
+
+    // Tirar o último deixa entries vazio, e o treino continua.
+    const empty = remove(owner.state, 0, NOW + 40 * SEC).state.active
+    expect(empty).not.toBe(null)
+    expect(empty.entries).toEqual([])
+    expect(empty.cur).toBe(0)
+    expect(empty.progress).toEqual([])
+    expect(() => remove(owner.state, 1)).toThrow(TypeError)
+  })
+
+  it('um id desconhecido em exercise.add lança e não muda nada', () => {
+    const S = deepFreeze(begin(doc(), ['ra']))
+    const text = JSON.stringify(S)
+    // O erro é o do exercício, e não o de uma ação que não existe.
+    expect(() => add(S, ['nao-existe'])).toThrow(TypeError)
+    expect(() => add(S, ['nao-existe'])).toThrow(/não existe o exercício nao-existe/)
+    expect(() => add(S, [CURL, 'nao-existe'])).toThrow(/não existe o exercício nao-existe/)
+    expect(() => add(S, [])).toThrow(/exerciseIds/)
+    expect(() => add(S, CURL)).toThrow(/exerciseIds/)
+    expect(() => replace(S, 0, 'nao-existe')).toThrow(/não existe o exercício nao-existe/)
+    expect(JSON.stringify(S)).toBe(text)
+  })
+})
+
 describe('o controlador do treino: puro', () => {
-  // Todas as ações desta Task, em ordem, num treino com superset, lados e esforço.
+  // Todas as ações das Tasks 1 e 2, em ordem, num treino com superset, lados e esforço.
   const script = [
     [{ type: 'start', routineIds: ['rs', 'ra'], id: 'w1' }, 0],
     [{ type: 'set.mark', entry: 0, set: 0, done: true }, 10],
@@ -497,6 +721,11 @@ describe('o controlador do treino: puro', () => {
     [{ type: 'rest.skip' }, 72],
     [{ type: 'set.mark', entry: 2, set: 0, done: true }, 80],
     [{ type: 'rest.adjust', by: 15 }, 400],
+    [{ type: 'exercise.add', exerciseIds: [PLANK, CURL] }, 410],
+    [{ type: 'exercise.replace', entry: 3, exerciseId: RUN }, 411],
+    [{ type: 'exercise.replace', entry: 0, exerciseId: SQUAT }, 412],
+    [{ type: 'exercise.replace', entry: 0, exerciseId: SQUAT, confirmLogged: true, group: 'detach' }, 413],
+    [{ type: 'exercise.remove', entry: 1 }, 414],
   ]
 
   it('roda todas as ações com o Date.now e o Math.random trocados por funções que lançam', () => {
@@ -540,6 +769,6 @@ describe('o controlador do treino: puro', () => {
       expect(JSON.stringify(s)).toBe(text)
       s = deepFreeze(out.state)
     }
-    expect(s.active.entries).toHaveLength(3)
+    expect(s.active.entries.map(e => e.id)).toEqual([CURL, SQUAT, SQUAT, RUN, CURL])
   })
 })
