@@ -41,11 +41,24 @@ import Testing
     try #require(catalog.regions.first { $0.id == id }, "a região \(id) existe")
   }
 
-  // Um detalhe montado à mão, no JSON que o motor manda.
-  func detail(_ id: String, muscles: String, muscleNames: String = "{}", favourite: Bool = false, known: Bool = true) throws -> ExerciseDetail {
-    let json = #"{"id":"\#(id)","name":"exercício de teste","nameEnglish":"test exercise","bp":"chest","equipment":["barbell"],"category":"strength","muscles":\#(muscles),"muscleNames":\#(muscleNames),"instructions":["deite no banco.","empurre a barra."],"description":"Um exercício de teste.","favourite":\#(favourite),"custom":false,"known":\#(known)}"#
+  // Um detalhe montado à mão, no JSON que o motor manda. O translated é o par instructionsTranslated e
+  // descriptionTranslated; nil deixa as duas chaves de fora, como um JSON de antes da issue #114.
+  func detail(_ id: String, muscles: String, muscleNames: String = "{}", favourite: Bool = false, known: Bool = true,
+              translated: (steps: Bool, description: Bool)? = (true, true), custom: Bool = false,
+              description: String = "Um exercício de teste.") throws -> ExerciseDetail {
+    let flags = translated.map { #""instructionsTranslated":\#($0.steps),"descriptionTranslated":\#($0.description),"# } ?? ""
+    let json = #"{"id":"\#(id)","name":"exercício de teste","nameEnglish":"test exercise","bp":"chest","equipment":["barbell"],"category":"strength","muscles":\#(muscles),"muscleNames":\#(muscleNames),"instructions":["deite no banco.","empurre a barra."],"description":"\#(description)",\#(flags)"favourite":\#(favourite),"custom":\#(custom),"known":\#(known)}"#
     return try JSONDecoder().decode(ExerciseDetail.self, from: Data(json.utf8))
   }
+
+  // O modelo de um detalhe montado à mão, sem regiões, no idioma do motor e no da tela.
+  func model(_ detail: ExerciseDetail, language: Locale? = nil, screen: Locale? = nil) -> ExerciseDetailModel {
+    ExerciseDetailModel(detail, regions: nil, catalog: catalog, names: names,
+                        text: ExerciseDetailText(locale: screen ?? portuguese), language: language ?? portuguese)
+  }
+
+  // O inglês que a tela marca no texto, para o typesettingLanguage e a voz do VoiceOver.
+  let english = Locale.Language(identifier: "en")
 
   let names = ExerciseDetailNames(
     muscles: [("deltoids", "ombros"), ("chest", "peito"), ("triceps", "tríceps"), ("abs", "abdômen")],
@@ -189,5 +202,81 @@ import Testing
     await screen.toggleFavourite()
     #expect(screen.model?.favourite == true)
     #expect(try await engine.exercise("0025").favourite)
+  }
+
+  // Issue #114: um aviso só, perto de "Como fazer", quando os passos estão em inglês e a tela não; ele
+  // cobre a descrição também, quando ela está em inglês.
+  @Test func theNoticeSitsAtTheStepsAndCoversTheDescriptionInEnglish() throws {
+    let both = model(try detail("x5", muscles: "{}", translated: (false, false)))
+    #expect(both.englishNotice == EnglishNotice(place: .steps, text: "Instruções e descrição em inglês"))
+    let steps = model(try detail("x5", muscles: "{}", translated: (false, true)))
+    #expect(steps.englishNotice == EnglishNotice(place: .steps, text: "Instruções em inglês"))
+    // Sem descrição, o aviso fala só dos passos.
+    let noDescription = model(try detail("x5", muscles: "{}", translated: (false, false), description: ""))
+    #expect(noDescription.about == nil)
+    #expect(noDescription.englishNotice == EnglishNotice(place: .steps, text: "Instruções em inglês"))
+    // A tela em inglês, com o motor em alemão: o aviso no idioma da tela.
+    let german = model(try detail("x5", muscles: "{}", translated: (false, false)), language: Locale(identifier: "de"),
+                       screen: Locale(identifier: "en-US"))
+    #expect(german.englishNotice == EnglishNotice(place: .steps, text: "Instructions and description in English"))
+  }
+
+  // Issue #114: com os passos traduzidos e a descrição em inglês (todo exercício em pt-BR, que não tem
+  // descrições), o aviso vai para "Sobre o exercício".
+  @Test func onlyTheDescriptionInEnglishMovesTheNoticeToTheDescription() throws {
+    let model = model(try detail("x6", muscles: "{}", translated: (true, false)))
+    #expect(model.englishNotice == EnglishNotice(place: .about, text: "Descrição em inglês"))
+    #expect(model.steps.allSatisfy { $0.textLanguage == nil })
+    #expect(model.aboutLanguage == english)
+  }
+
+  // Issue #114: nada de aviso nem de marca quando o texto está no idioma, quando o motor está em inglês,
+  // num personalizado (o texto é da pessoa) e num JSON de antes da issue, sem as duas chaves.
+  @Test func noNoticeWhenTheTextIsInTheLanguageOfTheScreen() throws {
+    let english = Locale(identifier: "en-US")
+    let cases = [
+      model(try detail("x7", muscles: "{}", translated: (true, true))),
+      model(try detail("x7", muscles: "{}", translated: (false, false)), language: english, screen: english),
+      model(try detail("x7", muscles: "{}", translated: (false, false)), language: Locale(identifier: "en"), screen: portuguese),
+      model(try detail("x7", muscles: "{}", translated: (false, false), custom: true)),
+      model(try detail("x7", muscles: "{}", translated: nil)),
+    ]
+    for model in cases {
+      #expect(model.englishNotice == nil)
+      #expect(!model.steps.isEmpty && model.steps.allSatisfy { $0.textLanguage == nil })
+      #expect(model.about != nil && model.aboutLanguage == nil)
+    }
+  }
+
+  // Issue #114: o VoiceOver lê o passo em inglês com a voz do inglês, e o "Passo 1." no idioma da tela:
+  // o rótulo é o spokenNumber, sem marca, e o texto, marcado com o inglês.
+  @Test func theEnglishTextIsMarkedForVoiceOver() throws {
+    let model = model(try detail("x8", muscles: "{}", translated: (false, false)))
+    let first = try #require(model.steps.first)
+    #expect(first.spoken == "Passo 1. Deite no banco.")
+    #expect(first.spokenNumber == "Passo 1. ")
+    #expect(first.text == "Deite no banco.")
+    #expect(model.steps.map(\.textLanguage) == [english, english])
+    #expect(model.aboutLanguage == english)
+  }
+
+  // Issue #114, com o motor de verdade em pt-BR: o supino tem os passos traduzidos e o aviso só na
+  // descrição; o polichinelo cruzado (0264), os dois em inglês, com o aviso em "Como fazer". Com o
+  // motor em inglês, nenhum aviso.
+  @Test func theRealEngineWarnsAboutTheJumpingJacksStepsAndNotTheBenchPress() async throws {
+    let engine = try await engine()
+    let bench = try #require(await screen("0025", engine: engine).model)
+    #expect(bench.englishNotice == EnglishNotice(place: .about, text: "Descrição em inglês"))
+    #expect(!bench.steps.isEmpty && bench.steps.allSatisfy { $0.textLanguage == nil })
+    #expect(bench.aboutLanguage == english)
+    let jacks = try #require(await screen("0264", engine: engine).model)
+    #expect(jacks.englishNotice == EnglishNotice(place: .steps, text: "Instruções e descrição em inglês"))
+    #expect(!jacks.steps.isEmpty && jacks.steps.allSatisfy { $0.textLanguage == english })
+    let inEnglish = HexEngine(language: "en")
+    _ = try await inEnglish.load()
+    _ = try await inEnglish.freshDocument()
+    let englishJacks = try #require(await screen("0264", engine: inEnglish).model)
+    #expect(englishJacks.englishNotice == nil)
+    #expect(englishJacks.steps.allSatisfy { $0.textLanguage == nil } && englishJacks.aboutLanguage == nil)
   }
 }

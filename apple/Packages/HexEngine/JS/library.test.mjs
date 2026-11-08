@@ -126,3 +126,31 @@ test('facets() has the 18 muscle groups and the 11 body parts, named in the lang
   assert.equal(facets.equipment.length, 34)
   assert.equal(facets.categories[0].id, 'strength')
 })
+
+// Issue #114: o exercise() diz se os passos e a descrição vieram do pacote do idioma ou do inglês, o
+// fallback do instrFor e do descFor (o instrTranslated do openGym). Em pt-BR, o pacote traduz os passos
+// de 1.324 exercícios e nenhuma descrição; o de tem 12 descrições. Em inglês, nada vem de um pacote de
+// idioma, e os dois são false, como o instrTranslated do openGym.
+test('exercise() says whether the steps and the description came translated', () => {
+  open({ customEx: [{ id: 'custom-passos', n: 'Remada do HexGym', bp: 'back', custom: true, st: ['Puxe a barra.'] }] })
+  const flags = id => {
+    const detail = JSON.parse(R.exercise(id))
+    return [detail.instructionsTranslated, detail.descriptionTranslated]
+  }
+  assert.deepEqual(flags('0025'), [true, false])
+  assert.ok(JSON.parse(R.exercise('0264')).instructions.length > 0)
+  assert.deepEqual(flags('0264'), [false, false])
+  // O personalizado mostra os passos dele, e não os de um pacote: false, como no openGym.
+  assert.deepEqual(JSON.parse(R.exercise('custom-passos')).instructions, ['Puxe a barra.'])
+  assert.deepEqual(flags('custom-passos'), [false, false])
+  assert.deepEqual(flags('nao-existe'), [false, false])
+  try {
+    R.setLanguage(pack('en'), pack('de'))
+    assert.deepEqual(flags('1000'), [true, true])
+    assert.equal(flags('0025')[1], false)
+    R.setLanguage(pack('en'))
+    assert.deepEqual(flags('0025'), [false, false])
+  } finally {
+    R.setLanguage(pack('en'), pack('pt-BR'))
+  }
+})

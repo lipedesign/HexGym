@@ -35,3 +35,14 @@ import Testing
   let detail = try await engine.exercise("0025")
   #expect(detail.known); #expect(!detail.instructions.isEmpty); #expect(detail.muscles["chest"] == 1)
 }
+
+// Issue #114: o detalhe diz se os passos e a descrição vieram do pacote do idioma. Em pt-BR, o supino
+// tem os passos traduzidos e a descrição em inglês; o polichinelo cruzado (0264), os dois em inglês.
+@Test func theDetailSaysWhetherTheStepsAndTheDescriptionCameTranslated() async throws {
+  let engine = try await loaded("pt-BR")
+  _ = try await engine.freshDocument()
+  let bench = try await engine.exercise("0025")
+  #expect(bench.instructionsTranslated == true); #expect(bench.descriptionTranslated == false)
+  let jacks = try await engine.exercise("0264")
+  #expect(jacks.instructionsTranslated == false); #expect(jacks.descriptionTranslated == false)
+}

@@ -24,9 +24,15 @@ public struct LibraryQuery: Codable, Equatable, Sendable {
 // desconhecido" no idioma. O muscleNames tem o nome de cada grupo do muscles no idioma, inclusive os
 // de fora dos 18 do facets(), como o "cardiovascular system" do cardio (issue #97); é opcional para um
 // JSON sem ele continuar a decodificar.
+//
+// O instructionsTranslated e o descriptionTranslated dizem se os passos e a descrição vieram do pacote
+// do idioma (o instrTranslated do openGym, issue #114): false é o inglês do fallback, o texto de um
+// personalizado ou nenhum texto, e em inglês os dois são false. Também são opcionais, como o
+// muscleNames; nil é um JSON de antes deles, e a tela trata como traduzido (não avisa nem marca nada).
 public struct ExerciseDetail: Codable, Equatable, Sendable {
   public let id: String, name: String, nameEnglish: String, bp: String, equipment: [String], category: String?
   public let muscles: [String: Double], muscleNames: [String: String]?, instructions: [String], description: String?
+  public let instructionsTranslated: Bool?, descriptionTranslated: Bool?
   public let favourite: Bool, custom: Bool, known: Bool
 }
 

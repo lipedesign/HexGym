@@ -20,6 +20,14 @@
 // nome, e a Visualização de Conteúdo Grande mostra o nome nos tamanhos de acessibilidade), "Nova rotina"
 // no fim do menu, depois das rotinas, e a faixa da confirmação por 2,5 s. Desde a Task 11, a rotina que
 // já tem o exercício leva a marca da Apple no menu.
+//
+// Os passos e a descrição em inglês (issue #114): o aviso do modelo fica logo abaixo do título da parte
+// dele ("Como fazer" ou "Sobre o exercício"), no caption do HexDesign, em cinza, como a legenda dos
+// campos do editor. O texto em inglês leva o typesettingLanguage do inglês, no Text e, no passo, só na
+// parte do texto do rótulo do VoiceOver: é o que chega ao UIKit como a língua da fala
+// (UIAccessibilitySpeechAttributeLanguage), e o VoiceOver lê o passo com a voz do inglês e o "Passo 1."
+// com a do idioma da tela. O languageIdentifier de um AttributedString não chega (sonda da issue #114).
+// Escolha recomendada, com a delegação do Lipe de 03/11/2026.
 import HexDesign
 import SwiftUI
 
@@ -71,7 +79,7 @@ struct ExerciseDetailView: View {
             }
             if !model.muscles.isEmpty { muscles(model).id(ExerciseSection.muscles) }
             if !model.steps.isEmpty { steps(model).id(ExerciseSection.steps) }
-            if let about = model.about { aboutSection(about) }
+            if let about = model.about { aboutSection(about, language: model.aboutLanguage, notice: model.englishNotice) }
           }
           .padding(.horizontal, HexSpacing.m)
           .padding(.top, HexSpacing.xs)
@@ -132,20 +140,22 @@ struct ExerciseDetailView: View {
     }
   }
 
-  // "Como fazer": cada passo com o número, um elemento do VoiceOver por passo ("Passo 1. …").
+  // "Como fazer": cada passo com o número, um elemento do VoiceOver por passo ("Passo 1. …"), e o aviso
+  // dos passos em inglês logo abaixo do título.
   private func steps(_ model: ExerciseDetailModel) -> some View {
     VStack(alignment: .leading, spacing: HexSpacing.s) {
-      SectionTitle("How to do it")
+      SectionTitle("How to do it", notice: model.englishNotice?.place == .steps ? model.englishNotice?.text : nil)
       ForEach(model.steps) { step in
         StepRow(step: step)
       }
     }
   }
 
-  private func aboutSection(_ about: String) -> some View {
+  private func aboutSection(_ about: String, language: Locale.Language?, notice: EnglishNotice?) -> some View {
     VStack(alignment: .leading, spacing: HexSpacing.s) {
-      SectionTitle("About this exercise")
+      SectionTitle("About this exercise", notice: notice?.place == .about ? notice?.text : nil)
       Text(verbatim: about)
+        .typesetting(language)
         .font(.body)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
@@ -221,20 +231,31 @@ struct ExerciseDetailView: View {
   }
 }
 
-// O título de uma parte da tela, no headline do HexDesign, em branco, como cabeçalho do VoiceOver.
+// O título de uma parte da tela, no headline do HexDesign, em branco, como cabeçalho do VoiceOver. O
+// aviso, quando há, fica logo abaixo, no caption, em cinza, e o VoiceOver lê ele depois do título.
 private struct SectionTitle: View {
   let title: LocalizedStringKey
+  let notice: String?
 
-  init(_ title: LocalizedStringKey) {
+  init(_ title: LocalizedStringKey, notice: String? = nil) {
     self.title = title
+    self.notice = notice
   }
 
   var body: some View {
-    Text(title)
-      .hexFont(.headline)
-      .foregroundStyle(Color.white)
-      .fixedSize(horizontal: false, vertical: true)
-      .accessibilityAddTraits(.isHeader)
+    VStack(alignment: .leading, spacing: HexSpacing.xxs) {
+      Text(title)
+        .hexFont(.headline)
+        .foregroundStyle(Color.white)
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityAddTraits(.isHeader)
+      if let notice {
+        Text(verbatim: notice)
+          .hexFont(.caption)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
   }
 }
 
@@ -252,13 +273,24 @@ private struct StepRow: View {
         .foregroundStyle(.secondary)
         .frame(minWidth: numberWidth, alignment: .trailing)
       Text(verbatim: step.text)
+        .typesetting(step.textLanguage)
         .font(.body)
         .foregroundStyle(Color.white)
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text(verbatim: step.spoken))
+    // A interpolação junta os dois Text sem o + (obsoleto no iOS 26) e mantém o idioma de cada parte; a
+    // chave "%@%@" dela está no catálogo como "não traduzir".
+    .accessibilityLabel(Text("\(Text(verbatim: step.spokenNumber))\(Text(verbatim: step.text).typesetting(step.textLanguage))"))
+  }
+}
+
+private extension Text {
+  // O idioma de um texto que não está no da tela, para a quebra de linha e para a voz do VoiceOver; nil
+  // deixa o Text como está.
+  func typesetting(_ language: Locale.Language?) -> Text {
+    typesettingLanguage(language.map(TypesettingLanguage.explicit) ?? .automatic, isEnabled: language != nil)
   }
 }
 
