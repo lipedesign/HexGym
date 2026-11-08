@@ -311,8 +311,10 @@ ANGLE = re.compile(r'(\d+)\s*(?:°|degrees?)')
 OVERHEAD_PRESS = re.compile(r'shoulders? press|overhead press|military press|arnold press|push press|pike press'
                             r'|behind (the )?neck press|bradford|\bz press|viking press|strict press|landmine (\w+ )*press')
 # Com o deltoide inteiro no primário, um "press" sem outra palavra também é o desenvolvimento
-# (dumbbell seated alternate press, kettlebell seesaw press); o supino, o pallof e a planche não.
-OVERHEAD_PLAIN = re.compile(r'\bpress\b')
+# (dumbbell seated alternate press, kettlebell seesaw press, e no plural o standing plate presses,
+# 1225); o supino, o pallof e a planche não. Revista com o catálogo de 08/11/2026 (#106): os 20
+# que ela pega a mais que o OVERHEAD_PRESS são desenvolvimentos pela descrição.
+OVERHEAD_PLAIN = re.compile(r'\bpress(es)?\b')
 OVERHEAD_COMBO = re.compile(r'clean|thruster|lunge|squat(?! cage)|\bto\b|\band\b|devil|external rotation|cuban'
                             r'|side bend|plank|incline|kick|face down|bench press|pallof|planche')
 LATERAL_RAISE = re.compile(r'lateral raises?|side raises?|side lateral|lateral delt raise')
@@ -420,6 +422,18 @@ def research_name_rules(e, p, s):
     return p, s
 
 
+def lower_abs_never_alone(p, s):
+    """O abdômen baixo nunca acende sozinho (relatório, #13): com ele no primário, o reto abdominal
+    também vai para o primário; com ele só no secundário, o reto abdominal vai junto para o
+    secundário, como a elevação de pernas faz no primário (0459 e 2770, #106)."""
+    if 'lowerAbs' in p:
+        p.add('upperAbs')
+    elif 'lowerAbs' in s and 'upperAbs' not in p:
+        s.add('upperAbs')
+    s -= p
+    return p, s
+
+
 def regions_v2_rows():
     """Cada região pintada da v2, seu grupo no boneco e o grupo que o Watch mostra."""
     return [{'region': r, 'name': V2_REGION_PT[r], 'group': g, 'watchGroup': None if g == 'neck' else g,
@@ -476,7 +490,17 @@ def read_secondary_additions():
     return out
 
 
+# Erros do catálogo que o gerador corrige sem mexer no catalogue/, pelo id: os campos daqui trocam
+# os do exercício antes de tudo. O 0459 flutter kicks tem o alvo "glutes", mas a descrição fala do
+# abdômen baixo e dos flexores do quadril, e as outras versões (1179 e 1244) têm o alvo "abs" (#106).
+CATALOGUE_FIXES = {
+    '0459': {'target': 'abs'},
+}
+
+
 def load_catalogue():
+    """O catálogo como está no catalogue/, sem as correções de CATALOGUE_FIXES (o build as aplica e
+    devolve os exercícios já corrigidos)."""
     exercises, variants = {}, {}
     for path in sorted(CATALOGUE.glob('*.json')):
         e = json.loads(path.read_text(encoding='utf-8'))
@@ -570,6 +594,8 @@ def build():
         sys.exit('termos novos no catálogo sem mapeamento em TERM_REGIONS: ' + ', '.join(unknown))
     additions = read_secondary_additions()
     exercises, variants = load_catalogue()
+    # As correções do catálogo valem para tudo o que sai daqui, o --report inclusive.
+    exercises = {k: {**e, **CATALOGUE_FIXES.get(k, {})} for k, e in exercises.items()}
 
     out = {}
     for id_, e in exercises.items():
@@ -586,6 +612,7 @@ def build():
             source = 'bodypart'
         p, s = v2_name_rules(e, set(p), set(s))
         p, s = research_name_rules(e, p, s)
+        p, s = lower_abs_never_alone(p, s)
         # A ênfase sai do primário de depois das regras, que podem mudar o primário.
         # Na rosca martelo o braquial e o antebraço entram pela regra: o bíceps não é a ênfase (1615).
         banned = {'biceps'} if curl_kind(e['name'].lower()) == 'hammer' else set()
