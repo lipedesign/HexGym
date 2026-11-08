@@ -39,9 +39,17 @@ const ROUTINE = {
   ex: [{ id: '0025', sets: 2, reps: 8, weight: 60 }, { id: '0043', sets: 2, reps: 5, weight: 100 }],
 }
 
+// O PPL dos dois casos do controlador do treino: Push na segunda, Pull na quarta e Legs na sexta,
+// com duas séries por exercício, pelo mesmo motivo do ROUTINE.
+const PPL = [
+  { id: 'ppl-push', name: 'Push', ex: [{ id: '0025', sets: 2, reps: 8, weight: 60, mode: 'reps' }, { id: '0047', sets: 2, reps: 10, weight: 40, mode: 'reps' }] },
+  { id: 'ppl-pull', name: 'Pull', ex: [{ id: '0027', sets: 2, reps: 8, weight: 50, mode: 'reps' }] },
+  { id: 'ppl-legs', name: 'Legs', ex: [{ id: '0043', sets: 2, reps: 5, weight: 100, mode: 'reps' }] },
+]
+
 export async function buildCases(load) {
-  const [stateCore, format, sessionMerge, finish, history, syncMerge, onerm] = await Promise.all(
-    ['state-core', 'format', 'session-merge', 'finish-workout', 'history', 'sync-merge', 'onerm'].map(m => load(`${LIB}${m}.js`)))
+  const [stateCore, format, sessionMerge, finish, history, syncMerge, onerm, controller] = await Promise.all(
+    ['state-core', 'format', 'session-merge', 'finish-workout', 'history', 'sync-merge', 'onerm', 'session-controller'].map(m => load(`${LIB}${m}.js`)))
   const { freshState, clone } = stateCore
   const { isoOf } = format
   const S = { ...freshState('en'), routines: [ROUTINE] }
@@ -124,6 +132,24 @@ export async function buildCases(load) {
   // As contas puras do 1RM, e cada fórmula com a mesma série.
   for (const [w, r] of [[100, 5], [60, 12], [140, 1]]) add(`1RM de ${w} x ${r}`, 'onerm.js', 'estimate1RM', [w, r])
   for (const formula of Object.keys(onerm.FORMULAS)) add(`1RM de 80 x 8 pela fórmula ${formula}`, 'onerm.js', 'estimate1RM', [80, 8, formula])
+
+  // O controlador do treino (Task 4 do plano da fase 3, Foco da revisão 2): começar o dia de PPL
+  // numa segunda às 23:50, e terminar à 01:00 da terça o treino que passou da meia-noite, com a
+  // última série às 00:35. O documento do fim sai do próprio controlador, série por série, como o
+  // app marca. O id do treino é fixo, como o que o Swift manda.
+  const ppl = { ...freshState('en'), routines: PPL, week: { 1: ['ppl-push'], 3: ['ppl-pull'], 5: ['ppl-legs'] } }
+  const monday = instant([2026, 10, 26, 23, 50])
+  const todays = history.effectiveRoutineIds(ppl, isoOf(new Date(monday)), isoOf(new Date(monday)))
+  const startAction = { type: 'start', routineIds: todays, id: 'treino-ppl' }
+  add('começar o dia de PPL numa segunda às 23:50', 'session-controller.js', 'step', [ppl, startAction, monday])
+  let night = controller.step(ppl, startAction, monday).state
+  const rows = night.active.entries.flatMap((e, entry) => e.sets.map((_, set) => ({ entry, set })))
+  const lastSet = instant([2026, 10, 27, 0, 35])
+  rows.forEach((row, k) => {
+    const at = monday + Math.round(((lastSet - monday) * (k + 1)) / rows.length)
+    night = controller.step(night, { type: 'set.mark', ...row, done: true }, at).state
+  })
+  add('terminar à 01:00 o treino que passou da meia-noite', 'session-controller.js', 'step', [night, { type: 'finish' }, instant([2026, 10, 27, 1, 0])])
 
   return cases
 }
