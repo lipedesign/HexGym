@@ -106,7 +106,8 @@ export function apply(actionJson, now) {
   return JSON.stringify({ changed, result })
 }
 
-// As leituras das telas, sem mudar nada: as rotinas, a semana, os ajustes e os planos prontos.
+// As leituras das telas, sem mudar nada: as rotinas, a semana, os ajustes, os planos prontos e os
+// dias que um plano pronto troca (uma lista de dias, ou null para um plano que não existe).
 export function routines() {
   return JSON.stringify(actions.routines(opened()))
 }
@@ -121,6 +122,10 @@ export function settings() {
 
 export function starterPlans() {
   return JSON.stringify(actions.starterPlans())
+}
+
+export function starterPlanChanges(planId) {
+  return JSON.stringify(actions.starterPlanChanges(opened(), planId))
 }
 
 // O treino em andamento (session.js), com o controlador do openGym e o carimbo do update(). Recebe o

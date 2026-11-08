@@ -119,6 +119,24 @@ private func object(_ text: Data) throws -> NSDictionary {
   #expect(try await engine.starterPlans().map(\.id) == ["ppl", "upper-lower", "full-body", "5x5"])
 }
 
+// A leitura dos dias que um plano pronto troca (issue #120), de ponta a ponta: os dias de cada plano, a
+// lista dos trocados, o nil de um plano que não existe, e o documento igual depois da leitura. As regras
+// têm os testes em JS/actions.test.mjs.
+@Test func theDaysAStarterPlanChangesComeFromTheEngineWithoutChangingTheDocument() async throws {
+  let engine = try await loaded("pt-BR")
+  _ = try await engine.freshDocument()
+  #expect(try await engine.starterPlans().map(\.weekdays) == [[1, 3, 5], [1, 2, 4, 5], [1, 3, 5], [1, 3, 5]])
+  #expect(try await engine.starterPlanChanges("ppl") == [])
+  let id = try #require(try await engine.apply(.createRoutine(name: "Peito")).id)
+  _ = try await engine.apply(.setWeekDay(day: 1, routineIDs: [id]))
+  _ = try await engine.apply(.setWeekDay(day: 2, routineIDs: [id]))
+  let before = try await engine.document()
+  #expect(try await engine.starterPlanChanges("ppl") == [1])
+  #expect(try await engine.starterPlanChanges("upper-lower") == [1, 2])
+  #expect(try await engine.starterPlanChanges("nao-existe") == nil)
+  #expect(try await engine.document() == before)
+}
+
 // O texto do documento como um literal de JS, para o JSON.parse do próprio motor.
 private func literal(_ document: Data) throws -> String {
   String(decoding: try JSONEncoder().encode(String(decoding: document, as: UTF8.self)), as: UTF8.self)

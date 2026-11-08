@@ -14,7 +14,7 @@ import { clone, draftOf } from '../../../../frontend/src/lib/state-core.js'
 import { highestStamp, markUndone, stampChange, undoMarks } from '../../../../frontend/src/lib/sync-merge.js'
 import { copyRoutine, deleteRoutine, replaceSlotExercise, restoreRoutine, routineSnapshot } from '../../../../frontend/src/lib/routines.js'
 import { NOTE_MAX, cleanupSg, effortOf, modeOf, pairAdjacent, pickedExerciseConfig, repStep, setsRepsOf, unpairSuperset } from '../../../../frontend/src/lib/history.js'
-import { buildStarterPlan, starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
+import { buildStarterPlan, starterPlanDays, starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
 import { convertStateUnit } from '../../../../frontend/src/lib/units.js'
 import { favIds, toggleFav } from '../../../../frontend/src/lib/favourites.js'
 import { loadOfRoutine } from '../../../../frontend/src/lib/muscles.js'
@@ -421,6 +421,25 @@ export function settings(S) {
   }
 }
 
+// Os planos prontos, cada um com a contagem dos dias (o days do starterPlanOptions) e os dias da
+// semana que ele ocupa (weekdays, o starterPlanDays, na ordem do plano).
 export function starterPlans() {
-  return starterPlanOptions()
+  return starterPlanOptions().map(o => ({ ...o, weekdays: starterPlanDays(o.id) }))
+}
+
+const sameIds = (a, b) => a.length === b.length && a.every((id, i) => id === b[i])
+
+// Os dias que o plano troca de fato, na ordem da semana do perfil (issue #120): o plan.starter roda
+// num rascunho, que é jogado fora (o documento aberto fica o mesmo), e a semana de antes e a de
+// depois são comparadas pela leitura week(). Um dia é trocado quando tinha alguma rotina e fica com
+// outra coisa. Um id que não é mais rotina não conta, como o "taken" do StarterPlanChooser do
+// openGym, e um dia vazio que o plano preenche não é trocado. Assim, a regra de quando uma rotina é
+// reaproveitada é a do próprio plan.starter, inclusive num documento quebrado (um item nulo no ex de
+// uma rotina, QA do PR #119). Um plano que não existe dá null.
+export function starterPlanChanges(S, planId) {
+  if (!starterPlanOptions().some(o => o.id === planId)) return null
+  const draft = draftOf(S)
+  ACTIONS['plan.starter'].run(draft.S, { type: 'plan.starter', planId }, S)
+  const after = week(draft.done()).days
+  return week(S).days.filter((d, i) => d.routineIds.length > 0 && !sameIds(d.routineIds, after[i].routineIds)).map(d => d.day)
 }

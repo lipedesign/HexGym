@@ -7,15 +7,12 @@
 // WeekPlanScreen é o estado da tela: lê no motor, muda a tela na hora e manda a ação pelo perform. A
 // tela não calcula nada no body.
 //
-// Toda regra continua no motor (seção 8.2): o week.set e o plan.starter, que é o loadStarterPlan do
-// sheets.jsx. As ações acham as rotinas pelo id, nunca pela posição na tela. O que fica aqui é a conta
-// do aviso, que o motor não tem como leitura: o plan.starter reaproveita a rotina que já existe com o
-// mesmo nome e os mesmos exercícios e põe uma rotina só em cada dia do plano, e os outros dias ficam como
-// estavam. Um dia do plano é trocado de fato quando tinha alguma rotina (um id que não é mais rotina não
-// conta, como o "taken" do StarterPlanChooser do openGym) e vai ficar com outra coisa. Um dia vazio que o
-// plano preenche não é trocado, e o openGym também não avisa por ele. Para a conta, o StarterPlanCatalog
-// leva os nomes, os exercícios e os dias dos quatro planos, copiados do lib/starter.js; os testes
-// (WeekPlanModelTests) conferem a tabela e o aviso contra o motor de verdade, nos quatro planos.
+// Toda regra fica no motor (seção 8.2): o week.set e o plan.starter, que é o loadStarterPlan do
+// sheets.jsx. As ações acham as rotinas pelo id, nunca pela posição na tela. Os dias de cada plano vêm
+// do engine.starterPlans(), e os dias que o aviso cita, do engine.starterPlanChanges(id) (issue #120): o
+// motor roda o plan.starter num rascunho e devolve os dias que tinham rotina e ficariam com outra coisa.
+// Assim, quando uma rotina é reaproveitada é a regra do próprio plan.starter, inclusive num documento
+// quebrado (nota 3 do QA do PR #119), e o app não leva cópia dos planos nem da regra.
 //
 // No log, como no AppModel, o tipo do erro fica público e o detalhe, privado, porque a mensagem do motor
 // pode trazer um pedaço do documento.
@@ -151,43 +148,6 @@ nonisolated struct StarterPlanRow: Identifiable, Equatable, Sendable {
   let spoken: String
 }
 
-// Os quatro planos do lib/starter.js do openGym: em cada dia, o nome da rotina e os exercícios dela, na
-// ordem. É o que o plan.starter compara para reaproveitar uma rotina que já existe (o sameLift do
-// sheets.jsx). Os testes conferem a tabela contra as rotinas que o motor cria.
-nonisolated enum StarterPlanCatalog {
-  struct Entry: Equatable, Sendable {
-    let day: Int
-    let name: String
-    let exercises: [String]
-  }
-
-  static func schedule(of id: String) -> [Entry]? { plans[id] }
-
-  private static let plans: [String: [Entry]] = [
-    "ppl": [
-      Entry(day: 1, name: "Push Day", exercises: ["0025", "0047", "0426", "0334", "0241", "0251"]),
-      Entry(day: 3, name: "Pull Day", exercises: ["2330", "0027", "1323", "0031", "0313"]),
-      Entry(day: 5, name: "Leg Day", exercises: ["0043", "0085", "0739", "0585", "0586", "0605"]),
-    ],
-    "upper-lower": [
-      Entry(day: 1, name: "Upper A", exercises: ["0025", "2330", "0047", "1323", "0334", "0241", "0031"]),
-      Entry(day: 2, name: "Lower A", exercises: ["0043", "0085", "0739", "0586", "0605"]),
-      Entry(day: 4, name: "Upper B", exercises: ["0047", "0027", "0426", "2330", "0334", "0241", "0313"]),
-      Entry(day: 5, name: "Lower B", exercises: ["0739", "0085", "0585", "0586", "0605"]),
-    ],
-    "full-body": [
-      Entry(day: 1, name: "Full Body A", exercises: ["0043", "0025", "2330", "0586", "0334", "0031"]),
-      Entry(day: 3, name: "Full Body B", exercises: ["0085", "0047", "1323", "0585", "0334", "0241"]),
-      Entry(day: 5, name: "Full Body C", exercises: ["0739", "0025", "0027", "0426", "0586", "0605"]),
-    ],
-    "5x5": [
-      Entry(day: 1, name: "5×5 A", exercises: ["0043", "0025", "0027"]),
-      Entry(day: 3, name: "5×5 B", exercises: ["0085", "0426", "2330"]),
-      Entry(day: 5, name: "5×5 C", exercises: ["0739", "0047", "1323"]),
-    ],
-  ]
-}
-
 nonisolated struct WeekPlanModel: Sendable {
   let weekStart: Int
   let days: [WeekDayRow]
@@ -196,22 +156,38 @@ nonisolated struct WeekPlanModel: Sendable {
   private let assigned: [Int: [String]]
   private let routines: [RoutineSummary]
   private let options: [StarterPlanOption]
+  // Os dias que cada plano troca, do engine.starterPlanChanges, pelo id do plano.
+  private let changes: [String: [Int]]
   private let text: WeekPlanText
 
-  // As rotinas de cada dia vêm do week(), que já deixa de fora o id que não é mais rotina.
-  init(week: WeekPlan, routines: [RoutineSummary], plans: [StarterPlanOption] = [], text: WeekPlanText) {
+  // As rotinas de cada dia vêm do week(), que já deixa de fora o id que não é mais rotina. Um plano só
+  // aparece com os dias que ele troca (changes), que o motor dá para todo plano que ele conhece.
+  init(week: WeekPlan, routines: [RoutineSummary], plans: [StarterPlanOption] = [], changes: [String: [Int]] = [:],
+       text: WeekPlanText) {
     self.init(weekStart: week.weekStart, order: week.days.map(\.day),
               assigned: Dictionary(week.days.map { ($0.day, $0.routineIds) }, uniquingKeysWith: { first, _ in first }),
-              routines: routines, options: plans, text: text)
+              routines: routines, options: plans, changes: changes, text: text)
+  }
+
+  // Tudo o que a semana e os planos prontos mostram, lido no motor: a semana, as rotinas, os planos e os
+  // dias que cada um troca.
+  static func read(_ engine: HexEngine, text: WeekPlanText) async throws -> WeekPlanModel {
+    let week = try await engine.week(), routines = try await engine.routines(), plans = try await engine.starterPlans()
+    var changes: [String: [Int]] = [:]
+    for plan in plans {
+      if let days = try await engine.starterPlanChanges(plan.id) { changes[plan.id] = days }
+    }
+    return WeekPlanModel(week: week, routines: routines, plans: plans, changes: changes, text: text)
   }
 
   private init(weekStart: Int, order: [Int], assigned: [Int: [String]], routines: [RoutineSummary], options: [StarterPlanOption],
-               text: WeekPlanText) {
+               changes: [String: [Int]], text: WeekPlanText) {
     self.weekStart = weekStart
     self.order = order
     self.assigned = assigned
     self.routines = routines
     self.options = options
+    self.changes = changes
     self.text = text
     let names = Dictionary(routines.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
     days = order.map { day in
@@ -221,9 +197,8 @@ nonisolated struct WeekPlanModel: Sendable {
                         isRest: ids.isEmpty, spoken: "\(text.full(day)), \(routines)")
     }
     plans = options.compactMap { option in
-      guard let schedule = StarterPlanCatalog.schedule(of: option.id), let name = text.planName(option.id),
-            let about = text.planAbout(option.id) else { return nil }
-      let planDays = order.filter { day in schedule.contains { $0.day == day } }
+      guard changes[option.id] != nil, let name = text.planName(option.id), let about = text.planAbout(option.id) else { return nil }
+      let planDays = order.filter(option.weekdays.contains)
       let count = text.daysPerWeek(option.days)
       return StarterPlanRow(
         id: option.id, name: name, about: about, days: planDays,
@@ -252,24 +227,18 @@ nonisolated struct WeekPlanModel: Sendable {
     ids.contains(id) ? ids.filter { $0 != id } : ids + [id]
   }
 
-  // A mesma semana com um dia mudado, até a leitura do motor chegar.
+  // A mesma semana com um dia mudado, até a leitura do motor chegar. Os dias que cada plano troca ficam
+  // os da última leitura até lá: a leitura que vem depois da ação traz os novos.
   func setting(_ day: Int, to ids: [String]) -> WeekPlanModel {
     var assigned = assigned
     assigned[day] = ids
-    return WeekPlanModel(weekStart: weekStart, order: order, assigned: assigned, routines: routines, options: options, text: text)
+    return WeekPlanModel(weekStart: weekStart, order: order, assigned: assigned, routines: routines, options: options,
+                         changes: changes, text: text)
   }
 
-  // Os dias que o plano troca de fato, na ordem da semana do perfil: os dias dele que tinham rotina e que
-  // vão ficar com outra. O plan.starter põe em cada dia do plano só a rotina dele: a que já existe com o
-  // mesmo nome e os mesmos exercícios ou, sem ela, uma nova.
+  // Os dias que o plano troca de fato, na ordem da semana do perfil, como o motor leu.
   func replacedDays(byPlan id: String) -> [Int] {
-    guard let schedule = StarterPlanCatalog.schedule(of: id) else { return [] }
-    return order.filter { day in
-      guard let entry = schedule.first(where: { $0.day == day }), let current = self.day(day)?.routineIDs, !current.isEmpty
-      else { return false }
-      let reused = routines.first { $0.name == entry.name && $0.slots.map(\.id) == entry.exercises }
-      return reused.map { current != [$0.id] } ?? true
-    }
+    changes[id] ?? []
   }
 
   // "Este plano troca segunda, quarta e sexta.", ou nil quando ele não troca nenhum dia.
@@ -328,8 +297,7 @@ nonisolated enum PlanLoadedAnnouncement {
   func load() async {
     guard pending == 0 else { return }
     do {
-      let model = WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(),
-                                plans: try await engine.starterPlans(), text: text)
+      let model = try await WeekPlanModel.read(engine, text: text)
       guard pending == 0 else { return }
       self.model = model
       phase = .ready
