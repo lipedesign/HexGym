@@ -403,6 +403,8 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   @ObservationIgnored let locale: Locale
   @ObservationIgnored private let revision: () -> Int
   @ObservationIgnored let perform: (EngineAction) async throws -> ActionOutcome
+  // O plano da semana no topo da aba (Task 12), com o mesmo motor, o mesmo idioma e as mesmas ações.
+  @ObservationIgnored let week: WeekPlanScreen
   @ObservationIgnored private var undos = 0
   @ObservationIgnored private var announced: Int?
 
@@ -414,6 +416,7 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     self.locale = locale
     self.revision = revision
     self.perform = perform
+    week = WeekPlanScreen(engine: engine, locale: locale, perform: perform)
   }
 
   // O app de verdade: o motor e as ações do AppModel, e o revision dele.

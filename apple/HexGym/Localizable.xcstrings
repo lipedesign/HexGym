@@ -41,6 +41,17 @@
         }
       }
     },
+    "%@ plan loaded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plano %@ carregado"
+          }
+        }
+      }
+    },
     "%@ with its label" : {
       "localizations" : {
         "pt-BR" : {
@@ -68,6 +79,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, já tem este exercício"
+          }
+        }
+      }
+    },
+    "%lld days per week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld dias por semana"
           }
         }
       }
@@ -127,6 +149,17 @@
         }
       }
     },
+    "1 day per week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 dia por semana"
+          }
+        }
+      }
+    },
     "1 exercise" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -134,6 +167,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 exercício"
+          }
+        }
+      }
+    },
+    "5×5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5×5"
           }
         }
       }
@@ -435,6 +479,16 @@
         }
       }
     },
+    "Build your first routine" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monte a sua primeira rotina"
+          }
+        }
+      }
+    },
     "Button" : {
       "localizations" : {
         "pt-BR" : {
@@ -492,6 +546,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trocar a unidade converte as cargas das suas rotinas. O RIR conta as repetições que sobraram; o RPE dá o mesmo esforço numa escala de 1 a 10."
+          }
+        }
+      }
+    },
+    "Choose the routines for this day" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha as rotinas deste dia"
           }
         }
       }
@@ -913,6 +977,17 @@
         }
       }
     },
+    "Five sets of five on the main barbell lifts." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cinco séries de cinco nos básicos com barra."
+          }
+        }
+      }
+    },
     "Flag" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -953,6 +1028,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sexta"
+          }
+        }
+      }
+    },
+    "Full Body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corpo inteiro"
           }
         }
       }
@@ -1223,6 +1309,27 @@
         }
       }
     },
+    "Load plan" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregar plano"
+          }
+        }
+      }
+    },
+    "Load the %@ plan?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregar o plano %@?"
+          }
+        }
+      }
+    },
     "Log set" : {
       "localizations" : {
         "pt-BR" : {
@@ -1319,6 +1426,16 @@
         }
       }
     },
+    "More" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais"
+          }
+        }
+      }
+    },
     "Motion and haptics" : {
       "localizations" : {
         "pt-BR" : {
@@ -1387,16 +1504,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nenhum filtro ligado"
-          }
-        }
-      }
-    },
-    "No routines yet" : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhuma rotina ainda"
           }
         }
       }
@@ -1523,6 +1630,16 @@
         }
       }
     },
+    "Or start with a starter plan" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ou comece com um plano pronto"
+          }
+        }
+      }
+    },
     "Other scripts" : {
       "localizations" : {
         "pt-BR" : {
@@ -1549,6 +1666,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nossos: a entrada da carga"
+          }
+        }
+      }
+    },
+    "Pick one routine, or more to train them together." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha uma rotina, ou mais de uma para treinar juntas."
+          }
+        }
+      }
+    },
+    "Pick the exercises, the sets and the load, your way." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha os exercícios, as séries e a carga, do seu jeito."
           }
         }
       }
@@ -1613,6 +1750,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Barra fixa"
+          }
+        }
+      }
+    },
+    "Push / Pull / Legs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empurrar, puxar, pernas"
+          }
+        }
+      }
+    },
+    "Push, pull and legs each get their own day." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empurrar, puxar e pernas, cada um no seu dia."
           }
         }
       }
@@ -1724,6 +1883,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Descanso"
+          }
+        }
+      }
+    },
+    "Rest day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dia de descanso"
           }
         }
       }
@@ -1960,6 +2130,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Começar treino"
+          }
+        }
+      }
+    },
+    "Starter plans" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planos prontos"
           }
         }
       }
@@ -2244,6 +2424,28 @@
         }
       }
     },
+    "This plan changes %@." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este plano troca %@."
+          }
+        }
+      }
+    },
+    "Three sessions, the whole body each time." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Três treinos, o corpo inteiro em cada um."
+          }
+        }
+      }
+    },
     "Thu" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2360,6 +2562,28 @@
         }
       }
     },
+    "Upper / Lower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Superior e inferior"
+          }
+        }
+      }
+    },
+    "Upper body twice, lower body twice." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A parte de cima duas vezes e a de baixo duas vezes."
+          }
+        }
+      }
+    },
     "Version" : {
       "localizations" : {
         "pt-BR" : {
@@ -2398,6 +2622,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Semana"
+          }
+        }
+      }
+    },
+    "Weekly plan" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plano da semana"
           }
         }
       }
@@ -2469,6 +2703,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dá para trocar depois nos Ajustes."
+          }
+        }
+      }
+    },
+    "Your routines stay." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As suas rotinas ficam."
+          }
+        }
+      }
+    },
+    "Your routines stay. Only the plan's days of the week change." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As suas rotinas ficam. Só os dias do plano mudam na semana."
           }
         }
       }
