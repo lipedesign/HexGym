@@ -80,6 +80,11 @@ import HexStore
     try await store.save(a); try await store.save(b); write("state.json", Data("{".utf8))
     try await store.save(c)
     #expect(read("state.json") == c); #expect(read("state.previous.json") == a)
+    // Estragado com o mesmo tamanho do último gravado: o store compara os bytes com os que gravou, e
+    // não o tamanho, e o estragado também não vira cópia (rodada 2 do PR #156).
+    write("state.json", Data(repeating: UInt8(ascii: "x"), count: c.count))
+    try await store.save(b)
+    #expect(read("state.json") == b); #expect(read("state.previous.json") == a)
   }
   @Test func onlyJSONObjectsAreSaved() async throws {
     await #expect(throws: DocumentStoreError.notAnObject) { try await store.save(Data("[1]".utf8)) }

@@ -39,14 +39,16 @@ import Testing
   @Test func startPublishesTheWorkoutAndStartsTheLiveActivity() async throws {
     let model = try await opened("semana-ppl")
     let session = model.session
-    #expect(session.workout == nil)
+    // Sem treino, o refresh cancela o aviso que tenha ficado de um treino que já acabou.
+    await session.refresh()
+    #expect(session.workout == nil); #expect(alerts.calls == [.cancel])
     let outcome = try await session.perform(.start(routineIDs: ["r-push"], id: "w-hoje"))
     #expect(outcome.effects == [.activityStart])
     let workout = try #require(session.workout)
     #expect(workout.id == "w-hoje"); #expect(workout.name == "Push"); #expect(workout.done == 0); #expect(workout.total == 13)
     let live = try #require(try await model.engine.liveActivity())
     #expect(activity.calls == [.start(live, workoutID: "w-hoje", start: try #require(workout.start))])
-    #expect(alerts.calls.isEmpty)
+    #expect(alerts.calls == [.cancel])
   }
 
   @Test func markSetPlaysSetLoggedAndSchedulesTheAlertAtEndsAt() async throws {
@@ -61,15 +63,11 @@ import Testing
     #expect(rest.total == 90); #expect(session.workout?.done == 1)
     #expect(outcome.effects == [.haptic("setLogged"), .restStarted(endsAt: rest.endsAt, total: 90, kind: "rest"), .activityUpdate])
     #expect(alerts.calls == [.schedule(at: rest.endsAt, title: SessionEffects.alertTitle(kind: "rest"), body: "")])
-    // A Live Activity recebe o modelo lido depois da ação: a série seguinte e o descanso que começou. O
-    // restAfter dele fica de fora: o motor simula a marcação no now da leitura, e numa leitura no mesmo
-    // milissegundo em que o descanso começou ele sai 0 (achado para a Task 13, no PR).
+    // A Live Activity recebe o modelo lido depois da ação, inteiro: a série seguinte, com o descanso
+    // dela, e o descanso que começou. O motor dá o mesmo modelo lido no ms da ação ou depois (rodada 2).
     let live = try #require(try await model.engine.liveActivity())
-    #expect(activity.calls.count == 2)
-    guard case .update(let sent) = activity.calls.last else { Issue.record("sem update: \(activity.calls)"); return }
-    #expect(sent.done == 1); #expect(sent.done == live.done); #expect(sent.restEndsAt == rest.endsAt)
-    #expect(sent.cur?.entry == live.cur?.entry); #expect(sent.cur?.set == live.cur?.set)
-    #expect(sent.ahead.map(\.set) == live.ahead.map(\.set))
+    #expect(activity.calls.count == 2); #expect(activity.calls.last == .update(live))
+    #expect(live.done == 1); #expect(live.restEndsAt == rest.endsAt); #expect(live.cur?.restAfter == 90)
   }
 
   @Test func skipRestCancelsTheAlert() async throws {
@@ -86,14 +84,15 @@ import Testing
   @Test func finishClearsTheWorkoutKeepsTheSummaryAndEndsTheActivity() async throws {
     let model = try await opened("treino-em-andamento")
     let session = model.session
+    // Com treino e sem descanso, o refresh cancela o aviso que a Live Activity possa ter deixado.
     await session.refresh()
-    #expect(session.workout?.done == 5); #expect(session.lastFinish == nil)
+    #expect(session.workout?.done == 5); #expect(session.lastFinish == nil); #expect(alerts.calls == [.cancel])
     let outcome = try await session.perform(.finish)
     #expect(session.workout == nil)
     let summary = try #require(session.lastFinish)
     #expect(summary.id == "w-2026-11-09-push"); #expect(summary.sets.done == 5)
     #expect(summary.prs.map(\.id).contains("0025"))           // o supino de 70 kg passa dos 67,5 kg
-    #expect(outcome.effects.last == .activityEnd); #expect(activity.calls == [.end])
+    #expect(outcome.effects.last == .activityEnd); #expect(activity.calls == [.end]); #expect(alerts.calls == [.cancel])
     #expect(try await model.engine.home().last?.id == "w-2026-11-09-push")
   }
 

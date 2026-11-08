@@ -340,11 +340,14 @@ function upcomingSets(A) {
  * como quem treina. Assim, o descanso é o mesmo que o app daria (o do perfil, do exercício, da
  * pirâmide, do aquecimento e do superset, que só descansa no fim da volta), e 0 quando nenhum
  * começa (o fim do treino) ou quando o que começa é a pausa de trocar de lado, que a Live Activity
- * não mostra. O documento aberto não muda.
+ * não mostra. O documento aberto não muda. Com um descanso contando, a primeira marca é depois dele:
+ * marcada no mesmo ms em que ele começou, ela daria o mesmo descanso, sem rest.started, e o cur
+ * sairia com 0 (rodada 2 do PR #156).
  */
 function restsAfter(S, refs, now) {
   let doc = S
-  let at = now
+  const running = S.active?.rest
+  let at = isMap(running) && Number.isFinite(running.endsAt) && running.endsAt > now ? running.endsAt + 1000 : now
   return refs.map(ref => {
     let out
     try {

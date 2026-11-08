@@ -9,11 +9,11 @@ import Testing
 
 @Suite @MainActor struct FixtureLoaderTests {
   // A data AAAA-MM-DD do instante no fuso do aparelho, como o motor a lê.
-  func iso(_ date: Date) -> String {
+  func iso(_ date: Date, in zone: TimeZone = .current) -> String {
     let f = DateFormatter()
     f.calendar = Calendar(identifier: .gregorian)
     f.locale = Locale(identifier: "en_US_POSIX")
-    f.timeZone = .current
+    f.timeZone = zone
     f.dateFormat = "yyyy-MM-dd"
     return f.string(from: date)
   }
@@ -81,6 +81,24 @@ import Testing
       #expect(home.today.routines.map(\.name) == ["Push"])
       #expect(home.last?.name == "Legs")
       #expect(home.last?.d == iso(try #require(calendar.date(byAdding: .day, value: -3, to: now))))
+      let lastKey = try #require(home.last?.key)
+      let lastStart = try #require(try await engine.workoutDetail(lastKey)?.start)
+      #expect(iso(lastStart) == home.last?.d)
+
+      // Em qualquer fuso, o start de cada treino do histórico cai no dia do d dele, e a duração fica a
+      // mesma (rodada 2 do PR #156).
+      for zone in ["Pacific/Auckland", "Europe/Zurich", "America/Sao_Paulo"].compactMap(TimeZone.init(identifier:)) {
+        var zoned = Calendar(identifier: .gregorian)
+        zoned.timeZone = zone
+        let data = try FixtureLoader.document(named: "semana-ppl", now: now, calendar: zoned)
+        let workouts = try #require((try JSONSerialization.jsonObject(with: data) as? [String: Any])?["workouts"] as? [[String: Any]])
+        #expect(workouts.count == 12)
+        for w in workouts {
+          let start = try #require((w["start"] as? NSNumber)?.doubleValue), end = try #require((w["end"] as? NSNumber)?.doubleValue)
+          #expect(iso(Date(timeIntervalSince1970: start / 1000), in: zone) == w["d"] as? String, "\(zone.identifier) \(w["d"] ?? "")")
+          #expect(end - start > 20 * 60_000 && end - start < 40 * 60_000)
+        }
+      }
     }
   }
 }

@@ -6,10 +6,14 @@
 // Os documentos (FixtureDocuments) foram gravados num dia só, e o carregador leva cada um para hoje
 // na carga. O texto traz a chave _fixtureNow, o instante em ms em que o documento "está", e ela sai
 // do documento depois da troca:
-//   - as horas (start, end, at e endsAt, em qualquer nível do active e de cada treino do workouts)
-//     andam agora − _fixtureNow, em ms: o descanso que faltava 75 s no _fixtureNow falta 75 s agora;
 //   - as datas (o d do active, de cada treino e de cada pesagem do bodyweight, e as chaves do dayPlan)
-//     andam os dias inteiros entre o dia do _fixtureNow e hoje, no calendário do aparelho.
+//     andam os dias inteiros entre o dia do _fixtureNow e hoje, no calendário do aparelho;
+//   - as horas do active (start, at e endsAt, em qualquer nível) andam agora − _fixtureNow, em ms: o
+//     descanso que faltava 75 s no _fixtureNow falta 75 s agora;
+//   - as horas de cada treino do workouts vão com o d: o start cai no dia do d novo, na mesma hora local
+//     que tinha, no fuso do aparelho, e o end e o at das séries andam o mesmo que o start, e a duração
+//     fica. Andar por ms, como o plano dizia, punha o start em outro dia que o d conforme a hora do
+//     print (rodada 2 do PR #156).
 // Por isso, a chave de um treino antigo sem id (que sai do d e do start) muda a cada dia, e os
 // treinos que os prints abrem têm id.
 //
@@ -71,7 +75,7 @@ enum FixtureLoader {
     if let workouts = doc["workouts"] as? [Any] {
       doc["workouts"] = workouts.map { item -> Any in
         guard let workout = item as? [String: Any] else { return item }
-        return movingDay(moving(workout, by: ms) as? [String: Any] ?? workout, by: days)
+        return movingWorkout(workout, by: days, calendar: calendar)
       }
     }
     if let weights = doc["bodyweight"] as? [Any] {
@@ -98,6 +102,29 @@ enum FixtureLoader {
     }
     if let list = value as? [Any] { return list.map { moving($0, by: ms) } }
     return value
+  }
+
+  // Um treino do histórico: o d anda os dias, e as horas andam o que leva o start para o dia do d novo,
+  // na mesma hora local. Sem start, só o d anda.
+  private static func movingWorkout(_ workout: [String: Any], by days: Int, calendar: Calendar) -> [String: Any] {
+    let dated = movingDay(workout, by: days)
+    guard let number = workout["start"] as? NSNumber, !isBool(number), let d = dated["d"] as? String,
+          let target = wallClock(of: number.doubleValue, on: d, calendar: calendar)
+    else { return dated }
+    return moving(dated, by: target - number.doubleValue) as? [String: Any] ?? dated
+  }
+
+  // O instante em ms no dia d (AAAA-MM-DD), na hora local que o instante ms tem, no fuso do calendário.
+  private static func wallClock(of ms: Double, on d: String, calendar: Calendar) -> Double? {
+    let parts = d.split(separator: "-").compactMap { Int($0) }
+    guard d.count == 10, parts.count == 3 else { return nil }
+    var gregorian = Calendar(identifier: .gregorian)
+    gregorian.timeZone = calendar.timeZone
+    let time = gregorian.dateComponents([.hour, .minute, .second], from: Date(timeIntervalSince1970: ms / 1000))
+    guard let date = gregorian.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2],
+                                                         hour: time.hour, minute: time.minute, second: time.second))
+    else { return nil }
+    return (date.timeIntervalSince1970 * 1000).rounded() + ms.truncatingRemainder(dividingBy: 1000)
   }
 
   // O d do objeto, quando é uma data, anda os dias.
