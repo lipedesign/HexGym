@@ -1727,6 +1727,17 @@
         }
       }
     },
+    "Next session: %@, %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próxima sessão: %1$@, %2$@"
+          }
+        }
+      }
+    },
     "No exercises" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1786,6 +1797,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nota"
+          }
+        }
+      }
+    },
+    "Nothing planned for today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada marcado para hoje"
           }
         }
       }

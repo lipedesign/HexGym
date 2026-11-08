@@ -11,20 +11,24 @@
 //
 // Os textos que o openGym já tem são os dele (views/Home.jsx e o pacote pt-BR, que herda do pt), com a
 // chave em inglês dele: no cartão, "Hoje" em cima e, no título, as rotinas de hoje juntas por " + " (o
-// todayName), "Dia de descanso" (também num dia sem nada marcado, como no openGym), "Push (em andamento)",
-// "Push (concluído)" ou "Treino concluído"; "Começar treino", "Continuar treino", "Escolher outro treino" e
-// "Treino livre (escolha durante o treino)"; "Sequência de 3 semanas" e "2 esta semana · 12 treinos no
-// total"; "Último treino"; e, na fala da semana, "Semana", "treinado", "planejado", "descanso" e "hoje".
-// Onde o openGym não tem o texto, ficam os do plano: "Monte a sua primeira rotina" (a mesma chave da aba
-// Rotinas vazia), "Começar treino livre" e "Ir para Rotinas".
+// todayName), "Dia de descanso", "Push (em andamento)", "Push (concluído)" ou "Treino concluído", e, num
+// dia de descanso ou sem nada marcado, "Próxima sessão: Segunda, Push" (o next do motor, a linha do
+// views/Home.jsx:145); "Começar treino", "Continuar treino", "Escolher outro treino" e "Treino livre
+// (escolha durante o treino)"; "Sequência de 3 semanas" e "2 esta semana · 12 treinos no total"; "Último
+// treino"; e, na fala da semana, "treinado", "planejado", "descanso" e "hoje". A duração do último treino
+// é a do fmtDur do openGym, em minutos inteiros para baixo, e some sem relógio (o durPart, abaixo de 1
+// minuto). Onde o openGym não tem o texto, ficam os do plano: "Monte a sua primeira rotina" (a mesma chave
+// da aba Rotinas vazia), "Começar treino livre" e "Ir para Rotinas".
 //
-// Escolha recomendada, com a delegação do Lipe de 03/11/2026: no dia de treino, o botão principal começa
-// as rotinas de hoje, e o "Escolher outro treino" fica embaixo dele, com as outras rotinas e o treino
-// livre; num dia de descanso, sem nada marcado ou com o treino de hoje feito, o botão principal é o
-// próprio "Escolher outro treino", com todas as rotinas, porque o openGym não empurra um segundo treino
-// no mesmo dia; com o treino em andamento, não há outro treino, como no openGym; o cartão diz até quatro
-// exercícios, e "e mais 2" depois; a sequência e os totais só aparecem com histórico, porque "Sequência
-// de 0 semanas" não diz nada.
+// Escolhas recomendadas, com a delegação do Lipe de 03/11/2026: no dia de treino, o botão principal
+// começa as rotinas de hoje, e o "Escolher outro treino" fica embaixo dele, com as outras rotinas e o
+// treino livre; num dia de descanso, sem nada marcado ou com o treino de hoje feito, não há botão grande,
+// só o "Escolher outro treino" no estilo secundário, com todas as rotinas, porque o openGym não empurra um
+// segundo treino no mesmo dia; com o treino em andamento, não há outro treino, como no openGym; o cartão
+// diz até quatro exercícios, e "e mais 2" depois; o dia sem nada marcado diz "Nada marcado para hoje" (o
+// openGym diz "Dia de descanso" também nele); a sequência só aparece com pelo menos uma semana, porque
+// "Sequência de 0 semanas" não diz nada, e os totais, com qualquer histórico; a fala da semana não repete
+// "Semana", que o título em cima dela já diz.
 
 import Foundation
 import HexDesign
@@ -38,14 +42,14 @@ nonisolated struct HomeText: Sendable {
   // O idioma dos textos do app (o catálogo tem só o português e o inglês), para o calendário e as datas.
   let textLocale: Locale
   private let portuguese: Bool
-  let today, restDay, workoutDone, startWorkout, continueWorkout, chooseWorkout, freestyle, startFreestyle,
-      firstRoutine, firstRoutineDetail, goToRoutines, week, trained, planned, rest, todayWord, oneWeekStreak,
+  let today, restDay, nothingPlanned, workoutDone, startWorkout, continueWorkout, chooseWorkout, freestyle, startFreestyle,
+      firstRoutine, firstRoutineDetail, goToRoutines, trained, planned, rest, todayWord, oneWeekStreak,
       oneWorkoutTotal, oneSet: String
   private let inProgressFormat, doneFormat, moreFormat, weekStreakFormat, thisWeekFormat, workoutsTotalFormat,
-      setsFormat, minutesFormat, hoursFormat: String
-  // Os dias pelo getDay() (0 é o domingo): a letra embaixo da semana ("S") e o nome no meio de uma frase
-  // ("segunda").
-  private let letters, sentenceDays: [String]
+      setsFormat, minutesFormat, hoursFormat, nextFormat: String
+  // Os dias pelo getDay() (0 é o domingo): a letra embaixo da semana ("S"), o nome no meio de uma frase
+  // ("segunda") e o nome sozinho ("Segunda", o t(DAYN[d]) do openGym).
+  private let letters, sentenceDays, dayNames: [String]
 
   @MainActor init(locale: Locale) {
     self.locale = locale
@@ -54,6 +58,7 @@ nonisolated struct HomeText: Sendable {
     func text(_ key: String) -> String { AppText.text(key, locale: locale) }
     today = text("Today")
     restDay = text("Rest day")
+    nothingPlanned = text("Nothing planned for today")
     workoutDone = text("Workout done")
     startWorkout = text("Start workout")
     continueWorkout = text("Continue workout")
@@ -63,7 +68,6 @@ nonisolated struct HomeText: Sendable {
     firstRoutine = text("Build your first routine")
     firstRoutineDetail = text("Set up your weekly routine to get going, or grab a ready-made starter plan.")
     goToRoutines = text("Go to Routines")
-    week = text("Week")
     oneWeekStreak = text("1 week streak")
     oneWorkoutTotal = text("1 workout total")
     oneSet = text("1 set")
@@ -76,6 +80,7 @@ nonisolated struct HomeText: Sendable {
     setsFormat = text("%lld sets")
     minutesFormat = text("%lld min")
     hoursFormat = text("%lldh %lldm")
+    nextFormat = text("Next session: %@, %@")
     // No meio da fala, as palavras do estado do dia em minúscula: "segunda, hoje, planejado".
     let textLocale = textLocale
     func word(_ key: String) -> String { text(key).lowercased(with: textLocale) }
@@ -87,13 +92,17 @@ nonisolated struct HomeText: Sendable {
     calendar.locale = textLocale
     letters = calendar.veryShortStandaloneWeekdaySymbols
     let portuguese = portuguese
-    sentenceDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map {
-      portuguese ? text($0).lowercased(with: textLocale) : text($0)
-    }
+    dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map(text)
+    sentenceDays = dayNames.map { portuguese ? $0.lowercased(with: textLocale) : $0 }
   }
 
   func letter(_ day: Int) -> String { letters.indices.contains(day) ? letters[day] : "" }
   func sentenceDay(_ day: Int) -> String { sentenceDays.indices.contains(day) ? sentenceDays[day] : "" }
+
+  // "Próxima sessão: Quarta, Pull".
+  func next(weekday: Int, name: String) -> String {
+    String(format: nextFormat, locale: locale, dayNames.indices.contains(weekday) ? dayNames[weekday] : "", name)
+  }
 
   func inProgress(_ name: String) -> String { String(format: inProgressFormat, locale: locale, name) }
   func done(_ name: String) -> String { String(format: doneFormat, locale: locale, name) }
@@ -122,7 +131,8 @@ nonisolated struct HomeText: Sendable {
     count == 1 ? oneSet : String(format: setsFormat, locale: locale, count)
   }
 
-  // "52 min" e "1 h 12 min", como o fmtDur do openGym ('{0} min' e '{0}h {1}m').
+  // "52 min" e "1 h 12 min", como o fmtDur do openGym ('{0} min' e '{0}h {1}m'); os minutos vêm inteiros,
+  // para baixo, do lastWorkout.
   func duration(minutes: Int) -> String {
     minutes < 60 ? String(format: minutesFormat, locale: locale, minutes)
       : String(format: hoursFormat, locale: locale, minutes / 60, minutes % 60)
@@ -169,11 +179,16 @@ nonisolated struct HomeModel: Equatable, Sendable {
   // "Hoje · segunda".
   let eyebrow: String
   let title: String
+  // "Próxima sessão: Segunda, Push", num dia de descanso ou sem nada marcado, quando há um dia com treino
+  // nos próximos sete.
+  let nextSession: String?
   // Os exercícios das rotinas de hoje, ou, no app vazio, a frase do openGym.
   let detail: String?
   let primary: Primary
   let primaryLabel: String
-  // O "Escolher outro treino" embaixo do botão principal, no dia de treino.
+  // O "Escolher outro treino" embaixo do botão principal, no dia de treino. Com o primary .choose, ele é
+  // o único botão, no estilo secundário: o botão grande fica para o dia de treino, o treino em andamento
+  // e o app vazio.
   let offersChooser: Bool
   let chooserLabel: String
   // As rotinas do menu, na ordem da lista; o treino livre vem no fim.
@@ -184,9 +199,9 @@ nonisolated struct HomeModel: Equatable, Sendable {
   let routinesLabel: String
   let active: HomeActiveCard?
   let week: [HomeDay]
-  // "Semana: segunda, hoje, planejado; terça, descanso; ...".
+  // "segunda, hoje, planejado; terça, descanso; ...", embaixo do título "Semana".
   let weekSpoken: String
-  // A sequência e os totais, só com histórico.
+  // A sequência, só com pelo menos uma semana; os totais, com qualquer histórico.
   let streak: String?
   let tally: String?
   let last: HomeLastWorkout?
@@ -207,6 +222,7 @@ nonisolated struct HomeModel: Equatable, Sendable {
 
     if let running = summary.active {
       title = text.inProgress(running.name)
+      nextSession = nil
       detail = nil
       primary = .resume
       primaryLabel = text.continueWorkout
@@ -218,6 +234,7 @@ nonisolated struct HomeModel: Equatable, Sendable {
     } else if routines.isEmpty {
       // O app vazio (Foco da revisão 5): sem rotina para começar, o treino livre.
       title = text.firstRoutine
+      nextSession = nil
       detail = text.firstRoutineDetail
       primary = .freestyle
       primaryLabel = text.startFreestyle
@@ -227,6 +244,7 @@ nonisolated struct HomeModel: Equatable, Sendable {
       active = nil
     } else if today.status == "planned", !todayIDs.isEmpty {
       title = today.routines.map(\.name).joined(separator: " + ")
+      nextSession = nil
       let language = language ?? text.textLocale
       detail = text.exercises(todayIDs.flatMap { byID[$0]?.slots.map { LibraryNames.capitalized($0.name, language: language) } ?? [] })
       primary = .start(todayIDs)
@@ -236,12 +254,15 @@ nonisolated struct HomeModel: Equatable, Sendable {
       goesToRoutines = false
       active = nil
     } else {
-      // Feito, descanso ou nada marcado: o openGym diz "Dia de descanso" nos dois últimos.
+      // Feito, descanso ou nada marcado. A próxima sessão não aparece com o treino de hoje feito, como no
+      // openGym (o next && !doneToday).
       if today.status == "done" {
         let name = summary.last.flatMap { $0.d == today.date && !$0.name.isEmpty ? $0.name : nil }
         title = name.map(text.done) ?? text.workoutDone
+        nextSession = nil
       } else {
-        title = text.restDay
+        title = today.status == "none" ? text.nothingPlanned : text.restDay
+        nextSession = summary.next.map { text.next(weekday: $0.weekday, name: $0.name) }
       }
       detail = nil
       primary = .choose
@@ -253,13 +274,13 @@ nonisolated struct HomeModel: Equatable, Sendable {
     }
 
     week = summary.week.map { HomeDay(day: $0.day, letter: text.letter($0.day), trained: $0.trained, planned: $0.planned, today: $0.today) }
-    weekSpoken = text.week + ": " + summary.week.map { day in
+    weekSpoken = summary.week.map { day in
       let state = day.trained ? text.trained : day.planned ? text.planned : text.rest
       return ([text.sentenceDay(day.day)] + (day.today ? [text.todayWord] : []) + [state]).joined(separator: ", ")
     }.joined(separator: "; ")
 
     let hasHistory = summary.total > 0
-    streak = hasHistory ? text.streak(summary.streakWeeks) : nil
+    streak = summary.streakWeeks >= 1 ? text.streak(summary.streakWeeks) : nil
     tally = hasHistory ? text.tally(week: summary.weekCount, total: summary.total) : nil
     last = summary.last.map { Self.lastWorkout($0, text: text) }
   }
@@ -282,15 +303,18 @@ nonisolated struct HomeModel: Equatable, Sendable {
   }
 
   private static func lastWorkout(_ last: HomeSummary.Last, text: HomeText) -> HomeLastWorkout {
-    let minutes = Int((last.durationMs / 60_000).rounded())
+    // O fmtDur do openGym: os minutos inteiros, para baixo (59 min e 40 s dão "59 min"), e nada abaixo de
+    // 1 minuto, o treino sem relógio (o durPart).
+    let minutes = last.durationMs >= 60_000 ? Int((last.durationMs / 60_000).rounded(.down)) : nil
     let date = last.d.flatMap(day)
     let short = date?.formatted(Date.FormatStyle(locale: text.textLocale, calendar: utc, timeZone: .gmt)
       .weekday(.abbreviated).day().month(.abbreviated))
     let long = date?.formatted(Date.FormatStyle(locale: text.textLocale, calendar: utc, timeZone: .gmt)
       .weekday(.wide).day().month(.wide))
     let sets = text.sets(last.sets)
-    let detail = ([short, text.duration(minutes: minutes), sets].compactMap { $0 }).joined(separator: LibraryNames.separator)
-    let spoken = ([last.name, long, spokenDuration(TimeInterval(minutes * 60), units: [.hour, .minute], locale: text.textLocale), sets]
+    let detail = ([short, minutes.map(text.duration), sets].compactMap { $0 }).joined(separator: LibraryNames.separator)
+    let spokenMinutes = minutes.map { spokenDuration(TimeInterval($0 * 60), units: [.hour, .minute], locale: text.textLocale) }
+    let spoken = ([last.name, long, spokenMinutes, sets]
       .compactMap { $0 }).joined(separator: ", ")
     return HomeLastWorkout(key: last.key, name: last.name, detail: detail, spoken: spoken)
   }
@@ -375,12 +399,15 @@ nonisolated struct HomeModel: Equatable, Sendable {
     guard !starting else { return }
     starting = true
     defer { starting = false }
+    let before = revision()
     do {
       _ = try await perform(.start(routineIDs: routineIDs, id: UUID().uuidString.lowercased()))
     } catch {
       Self.log("não deu para começar o treino", error)
     }
-    await load()
+    // Com o documento mudado, o revision sobe e a tela já lê de novo (o onChange do HomeView): ler aqui
+    // também seria ler o motor duas vezes.
+    if revision() == before { await load() }
   }
 
   private static func log(_ what: String, _ error: any Error) {

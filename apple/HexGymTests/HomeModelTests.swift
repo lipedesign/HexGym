@@ -5,8 +5,9 @@
 // histórico (Foco da revisão 5), também pelo motor de verdade.
 //
 // Os textos que o openGym já tem vêm dele (views/Home.jsx e o pacote pt-BR, que herda do pt): "Dia de
-// descanso", "Escolher outro treino", "Push (em andamento)", "Push (concluído)", "Sequência de 3
-// semanas" e "12 treinos no total".
+// descanso", "Próxima sessão: Quarta, Pull", "Escolher outro treino", "Push (em andamento)", "Push
+// (concluído)", "Sequência de 3 semanas" e "12 treinos no total"; a duração do último treino é a do fmtDur
+// dele, em minutos inteiros para baixo, e some abaixo de 1 minuto (o durPart).
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -34,13 +35,13 @@ import Testing
   // pedidos. As horas vão em ms, como o motor manda.
   func summary(status: String = "planned", today: [String] = ["r-push"], date: String = "2026-11-09",
                active: String = "null", week: String? = nil, streak: Int = 3, weekCount: Int = 2, total: Int = 12,
-               last: String = "null") throws -> HomeSummary {
+               last: String = "null", next: String = "null") throws -> HomeSummary {
     let names = ["r-push": "Push", "r-pull": "Pull", "r-legs": "Legs"]
     let todays = today.map { #"{"id":"\#($0)","name":"\#(names[$0] ?? $0)","glyph":"barbell"}"# }.joined(separator: ",")
     let days = week ?? Self.week(weekStart: 1, today: 1, trained: [], planned: [1, 3, 5])
     let text = #"""
       {"today":{"date":"\#(date)","status":"\#(status)","routines":[\#(todays)]},"active":\#(active),"week":\#(days),
-       "streakWeeks":\#(streak),"weekCount":\#(weekCount),"total":\#(total),"last":\#(last)}
+       "streakWeeks":\#(streak),"weekCount":\#(weekCount),"total":\#(total),"last":\#(last),"next":\#(next)}
       """#
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .millisecondsSince1970
@@ -74,6 +75,7 @@ import Testing
     #expect(planned.chooserLabel == "Escolher outro treino")
     #expect(planned.chooser.map(\.id) == ["r-pull", "r-legs"])
     #expect(planned.freestyleLabel == "Treino livre (escolha durante o treino)")
+    #expect(planned.nextSession == nil)
     // Duas rotinas no dia: juntas por " + ", como o todayName do openGym, e os exercícios das duas.
     let two = model(try summary(today: ["r-pull", "r-legs"]))
     #expect(two.title == "Pull + Legs")
@@ -81,23 +83,32 @@ import Testing
     #expect(two.primary == .start(["r-pull", "r-legs"]))
     #expect(two.chooser.map(\.id) == ["r-push"])
 
-    // Dia de descanso, e um dia sem nada marcado: "Dia de descanso", como o openGym, e o botão principal
-    // é o "Escolher outro treino", com todas as rotinas.
-    for status in ["rest", "none"] {
-      let rest = model(try summary(status: status, today: []))
-      #expect(rest.title == "Dia de descanso", "status \(status)")
-      #expect(rest.detail == nil)
-      #expect(rest.primary == .choose)
-      #expect(rest.primaryLabel == "Escolher outro treino")
-      #expect(!rest.offersChooser)
-      #expect(rest.chooser.map(\.id) == ["r-push", "r-pull", "r-legs"])
+    // Dia de descanso: "Dia de descanso", como o openGym, com a próxima sessão do motor embaixo; um dia sem
+    // nada marcado: "Nada marcado para hoje". Nos dois, o único botão é o "Escolher outro treino", com
+    // todas as rotinas.
+    let wednesday = #"{"weekday":3,"name":"Pull"}"#
+    let rest = model(try summary(status: "rest", today: [], next: wednesday))
+    #expect(rest.title == "Dia de descanso")
+    #expect(rest.nextSession == "Próxima sessão: Quarta, Pull")
+    let none = model(try summary(status: "none", today: []))
+    #expect(none.title == "Nada marcado para hoje")
+    #expect(none.nextSession == nil)
+    #expect(model(try summary(status: "none", today: [], next: wednesday)).nextSession == "Próxima sessão: Quarta, Pull")
+    for free in [rest, none] {
+      #expect(free.detail == nil, "\(free.title)")
+      #expect(free.primary == .choose)
+      #expect(free.primaryLabel == "Escolher outro treino")
+      #expect(!free.offersChooser)
+      #expect(free.chooser.map(\.id) == ["r-push", "r-pull", "r-legs"])
     }
 
     // O treino de hoje feito: o nome do último treino do dia, "(concluído)"; sem treino com nome no dia,
     // "Treino concluído". O próximo treino do dia fica no "Escolher outro treino".
     let lastToday = #"{"key":"w1","id":"w1","name":"Push","d":"2026-11-09","durationMs":3120000,"sets":18}"#
-    let done = model(try summary(status: "done", last: lastToday))
+    let done = model(try summary(status: "done", last: lastToday, next: wednesday))
     #expect(done.title == "Push (concluído)")
+    // Com o treino de hoje feito, a próxima sessão não aparece, como no openGym (o next && !doneToday).
+    #expect(done.nextSession == nil)
     #expect(done.primary == .choose)
     #expect(done.chooser.map(\.id) == ["r-push", "r-pull", "r-legs"])
     let lastYesterday = #"{"key":"w0","id":"w0","name":"Legs","d":"2026-11-08","durationMs":3120000,"sets":18}"#
@@ -107,6 +118,8 @@ import Testing
     #expect(model(try summary(), english).primaryLabel == "Start workout")
     #expect(model(try summary(), english).eyebrow == "Today\u{00A0}· Monday")
     #expect(model(try summary(status: "rest", today: []), english).title == "Rest day")
+    #expect(model(try summary(status: "none", today: []), english).title == "Nothing planned for today")
+    #expect(model(try summary(status: "rest", today: [], next: wednesday), english).nextSession == "Next session: Wednesday, Pull")
     #expect(model(try summary(status: "done", last: lastToday), english).title == "Push (done)")
     #expect(model(try summary(status: "rest", today: []), english).primaryLabel == "Choose a different workout")
   }
@@ -162,6 +175,20 @@ import Testing
     #expect(enMany.streak == "3 week streak")
     #expect(enMany.tally == "2 this week\u{00A0}· 12 workouts total")
     #expect(enMany.last?.detail == "Fri, Nov 6\u{00A0}· 1h 12m\u{00A0}· 18 sets")
+
+    // A duração do fmtDur do openGym: os minutos para baixo (59 min e 40 s dão "59 min"), e nada sem
+    // relógio, abaixo de 1 minuto (o durPart), nem na fala.
+    let almost = #"{"key":"w3","id":"w3","name":"Leg Day","d":"2026-11-06","durationMs":3580000,"sets":18}"#
+    #expect(model(try summary(last: almost)).last?.detail == "sex., 6 de nov.\u{00A0}· 59 min\u{00A0}· 18 séries")
+    let clockless = #"{"key":"w4","id":"w4","name":"Leg Day","d":"2026-11-06","durationMs":59999,"sets":18}"#
+    let noClock = try #require(model(try summary(last: clockless)).last)
+    #expect(noClock.detail == "sex., 6 de nov.\u{00A0}· 18 séries")
+    #expect(noClock.spoken == "Leg Day, sexta-feira, 6 de novembro, 18 séries")
+
+    // Com histórico e sem semana seguida, a sequência some e os totais ficam.
+    let broken = model(try summary(streak: 0, weekCount: 0, total: 12))
+    #expect(broken.streak == nil)
+    #expect(broken.tally == "0 esta semana\u{00A0}· 12 treinos no total")
   }
 
   @Test func theWeekLettersAndSpeechFollowTheWeekStart() async throws {
@@ -178,22 +205,23 @@ import Testing
     #expect(monday.week.map(\.letter) == ["S", "T", "Q", "Q", "S", "S", "D"])
     #expect(monday.week.map(\.today) == [true, false, false, false, false, false, false])
     #expect(monday.week.map(\.planned) == [true, false, true, false, true, false, false])
-    #expect(monday.weekSpoken == "Semana: segunda, hoje, planejado; terça, descanso; quarta, planejado; quinta, descanso; "
+    // Sem "Semana" na frente: o título em cima da semana já diz.
+    #expect(monday.weekSpoken == "segunda, hoje, planejado; terça, descanso; quarta, planejado; quinta, descanso; "
       + "sexta, planejado; sábado, descanso; domingo, descanso")
 
     _ = try await engine.apply(.setSetting(.weekStart(0)), now: now)
     let sunday = HomeModel(summary: try await engine.home(now: now), routines: routines, text: portuguese)
     #expect(sunday.week.map(\.day) == [0, 1, 2, 3, 4, 5, 6])
     #expect(sunday.week.map(\.letter) == ["D", "S", "T", "Q", "Q", "S", "S"])
-    #expect(sunday.weekSpoken.hasPrefix("Semana: domingo, descanso; segunda, hoje, planejado; terça, descanso"))
+    #expect(sunday.weekSpoken.hasPrefix("domingo, descanso; segunda, hoje, planejado; terça, descanso"))
     let english = HomeModel(summary: try await engine.home(now: now), routines: routines, text: english)
     #expect(english.week.map(\.letter) == ["S", "M", "T", "W", "T", "F", "S"])
-    #expect(english.weekSpoken.hasPrefix("Week: Sunday, rest; Monday, today, planned; Tuesday, rest"))
+    #expect(english.weekSpoken.hasPrefix("Sunday, rest; Monday, today, planned; Tuesday, rest"))
 
     // Um dia treinado fala "treinado", também quando estava planejado e quando é hoje.
     let trained = model(try summary(week: Self.week(weekStart: 1, today: 3, trained: [1, 3], planned: [1, 3, 5])))
     #expect(trained.week.map(\.trained) == [true, false, true, false, false, false, false])
-    #expect(trained.weekSpoken.hasPrefix("Semana: segunda, treinado; terça, descanso; quarta, hoje, treinado; quinta, descanso; sexta, planejado"))
+    #expect(trained.weekSpoken.hasPrefix("segunda, treinado; terça, descanso; quarta, hoje, treinado; quinta, descanso; sexta, planejado"))
   }
 
   @Test func anEmptyAppAsksForTheFirstRoutineAndStartsFreestyle() async throws {   // Foco da revisão 5
@@ -229,7 +257,7 @@ import Testing
 
     // Com rotinas e sem histórico, o cartão volta a ser o de hoje, e a sequência continua de fora.
     let withRoutines = self.model(try self.summary(status: "none", today: [], streak: 0, weekCount: 0, total: 0))
-    #expect(withRoutines.title == "Dia de descanso")
+    #expect(withRoutines.title == "Nada marcado para hoje")
     #expect(!withRoutines.goesToRoutines)
     #expect(withRoutines.primary == .choose)
     #expect(withRoutines.streak == nil)

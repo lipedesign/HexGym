@@ -152,6 +152,8 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.deepEqual([monday.active, monday.streakWeeks, monday.weekCount, monday.total, monday.last], [null, 0, 0, 0, null])
   const sunday = new Date(2026, 10, 15, 10).getTime()
   assert.deepEqual([homeAt(sunday).today.status, homeAt(sunday).today.routines], ['rest', []])
+  // A próxima sessão do dia de descanso (o next do views/Home.jsx:95): o Push de segunda; num dia de treino, nenhuma.
+  assert.deepEqual([monday.next, homeAt(sunday).next], [null, { weekday: 1, name: 'Push' }])
 
   act({ type: 'start', routineIds: ['r-push'], id: 'w-1' })
   act({ type: 'set.mark', entry: 0, set: 0, done: true }, NOW + MIN)
@@ -169,7 +171,7 @@ test('home gives the PPL week: planned on Monday, rest on Sunday, done after the
   assert.equal(homeAt(NOW).week[0].date, '2026-11-08')
   open()
   const empty = homeAt(NOW)
-  assert.deepEqual([empty.today.status, empty.today.routines, empty.streakWeeks, empty.weekCount, empty.total, empty.last], ['none', [], 0, 0, 0, null])
+  assert.deepEqual([empty.today.status, empty.today.routines, empty.streakWeeks, empty.weekCount, empty.total, empty.last, empty.next], ['none', [], 0, 0, 0, null, null])
 })
 
 test('liveActivity carries the next set, the rest and up to 8 sets after it, within the byte budget', () => {

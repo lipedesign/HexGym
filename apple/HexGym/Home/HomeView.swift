@@ -1,10 +1,12 @@
 // A aba Início (Task 7 do plano da fase 3, issue #136, escolha 2), de cima para baixo: o cartão de hoje,
-// de vidro (as rotinas do dia e os exercícios delas, "Dia de descanso", o treino feito, o treino em
-// andamento com o tempo que passa e as séries, ou, no app vazio, "Monte a sua primeira rotina" com o
-// botão para a aba Rotinas); o botão principal grande ("Começar treino", "Continuar treino", "Começar
-// treino livre" ou o próprio "Escolher outro treino"); o "Escolher outro treino" num Menu da Apple, com as
-// rotinas e o treino livre; a semana (WeekStrip); a sequência de semanas e os treinos da semana e do
-// histórico; e o último treino.
+// de vidro (as rotinas do dia e os exercícios delas, "Dia de descanso" ou "Nada marcado para hoje" com a
+// próxima sessão, o treino feito, o treino em andamento com o tempo que passa e as séries, ou, no app
+// vazio, "Monte a sua primeira rotina" com o botão para a aba Rotinas); o botão principal grande
+// ("Começar treino", "Continuar treino" ou "Começar treino livre"), só no dia de treino, no treino em
+// andamento e no app vazio; o "Escolher outro treino", no estilo secundário, num Menu da Apple, com as
+// rotinas e o treino livre (no dia de descanso, sem nada marcado ou com o treino feito, ele é o único
+// botão); a semana (WeekStrip); a sequência de semanas e os treinos da semana e do histórico; e o último
+// treino.
 //
 // Tudo vem pronto do HomeModel, pelo HomeScreen: o body não calcula nada. O tempo do treino em andamento
 // conta por um TimelineView de 1 s a partir do começo, sem ler o motor de novo a cada tique (seção 8.13).
@@ -19,7 +21,7 @@
 // chama da sequência e nos botões, sobre o fundo da tela; o último treino fica no cartão do sistema.
 //
 // A tela rola, e nos tamanhos de acessibilidade o tempo e as séries do treino em andamento ficam um embaixo
-// do outro: nada corta em AX5.
+// do outro, e o ícone do "Escolher outro treino" fica em cima do texto, centrado: nada corta em AX5.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: "Hoje" e o dia da semana em cima do título
 // do cartão; o tempo do treino no estilo de número do HexDesign; a semana com o título "Semana"; a chama no
@@ -98,22 +100,15 @@ private struct HomeContent: View {
         primary
           .id(HomeAnchor.primary)
         if model.offersChooser {
-          WorkoutChooser(model: model, start: start) {
-            Label(model.chooserLabel, systemImage: "arrow.left.arrow.right")
-              .font(.body.weight(.semibold))
-              .multilineTextAlignment(.center)
-              .frame(maxWidth: .infinity, minHeight: HexTarget.minimum)
-          }
-          .hexSecondaryButton()
-          .disabled(starting)
+          chooser
         }
       }
       VStack(alignment: .leading, spacing: HexSpacing.s) {
         SettingsHeader("Week")
           .id(HomeAnchor.week)
         WeekStrip(days: model.week, spoken: model.weekSpoken)
-        if let streak = model.streak {
-          StreakLine(streak: streak, tally: model.tally)
+        if model.streak != nil || model.tally != nil {
+          StreakLine(streak: model.streak, tally: model.tally)
             .padding(.top, HexSpacing.xs)
         }
       }
@@ -130,7 +125,8 @@ private struct HomeContent: View {
     .padding(.bottom, HexSpacing.xl)
   }
 
-  // O botão principal grande, ou, sem treino para começar hoje, o próprio "Escolher outro treino".
+  // O botão principal grande, ou, sem treino para começar hoje, só o "Escolher outro treino", no estilo
+  // secundário.
   @ViewBuilder private var primary: some View {
     switch model.primary {
     case .resume:
@@ -145,11 +141,37 @@ private struct HomeContent: View {
         .buttonStyle(.hexPrimary(size: .large))
         .disabled(starting)
     case .choose:
-      WorkoutChooser(model: model, start: start) { Text(verbatim: model.primaryLabel) }
-        .menuStyle(.button)
-        .buttonStyle(.hexPrimary(size: .large))
-        .disabled(starting)
+      chooser
     }
+  }
+
+  private var chooser: some View {
+    WorkoutChooser(model: model, start: start) { ChooserLabel(text: model.chooserLabel) }
+      .hexSecondaryButton()
+      .disabled(starting)
+  }
+}
+
+// O rótulo do "Escolher outro treino": o ícone ao lado do texto e, nos tamanhos de acessibilidade, em
+// cima dele, com o texto centrado em quantas linhas precisar.
+private struct ChooserLabel: View {
+  let text: String
+
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  var body: some View {
+    let layout = typeSize.isAccessibilitySize
+      ? AnyLayout(VStackLayout(spacing: HexSpacing.xxs))
+      : AnyLayout(HStackLayout(spacing: HexSpacing.xs))
+    layout {
+      Image(systemName: "arrow.left.arrow.right")
+        .accessibilityHidden(true)
+      Text(verbatim: text)
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .font(.body.weight(.semibold))
+    .frame(maxWidth: .infinity, minHeight: HexTarget.minimum)
   }
 }
 
@@ -193,6 +215,12 @@ private struct TodayCard: View {
           .foregroundStyle(Color.white)
           .fixedSize(horizontal: false, vertical: true)
           .accessibilityAddTraits(.isHeader)
+        if let next = model.nextSession {
+          Text(verbatim: next)
+            .font(.subheadline)
+            .foregroundStyle(Color.white)
+            .fixedSize(horizontal: false, vertical: true)
+        }
         if let active = model.active {
           ActiveProgress(active: active)
             .padding(.top, HexSpacing.xxs)
@@ -256,23 +284,26 @@ private struct ActiveProgress: View {
   }
 }
 
-// "Sequência de 3 semanas", com a chama no destaque do tema, e "2 esta semana · 12 treinos no total".
+// "Sequência de 3 semanas", com a chama no destaque do tema, e "2 esta semana · 12 treinos no total". Sem
+// sequência, só a linha dos totais.
 private struct StreakLine: View {
-  let streak: String
+  let streak: String?
   let tally: String?
 
   @Environment(\.hexPalette) private var palette
 
   var body: some View {
     VStack(alignment: .leading, spacing: HexSpacing.xxs) {
-      Label {
-        Text(verbatim: streak)
-          .hexFont(.headline)
-          .foregroundStyle(Color.white)
-          .fixedSize(horizontal: false, vertical: true)
-      } icon: {
-        Image(systemName: "flame.fill")
-          .foregroundStyle(Color(palette.accent))
+      if let streak {
+        Label {
+          Text(verbatim: streak)
+            .hexFont(.headline)
+            .foregroundStyle(Color.white)
+            .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+          Image(systemName: "flame.fill")
+            .foregroundStyle(Color(palette.accent))
+        }
       }
       if let tally {
         Text(verbatim: tally)

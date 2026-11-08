@@ -6,11 +6,12 @@
 // séries, e vira junto da direita para a esquerda.
 //
 // A semana fica sobre o fundo da tela, onde a cor do tema pode ficar (regra da #71). Para o VoiceOver, a
-// linha é um elemento só, com a fala do HomeModel ("Semana: segunda, hoje, planejado; terça, descanso;
-// ..."), como a linha de segmentos das séries é uma só.
+// linha é um elemento só, com a fala do HomeModel ("segunda, hoje, planejado; terça, descanso; ...",
+// embaixo do título "Semana"), como a linha de segmentos das séries é uma só.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o contorno de 2 pt no dia planejado, o hoje
-// marcado no segmento e na letra, e a altura de 28 pt, que cresce com o Dynamic Type.
+// marcado no segmento e na letra, e a altura fixa de 28 pt: com o Dynamic Type, só a letra cresce, e o
+// segmento fica inclinado também em AX5, em vez de virar um traço alto e fino.
 import HexDesign
 import SwiftUI
 
@@ -19,7 +20,7 @@ struct WeekStrip: View {
   let spoken: String
 
   @Environment(\.hexPalette) private var palette
-  @ScaledMetric(relativeTo: .body) private var height: CGFloat = 28
+  private let height: CGFloat = 28
 
   var body: some View {
     HStack(alignment: .top, spacing: HexSpacing.xs) {
