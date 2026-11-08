@@ -26,22 +26,55 @@ import Testing
 }
 @Test(arguments: HexTheme.allCases, [false, true])
 func everyPairMeetsItsRule(theme: HexTheme, increased: Bool) {
+  for pair in pairs(theme, increased: increased) { #expect(pair.contrast >= pair.rule, "\(pair.name)") }
+}
+// A folga do botão principal no Ultravioleta (#121, achado no QA da PR #86): o branco sobre o #6F5CFF
+// passa a regra de 4,5 por 0,015 (4,515:1), e é o par com menos folga de todos. O #6F5CFF é o botão aprovado na
+// seção 6 do design doc e nas decisões de 03/11/2026, e fica (escolha recomendada, com a delegação do
+// Lipe de 03/11/2026). Este teste diz a folga: quem mudar uma cor e deixar outro par mais perto da regra,
+// ou mudar a folga deste, vê o teste cair e atualiza o cores.md.
+@Test func theUltravioletButtonLabelHasTheLeastSlack() throws {
+  let all = HexTheme.allCases.flatMap { theme in [false, true].flatMap { pairs(theme, increased: $0) } }
+  let tightest = try #require(all.min { $0.contrast - $0.rule < $1.contrast - $1.rule })
+  #expect(tightest.name == "ultraviolet, escuro: onFill no fill")
+  #expect(tightest.rule == 4.5); #expect(abs(tightest.contrast - 4.52) < 0.01)
+}
+
+// Um par que o everyPairMeetsItsRule confere: o nome, o contraste e a regra.
+private struct Pair {
+  let name: String, contrast: Double, rule: Double
+}
+
+// Os pares de um tema, com ou sem alto contraste, cada um com a regra dele.
+private func pairs(_ theme: HexTheme, increased: Bool) -> [Pair] {
   let text = increased ? 7.0 : 4.5, contrast: ColorSchemeContrast = increased ? .increased : .standard
   let dark = HexPalette.resolve(theme, scheme: .dark, contrast: contrast)
   let light = HexPalette.resolve(theme, scheme: .light, contrast: contrast)
+  let mode = increased ? "escuro com alto contraste" : "escuro", lightMode = increased ? "claro com alto contraste" : "claro"
+  func pair(_ name: String, _ a: HexRGB, _ b: HexRGB, _ rule: Double) -> Pair {
+    Pair(name: "\(theme), \(name)", contrast: a.contrast(with: b), rule: rule)
+  }
+  var all: [Pair] = []
   // No escuro, o fundo da tela e o cartão do sistema; com Aumentar Contraste, também o #242426.
   let backgrounds: [HexRGB] = increased ? [.black, .card, .cardIncreased] : [.black, .card]
   for background in backgrounds {
-    #expect(dark.accent.contrast(with: background) >= text); #expect(dark.fill.contrast(with: background) >= 3)
-    #expect(dark.record.contrast(with: background) >= text)
+    let on = String(format: "#%06X", background.hex)
+    all += [
+      pair("\(mode): accent no \(on)", dark.accent, background, text), pair("\(mode): fill no \(on)", dark.fill, background, 3),
+      pair("\(mode): recorde no \(on)", dark.record, background, text),
+    ]
   }
-  #expect(dark.onFill.contrast(with: dark.fill) >= text); #expect(dark.onRecord.contrast(with: dark.record) >= text)
-  #expect(light.accent.contrast(with: .white) >= text); #expect(light.onFill.contrast(with: light.fill) >= text)
-  #expect(light.fill.contrast(with: .white) >= 3); #expect(light.record.contrast(with: .white) >= text)
-  #expect(light.onRecord.contrast(with: light.record) >= text)
+  all += [
+    pair("\(mode): onFill no fill", dark.onFill, dark.fill, text), pair("\(mode): onRecord no recorde", dark.onRecord, dark.record, text),
+    pair("\(lightMode): accent no branco", light.accent, .white, text), pair("\(lightMode): onFill no fill", light.onFill, light.fill, text),
+    pair("\(lightMode): fill no branco", light.fill, .white, 3), pair("\(lightMode): recorde no branco", light.record, .white, text),
+    pair("\(lightMode): onRecord no recorde", light.onRecord, light.record, text),
+  ]
   for surface in [HexSurface.watch, .island] {
-    #expect(HexPalette.resolve(theme, scheme: .dark, contrast: contrast, surface: surface).accent.contrast(with: .black) >= text)
+    let accent = HexPalette.resolve(theme, scheme: .dark, contrast: contrast, surface: surface).accent
+    all.append(pair("\(mode), \(surface): accent no preto", accent, .black, text))
   }
+  return all
 }
 @Test func increasedContrastSwapsTheUltravioletButton() {
   let p = HexPalette.resolve(.ultraviolet, scheme: .dark, contrast: .increased)

@@ -4,7 +4,7 @@ A Barlow Condensed nos números, nos títulos e no logotipo; a SF Pro Compressed
 
 ![A escala de texto, sem e com Texto em Negrito, com outras escritas e os dígitos tabulares](imagens/tipografia.png)
 
-No código: `Type/HexFonts.swift`, `Type/HexTextStyle.swift` e `Type/HexWordmark.swift`. Os testes estão em `TypeTests.swift`.
+No código: `Type/HexFonts.swift`, `Type/HexTextStyle.swift`, `Type/HexCase.swift` e `Type/HexWordmark.swift`. Os testes estão em `TypeTests.swift`.
 
 ## A Barlow Condensed
 
@@ -36,7 +36,7 @@ O teste `cyrillicAndGreekFallBackToSFProCompressed` confere, nos quatro pesos, q
 
 ![As outras escritas no simulador do Watch](imagens/watch-outras-escritas.png)
 
-Um detalhe: nos estilos em caixa alta, o SwiftUI tira os acentos do grego. No print, "Πιέσεις πάγκου" no `title` aparece como "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ".
+**O grego em caixa alta:** a regra do grego tira o tonos das maiúsculas, e "Πιέσεις πάγκου" no `title` fica "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ". O `textCase` do SwiftUI, que o `hexFont` usa, põe em maiúsculas com o locale do ambiente: no iPhone e no Watch em português ou em inglês, ele deixa o tonos ("ΠΙΈΣΕΙΣ ΠΆΓΚΟΥ", achado no QA da PR #86 no Watch em pt-BR); só com o locale do grego ele tira. No Mac dos testes, em português e em inglês, ele tira (no turco, não), e por isso o print da escala já mostrava o grego sem o tonos. Para o texto que pode vir em grego (o nome de um exercício, por exemplo), o pacote tem o `HexText(_:style:)`: num estilo em caixa alta, ele põe o texto em maiúsculas pelo `HexCase.uppercased(_:locale:)`, que usa o locale do grego em cada trecho em grego e o locale de quem lê no resto (no turco, o i do latim continua virando İ). As duas galerias usam o `HexText` no exemplo em grego. Pôr em maiúsculas com o locale do próprio texto é uma escolha recomendada, com a delegação do Lipe de 03/11/2026 (#121). Os testes `greekCapitalsDropTheTonos` e `theHexTextShowsGreekCapitalsWithoutTheTonos` passam no Mac e no simulador do Watch.
 
 ## O texto corrido
 

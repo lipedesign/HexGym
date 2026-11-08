@@ -24,7 +24,8 @@ struct TypeSection: View {
       GallerySubheader("Other scripts")
       VStack(alignment: .leading, spacing: HexSpacing.xs) {
         Text(verbatim: "ЖИМ ЛЁЖА").hexFont(.title)
-        Text(verbatim: "Πιέσεις πάγκου").hexFont(.title)
+        // O HexText põe o grego em maiúsculas sem o tonos, como a regra do grego pede (#121).
+        HexText("Πιέσεις πάγκου", style: .title)
         Text(verbatim: "卧推").hexFont(.title)
       }
       .foregroundStyle(Color.white)

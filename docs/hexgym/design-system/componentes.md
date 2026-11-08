@@ -57,7 +57,7 @@ Button("Começar treino") {}.buttonStyle(.hexPrimary(size: .large))
 ![O botão principal compacto no simulador do Watch: normal e desligado, no Ultravioleta](imagens/watch-botao-principal.png)
 
 - **No Watch menor:** no Series 11 de 42 mm (187 pt de largura), "Registrar série" quebra em duas linhas, sem cortar, e o botão cresce junto.
-- **O contraste medido:** no simulador do Watch (Ultra 3 de 49 mm, watchOS 26.1), o rótulo contra o pixel do botão que menos contrasta com ele, o menor dos quatro temas: 4,52:1 (Ultravioleta, branco sobre #6F5CFF) sem ajuste e 7,05:1 com Aumentar Contraste.
+- **O contraste medido:** no simulador do Watch (Ultra 3 de 49 mm, watchOS 26.1), o rótulo contra o pixel do botão que menos contrasta com ele, o menor dos quatro temas: 4,52:1 (Ultravioleta, branco sobre #6F5CFF) sem ajuste e 7,05:1 com Aumentar Contraste. A folga de 0,015 (4,515:1, que arredonda para 4,52) fica, pelo que diz [cores.md](cores.md#a-folga-do-botão-principal-no-ultravioleta).
 
 **Teste:** `theWatchButtonIsCompact` (44 pt).
 
@@ -126,9 +126,10 @@ Num aparelho em outro idioma, os textos saem em inglês, com o plural do inglês
 ![A entrada de carga no simulador do Watch: sem foco, depois do toque no valor (com o contorno no destaque) e depois de dois giros da coroa, de 141,3 para 153,8 kg](imagens/watch-entradas.png)
 
 - **A variante compacta:** no Watch, os botões ficam sempre embaixo do valor, lado a lado, em qualquer tamanho de texto (`WorkoutInputLayout.axis` dá `.vertical` no Watch). Cada botão ocupa metade da largura, com altura mínima de 44 pt e o símbolo em 18 pt, e entre o valor e os botões há 8 pt (`HexSpacing.xs`). Os botões embaixo do valor, no Watch, são uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
-- **A coroa:** um toque no valor dá a coroa para aquela entrada, e um contorno de 2 pt no destaque do tema, no raio do chip, mostra quem está com ela. Daí, cada degrau da coroa é um passo: chama o `onStep` uma vez, com `.up` ou `.down`, e o motor aplica o passo como num toque nos botões. É o `digitalCrownRotation` da Apple com `by: 1`, sensibilidade `.low`, contínuo e com o háptico da própria coroa a cada degrau (a coroa não toca o `increase` nem o `decrease` por cima). A conta dos degraus é `CrownSteps.steps(from:to:)`, a diferença dos pisos (`floor`) entre o valor velho e o novo. Um passo por degrau é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
+- **A coroa:** um toque no valor dá a coroa para aquela entrada, e um contorno de 2 pt no destaque do tema, no raio do chip, mostra quem está com ela. Daí, cada degrau da coroa é um passo: chama o `onStep` uma vez, com `.up` ou `.down`, e o motor aplica o passo como num toque nos botões. É o `digitalCrownRotation` da Apple com `by: 1`, sensibilidade `.low`, contínuo e com o háptico da própria coroa a cada degrau (a coroa não toca o `increase` nem o `decrease` por cima). A conta dos degraus é `CrownSteps.steps(from:to:)`: o degrau mais perto do valor novo menos o degrau mais perto do valor velho (o arredondamento, `rounded()`). Um passo por degrau, e o degrau mais perto (#121), são escolhas recomendadas, com a delegação do Lipe de 03/11/2026.
 - **Por que só depois do toque:** com várias entradas focáveis ao mesmo tempo na tela, o watchOS passava o foco de uma para outra sem parar (no simulador, centenas de trocas por segundo). Por isso a entrada só pode ter o foco depois de um toque no valor; tocar no valor de outra entrada passa a coroa para ela, e a entrada que perde o foco, ou sai da tela, volta a não ser focável. O foco pelo toque, com o contorno no destaque, é uma escolha recomendada, com a delegação do Lipe de 03/11/2026.
-- **Para saber:** pela conta dos pisos, o passo para cima acontece quando a coroa chega no degrau, e o passo para baixo acontece assim que ela sai do degrau. Um toque mínimo para baixo que volta sozinho para o degrau dá um passo para baixo e outro para cima: o valor pisca e volta. Arredondar (`round`) em vez do piso também passa nos testes e tiraria essa diferença; fica como sugestão.
+- **O meio do degrau:** com o arredondamento, o passo acontece quando a coroa passa do meio do caminho entre dois degraus. Um toque mínimo que sai do degrau e volta não dá passo nenhum, para cima ou para baixo. No meio exato, o `rounded()` vai para longe do zero: um giro que para em 3,5 e volta a 3 dá um passo e o de volta, e um que para em 2,5 e volta não dá nada. Isso é raro, porque a coroa descansa no degrau; a histerese, que deixa os dois sentidos iguais também no meio, fica na issue #128, para conferir com a coroa de verdade na 0.2.0. Até a #121 a conta usava o piso (`floor`): o mesmo toque para baixo dava um passo para baixo e outro para cima, e o valor piscava; para cima, não dava nada (achado no QA da PR #86).
+- **O + e o − não tiram a coroa:** o foco fica na entrada inteira, com o valor e os dois botões. Com o foco só no valor (até a #121), um toque no + tirava o foco, e girar a coroa depois rolava a tela em vez de mudar o mesmo valor (achado no QA da PR #86). O toque que pega a coroa e o contorno continuam só no valor: um toque no + ou no − de uma entrada sem a coroa não a pega, e a coroa continua rolando a tela. Se outra entrada estava com a coroa, ela a perde: o giro seguinte rola a tela. Se o + e o − de outra entrada devem passar a coroa para ela fica para a conferência no aparelho, na issue #128. Medido no simulador do Watch (Ultra 3 de 49 mm, watchOS 26.1) com um teste de interface fora do repositório, que toca e gira a coroa pelo `XCUIDevice`: depois do toque no valor, no + e no −, cada giro muda a carga; um toque nas repetições passa a coroa para elas.
 
 **O contraste medido:** no simulador do Watch, pelo pior pixel, o menor dos quatro temas:
 
@@ -139,7 +140,7 @@ Num aparelho em outro idioma, os textos saem em inglês, com o plural do inglês
 | O + e o −, no destaque sobre o cartão do sistema (#1C1C1E, ou #242426) | 6,18:1 | 7,03:1 |
 | O contorno do foco, no destaque sobre o preto | 7,48:1 | 9,45:1 |
 
-**Testes:** `eachCrownDetentIsOneStep` (cada degrau é um passo, para cima e para baixo, e meio degrau não é nenhum).
+**Testes:** `eachCrownDetentIsOneStep` (cada degrau é um passo, para cima e para baixo, e meio degrau não é nenhum) e `aNudgeThatComesBackIsNoStep` (um toque mínimo que sai do degrau e volta não dá passo, nos dois sentidos, e um degrau inteiro dá um passo só).
 
 ### Os segmentos inclinados
 
@@ -245,7 +246,7 @@ RestRing(total: 120, remaining: 90)   // em segundos
 
 ![O anel de descanso no simulador em AX5, com o botão que começa um descanso de 90 s](imagens/simulador-ax5-anel.png)
 
-**No Watch:** o mesmo anel de 60 traços inclinados, retos, que no Watch é onde ele mais precisa não parecer um anel de atividade: nada de faixa contínua nem de pontas redondas. No tamanho de texto padrão do Watch, o diâmetro sai menor que no iPhone (198 pt no Ultra 3, pelo `ScaledMetric`), e ele nunca passa da largura da tela. Quando o tempo chega a zero, o háptico `restDone` é o `.start` do Watch.
+**No Watch:** o mesmo anel de 60 traços inclinados, retos, que no Watch é onde ele mais precisa não parecer um anel de atividade: nada de faixa contínua nem de pontas redondas. No tamanho de texto padrão do Watch, o diâmetro é o que o `ScaledMetric` dá no modelo (no watchOS 26.1, 198 pt no Ultra 3 de 49 mm e 220 pt no SE 3 de 40 mm), e ele nunca passa da largura da tela. O teste `theRingNeverOutgrowsItsWidth` compara o anel com o mesmo `ScaledMetric` medido no aparelho, e espera 220 pt exatos no iPhone e no Mac (#121). Quando o tempo chega a zero, o háptico `restDone` é o `.start` do Watch.
 
 ![O anel de descanso no simulador do Watch, em 0:07 de 0:12, nos quatro temas](imagens/watch-anel.png)
 

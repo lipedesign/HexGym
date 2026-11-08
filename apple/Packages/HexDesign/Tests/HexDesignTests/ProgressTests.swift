@@ -61,9 +61,20 @@ import Testing
   #expect(SlantedSegments.spokenValue(total: 0, done: 0, locale: en) == "0 of 0 sets")
 }
 // O anel cabe na largura que tem: numa tela estreita, ele fica do tamanho dela, e não maior.
+// O tamanho ideal é o diâmetro de 220 pt pelo ScaledMetric, no tamanho de texto do aparelho: 220 pt no
+// iPhone e no Mac; no Watch, o que o title do modelo dá (achado no QA da PR #86, #121). Medido no
+// watchOS 26.1: 198 pt no Ultra 3 de 49 mm e 220 pt no SE 3 de 40 mm. O segundo assert vale em todos:
+// o anel encolhe para a largura que tem.
 @MainActor @Test func theRingNeverOutgrowsItsWidth() {
-  #expect(size(RestRing(total: 90, remaining: 90)) == CGSize(width: 220, height: 220))
+  let diameter = size(ScaledDiameter())
+  if HexPlatform.current == .phone { #expect(diameter == CGSize(width: 220, height: 220)) }
+  #expect(size(RestRing(total: 90, remaining: 90)) == diameter)
   #expect(size(RestRing(total: 90, remaining: 90).frame(width: 150)) == CGSize(width: 150, height: 150))
+}
+// O diâmetro do anel no aparelho dos testes: o mesmo ScaledMetric do RestRing, num quadrado vazio.
+private struct ScaledDiameter: View {
+  @ScaledMetric(relativeTo: .title) private var diameter: CGFloat = 220
+  var body: some View { Color.clear.frame(width: diameter, height: diameter) }
 }
 // Achado no QA da PR #78: o CLDR do português põe o 0 na forma one, e o VoiceOver dizia "Descanso, 0
 // segundo" justo quando o descanso acaba. Um valor negativo também é o 0.
