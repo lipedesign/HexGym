@@ -102,6 +102,12 @@ nonisolated struct RoutineRow: Identifiable, Equatable, Sendable {
   let spoken: String
 }
 
+// Um routine.move: tira de from e põe em to, nas posições do motor.
+nonisolated struct RoutineMove: Equatable, Sendable {
+  let from: Int
+  let to: Int
+}
+
 // A rotina aberta no editor.
 nonisolated struct RoutineEditorContent: Equatable, Sendable {
   let id: String
@@ -165,11 +171,9 @@ nonisolated struct RoutineEditorModel: Sendable {
   func editor(_ id: String) -> RoutineEditorContent? {
     guard let routine = summaries[id] else { return nil }
     let slots = routine.slots
-    var seen: [String: Int] = [:]
+    let ids = Self.rowIDs(slots.map(\.id))
     let rows = slots.indices.map { index -> SlotRow in
       let slot = slots[index]
-      let occurrence = seen[slot.id, default: 0]
-      seen[slot.id] = occurrence + 1
       let group = Self.group(around: index, in: slots)
       let mark: SlotRow.Mark? = group.count < 2 ? nil
         : index == group.first ? .first : index == group.last ? .last : .middle
@@ -180,7 +184,7 @@ nonisolated struct RoutineEditorModel: Sendable {
       if let load { spoken.append(load.spoken) }
       if !partners.isEmpty { spoken.append(text.superset(with: partners)) }
       return SlotRow(
-        id: "\(slot.id)#\(occurrence)", exerciseID: slot.id, name: name, known: slot.known,
+        id: ids[index], exerciseID: slot.id, name: name, known: slot.known,
         setsReps: slot.setsReps, detail: ([slot.setsReps] + (load.map { [$0.text] } ?? [])).joined(separator: LibraryNames.separator),
         superset: mark, canJoinNext: index + 1 < slots.count && !group.contains(index + 1), canSeparate: mark != nil,
         spoken: spoken.joined(separator: ", "))
@@ -199,6 +203,41 @@ nonisolated struct RoutineEditorModel: Sendable {
   // slot.move do motor recebem (tira de from e põe em to).
   static func moveTarget(from: Int, offset: Int) -> Int {
     offset > from ? offset - 1 : offset
+  }
+
+  // O id de cada linha, na ordem dos exercícios: o id do exercício e quantas vezes ele já apareceu antes
+  // ("0025#1" é o segundo 0025 da rotina).
+  static func rowIDs(_ exerciseIDs: [String]) -> [String] {
+    var seen: [String: Int] = [:]
+    return exerciseIDs.map { id in
+      let occurrence = seen[id, default: 0]
+      seen[id] = occurrence + 1
+      return "\(id)#\(occurrence)"
+    }
+  }
+
+  // A posição de uma linha, pelo id dela, nos exercícios que o motor tem agora. Nil quando ela saiu.
+  static func position(of rowID: String, in exerciseIDs: [String]) -> Int? {
+    rowIDs(exerciseIDs).firstIndex(of: rowID)
+  }
+
+  // O routine.move de uma rotina que a tela pôs entre dois vizinhos, nas posições que o motor tem agora:
+  // logo depois do vizinho de cima ou, se ele não está mais no motor, logo antes do de baixo; sem vizinho
+  // de cima, no começo. Nil quando a rotina saiu, quando nenhum vizinho ficou ou quando ela já está lá.
+  static func routineMove(_ id: String, after above: String?, before below: String?, in ids: [String]) -> RoutineMove? {
+    guard let from = ids.firstIndex(of: id) else { return nil }
+    let others = ids.filter { $0 != id }
+    let to: Int
+    if above == nil {
+      to = 0
+    } else if let above, let index = others.firstIndex(of: above) {
+      to = index + 1
+    } else if let below, let index = others.firstIndex(of: below) {
+      to = index
+    } else {
+      return nil
+    }
+    return from == to ? nil : RoutineMove(from: from, to: to)
   }
 
   // Os índices do superset em volta de um exercício: os vizinhos seguidos com o mesmo superset, como o
@@ -386,6 +425,12 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   }
 }
 
+// Uma ação da aba Rotinas que não saiu porque o item dela (uma rotina, um exercício da rotina) não está
+// mais no motor na hora em que ela ia sair.
+nonisolated enum RoutineActionError: Error {
+  case gone
+}
+
 // O estado da lista das rotinas: as linhas, o desfazer de uma rotina apagada e as ações da lista. Lê
 // tudo no motor, fora da thread principal, e muda o documento só pelas ações (perform).
 @Observable @MainActor final class RoutinesScreen {
@@ -405,6 +450,12 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   @ObservationIgnored let perform: (EngineAction) async throws -> ActionOutcome
   // O plano da semana no topo da aba (Task 12), com o mesmo motor, o mesmo idioma e as mesmas ações.
   @ObservationIgnored let week: WeekPlanScreen
+  // A última ação mandada: cada uma espera a de antes, para o motor receber na ordem dos toques (um
+  // reordenar logo depois de um apagar acha a lista já sem a rotina apagada).
+  @ObservationIgnored private var last: Task<Void, Never>?
+  // As ações ainda no caminho: enquanto houver alguma, uma leitura do motor não troca a tela, que já
+  // mostra o resultado delas.
+  @ObservationIgnored private var pending = 0
   @ObservationIgnored private var undos = 0
   @ObservationIgnored private var announced: Int?
 
@@ -425,11 +476,15 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   }
 
   func load() async {
+    guard pending == 0 else { return }
     do {
       let settings = RoutineSettings(try await engine.settings())
       let language = Locale(identifier: try await engine.load().language)
       let model = RoutineEditorModel(routines: try await engine.routines(), weekStart: settings.weekStart, unit: settings.unit,
                                      text: RoutineEditorText(locale: locale), language: language)
+      // Uma ação saiu enquanto o motor era lido: a tela já mostra o resultado dela, e a leitura do fim
+      // dela vem depois.
+      guard pending == 0 else { return }
       rows = model.rows
       phase = .ready
     } catch {
@@ -441,6 +496,7 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   // "Nova rotina": a rotina nova no fim, com o nome padrão do openGym. Devolve o id, para a tela abrir o
   // editor dela.
   func create() async -> String? {
+    await last?.value
     do {
       let id = try await perform(.createRoutine(name: "")).id
       await load()
@@ -452,34 +508,25 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
   }
 
   func duplicate(_ id: String) async {
-    await run("não deu para duplicar a rotina", .duplicateRoutine(id: id))
+    await send("não deu para duplicar a rotina") { .duplicateRoutine(id: id) }.value
   }
 
   // A linha sai na hora, antes de a ação sair (o deslizar da List não volta a linha); depois da ação, a
   // faixa "Rotina apagada" fica com o desfazer. A tarefa devolvida acaba com a lista lida de novo.
   @discardableResult func delete(_ id: String) -> Task<Void, Never> {
     rows.removeAll { $0.id == id }
-    return Task { await deleteInEngine(id) }
-  }
-
-  private func deleteInEngine(_ id: String) async {
-    do {
-      let outcome = try await perform(.deleteRoutine(id: id))
-      if let action = RoutineEditorModel.undo(after: outcome) {
-        undos += 1
-        undo = RoutineUndo(id: undos, message: RoutineEditorText(locale: locale).deleted, action: action)
-      }
-    } catch {
-      Self.log("não deu para apagar a rotina", error)
+    return send("não deu para apagar a rotina", { .deleteRoutine(id: id) }) { [weak self] outcome in
+      guard let self, let action = RoutineEditorModel.undo(after: outcome) else { return }
+      self.undos += 1
+      self.undo = RoutineUndo(id: self.undos, message: RoutineEditorText(locale: self.locale).deleted, action: action)
     }
-    await load()
   }
 
   // O "Desfazer": a rotina volta, com os dias dela, e a faixa sai.
   func performUndo() async {
     guard let action = undo?.action else { return }
     undo = nil
-    await run("não deu para desfazer", action)
+    await send("não deu para desfazer") { action }.value
   }
 
   // A faixa saiu sem o desfazer (o tempo dela acabou).
@@ -495,13 +542,28 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     return true
   }
 
-  // O reordenar da List: a linha muda de lugar na hora, e a ação vai ao motor.
+  // O reordenar da List: a linha muda de lugar na hora, e a ação vai ao motor. As posições do .onMove
+  // são as da tela, que podem não bater com as do motor (um apagar ainda no caminho, uma mudança de outro
+  // aparelho): a ação leva o id da rotina e os vizinhos dela na tela, e acha as posições no motor na hora
+  // em que sai (issue #118).
   @discardableResult func move(from source: IndexSet, to offset: Int) -> Task<Void, Never>? {
     guard let from = source.first, source.count == 1, rows.indices.contains(from) else { return nil }
     let to = RoutineEditorModel.moveTarget(from: from, offset: offset)
     guard from != to, rows.indices.contains(to) else { return nil }
     rows.insert(rows.remove(at: from), at: to)
-    return Task { await run("não deu para mover a rotina", .moveRoutine(from: from, to: to)) }
+    let id = rows[to].id
+    let above = to > 0 ? rows[to - 1].id : nil
+    let below = to + 1 < rows.count ? rows[to + 1].id : nil
+    return send("não deu para mover a rotina") { [engine] in
+      let ids = try await engine.routines().map(\.id)
+      guard let move = RoutineEditorModel.routineMove(id, after: above, before: below, in: ids) else {
+        // A rotina saiu do motor: não move outra no lugar dela. Já no lugar, ou sem vizinho que o motor
+        // conheça: nada a mandar, e a lista lida de novo mostra a ordem do motor.
+        if !ids.contains(id) { throw RoutineActionError.gone }
+        return nil
+      }
+      return .moveRoutine(from: move.from, to: move.to)
+    }
   }
 
   // O editor de uma rotina, com o mesmo motor, o mesmo idioma, as mesmas ações e o mesmo revision.
@@ -509,13 +571,28 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     RoutineEditorScreen(id: id, isNew: isNew, engine: engine, locale: locale, revision: revision, perform: perform)
   }
 
-  private func run(_ what: String, _ action: EngineAction) async {
-    do {
-      _ = try await perform(action)
-    } catch {
-      Self.log(what, error)
+  // A ação vai ao motor depois da de antes, montada na hora em que sai (com as posições que o motor tem
+  // então); nil é nada a mandar. O done recebe o resultado, e a lista é lida de novo quando a última
+  // chega.
+  private func send(_ what: String, _ action: @escaping @MainActor () async throws -> EngineAction?,
+                    done: (@MainActor (ActionOutcome) -> Void)? = nil) -> Task<Void, Never> {
+    let previous = last
+    pending += 1
+    let task = Task {
+      await previous?.value
+      do {
+        if let action = try await action() {
+          let outcome = try await perform(action)
+          done?(outcome)
+        }
+      } catch {
+        Self.log(what, error)
+      }
+      pending -= 1
+      await load()
     }
-    await load()
+    last = task
+    return task
   }
 
   static func log(_ what: String, _ error: any Error) {
@@ -656,8 +733,12 @@ nonisolated struct RoutineSettings: Equatable, Sendable {
     await last?.value
     guard let index = position(of: rowID), let row = content?.slots[index] else { return nil }
     do {
-      guard let slot = try await engine.routines().first(where: { $0.id == id })?.slots[safe: index] else { return nil }
-      return SlotEditorScreen(routineID: id, index: index, row: row, slot: slot, unit: settings.unit, locale: locale, perform: perform)
+      guard let slots = try await engine.routines().first(where: { $0.id == id })?.slots, let slot = slots[safe: index] else { return nil }
+      // O id da linha pelo que o motor tem, o mesmo que o SlotEditor usa para achar o exercício a cada ação.
+      let engineRowID = RoutineEditorModel.rowIDs(slots.map(\.id))[index]
+      let copies = slots.filter { $0.id == slot.id }.count
+      return SlotEditorScreen(routineID: id, rowID: engineRowID, copies: copies, index: index, row: row, slot: slot, unit: settings.unit,
+                              locale: locale, engine: engine, perform: perform)
     } catch {
       RoutinesScreen.log("não deu para abrir o exercício", error)
       return nil

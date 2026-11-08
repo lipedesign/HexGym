@@ -5,9 +5,16 @@
 // rótulo e a fala fixos de repetições, por isso não serve para as séries nem para os segundos.
 //
 // Cada toque muda a tela na hora (o SlotDraft) e manda o updateSlot ao motor sem esperar (seção 8.13),
-// uma ação depois da outra, na ordem dos toques. A nota vai 0,4 s depois da última letra e, de qualquer
-// jeito, quando a tela fecha. Um exercício de cardio do openGym mostra só as séries e a nota: a duração e
-// a velocidade dele chegam numa próxima versão.
+// uma ação depois da outra, na ordem dos toques. Cada uma acha o exercício pelo id da linha no que o
+// motor tem na hora em que ela sai, e não pela posição de quando a tela abriu: a rotina pode ter mudado
+// por baixo (outro aparelho), e um exercício que saiu não recebe nada, nem outro no lugar dele (issue
+// #118). O id da linha é o do exercício mais quantas vezes ele já apareceu antes ("0025#1"), porque o
+// documento não tem um id por exercício da rotina. Por isso, quando o exercício está repetido e o número
+// de cópias muda no motor (uma sai ou entra por baixo), a edição para de gravar, em vez de cair na outra
+// cópia: esse é o limite que sobra. O conserto de verdade é um id próprio para cada exercício da rotina.
+// A nota vai 0,4 s depois da última letra e, de qualquer jeito, quando a tela fecha. Um exercício
+// de cardio do openGym mostra só as séries e a nota: a duração e a velocidade dele chegam numa próxima
+// versão.
 //
 // Numa tela que sobe, as entradas ficam direto no fundo dela, nunca num cartão (a regra da galeria). Nos
 // tamanhos de acessibilidade, as entradas do treino empilham (WorkoutInputLayout), o modo vira um menu e
@@ -23,13 +30,20 @@ import SwiftUI
 
 @Observable @MainActor final class SlotEditorScreen: Identifiable {
   let routineID: String
+  // O id da linha ("0025#1"), que acha o exercício no motor a cada ação.
+  let rowID: String
+  let exerciseID: String
+  // Quantas vezes o exercício aparecia na rotina quando a tela abriu. Se o motor tem outro número, a
+  // ação não vai: o rowID pode estar apontando para outra cópia.
+  let copies: Int
+  // A posição do exercício quando a tela abriu. As ações não usam: acham a de agora pelo rowID.
   let index: Int
   let name: String
   let known: Bool
   private(set) var draft: SlotDraft
   let locale: Locale
 
-  nonisolated var id: String { "\(routineID)#\(index)" }
+  nonisolated var id: String { "\(routineID)/\(rowID)" }
 
   // Os textos que a tela mostra, prontos.
   var setsText: String { draft.sets.formatted(.number.grouping(.never).locale(locale)) }
@@ -49,6 +63,7 @@ import SwiftUI
     return draft.note
   }
 
+  @ObservationIgnored private let engine: HexEngine
   @ObservationIgnored private let perform: (EngineAction) async throws -> ActionOutcome
   // A última ação mandada: cada uma espera a de antes, para o motor receber na ordem dos toques.
   @ObservationIgnored private var last: Task<Void, Never>?
@@ -57,14 +72,18 @@ import SwiftUI
 
   static let noteDelay = Duration.milliseconds(400)
 
-  init(routineID: String, index: Int, row: SlotRow, slot: SlotSummary, unit: WeightUnit, locale: Locale,
-       perform: @escaping (EngineAction) async throws -> ActionOutcome) {
+  init(routineID: String, rowID: String, copies: Int, index: Int, row: SlotRow, slot: SlotSummary, unit: WeightUnit,
+       locale: Locale, engine: HexEngine, perform: @escaping (EngineAction) async throws -> ActionOutcome) {
     self.routineID = routineID
+    self.rowID = rowID
+    exerciseID = slot.id
+    self.copies = copies
     self.index = index
     name = row.name
     known = row.known
     draft = SlotDraft(slot, unit: unit)
     self.locale = locale
+    self.engine = engine
     self.perform = perform
   }
 
@@ -95,14 +114,19 @@ import SwiftUI
     }
   }
 
+  // A ação vai depois da de antes, com a posição que o exercício tem no motor nessa hora. Não vai quando
+  // o exercício saiu ou quando o número de cópias dele mudou.
   private func send(_ fields: SlotFields?) {
     guard let fields else { return }
     let previous = last
-    let action = EngineAction.updateSlot(routineID: routineID, index: index, fields: fields)
-    last = Task { [perform] in
+    last = Task { [engine, perform, routineID, rowID, exerciseID, copies] in
       await previous?.value
       do {
-        _ = try await perform(action)
+        let ids = try await engine.routines().first { $0.id == routineID }?.slots.map(\.id) ?? []
+        guard ids.filter({ $0 == exerciseID }).count == copies, let index = RoutineEditorModel.position(of: rowID, in: ids) else {
+          throw RoutineActionError.gone
+        }
+        _ = try await perform(.updateSlot(routineID: routineID, index: index, fields: fields))
       } catch {
         RoutinesScreen.log("não deu para mudar o exercício", error)
       }
