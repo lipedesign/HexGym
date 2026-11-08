@@ -86,7 +86,8 @@ const appTests = () => {
 // run_tests.py grava a conta no arquivo de COUNT_FILE.
 // Na parte engine, os pacotes de idioma (scripts/build-hexgym-langs.mjs) vêm antes do script do
 // motor: o --check deles não conta teste, e o language.test.mjs, que lê os pacotes guardados, cai no
-// glob dos testes do script do motor.
+// glob dos testes do script do motor. Depois dos casos gravados do motor, os do editor de rotina
+// (issue #116): o addStep e o LEGACY do openGym que o RoutineCasesTests.swift da parte app confere.
 export const PARTS = {
   scripts: [
     { name: 'testes dos scripts', cmd: 'node', args: ['--test', 'scripts/hexgym/*.test.mjs'] },
@@ -97,6 +98,7 @@ export const PARTS = {
     { name: 'idiomas em dia', cmd: 'node', args: ['scripts/build-hexgym-langs.mjs', '--check'] },
     { name: 'script do motor em dia', cmd: 'node', args: ['scripts/build-hexgym-engine.mjs', '--check'] },
     { name: 'casos gravados em dia', cmd: 'node', args: ['scripts/hexgym/record-engine-cases.mjs', '--check'] },
+    { name: 'casos do editor de rotina em dia', cmd: 'node', args: ['scripts/hexgym/record-routine-cases.mjs', '--check'] },
     { name: 'testes do script do motor', cmd: 'node', args: ['--test', 'apple/Packages/HexEngine/JS/*.test.mjs'] },
     { name: 'testes do lib contra o script', cmd: 'npx', args: ['vitest', 'run', '--config', 'vitest.hexengine.config.js'], cwd: 'frontend' },
   ],
