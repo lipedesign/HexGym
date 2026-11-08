@@ -6,8 +6,8 @@
 
 import Foundation
 
-// Um valor JSON qualquer, guardado como veio e codificado de volta igual. É o que o RoutineSnapshot
-// leva: o Swift não lê o snapshot, só devolve ao motor no desfazer.
+// Um valor JSON qualquer, com o mesmo conteúdo na volta. Um objeto passa por um dicionário e volta
+// com as chaves em outra ordem; por isso o RoutineSnapshot guarda o texto, e não um destes.
 public enum JSONValue: Codable, Equatable, Hashable, Sendable {
   case null, bool(Bool), number(Double), string(String), array([JSONValue]), object([String: JSONValue])
 
@@ -38,12 +38,30 @@ public enum JSONValue: Codable, Equatable, Hashable, Sendable {
 }
 
 // O snapshot que o routine.delete devolve (o routineSnapshot do openGym, com as marcas do
-// undoMarks), guardado como veio, para o restoreRoutine de depois.
+// undoMarks), para o restoreRoutine de depois. Guarda o texto JSON como o motor escreveu, e o apply
+// devolve esse texto igual no desfazer: a rotina volta com as chaves na ordem de antes, e o
+// documento fica igual byte a byte ao de antes de apagar, menos os carimbos (issue #117). O Swift
+// não lê o snapshot.
 public struct RoutineSnapshot: Codable, Equatable, Sendable {
-  public let value: JSONValue
-  public init(_ value: JSONValue) { self.value = value }
-  public init(from decoder: Decoder) throws { value = try JSONValue(from: decoder) }
-  public func encode(to encoder: Encoder) throws { try value.encode(to: encoder) }
+  // O texto JSON do snapshot, um objeto.
+  public let json: Data
+
+  // O snapshot da resposta do apply, { changed, result: { snapshot } }, nos bytes do texto, sem
+  // passar por um dicionário (JSONText). Confia numa resposta que o JSONDecoder já validou, como o
+  // apply faz antes, e não confere a gramática do que vai dentro do snapshot.
+  init(response: Data) throws {
+    guard let json = JSONText.value(at: ["result", "snapshot"], in: response), json.first == UInt8(ascii: "{")
+    else { throw EngineError.javaScript("HexEngine: a resposta do apply não traz o snapshot como objeto") }
+    self.json = json
+  }
+
+  // Um snapshot montado à mão, como nos testes, no texto do JSONEncoder.
+  public init(_ value: JSONValue) throws { json = try JSONEncoder().encode(value) }
+
+  // O Codable passa pelo JSONValue, sem a ordem das chaves. O apply não usa este caminho: lê o
+  // texto do snapshot direto da resposta do motor e manda o texto de volta (EngineAction.text).
+  public init(from decoder: Decoder) throws { json = try JSONEncoder().encode(JSONValue(from: decoder)) }
+  public func encode(to encoder: Encoder) throws { try JSONDecoder().decode(JSONValue.self, from: json).encode(to: encoder) }
 }
 
 // Os campos que o slot.update muda; nil fica de fora do JSON e não muda nada. Os limites são do
@@ -165,6 +183,14 @@ public enum EngineAction: Encodable, Sendable {
       try type("favourite.toggle"); try c.encode(id, forKey: .id)
     }
   }
+
+  // O texto JSON que o apply manda ao motor. O do desfazer leva o texto do snapshot colado como
+  // está, porque o JSONEncoder o passaria por um dicionário e trocaria a ordem das chaves; as outras
+  // ações não levam objeto do motor, e vão pelo JSONEncoder.
+  func text() throws -> Data {
+    guard case .restoreRoutine(let snapshot) = self else { return try JSONEncoder().encode(self) }
+    return Data(#"{"type":"routine.restore","snapshot":"#.utf8) + snapshot.json + Data("}".utf8)
+  }
 }
 
 // O que a ação devolveu. O JS manda { changed, result: { id?, snapshot?, routines? } }; o Decodable lê
@@ -172,7 +198,8 @@ public enum EngineAction: Encodable, Sendable {
 public struct ActionOutcome: Decodable, Equatable, Sendable {
   public let changed: Bool
   public let id: String?
-  public let snapshot: RoutineSnapshot?
+  // O apply troca o snapshot decodificado pelo texto dele na resposta (RoutineSnapshot(response:)).
+  public internal(set) var snapshot: RoutineSnapshot?
   public let routines: Int?
 
   private enum Keys: String, CodingKey { case changed, result }
@@ -217,8 +244,11 @@ public struct StarterPlanOption: Codable, Hashable, Identifiable, Sendable { pub
 extension HexEngine {
   // Roda a ação no documento aberto, com o instante dela em ms para o carimbo.
   public func apply(_ action: EngineAction, now: Date = .now) throws -> ActionOutcome {
-    let text = String(decoding: try JSONEncoder().encode(action), as: UTF8.self)
-    return try decodedAction(run("apply", [text, (now.timeIntervalSince1970 * 1000).rounded()]))
+    let text = String(decoding: try action.text(), as: UTF8.self)
+    let response = try run("apply", [text, (now.timeIntervalSince1970 * 1000).rounded()])
+    var outcome: ActionOutcome = try decodedAction(response)
+    if outcome.snapshot != nil { outcome.snapshot = try RoutineSnapshot(response: response) }
+    return outcome
   }
 
   public func routines() throws -> [RoutineSummary] {
