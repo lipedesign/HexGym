@@ -65,8 +65,9 @@ nonisolated enum RoutineGlyph {
   ]
 
   // O LEGACY do glyphOf do openGym (frontend/src/lib/glyphs.js), com cada emoji escrito pelos códigos,
-  // para nenhum seletor de variação se perder na cópia.
-  private static let legacy: [String: String] = [
+  // para nenhum seletor de variação se perder na cópia. Fica visível no módulo para o RoutineCasesTests
+  // conferir o mapa inteiro contra o do openGym (issue #116).
+  static let legacy: [String: String] = [
     "\u{1F4AA}": "arm",  // 💪
     "\u{1F9BE}": "arm",  // 🦾
     "\u{1FAF8}": "figureStrength",  // 🫸

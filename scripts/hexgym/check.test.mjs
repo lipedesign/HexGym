@@ -24,7 +24,9 @@
 // Os quatro da issue #22 (a parte app e a conta do xcodebuild test) vêm depois, com um xcodebuild e um
 // xcrun de mentira numa pasta temporária, e nenhum roda o Xcode nem um simulador de verdade.
 // A issue #90 pôs a rodada "idiomas em dia" no começo da parte engine, antes do script do motor: o
-// teste da parte packages prende também as rodadas da parte engine que não são teste, na ordem.
+// teste da parte packages prende também as rodadas da parte engine que não são teste, na ordem. A
+// issue #116 pôs "casos do editor de rotina em dia" logo depois dos casos gravados do motor, e o mesmo
+// teste a prende.
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -275,10 +277,11 @@ test('the packages part runs every HexEngine test in the first zone, the recorde
     { DEVELOPER_DIR: '/x' },
     { DEVELOPER_DIR: '/x' },
   ])
-  assert.deepEqual(PARTS.engine.slice(0, 3).map(c => [c.name, c.cmd, ...c.args]), [
+  assert.deepEqual(PARTS.engine.slice(0, 4).map(c => [c.name, c.cmd, ...c.args]), [
     ['idiomas em dia', 'node', 'scripts/build-hexgym-langs.mjs', '--check'],
     ['script do motor em dia', 'node', 'scripts/build-hexgym-engine.mjs', '--check'],
     ['casos gravados em dia', 'node', 'scripts/hexgym/record-engine-cases.mjs', '--check'],
+    ['casos do editor de rotina em dia', 'node', 'scripts/hexgym/record-routine-cases.mjs', '--check'],
   ])
 })
 
