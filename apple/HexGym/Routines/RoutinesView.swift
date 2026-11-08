@@ -3,7 +3,11 @@
 // o .onMove para reordenar (e o "Editar" da Apple, que mostra as alças); e o deslizar com "Duplicar" e
 // "Apagar". Apagar mostra a faixa "Rotina apagada" com o "Desfazer" por 5 s, que aplica o restoreRoutine
 // com o snapshot (Foco da revisão 4); com o VoiceOver ligado, a faixa fica 15 s, e o anúncio diz que ela
-// apareceu. Sem rotinas, o estado vazio da Apple com "Nova rotina", até a tela vazia da Task 12.
+// apareceu. Sem rotinas, a tela vazia da Task 12 (StarterPlansView): "Nova rotina" e os planos prontos.
+//
+// No topo da lista, o plano da semana (WeekPlanSection, Task 12), e um toque num dia abre a escolha das
+// rotinas dele (DayRoutinesSheet). Com rotinas, os planos prontos ficam no item "Planos prontos" do menu
+// "Mais" da barra (StarterPlansSheet), com o aviso dos dias que o plano troca.
 //
 // Um toque numa linha abre o editor (RoutineEditorView), na pilha da aba. As linhas vêm prontas do
 // RoutineEditorModel, pelo RoutinesScreen: o body não calcula nada.
@@ -18,6 +22,8 @@
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o ícone na cor do tema; a contagem e os
 // dias na segunda linha, com o ponto no meio; o "Duplicar" no índigo do sistema, como o favoritar da
 // biblioteca; o "Editar" da Apple na barra, para quem não arrasta; e a faixa de 15 s com o VoiceOver.
+// Na Task 12: o "Nova rotina" continua um botão de um toque na barra, e o menu "Mais" ao lado leva os
+// "Planos prontos"; a lista das rotinas ganha o título "Rotinas", embaixo da semana.
 import HexDesign
 import HexEngine
 import SwiftUI
@@ -39,41 +45,80 @@ struct RoutinesView: View {
   @State private var ranLaunch = false
   // A faixa "Rotina apagada", enquanto aparece.
   @State private var banner: RoutineUndo?
+  // A escolha das rotinas de um dia, aberta; e os planos prontos do menu da barra.
+  @State private var editingDay: WeekDaySelection?
+  @State private var showingPlans = false
 
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
 
   var body: some View {
-    List {
-      ForEach(screen.rows) { row in
-        NavigationLink(value: RoutineRoute(id: row.id)) {
-          RoutineListRow(row: row)
-        }
-        .accessibilityLabel(Text(verbatim: row.spoken))
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-          Button(role: .destructive) { screen.delete(row.id) } label: {
-            Label("Delete", systemImage: "trash")
-          }
-          Button { Task { await screen.duplicate(row.id) } } label: {
-            Label("Duplicate", systemImage: "plus.square.on.square")
-          }
-          .tint(Color(.systemIndigo))
-        }
+    content
+      .animation(HexMotion.enter.animation(reduceMotion: reduceMotion), value: screen.rows.isEmpty)
+      .overlay { overlay }
+      .overlay(alignment: .bottom) { undoBanner }
+      .navigationTitle("Routines")
+      .toolbar { toolbar }
+      .navigationDestination(for: RoutineRoute.self) { route in
+        RoutineEditorView(screen: screen.editor(route.id, isNew: route.isNew), library: library)
       }
-      .onMove { screen.move(from: $0, to: $1) }
+      .sheet(item: $editingDay) { DayRoutinesSheet(screen: screen.week, day: $0.day) }
+      .sheet(isPresented: $showingPlans) {
+        StarterPlansSheet(screen: screen.week) { await screen.load() }
+      }
+      .task { await appear() }
+      .task(id: screen.undo?.id) { await showUndo() }
+      .onChange(of: screen.documentRevision) { Task { await reload() } }
+      .containerBackground(.clear, for: .navigation)
+  }
+
+  // Sem rotinas, a tela vazia com os planos prontos; com rotinas, a semana e a lista.
+  @ViewBuilder private var content: some View {
+    if screen.phase == .ready, screen.rows.isEmpty {
+      StarterPlansView(screen: screen.week, create: { Task { await create() } }) { await screen.load() }
+        .transition(.opacity)
+    } else {
+      list
+    }
+  }
+
+  private var list: some View {
+    List {
+      if !screen.rows.isEmpty, let model = screen.week.model {
+        WeekPlanSection(model: model) { editingDay = WeekDaySelection(day: $0) }
+      }
+      Section {
+        routineRows
+      } header: {
+        if !screen.rows.isEmpty { SettingsHeader("Routines") }
+      }
     }
     .scrollContentBackground(.hidden)
-    .overlay { overlay }
-    .overlay(alignment: .bottom) { undoBanner }
-    .navigationTitle("Routines")
-    .toolbar { toolbar }
-    .navigationDestination(for: RoutineRoute.self) { route in
-      RoutineEditorView(screen: screen.editor(route.id, isNew: route.isNew), library: library)
+  }
+
+  private var routineRows: some View {
+    ForEach(screen.rows) { row in
+      NavigationLink(value: RoutineRoute(id: row.id)) {
+        RoutineListRow(row: row)
+      }
+      .accessibilityLabel(Text(verbatim: row.spoken))
+      .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        Button(role: .destructive) { screen.delete(row.id) } label: {
+          Label("Delete", systemImage: "trash")
+        }
+        Button { Task { await screen.duplicate(row.id) } } label: {
+          Label("Duplicate", systemImage: "plus.square.on.square")
+        }
+        .tint(Color(.systemIndigo))
+      }
     }
-    .task { await appear() }
-    .task(id: screen.undo?.id) { await showUndo() }
-    .onChange(of: screen.documentRevision) { Task { await screen.load() } }
-    .containerBackground(.clear, for: .navigation)
+    .onMove { screen.move(from: $0, to: $1) }
+  }
+
+  // As rotinas e a semana, lidas de novo depois de uma ação.
+  private func reload() async {
+    await screen.load()
+    await screen.week.load()
   }
 
   @ViewBuilder private var overlay: some View {
@@ -85,16 +130,7 @@ struct RoutinesView: View {
         Label("Couldn't open the routines.", systemImage: "exclamationmark.triangle")
       }
     case .ready:
-      if screen.rows.isEmpty {
-        ContentUnavailableView {
-          Label("No routines yet", systemImage: "list.bullet.rectangle")
-        } actions: {
-          Button { Task { await create() } } label: {
-            Text("New routine")
-          }
-          .buttonStyle(.hexPrimary)
-        }
-      }
+      EmptyView()
     }
   }
 
@@ -105,6 +141,17 @@ struct RoutinesView: View {
     ToolbarItem(placement: .topBarTrailing) {
       Button { Task { await create() } } label: {
         Label("New routine", systemImage: "plus")
+      }
+    }
+    if !screen.rows.isEmpty {
+      ToolbarItem(placement: .topBarTrailing) {
+        Menu {
+          Button { showingPlans = true } label: {
+            Label("Starter plans", systemImage: "list.bullet.clipboard")
+          }
+        } label: {
+          Label("More", systemImage: "ellipsis")
+        }
       }
     }
   }
@@ -171,13 +218,19 @@ struct RoutinesView: View {
     screen.dismissUndo(undo.id)
   }
 
-  // A lista do motor e, na primeira vez, o que os argumentos de início pedem (RoutinesLaunch).
+  // A lista e a semana do motor e, na primeira vez, o que os argumentos de início pedem (RoutinesLaunch e
+  // WeekPlanLaunch).
   private func appear() async {
-    await screen.load()
+    await reload()
     guard !ranLaunch else { return }
     ranLaunch = true
     if let target = RoutinesLaunch.routine, let row = RoutinesLaunch.resolve(target, in: screen.rows) {
       path = [RoutineRoute(id: row.id)]
+    }
+    if let day = WeekPlanLaunch.day, !screen.rows.isEmpty {
+      editingDay = WeekDaySelection(day: day)
+    } else if WeekPlanLaunch.plans != nil, !screen.rows.isEmpty {
+      showingPlans = true
     }
     switch RoutinesLaunch.script {
     case "delete":
@@ -188,9 +241,30 @@ struct RoutinesView: View {
       // O vídeo: "Nova rotina" pelo mesmo caminho do botão; o resto, no editor (RoutineEditorView).
       try? await Task.sleep(for: .seconds(0.8))
       await create()
+    case "week":
+      await weekDemo()
     default:
       break
     }
+  }
+
+  // O roteiro do vídeo do PR da Task 12 (-HexGymRoutinesScript week), do app vazio até a semana pronta:
+  // na tela vazia, o "Empurrar, puxar, pernas" pelo mesmo caminho do toque; na semana montada, a escolha
+  // do sábado, com o "Push Day" marcado, e o "Pronto".
+  private func weekDemo() async {
+    func wait(_ seconds: Double) async { try? await Task.sleep(for: .seconds(seconds)) }
+    guard screen.rows.isEmpty else { return }
+    await wait(2.5)
+    let week = screen.week
+    guard await week.loadPlan("ppl") else { return }
+    await screen.load()
+    await wait(2.5)
+    editingDay = WeekDaySelection(day: 6)
+    await wait(1.6)
+    guard let push = week.model?.choices(for: 6).first(where: { $0.name == "Push Day" }) else { return }
+    await week.toggle(push.id, on: 6)?.value
+    await wait(1.4)
+    editingDay = nil
   }
 }
 

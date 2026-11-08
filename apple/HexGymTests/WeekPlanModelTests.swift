@@ -1,0 +1,158 @@
+// Os testes do plano da semana sem tela (Task 12 do plano da fase 2, issue #99). Os quatro do passo 1
+// do plano: a ordem dos dias com a semana começando no domingo (0) e na segunda (1), com os rótulos
+// curtos e por extenso; um dia sem rotina diz "Descanso", na linha e no VoiceOver; com o motor de
+// verdade, o plano PPL deixa segunda, quarta e sexta com as rotinas dele e os outros dias como estavam;
+// e o aviso de um plano pronto diz só os dias que ele troca de fato, conferido contra o que o motor faz
+// em cada um dos quatro planos (e a tabela dos planos, contra as rotinas que o motor cria).
+//
+// O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
+//
+//   DEVELOPER_DIR=$(node scripts/hexgym/xcode.mjs) xcodebuild -project apple/HexGym.xcodeproj -scheme HexGym \
+//     -destination id=<udid> -derivedDataPath apple/DerivedData -parallel-testing-enabled NO test
+
+import Foundation
+import HexEngine
+import Testing
+@testable import HexGym
+
+@Suite @MainActor struct WeekPlanModelTests {
+  let portuguese = Locale(identifier: "pt-BR")
+  let english = Locale(identifier: "en")
+
+  // Um motor em pt-BR com o documento do primeiro uso, ou com o documento dado por cima do DEF.
+  func engine(_ document: String? = nil) async throws -> HexEngine {
+    let engine = HexEngine(language: "pt-BR")
+    _ = try await engine.load()
+    _ = try await engine.freshDocument()
+    if let document { try await engine.restore(Data(document.utf8)) }
+    return engine
+  }
+
+  func model(_ engine: HexEngine, locale: Locale? = nil) async throws -> WeekPlanModel {
+    WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(), plans: try await engine.starterPlans(),
+                  text: WeekPlanText(locale: locale ?? portuguese))
+  }
+
+  @Test func theDaysFollowTheWeekStartWithShortAndSpokenLabels() async throws {
+    let engine = try await engine()
+    for (weekStart, order) in [(0, [0, 1, 2, 3, 4, 5, 6]), (1, [1, 2, 3, 4, 5, 6, 0])] {
+      _ = try await engine.apply(.setSetting(.weekStart(weekStart)))
+      let model = try await model(engine)
+      #expect(model.days.map(\.day) == order, "semana começando em \(weekStart)")
+      #expect(model.days.count == 7)
+    }
+    // Com a semana na segunda: o primeiro é a segunda, o último o domingo.
+    let pt = try await model(engine), en = try await model(engine, locale: english)
+    #expect(pt.days.map(\.short) == ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"])
+    #expect(pt.days.first?.full == "Segunda-feira")
+    #expect(pt.days.last?.full == "Domingo")
+    #expect(en.days.map(\.short) == ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+    #expect(en.days.first?.full == "Monday")
+  }
+
+  @Test func aDayWithoutARoutineSaysRest() async throws {
+    // A segunda com duas rotinas, a terça com um id que não é mais rotina (de outro aparelho), o resto
+    // vazio. O motor deixa o id velho de fora, e a terça fica como descanso, como no openGym.
+    let engine = try await engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Peito","emoji":"arm","ex":[{"id":"0025","sets":3,"reps":10}]},
+        {"id":"r2","name":"Costas","emoji":"pullup","ex":[]}],
+       "week":{"1":["r1","r2"],"2":["nao-existe"]}}
+      """#)
+    let model = try await model(engine)
+    let monday = try #require(model.day(1)), tuesday = try #require(model.day(2))
+    #expect(monday.routines == "Peito e Costas")
+    #expect(!monday.isRest)
+    #expect(monday.routineIDs == ["r1", "r2"])
+    #expect(monday.spoken == "Segunda-feira, Peito e Costas")
+    #expect(tuesday.isRest)
+    #expect(tuesday.routines == "Descanso")
+    #expect(tuesday.spoken == "Terça-feira, Descanso")
+    #expect(model.days.filter(\.isRest).count == 6)
+    #expect(try #require(try await self.model(engine, locale: english).day(3)).spoken == "Wednesday, Rest")
+    // A escolha da segunda: o descanso desmarcado, as duas rotinas marcadas, e o VoiceOver diz qual está.
+    let choices = model.choices(for: 1)
+    #expect(choices.map(\.id) == ["r1", "r2"])
+    #expect(choices.allSatisfy { $0.isOn })
+    #expect(choices.first?.spoken == "Peito, 1 exercício")
+    #expect(model.choices(for: 2).allSatisfy { !$0.isOn })
+    // Marcar e desmarcar, pelo id: a que sai some, e a que entra vai para o fim, como no openGym.
+    #expect(WeekPlanModel.toggled(["r1", "r2"], "r1") == ["r2"])
+    #expect(WeekPlanModel.toggled(["r2"], "r1") == ["r2", "r1"])
+  }
+
+  @Test func thePPLPlanFillsMondayWednesdayAndFridayAndLeavesTheOtherDays() async throws {
+    // Uma rotina na segunda (que o plano troca) e na terça e no sábado (que ele não toca).
+    let engine = try await engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Peito","emoji":"arm","ex":[{"id":"0025","sets":3,"reps":10}]}],
+       "week":{"1":["r1"],"2":["r1"],"6":["r1"]}}
+      """#)
+    let screen = WeekPlanScreen(engine: engine, locale: portuguese) { try await engine.apply($0) }
+    await screen.load()
+    let before = try #require(screen.model)
+    #expect(await screen.loadPlan("ppl"))
+    let after = try #require(screen.model)
+    #expect(try #require(after.day(1)).routines == "Push Day")
+    #expect(try #require(after.day(3)).routines == "Pull Day")
+    #expect(try #require(after.day(5)).routines == "Leg Day")
+    for day in [0, 2, 4, 6] {
+      #expect(after.day(day) == before.day(day), "o dia \(day) fica como estava")
+    }
+    #expect(try #require(after.day(2)).routines == "Peito")
+    #expect(try #require(after.day(4)).isRest)
+    // A rotina de antes continua, e as três do plano entram uma vez só.
+    let names = try await engine.routines().map(\.name)
+    #expect(names == ["Peito", "Push Day", "Pull Day", "Leg Day"])
+    #expect(await screen.loadPlan("ppl"))
+    #expect(try await engine.routines().map(\.name) == names)
+  }
+
+  @Test func theWarningSaysOnlyTheDaysThePlanReallyChanges() async throws {
+    // A segunda e a terça com rotinas, e a quarta com um id velho, que o motor lê como descanso.
+    let document = #"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Peito","emoji":"arm","ex":[{"id":"0025","sets":3,"reps":10}]},
+        {"id":"r2","name":"Costas","emoji":"pullup","ex":[{"id":"0027","sets":3,"reps":10}]}],
+       "week":{"1":["r1"],"2":["r2"],"3":["nao-existe"]}}
+      """#
+    let engine = try await engine(document)
+    let model = try await model(engine)
+    #expect(model.warning(forPlan: "ppl") == "Este plano troca segunda.")
+    #expect(model.warning(forPlan: "upper-lower") == "Este plano troca segunda e terça.")
+    #expect(try await self.model(engine, locale: english).warning(forPlan: "upper-lower") == "This plan changes Monday and Tuesday.")
+    // Os planos com os dias que ocupam, na ordem do motor.
+    #expect(model.plans.map(\.id) == ["ppl", "upper-lower", "full-body", "5x5"])
+    #expect(model.plans.map(\.name) == ["Empurrar, puxar, pernas", "Superior e inferior", "Corpo inteiro", "5×5"])
+    #expect(model.plans.first?.days == [1, 3, 5])
+    #expect(model.plans.first?.detail == "3 dias por semana\u{00A0}· Seg, Qua, Sex")
+
+    // Com o PPL carregado, carregar o PPL de novo não troca nada (as rotinas iguais voltam aos mesmos
+    // dias), e o corpo inteiro troca os três dias dele.
+    _ = try await engine.apply(.loadStarterPlan(id: "ppl"))
+    let loaded = try await self.model(engine)
+    #expect(loaded.warning(forPlan: "ppl") == nil)
+    #expect(loaded.replacedDays(byPlan: "ppl").isEmpty)
+    #expect(loaded.warning(forPlan: "full-body") == "Este plano troca segunda, quarta e sexta.")
+
+    // Contra o motor, nos quatro planos e nos dois documentos: os dias que o aviso diz são os dias que
+    // tinham rotina e mudaram depois do plan.starter. E a tabela dos planos é a do starter.js: as
+    // rotinas que o motor cria têm os nomes e os exercícios dela, nos dias dela.
+    for start in [document, nil] {
+      for plan in model.plans.map(\.id) {
+        let engine = try await self.engine(start)
+        if start == nil { _ = try await engine.apply(.loadStarterPlan(id: "ppl")) }
+        let predicted = try await self.model(engine).replacedDays(byPlan: plan)
+        let before = try await engine.week().days
+        _ = try await engine.apply(.loadStarterPlan(id: plan))
+        let after = try await engine.week().days
+        let changed = zip(before, after).filter { !$0.routineIds.isEmpty && $0.routineIds != $1.routineIds }.map(\.0.day)
+        #expect(predicted == changed, "\(plan), \(start == nil ? "depois do ppl" : "com as duas rotinas")")
+        let routines = try await engine.routines()
+        for entry in try #require(StarterPlanCatalog.schedule(of: plan)) {
+          let id = try #require(after.first { $0.day == entry.day }?.routineIds.first)
+          let routine = try #require(routines.first { $0.id == id })
+          #expect(routine.name == entry.name)
+          #expect(routine.slots.map(\.id) == entry.exercises, "\(plan), \(entry.name)")
+        }
+      }
+    }
+  }
+}
