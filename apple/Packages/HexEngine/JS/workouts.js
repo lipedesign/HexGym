@@ -9,12 +9,13 @@
 // Cada treino tem uma chave, a do sameWorkout do openGym: o id, ou o legacySyncKey quando o treino é
 // antigo e não tem id (o keyOf do session.js, que o último treino do Início também usa). Para o Swift,
 // a chave vai sempre em texto, como a sincronização a guarda (o entryKey do lib/sync-merge.js).
-import { setLabel, setsDone, sessionVolume, workSetsDone, workoutDay, workoutDuration, bestWeightForEntry } from '../../../../frontend/src/lib/history.js'
+import { setsDone, sessionVolume, workSetsDone, workoutDay, workoutDuration, bestWeightForEntry } from '../../../../frontend/src/lib/history.js'
 import { hasCompletedWork, isSideSet, isWarmupRow } from '../../../../frontend/src/lib/workout-model.js'
 import { hrLabel } from '../../../../frontend/src/lib/heart-rate.js'
 import { speedUnitOf } from '../../../../frontend/src/lib/speed.js'
 import { fmtNum } from '../../../../frontend/src/lib/format.js'
 import { byNewest, groupOf, keyText, knownEx, lineOf, nameOf, supersetLetters } from './session.js'
+import { setText } from './texts.js'
 
 const isMap = v => v !== null && typeof v === 'object' && !Array.isArray(v)
 const list = v => (Array.isArray(v) ? v : [])
@@ -104,12 +105,13 @@ export function history(S, query) {
 // session.js) e, depois dela, o que o detalhe do openGym escreve depois da carga (sheets.jsx:2808):
 // a falha ("F") e o esforço ("(RIR 2)") que o setLabel põe atrás de "60×8", e o batimento do Apple
 // Watch do hrLabel ("♥ 132/151"). Quando a linha já é a do setLabel (lados, drop set, rest-pause,
-// peso do corpo, halter, tempo, cardio), ela vem inteira de lá.
+// peso do corpo, halter, tempo, cardio), ela vem inteira de lá. As duas passam pelo setText do
+// texts.js, sem a meia-risca do openGym (issue #161).
 function lineFor(S, e, s) {
   const line = lineOf(S, e, s)
   let label = ''
   try {
-    label = setLabel(e.id, s, e.target, speedUnitOf(S))
+    label = setText(e.id, s, e.target, speedUnitOf(S))
   } catch {
     // Uma série que o setLabel não lê fica só com a linha.
   }

@@ -1,4 +1,5 @@
-// Os sete documentos preparados (os cinco da Task 6 do plano da fase 3 e os dois do Início da Task 7),
+// Os oito documentos preparados (os cinco da Task 6 do plano da fase 3, os dois do Início da Task 7 e o
+// da issue #161),
 // como texto JSON, no formato do documento do openGym, com a chave _fixtureNow, o instante em que cada
 // um "está" (o FixtureLoader leva tudo para hoje e tira a chave). Foram montados pelo próprio motor (o runtime.js e o
 // controlador do treino: começar, mudar a carga, marcar, terminar) num relógio de São Paulo, com o
@@ -18,15 +19,19 @@
 //                        próxima sessão da semana, qualquer que seja o dia do print (Task 7, rodada 2 do
 //                        PR #157);
 //   nada-marcado         o semana-ppl sem a semana e sem o dayPlan: as rotinas e o histórico, e nada
-//                        marcado para hoje nem para os próximos dias (Task 7, rodada 2 do PR #157).
-// Os dois últimos saem do texto do semana-ppl, trocando só o plano, para o histórico ser o mesmo.
+//                        marcado para hoje nem para os próximos dias (Task 7, rodada 2 do PR #157);
+//   lados-e-faixa        uma rotina com prancha lateral de 2 × 0:30 por lado, supino na faixa 8-12 da
+//                        progressão dupla, rosca por lado na faixa 16-20 e agachamento em pirâmide, e o
+//                        treino dela começado, com o lado esquerdo da primeira prancha feito (issue #161).
+// O dia-de-descanso e o nada-marcado saem do texto do semana-ppl, trocando só o plano, para o histórico
+// ser o mesmo.
 //
 // Inteiro dentro do #if DEBUG, como o FixtureLoader: nada daqui entra no build Release.
 
 #if DEBUG
 enum FixtureDocuments {
   static let names = ["semana-ppl", "treino-em-andamento", "descanso", "vazio", "veio-do-opengym", "dia-de-descanso",
-                       "nada-marcado"]
+                       "nada-marcado", "lados-e-faixa"]
 
   static func text(named name: String) -> String? {
     switch name {
@@ -37,6 +42,7 @@ enum FixtureDocuments {
     case "veio-do-opengym": veioDoOpenGym
     case "dia-de-descanso": diaDeDescanso
     case "nada-marcado": nadaMarcado
+    case "lados-e-faixa": ladosEFaixa
     default: nil
     }
   }
@@ -563,6 +569,103 @@ enum FixtureDocuments {
       "balanceTemplate": "poliquin",
       "balanceOverrides": {},
       "langAuto": true
+    }
+    """#
+
+  static let ladosEFaixa = #"""
+    {
+      "_fixtureNow": 1794225600000,
+      "unit": "kg",
+      "restSec": 90,
+      "restPauseSec": 15,
+      "sound": true,
+      "soundOnSilent": false,
+      "vibrateOnSilent": false,
+      "timerFlash": false,
+      "timedSetOvertime": false,
+      "keepAwake": true,
+      "theme": "dark",
+      "accent": "lime",
+      "body": "male",
+      "targetW": null,
+      "rateGoal": null,
+      "bodyweight": [],
+      "routines": [
+        {"id":"r-lados","name":"Core e braços","emoji":"barbell","ex":[{"id":"0715","sets":2,"sec":30,"weight":0,"mode":"time","bodyweight":true,"side":true},{"id":"0025","sets":3,"reps":12,"repsMin":8,"weight":60,"mode":"reps","prog":"double"},{"id":"0294","sets":3,"reps":20,"repsMin":16,"weight":10,"mode":"reps","side":true,"prog":"double"},{"id":"0043","sets":3,"reps":10,"weight":80,"mode":"reps","pyramid":[10,8,6]}]}
+      ],
+      "week": {"1":["r-lados"]},
+      "dayPlan": {"2026-11-09":"r-lados"},
+      "dayNotes": {},
+      "measurements": [],
+      "measurementEnabled": null,
+      "customMeasurements": [],
+      "queue": null,
+      "rotation": null,
+      "scheduleMode": null,
+      "exWeights": {},
+      "workouts": [],
+      "active": {
+        "id": "w-2026-11-09-lados",
+        "d": "2026-11-09",
+        "start": 1794225000000,
+        "routineIds": ["r-lados"],
+        "name": "Core e braços",
+        "bw": null,
+        "cur": 0,
+        "entries": [
+          {"id":"0715","target":{"id":"0715","sets":2,"sec":30,"weight":0,"mode":"time","bodyweight":true,"side":true},"plan":{"policy":"off","kind":"off"},"sets":[{"sec":30,"w":0,"done":true,"side":"L","at":1794225120000},{"sec":30,"w":0,"done":false,"side":"R"},{"sec":30,"w":0,"done":false,"side":"L"},{"sec":30,"w":0,"done":false,"side":"R"}],"planned":{"sets":2,"sec":30,"weight":0},"rid":"r-lados"},
+          {"id":"0025","target":{"id":"0025","sets":3,"reps":12,"repsMin":8,"weight":60,"mode":"reps","prog":"double"},"plan":{"policy":"double","kind":"first","why":["Nothing logged yet, so this session sets the baseline."]},"sets":[{"w":60,"r":12,"done":false},{"w":60,"r":12,"done":false},{"w":60,"r":12,"done":false}],"planned":{"sets":3,"reps":12,"repsMin":8,"weight":60},"rid":"r-lados"},
+          {"id":"0294","target":{"id":"0294","sets":3,"reps":20,"repsMin":16,"weight":10,"mode":"reps","side":true,"prog":"double"},"plan":{"policy":"double","kind":"first","why":["Nothing logged yet, so this session sets the baseline."]},"sets":[{"w":10,"r":20,"done":false,"sides":{"L":{"w":10,"r":10,"done":false},"R":{"w":10,"r":10,"done":false}}},{"w":10,"r":20,"done":false,"sides":{"L":{"w":10,"r":10,"done":false},"R":{"w":10,"r":10,"done":false}}},{"w":10,"r":20,"done":false,"sides":{"L":{"w":10,"r":10,"done":false},"R":{"w":10,"r":10,"done":false}}}],"planned":{"sets":3,"reps":20,"repsMin":16,"weight":10},"rid":"r-lados"},
+          {"id":"0043","target":{"id":"0043","sets":3,"reps":10,"weight":80,"mode":"reps","pyramid":[10,8,6]},"plan":{"policy":"off","kind":"off"},"sets":[{"w":80,"r":10,"done":false},{"w":80,"r":8,"done":false},{"w":80,"r":6,"done":false}],"planned":{"sets":3,"reps":10,"weight":80},"rid":"r-lados"}
+        ],
+        "workoutView": "cards",
+        "rest": null,
+        "progress": [1,0,0,0]
+      },
+      "customEx": [],
+      "gifSize": "mini",
+      "heatmapMetric": "time",
+      "volumeWarmups": false,
+      "workoutView": "cards",
+      "collapseCompleted": false,
+      "exerciseView": "list",
+      "wc": {"steppers":true,"setShortcuts":false,"pairButtons":false,"exerciseButtons":false,"exerciseChips":true,"muscleMap":true,"swipeSets":true},
+      "hints": {},
+      "reminder": {"on":false,"time":"08:00","tz":null,"nudge":false,"tone":"friendly"},
+      "effort": null,
+      "autoBackup": false,
+      "equipProfiles": [],
+      "activeEquipId": null,
+      "equipFilterOn": false,
+      "exNotes": {},
+      "exAliases": {},
+      "favEx": [],
+      "weekStart": 1,
+      "wdec": 1,
+      "speedUnit": null,
+      "barWeights": {},
+      "plates": {},
+      "loadKind": {},
+      "dbLoad": {},
+      "dumbbells": {},
+      "stackWeights": {},
+      "gymCards": [],
+      "lastGymCardId": null,
+      "checkIn": true,
+      "showWeightCard": true,
+      "weighIn": false,
+      "connStatus": true,
+      "shareMap": true,
+      "connLocal": true,
+      "startFrom": "plan",
+      "lastFrom": "routine",
+      "enParens": {},
+      "enOnly": {},
+      "logRef": "last",
+      "balanceTemplate": "poliquin",
+      "balanceOverrides": {},
+      "langAuto": true,
+      "_ts": 1794225120000
     }
     """#
 }

@@ -21,8 +21,15 @@
 // Escolhas recomendadas, com a delegação do Lipe de 03/11/2026: tocar numa linha põe o painel nela até
 // ela ser marcada, ou até o "Próxima série", que aparece no lugar do "Registrar série" quando a linha
 // tocada já está feita; o aquecimento conta à parte, como o openGym numera ("Aquecimento 1" e depois
-// "Série 1"); um alvo que o motor escreveu com "undefined" (um alvo sem séries, vindo de outro aparelho)
-// não aparece no cartão.
+// "Série 1"); um alvo com "undefined" ou "NaN" não aparece no cartão. Desde a issue #161 o motor não
+// escreve mais esse alvo (o campo que falta sai do texto), e o esconder fica só como defesa, para um
+// motor velho ou um texto que ninguém previu não chegar à tela.
+//
+// A série com tempo por lado (uma prancha lateral) vem do motor em pares de linhas, uma de cada lado, como
+// o openGym monta. A tela mostra como o openGym (views/Workout.jsx:457 e 850, issue #161): o par com o
+// mesmo número, o lado em cada linha ("Esquerda" e "Direita", 'Left' e 'Right'), "Série 1 (Esquerda)" na
+// fala e na marca ('Set {0} ({1})' e 'Set {0} ({1}) done'), e "Série 1 de 2 (Direita)" no painel, que
+// conta os pares.
 
 import Foundation
 import HexDesign
@@ -51,7 +58,8 @@ nonisolated struct WorkoutText: Sendable {
   let textLocale: Locale
   let logSet, nextSet, allDone, noExercises: String
   private let setOfFormat, warmupFormat, setFormat, setDoneFormat, warmupDoneFormat, doneFormat, warmupSpokenDoneFormat,
-      supersetFormat, supersetPlaceFormat, atFormat: String
+      supersetFormat, supersetPlaceFormat, atFormat, sidedFormat, sidedDoneFormat: String
+  private let left, right: String
 
   @MainActor init(locale: Locale) {
     self.locale = locale
@@ -73,15 +81,33 @@ nonisolated struct WorkoutText: Sendable {
     supersetFormat = text("Superset %@")
     supersetPlaceFormat = text("Superset %@, %lld of %lld")
     atFormat = text("%@ at %@")
+    sidedFormat = text("Set %lld (%@)")
+    sidedDoneFormat = text("Set %lld (%@) done")
+    left = text("Left")
+    right = text("Right")
+  }
+
+  // "Esquerda" e "Direita": o lado de uma série com tempo por lado, pelo L ou R do motor.
+  func side(_ side: String?) -> String? {
+    switch side {
+    case "L": left
+    case "R": right
+    default: nil
+    }
   }
 
   // "Série 2 de 3".
   func setOf(_ number: Int, _ total: Int) -> String { String(format: setOfFormat, locale: locale, number, total) }
-  // "Aquecimento 1" e "Série 2": o nome de uma linha.
-  func label(_ number: Int, warmup: Bool) -> String { String(format: warmup ? warmupFormat : setFormat, locale: locale, number) }
-  // "Série 2 concluída" e "Aquecimento 1 concluído": o rótulo da marca de feita.
-  func markLabel(_ number: Int, warmup: Bool) -> String {
-    String(format: warmup ? warmupDoneFormat : setDoneFormat, locale: locale, number)
+  // "Aquecimento 1", "Série 2" e "Série 1 (Esquerda)": o nome de uma linha.
+  func label(_ number: Int, warmup: Bool, side: String? = nil) -> String {
+    if let side, !warmup { return String(format: sidedFormat, locale: locale, number, side) }
+    return String(format: warmup ? warmupFormat : setFormat, locale: locale, number)
+  }
+  // "Série 2 concluída", "Aquecimento 1 concluído" e "Série 1 (Esquerda) concluída": o rótulo da marca de
+  // feita.
+  func markLabel(_ number: Int, warmup: Bool, side: String? = nil) -> String {
+    if let side, !warmup { return String(format: sidedDoneFormat, locale: locale, number, side) }
+    return String(format: warmup ? warmupDoneFormat : setDoneFormat, locale: locale, number)
   }
   // "Série 2, 60 quilogramas, 8 repetições, feita".
   func spokenDone(_ spoken: String, warmup: Bool) -> String {
@@ -109,12 +135,14 @@ nonisolated struct WorkoutSetMark: Equatable, Sendable {
   var action: SessionAction { .markSet(entry: entry, set: set, done: done) }
 }
 
-// Uma linha de série: o número (o aquecimento conta à parte), a linha curta do motor, a marca de feita, se
-// é a do painel, e as falas.
+// Uma linha de série: o número (o aquecimento conta à parte, e o par de uma série com tempo por lado é um
+// número só), o lado, a linha curta do motor, a marca de feita, se é a do painel, e as falas.
 nonisolated struct WorkoutRow: Identifiable, Equatable, Sendable {
   let ref: WorkoutRef
   let number: String
   let warmup: Bool
+  // "Esquerda" ou "Direita" numa série com tempo por lado; nil nas outras.
+  let side: String?
   // "60 kg × 8", ou o texto do motor; vazio numa série que o motor não leu.
   let line: String
   let done: Bool
@@ -219,12 +247,13 @@ nonisolated struct WorkoutScreenModel: Equatable, Sendable {
       let numbers = Self.numbers(entry.sets)
       let rows = entry.sets.enumerated().map { index, set in
         let ref = WorkoutRef(entry: position, set: index)
-        let label = text.label(numbers[index], warmup: set.warmup)
+        let side = text.side(set.side)
+        let label = text.label(numbers[index], warmup: set.warmup, side: side)
         let spoken = Self.spoken(set, label: label, mode: entry.mode, unit: unit, text: text)
         return WorkoutRow(
-          ref: ref, number: String(numbers[index]), warmup: set.warmup, line: set.line, done: set.done, current: ref == current,
-          spoken: set.done ? text.spokenDone(spoken, warmup: set.warmup) : spoken,
-          markLabel: text.markLabel(numbers[index], warmup: set.warmup),
+          ref: ref, number: String(numbers[index]), warmup: set.warmup, side: side, line: set.line, done: set.done,
+          current: ref == current, spoken: set.done ? text.spokenDone(spoken, warmup: set.warmup) : spoken,
+          markLabel: text.markLabel(numbers[index], warmup: set.warmup, side: side),
           mark: WorkoutSetMark(entry: position, set: index, done: !set.done))
       }
       let superset = entry.sgLetter.map { letter -> WorkoutSuperset in
@@ -290,23 +319,28 @@ nonisolated struct WorkoutScreenModel: Equatable, Sendable {
   }
 
   // O número de cada linha, como o setNumberAt do openGym (views/Workout.jsx:850): o aquecimento e as de
-  // trabalho contam cada um à parte.
+  // trabalho contam cada um à parte, e o par esquerdo e direito de uma série com tempo por lado tem um
+  // número só.
   private static func numbers(_ sets: [ActiveWorkout.SetRow]) -> [Int] {
     var warm = 0, work = 0
     return sets.map { set in
-      if set.warmup { warm += 1; return warm }
-      work += 1
-      return work
+      let phase: Int
+      if set.warmup { warm += 1; phase = warm } else { work += 1; phase = work }
+      return set.side == nil ? phase : (phase + 1) / 2
     }
   }
 
   // "Série 2 de 3", contando só as de trabalho, ou "Aquecimento 1", como a Live Activity do openGym
-  // (lib/live-activity.js:90).
+  // (lib/live-activity.js:90). Numa série com tempo por lado, o número e a conta são os dos pares, e o lado
+  // vem depois, como o 'Set {0} ({1})' do openGym: "Série 1 de 2 (Direita)", o mesmo texto da Live
+  // Activity do motor.
   private static func setTitle(_ sets: [ActiveWorkout.SetRow], at index: Int, text: WorkoutText) -> String {
     let set = sets[index]
-    let same = sets[...index].filter { $0.warmup == set.warmup }.count
-    if set.warmup { return text.label(same, warmup: true) }
-    return text.setOf(same, sets.filter { !$0.warmup }.count)
+    let numbers = numbers(sets)
+    if set.warmup { return text.label(numbers[index], warmup: true) }
+    let total = zip(sets, numbers).filter { !$0.0.warmup }.map(\.1).max() ?? 0
+    let title = text.setOf(numbers[index], total)
+    return text.side(set.side).map { "\(title) (\($0))" } ?? title
   }
 
   // A fala de uma linha, sem o "feita": a série, e a carga e as repetições da série comum de repetições,

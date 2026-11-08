@@ -13,7 +13,7 @@
 import { clone, draftOf } from '../../../../frontend/src/lib/state-core.js'
 import { highestStamp, markUndone, stampChange, undoMarks } from '../../../../frontend/src/lib/sync-merge.js'
 import { copyRoutine, deleteRoutine, replaceSlotExercise, restoreRoutine, routineSnapshot } from '../../../../frontend/src/lib/routines.js'
-import { NOTE_MAX, cleanupSg, effortOf, modeOf, pairAdjacent, pickedExerciseConfig, repStep, setsRepsOf, unpairSuperset } from '../../../../frontend/src/lib/history.js'
+import { NOTE_MAX, cleanupSg, effortOf, modeOf, pairAdjacent, pickedExerciseConfig, repStep, unpairSuperset } from '../../../../frontend/src/lib/history.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
 import { convertStateUnit } from '../../../../frontend/src/lib/units.js'
 import { favIds, toggleFav } from '../../../../frontend/src/lib/favourites.js'
@@ -26,6 +26,7 @@ import { exerciseNameFor, t } from '../../../../frontend/src/lib/i18n-core.js'
 import { DEFAULT_GLYPH, ROUTINE_GLYPHS, glyphStr } from '../../../../api/coach/core/glyphs.js'
 import { sameWorkout } from '../../../../frontend/src/lib/workout-date.js'
 import { keyText } from './workouts.js'
+import { setsRepsText } from './texts.js'
 
 // Os limites do slot.update. O openGym não tem teto (o salvar da sheet só faz Math.max(1, ...)):
 // estes são escolha recomendada, com a delegação do Lipe de 03/11/2026. Só um valor novo é
@@ -385,7 +386,8 @@ function slotSummary(slot, unit) {
     // a tela (Foco da revisão 1).
     name: known ? exerciseNameFor(EXIDX[slot.id]) : t('Unknown exercise'),
     known,
-    setsReps: setsRepsOf(slot),
+    // O setsRepsOf do openGym, com a faixa "8-12" no hífen comum e sem "undefined" (issue #161).
+    setsReps: setsRepsText(slot),
     increment: incrementOf(slot, unit),
     // O passo das repetições: de 2 em 2 num exercício por lado, como o Stepper da sheet do openGym.
     repStep: repStep(slot),

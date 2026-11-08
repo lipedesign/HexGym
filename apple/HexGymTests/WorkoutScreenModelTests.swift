@@ -2,9 +2,10 @@
 // o título do painel e "Série 2 de 3"; o tempo abaixo e acima de uma hora; a fala de uma linha feita e
 // de uma por fazer, em kg e em lb; as entradas por modo (repetições, tempo) e escala (nenhuma, RIR,
 // RPE); a fala do superset; e, com o veio-do-opengym, toda linha com texto e marca, sem que uma linha
-// estranha derrube o modelo (Foco da revisão 4).
+// estranha derrube o modelo (Foco da revisão 4). O sétimo é o da issue #161: a série com tempo por lado em
+// pares, com o lado, como o openGym mostra, e a faixa "8-12" com o hífen comum.
 //
-// O primeiro e o último usam o motor de verdade, com os documentos preparados (FixtureLoader). O
+// O primeiro, o sexto e o sétimo usam o motor de verdade, com os documentos preparados (FixtureLoader). O
 // primeiro também confere, pelo WorkoutScreen, que o painel acompanha a série que o motor diz depois
 // de "Registrar série" e que toques rápidos nas entradas chegam todos ao motor, um por um, na ordem.
 //
@@ -63,12 +64,14 @@ import Testing
       """#
   }
 
-  // Uma série; o line é o que o motor escreve.
+  // Uma série; o line é o que o motor escreve, e o side, o lado de uma série com tempo por lado (L ou R).
   static func set(_ index: Int, w: String = "60", r: String = "8", sec: String = "null", rir: String = "null", rpe: String = "null",
-                  done: Bool = false, warmup: Bool = false, kind: String = "normal", line: String = "60 kg × 8") -> String {
-    #"""
+                  done: Bool = false, warmup: Bool = false, kind: String = "normal", side: String? = nil,
+                  line: String = "60 kg × 8") -> String {
+    let side = side.map { #""\#($0)""# } ?? "null"
+    return #"""
       {"index":\#(index),"w":\#(w),"r":\#(r),"sec":\#(sec),"rir":\#(rir),"rpe":\#(rpe),"done":\#(done),"warmup":\#(warmup),
-       "kind":"\#(kind)","line":"\#(line)"}
+       "kind":"\#(kind)","side":\#(side),"line":"\#(line)"}
       """#
   }
 
@@ -261,11 +264,14 @@ import Testing
     #expect(rows[0].spoken == "Aquecimento 1, 40 quilogramas, 5 repetições, feito")
     #expect(rows[3].line == "80×4 ↘ 60×4"); #expect(rows[3].spoken == "Série 3, 80×4 ↘ 60×4")
     #expect(rows[4].spoken == "Série 1, 60×5+3")
-    #expect(rows[5].spoken == "Série 1, E 10×8 · D \u{2013}")      // o traço é do setLabel do openGym
+    // O lado ainda não feito vem com o hífen comum, e não com a meia-risca do setLabel do openGym (issue #161).
+    #expect(rows[5].spoken == "Série 1, E 10×8 · D -"); #expect(rows[5].line == "E 10×8 · D -")
     #expect(rows[7].spoken == "Série 1, 20 min a 9 km/h · 2% de inclinação")
     #expect(rows[8].spoken == "Série 1, 45 segundos")
-    // O alvo que o motor escreveu com um "undefined" (um alvo sem séries de outro aparelho) não aparece.
-    #expect(built.cards[2].target == nil); #expect(built.cards[0].target == "8 · 6 · 4")
+    // O alvo sem repetições, que o exLine do openGym escrevia "1 × undefined · 0/lado", vem do motor sem as
+    // repetições (issue #161).
+    #expect(built.cards[2].target == "1 série · por lado"); #expect(built.cards[0].target == "8 · 6 · 4")
+    #expect(built.cards.allSatisfy { $0.target.map { !$0.contains("undefined") && !$0.contains("NaN") } ?? false })
     // O painel abre na série que o motor diz, a de 70 kg com RIR 2, com as entradas.
     #expect(built.panel?.title == "Agachamento completo com barra\u{00A0}· Série 2 de 3")
     #expect(built.panel?.inputs == .reps(effort: nil))
@@ -286,5 +292,42 @@ import Testing
     let freestyle = try Self.workout(next: "null", done: 0, total: 0, entries: [])
     #expect(model(freestyle).panel == nil); #expect(model(freestyle).emptyPanel == "Ainda sem exercícios.")
     #expect(model(freestyle).progress == "0 de 0 séries")
+  }
+
+  @Test func aTimedPerSideSetShowsItsPairsWithTheSideLikeOpenGym() async throws {   // issue #161
+    // Uma prancha lateral de 2 × 0:30 por lado: quatro linhas, o par esquerdo e direito de cada série com o
+    // mesmo número (o setNumberAt do openGym), o lado em cada linha (o sideTagOf, "Esquerda" e "Direita") e
+    // "Série 1 de 2", que conta os pares.
+    let sides = ["L", "R", "L", "R"]
+    let plank = try Self.workout(next: #"{"entry":0,"set":1}"#, done: 1, total: 4, entries: [
+      Self.entry(0, name: "prancha lateral", mode: "time", target: "2 × 0:30 · por lado", sets: sides.enumerated().map { i, side in
+        Self.set(i, w: "0", r: "null", sec: "30", done: i == 0, side: side, line: "0:30")
+      }),
+    ])
+    let rows = model(plank).cards[0].rows
+    #expect(rows.map(\.number) == ["1", "1", "2", "2"])
+    #expect(rows.map(\.side) == ["Esquerda", "Direita", "Esquerda", "Direita"])
+    #expect(model(plank, english).cards[0].rows.map(\.side) == ["Left", "Right", "Left", "Right"])
+    #expect(rows[0].spoken == "Série 1 (Esquerda), 30 segundos, feita")
+    #expect(rows[1].spoken == "Série 1 (Direita), 30 segundos")
+    #expect(rows[1].markLabel == "Série 1 (Direita) concluída")
+    #expect(model(plank, english).cards[0].rows[3].markLabel == "Set 2 (Right) done")
+    let panel = model(plank).panel
+    #expect(panel?.title == "Prancha lateral\u{00A0}· Série 1 de 2 (Direita)"); #expect(panel?.setLabel == "Série 1 de 2 (Direita)")
+    #expect(panel?.inputs == .time)
+    #expect(model(plank, selection: WorkoutRef(entry: 0, set: 2), english).panel?.setLabel == "Set 2 of 2 (Left)")
+    // As outras séries não têm lado, e contam uma por linha.
+    let plain = try Self.workout(entries: [Self.entry(0, sets: [Self.set(0, done: true), Self.set(1)])])
+    #expect(model(plain).cards[0].rows.map(\.side) == [nil, nil]); #expect(model(plain).cards[0].rows.map(\.number) == ["1", "2"])
+
+    // Com o motor de verdade: o lados-e-faixa tem o lado esquerdo da primeira prancha feito, e o supino na
+    // faixa 8-12 da progressão dupla, com o hífen comum.
+    let folder = try TemporaryFolder()
+    let app = try await opened("lados-e-faixa", folder: folder)
+    let built = model(try #require(app.session.workout))
+    #expect(built.cards[0].rows.map(\.number) == ["1", "1", "2", "2"])
+    #expect(built.cards[0].rows.map(\.side) == ["Esquerda", "Direita", "Esquerda", "Direita"])
+    #expect(built.panel?.title == "Prancha lateral\u{00A0}· Série 1 de 2 (Direita)")
+    #expect(built.cards.map(\.target) == ["2 × 0:30 · por lado", "3 × 8-12 · 60 kg", "3 × 16-20 · 10 kg · 8-10/lado", "10 · 8 · 6 · 80 kg"])
   }
 }

@@ -1,5 +1,5 @@
-// Os testes dos documentos preparados (os cinco da Task 6 do plano da fase 3 e os dois do Início da
-// Task 7): os sete abrem no motor de verdade, com o que cada um promete, e o relógio de cada um vai
+// Os testes dos documentos preparados (os cinco da Task 6 do plano da fase 3, os dois do Início da
+// Task 7 e o da issue #161): os oito abrem no motor de verdade, com o que cada um promete, e o relógio de cada um vai
 // para hoje na carga (FixtureLoader).
 // O segundo roda sete dias seguidos, um de cada dia da semana, porque o print pode sair em qualquer um.
 
@@ -19,11 +19,11 @@ import Testing
     return f.string(from: date)
   }
 
-  @Test func theSevenDocumentsOpenInTheEngine() async throws {
+  @Test func theEightDocumentsOpenInTheEngine() async throws {
     let engine = HexEngine(language: "pt-BR")
     _ = try await engine.load()
     let now = Date.now
-    #expect(FixtureDocuments.names.count == 7)
+    #expect(FixtureDocuments.names.count == 8)
     for name in FixtureDocuments.names {
       let data = try FixtureLoader.document(named: name, now: now)
       let object = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any], "\(name)")
@@ -62,6 +62,13 @@ import Testing
         #expect(workout == nil); #expect(home.total == 12)
         #expect(home.today.status == "none"); #expect(home.next == nil)
         #expect(home.week.allSatisfy { !$0.planned })
+      case "lados-e-faixa":
+        // A prancha lateral por lado em pares de linhas, com o lado esquerdo da primeira feito, e a faixa
+        // 8-12 do supino (issue #161).
+        let w = try #require(workout)
+        #expect(w.entries[0].mode == "time"); #expect(w.entries[0].sets.map(\.side) == ["L", "R", "L", "R"])
+        #expect(w.done == 1); #expect(w.next?.entry == 0); #expect(w.next?.set == 1); #expect(w.rest == nil as ActiveWorkout.Rest?)
+        #expect(w.entries[1].target == "3 × 8-12 · 60 kg"); #expect(w.id == "w-2026-11-09-lados")
       default:
         Issue.record("documento sem conferência: \(name)")
       }

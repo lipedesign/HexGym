@@ -109,7 +109,7 @@ test('activeWorkout reads the PPL Push in pt-BR, with the lines, the superset le
   assert.deepEqual(w.entries.map(e => e.name), ['supino com barra', 'Rosca bíceps com halteres', 'supino inclinado com barra'])
   assert.deepEqual(w.entries.map(e => [e.sg, e.sgLetter]), [[null, null], ['g1', 'A'], ['g1', 'A']])
   assert.deepEqual(w.entries[0].sets.map(s => s.line), ['60 kg × 8', '60 kg × 8', '60 kg × 8'])
-  assert.deepEqual(w.entries[0].sets[0], { index: 0, w: 60, r: 8, sec: null, rir: null, rpe: null, done: true, warmup: false, kind: 'normal', line: '60 kg × 8' })
+  assert.deepEqual(w.entries[0].sets[0], { index: 0, w: 60, r: 8, sec: null, rir: null, rpe: null, done: true, warmup: false, kind: 'normal', side: null, line: '60 kg × 8' })
   assert.deepEqual([w.entries[0].target, w.entries[0].increment, w.entries[0].known, w.entries[0].mode], ['3 × 8 · 60 kg', 2.5, true, 'reps'])
   assert.deepEqual(w.next, { entry: 0, set: 1 })
   assert.deepEqual([w.done, w.total], [1, 7])
