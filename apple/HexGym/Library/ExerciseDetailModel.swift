@@ -18,6 +18,17 @@
 // "Principal" com os grupos de maior peso (no catálogo, o peso 1; num personalizado espalhado pelo
 // grupo do corpo, o maior deles); o JSON do HexBody que não se lê não para o app, cai nos grupos do
 // motor e vai para o log, com o tipo do erro público e o detalhe privado.
+//
+// Os passos e a descrição em inglês (issue #114): o pacote do idioma pode não ter os passos ou a
+// descrição de um exercício, e o motor mostra o inglês, como o instrFor e o descFor do openGym (em
+// pt-BR, os passos de 4.308 dos 5.632 exercícios e todas as descrições). O motor diz o que veio
+// traduzido (instructionsTranslated e descriptionTranslated), e o modelo, fora do inglês, põe um aviso
+// só, o englishNotice, e marca o idioma do texto em inglês (textLanguage), para a tela pôr o
+// typesettingLanguage dele no Text e no rótulo do VoiceOver, que lê com a voz do inglês. Com os passos em inglês, o aviso fica em "Como fazer" e cobre a descrição também,
+// quando ela está em inglês: "Instruções em inglês" ou "Instruções e descrição em inglês". Só com a
+// descrição em inglês, ele fica em "Sobre o exercício": "Descrição em inglês". O idioma que conta é o do
+// motor, o dos textos do catálogo; o aviso sai no idioma da tela. Um personalizado não tem aviso nem
+// marca, porque o texto dele é da pessoa, e um JSON sem as duas chaves conta como traduzido.
 
 import Foundation
 import HexBody
@@ -40,6 +51,10 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
   let musclesSpoken: String
   let steps: [ExerciseStep]
   let about: String?
+  // O idioma da descrição quando ela está no inglês do fallback, fora do inglês; nil no idioma da tela.
+  let aboutLanguage: Locale.Language?
+  // O aviso dos passos ou da descrição em inglês, ou nil quando está tudo no idioma.
+  let englishNotice: EnglishNotice?
   var favourite: Bool
   // O rótulo da estrela para o VoiceOver, com o que um toque faz: "Adicionar aos favoritos" ou "Tirar
   // dos favoritos". O botão da barra é do UIKit e não leva o traço de selecionado da SwiftUI, então o
@@ -56,7 +71,8 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
     favourite = detail.favourite
     (addFavouriteLabel, removeFavouriteLabel) = (text.addFavourite, text.removeFavourite)
     guard detail.known else {
-      (subtitle, unknownNote, muscles, musclesSpoken, steps, about) = ("", text.unknown, [], "", [], nil)
+      (subtitle, unknownNote, muscles, musclesSpoken, steps, about, aboutLanguage, englishNotice) =
+        ("", text.unknown, [], "", [], nil, nil, nil)
       return
     }
     unknownNote = nil
@@ -82,15 +98,30 @@ nonisolated struct ExerciseDetailModel: Equatable, Sendable {
              section.names.joined(separator: "; "))
     }.joined(separator: " ")
 
+    // O que está no inglês do fallback: só fora do inglês e fora de um personalizado.
+    let fallback = language.language.languageCode != .english && !detail.custom
     let lines = detail.instructions.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+    let stepsInEnglish = fallback && !lines.isEmpty && detail.instructionsTranslated == false
+    let stepLanguage = stepsInEnglish ? Self.english : nil
     steps = lines.enumerated().map { index, step in
       let line = LibraryNames.capitalized(step, language: language)
-      return ExerciseStep(number: index + 1, text: line,
-                          spoken: String(format: text.step, locale: text.locale, index + 1) + ". " + line)
+      let number = String(format: text.step, locale: text.locale, index + 1) + ". "
+      return ExerciseStep(number: index + 1, text: line, spokenNumber: number, textLanguage: stepLanguage)
     }
     let description = detail.description?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     about = description.isEmpty ? nil : description
+    let aboutInEnglish = fallback && !description.isEmpty && detail.descriptionTranslated == false
+    aboutLanguage = aboutInEnglish ? Self.english : nil
+    englishNotice = switch (stepsInEnglish, aboutInEnglish) {
+    case (true, true): EnglishNotice(place: .steps, text: text.stepsAndAboutInEnglish)
+    case (true, false): EnglishNotice(place: .steps, text: text.stepsInEnglish)
+    case (false, true): EnglishNotice(place: .about, text: text.aboutInEnglish)
+    case (false, false): nil
+    }
   }
+
+  // O idioma do inglês do fallback do openGym.
+  static let english = Locale.Language(identifier: "en")
 
   // Os grupos do motor: o "Principal" com os de maior peso, o "Também trabalha" com os outros acima de
   // 0, na ordem dos grupos do openGym. Um grupo fora dos 18 do facets() vem no fim.
@@ -120,12 +151,23 @@ nonisolated struct MuscleSection: Identifiable, Equatable, Sendable {
   var id: Kind { kind }
 }
 
-// Um passo de "Como fazer": o número, o texto e o que o VoiceOver diz ("Passo 1. Deite no banco.").
+// Um passo de "Como fazer": o número, o texto e o que o VoiceOver diz ("Passo 1. Deite no banco."). O
+// spokenNumber é o começo do que ele diz ("Passo 1. "), sempre no idioma da tela; o textLanguage é o
+// idioma do texto do passo quando ele está no inglês do fallback (issue #114), e nil no idioma da tela.
 nonisolated struct ExerciseStep: Identifiable, Equatable, Sendable {
   let number: Int
   let text: String
-  let spoken: String
+  let spokenNumber: String
+  let textLanguage: Locale.Language?
+  var spoken: String { spokenNumber + text }
   var id: Int { number }
+}
+
+// O aviso de texto em inglês: em que parte da tela ele fica e o que ele diz.
+nonisolated struct EnglishNotice: Equatable, Sendable {
+  enum Place: Sendable { case steps, about }
+  let place: Place
+  let text: String
 }
 
 // Os nomes dos grupos musculares (na ordem do motor), do equipamento e das categorias, do facets() do
@@ -149,6 +191,7 @@ nonisolated struct ExerciseDetailNames: Sendable {
 nonisolated struct ExerciseDetailText: Sendable {
   let locale: Locale
   let primary, secondary, primarySpoken, secondarySpoken, step, unknown, addFavourite, removeFavourite: String
+  let stepsInEnglish, stepsAndAboutInEnglish, aboutInEnglish: String
 
   @MainActor init(locale: Locale) {
     self.locale = locale
@@ -160,6 +203,9 @@ nonisolated struct ExerciseDetailText: Sendable {
     unknown = AppText.text("This exercise isn't in the library on this device.", locale: locale)
     addFavourite = AppText.text("Add to favorites", locale: locale)
     removeFavourite = AppText.text("Remove from favorites", locale: locale)
+    stepsInEnglish = AppText.text("Instructions in English", locale: locale)
+    stepsAndAboutInEnglish = AppText.text("Instructions and description in English", locale: locale)
+    aboutInEnglish = AppText.text("Description in English", locale: locale)
   }
 }
 
