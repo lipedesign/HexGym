@@ -1,6 +1,6 @@
-// O controlador do treino (session-controller.js), Tasks 1 e 2 do plano da fase 3 do HexGym: começar,
-// as séries, o descanso e os exercícios no meio do treino. Os documentos saem do freshState, com as
-// rotinas montadas aqui, e cada resultado esperado vem das mesmas funções do lib que o openGym
+// O controlador do treino (session-controller.js), Tasks 1 a 3 do plano da fase 3 do HexGym: começar,
+// as séries, o descanso, os exercícios no meio do treino e o fim. Os documentos saem do freshState,
+// com as rotinas montadas aqui, e cada resultado esperado vem das mesmas funções do lib que o openGym
 // chama, para o teste seguir o openGym quando ele mudar. Só importa módulos do motor, então roda
 // também contra o script dele.
 import { describe, it, expect, vi, afterEach } from 'vitest'
@@ -8,7 +8,10 @@ import { step } from './session-controller.js'
 import { clone, freshState } from './state-core.js'
 import { buildCombinedEntries } from './session-merge.js'
 import { restSecFor } from './supersetFlow.js'
-import { bestWeightForEntry as bestWeight, freestyleConfig, pickedExerciseConfig } from './history.js'
+import {
+  bestWeightFor, bestWeightForEntry as bestWeight, freestyleConfig, pickedExerciseConfig, sessionVolume, setsDone, workSetsDone,
+  workoutVolume,
+} from './history.js'
 import { buildSessionEntry } from './session-start.js'
 import { sessionHistory } from './backfill.js'
 import { swapActiveExercise } from './active-exercise-swap.js'
@@ -17,7 +20,14 @@ import { ownedWeightsFor, stepOwned } from './dumbbells.js'
 import { hasCompletedWork, makeSideSet, toggleSide } from './workout-model.js'
 import { REST_MAX } from './duration.js'
 import { isoOf } from './format.js'
-import { t } from './i18n-core.js'
+import { _setLangState, exerciseNameFor, t } from './i18n-core.js'
+import { buildCompletedWorkout, sessionEnd } from './finish-workout.js'
+import { is1RMRecord } from './onerm.js'
+import { finishCompare } from './finish-compare.js'
+import { routineAdditions } from './session-routines.js'
+import { refillAfter } from './rotation.js'
+import { EXIDX, isCustomEx, registerCustom } from './exercises.js'
+import { exerciseMuscleSnapshot } from './muscles.js'
 
 const SQUAT = '0043'   // agachamento com barra
 const BENCH = '0025'   // supino com barra
@@ -70,6 +80,8 @@ function deepFreeze(o) {
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  _setLangState('en', {}, null, null)
+  registerCustom([])
 })
 
 describe('o controlador do treino: começar', () => {
@@ -718,8 +730,326 @@ describe('o controlador do treino: exercícios no meio do treino', () => {
   })
 })
 
+describe('o controlador do treino: o fim', () => {
+  const MIN = 60 * SEC
+  const DAY = 86400 * SEC
+  const finish = (S, now) => step(S, { type: 'finish' }, now)
+  const discard = (S, now) => step(S, { type: 'discard' }, now)
+  // Marca todas as séries por fazer, em ordem, uma por minuto a partir de t0.
+  const markAll = (S, t0) => {
+    let at = t0
+    S.active.entries.forEach((e, i) => e.sets.forEach((row, j) => {
+      if (row.done) return
+      S = mark(S, i, j, true, at).state
+      at += MIN
+    }))
+    return S
+  }
+  // O treino salvo como o doFinishWorkout monta, pelas funções do lib (sheets.jsx:3759-3764).
+  const built = (A, now, prs) => {
+    const w = buildCompletedWorkout(A, {
+      end: sessionEnd(A, now), prs,
+      snapshotFor: e => (isCustomEx(EXIDX[e.id]) ? exerciseMuscleSnapshot(EXIDX[e.id]) : null),
+    })
+    w.vol = workoutVolume(w)
+    return w
+  }
+  const saved = S => S.workouts[S.workouts.length - 1]
+  // Um treino gravado antes, de uma rotina, com séries feitas.
+  const past = (id, d, start, routineId, entries) => ({
+    id, d, start, end: start + 45 * MIN, routineIds: [routineId], routineId, name: routineId, bw: null,
+    entries: entries.map(([exId, sets]) => ({ id: exId, target: { id: exId, mode: 'reps' }, topW: null, sets: sets.map(([w, r]) => ({ w, r, done: true })) })),
+    prs: [], vol: 0,
+  })
+  const work = (w, r, extra = {}) => ({ w, r, done: true, at: NOW + 5 * MIN, ...extra })
+
+  it('finish grava o treino como o doFinishWorkout: o buildCompletedWorkout com o vol no fim de workouts, active null, o exWeights e o refillAfter', () => {
+    registerCustom([{ id: 'c-press', n: 'my press', bp: 'chest', custom: true, mode: 'reps', pm: ['chest'] }])
+    const rotation = { id: 'rot', sequence: ['ra', 'rb'], label: 'Loop' }
+    const queue = { ids: ['ra', 'rb'], since: NOW - 3 * DAY, startsOn: '2026-11-05', label: 'Loop', rotationId: 'rot' }
+    const benchDay = past('h-b', '2026-11-06', NOW - 2 * DAY, 'rb', [[BENCH, [[50, 8], [50, 8]]]])
+    let S = begin(doc({ rotation, queue, workouts: [benchDay], exWeights: { [BENCH]: { w: 50, d: '2026-11-06' } } }), ['ra'])
+    S = step(S, { type: 'exercise.add', exerciseIds: ['c-press'] }, NOW + MIN).state
+    S = step(S, { type: 'set.update', entry: 1, set: 0, fields: { w: 40 } }, NOW + MIN).state
+    S = markAll(S, NOW + 2 * MIN)
+    const at = NOW + 10 * MIN
+    // O que é só do aparelho e não vai para o treino salvo (escolha 13): um descanso contando, o
+    // marco de séries feitas e os eventos da Live Activity já aplicados.
+    S = { ...S, active: { ...S.active, rest: { endsAt: at + MIN, total: 90, forIdx: 1, forSet: 2, kind: 'rest' }, liveSeen: ['ev-1'] } }
+    expect(S.active.progress.every(n => n > 0)).toBe(true)
+    const out = finish(S, at)
+    const A = S.active
+    const want = built(A, at, [SQUAT, 'c-press'])
+    const w = saved(out.state)
+    expect(w).toEqual(want)
+    expect(w.entries[1].muscleSnapshot).toEqual(exerciseMuscleSnapshot(EXIDX['c-press']))
+    expect(w.entries[1].muscleSnapshot.n).toBe('my press')
+    expect(w.vol).toBeGreaterThan(0)
+    for (const k of ['rest', 'progress', 'liveSeen', 'cur', 'workoutView']) expect(k in w).toBe(false)
+    expect(out.state.workouts).toHaveLength(2)
+    expect(out.state.workouts[0]).toBe(benchDay)
+    expect(out.state.active).toBe(null)
+    expect(out.result.id).toBe('w1')
+    // O exWeights de cada exercício que bateu o melhor, com o dia do treino; o do supino fica.
+    expect(out.state.exWeights).toEqual({ [BENCH]: { w: 50, d: '2026-11-06' }, [SQUAT]: { w: 60, d: '2026-11-08' }, 'c-press': { w: 40, d: '2026-11-08' } })
+    // O refillAfter com o hoje e o agora do finish: a volta acabou, e a próxima começa.
+    const ref = clone(S)
+    ref.workouts.push(clone(want))
+    ref.active = null
+    expect(refillAfter(ref, ref.workouts[1], '2026-11-08', at)).toBe(true)
+    expect(out.state.queue).toEqual(ref.queue)
+    expect(out.state.queue.ids).toEqual(['rb', 'ra'])
+    expect(out.state.queue).not.toEqual(queue)
+    // O treino salvo não divide objetos com o active de antes.
+    expect(w.entries[0].sets[0]).toEqual(A.entries[0].sets[0])
+    expect(w.entries[0].sets[0]).not.toBe(A.entries[0].sets[0])
+    // O treino passado e a edição de um treino salvo ficam para a fase 5 (escolha 12).
+    expect(() => finish({ ...S, active: { ...S.active, backfill: { d: '2026-11-01' } } }, at)).toThrow(TypeError)
+    expect(() => finish({ ...S, active: { ...S.active, editingWorkoutId: 'h-b' } }, at)).toThrow(TypeError)
+  })
+
+  it('os recordes de carga: entra o exercício que bateu o melhor de antes, o aquecimento não conta e, na máquina assistida, a carga menor é o recorde', () => {
+    const CHIN = '1431'   // barra assistida: a carga é a ajuda
+    const history = [past('h1', '2026-11-01', NOW - 7 * DAY, 'ra', [[SQUAT, [[60, 5]]], [BENCH, [[50, 8]]], [CHIN, [[30, 8]]], [CURL, [[12, 10]]]])]
+    const S = withEntries(doc({ workouts: history }), [
+      // Agachamento: 70 só no aquecimento e 60 na de trabalho, que não passa dos 60.
+      { id: SQUAT, target: { mode: 'reps' }, sets: [work(70, 3, { phase: 'warmup' }), work(60, 5)] },
+      // Supino: 52,5 passa dos 50.
+      { id: BENCH, target: { mode: 'reps' }, sets: [work(50, 8), work(52.5, 6)] },
+      // Assistida: 25 de ajuda é melhor que 30, e os 35 da outra série não contam contra.
+      { id: CHIN, target: { mode: 'reps' }, sets: [work(25, 8), work(35, 8)] },
+      // Rosca: a série não feita não conta.
+      { id: CURL, target: { mode: 'reps' }, sets: [work(12, 10), { w: 20, r: 10, done: false }] },
+    ])
+    expect(bestWeightFor(S, CHIN)).toBe(30)
+    const out = finish(S, NOW + 10 * MIN)
+    const w = saved(out.state)
+    expect(w.prs).toEqual([BENCH, CHIN])
+    expect(out.result.prs).toEqual([
+      { id: BENCH, name: exerciseNameFor(EXIDX[BENCH]), w: 52.5 },
+      { id: CHIN, name: exerciseNameFor(EXIDX[CHIN]), w: 25 },
+    ])
+    expect(out.state.exWeights[BENCH]).toEqual({ w: 52.5, d: S.active.d })
+    expect(out.state.exWeights[CHIN]).toEqual({ w: 25, d: S.active.d })
+    // Na assistida, 35 contra os 30 de antes não é recorde.
+    const worse = withEntries(doc({ workouts: history }), [{ id: CHIN, target: { mode: 'reps' }, sets: [work(35, 8)] }])
+    expect(saved(finish(worse, NOW + 10 * MIN).state).prs).toEqual([])
+  })
+
+  it('um recorde de 1RM estimado de um exercício que não está nos prs vai para o e1rm', () => {
+    const history = [past('h1', '2026-11-01', NOW - 7 * DAY, 'ra', [[SQUAT, [[60, 5]]]])]
+    const S = withEntries(doc({ workouts: history }), [
+      // Os mesmos 60 kg com mais repetições: o 1RM estimado sobe sem a carga subir.
+      { id: SQUAT, target: { mode: 'reps' }, sets: [work(60, 8)] },
+      // O supino nunca feito é recorde de carga, e por isso fica fora do e1rm.
+      { id: BENCH, target: { mode: 'reps' }, sets: [work(50, 8)] },
+    ])
+    const rec = is1RMRecord(S, SQUAT, S.active.entries[0])
+    expect(rec.est).toBeGreaterThan(rec.prev)
+    expect(is1RMRecord(S, BENCH, S.active.entries[1])).not.toBe(null)
+    const out = finish(S, NOW + 10 * MIN)
+    expect(saved(out.state).prs).toEqual([BENCH])
+    expect(out.result.e1rm).toEqual([{ id: SQUAT, name: exerciseNameFor(EXIDX[SQUAT]), e1rm: rec.est }])
+    // Sem 1RM maior, nada no e1rm.
+    const same = withEntries(doc({ workouts: history }), [{ id: SQUAT, target: { mode: 'reps' }, sets: [work(60, 5)] }])
+    expect(finish(same, NOW + 10 * MIN).result.e1rm).toEqual([])
+  })
+
+  it('o resultado traz a duração, o volume, as séries feitas e de trabalho, os recordes com o nome no idioma, o compare do finishCompare e o additions', () => {
+    _setLangState('pt-BR', {}, null, { [SQUAT]: 'Agachamento com barra', [BENCH]: 'Supino com barra' }, false)
+    const history = [past('h1', '2026-11-01', NOW - 7 * DAY, 'rt', [[SQUAT, [[57.5, 5], [57.5, 5]]], [BENCH, [[50, 8]]]])]
+    let S = begin(doc({ workouts: history, volumeWarmups: true }), ['rt'])
+    // Uma série de aquecimento no agachamento, que é feita e não é de trabalho.
+    S.active.entries[0].sets.unshift({ w: 30, r: 5, done: false, phase: 'warmup' })
+    // A rotina pede os 57,5 de antes; com 60, o agachamento é recorde.
+    expect(S.active.entries[0].sets.map(x => x.w)).toEqual([30, 57.5, 57.5])
+    S = step(S, { type: 'set.update', entry: 0, set: 1, fields: { w: 60 } }, NOW).state
+    // Dois exercícios postos no meio, num superset, para o additions: o groupIds do lib dá a eles
+    // um sg pelo uid(), que lê o relógio e o Math.random.
+    S = step(S, { type: 'exercise.add', exerciseIds: [CURL, PLANK] }, NOW + MIN).state
+    S = step(S, { type: 'set.update', entry: 1, set: 0, fields: { w: 12 } }, NOW + MIN).state
+    S.active.entries[1].sg = 'gx'
+    S.active.entries[2].sg = 'gx'
+    // Dez séries, uma por minuto, a última aos 11 minutos; Terminar aos 15.
+    S = markAll(S, NOW + 2 * MIN)
+    const at = NOW + 15 * MIN
+    vi.spyOn(Math, 'random').mockImplementation(() => { throw new Error('o controlador leu o Math.random') })
+    vi.spyOn(Date, 'now').mockImplementation(() => { throw new Error('o controlador leu o Date.now') })
+    const out = finish(S, at)
+    const again = finish(S, at)
+    vi.restoreAllMocks()
+    const w = saved(out.state)
+    const r = out.result
+    expect(Object.keys(r)).toEqual(['id', 'name', 'start', 'end', 'durationMs', 'volume', 'unit', 'sets', 'prs', 'e1rm', 'compare', 'additions'])
+    expect([r.id, r.name, r.start, r.end, r.unit]).toEqual(['w1', 'Two', NOW, at, 'kg'])
+    expect(r.durationMs).toBe(15 * MIN)
+    expect(r.volume).toBe(sessionVolume(w, out.state))
+    expect(r.volume).toBe(w.vol + 30 * 5)
+    expect(r.sets).toEqual({ done: setsDone(w), work: workSetsDone(w) })
+    expect(r.sets).toEqual({ done: 10, work: 9 })
+    expect(r.prs).toEqual([
+      { id: SQUAT, name: 'Agachamento com barra', w: 60 },
+      { id: CURL, name: exerciseNameFor(EXIDX[CURL]), w: 12 },
+    ])
+    const rows = finishCompare(out.state, w)
+    expect(r.compare).toEqual(rows.map(row => ({ id: row.id, name: exerciseNameFor(EXIDX[row.id]), ...row })))
+    expect(r.compare.map(c => c.name)).toEqual(['Agachamento com barra', exerciseNameFor(EXIDX[CURL]), exerciseNameFor(EXIDX[PLANK]), 'Supino com barra'])
+    expect(r.compare[0].last).toEqual([{ w: 57.5, r: 5 }, { w: 57.5, r: 5 }])
+    // O additions do routineAdditions, com o mesmo superset num rótulo que não vem do relógio.
+    const want = routineAdditions(S.active, S.routines)
+    const grouped = list => list.map(a => ({ ...a, ex: a.ex.map(({ sg, ...cfg }) => ({ ...cfg, grouped: sg != null })) }))
+    expect(grouped(r.additions)).toEqual(grouped(want))
+    expect(r.additions[0].ex.map(c => c.id)).toEqual([CURL, PLANK])
+    expect(r.additions[0].ex[0].sg).toBeTruthy()
+    expect(r.additions[0].ex[0].sg).toBe(r.additions[0].ex[1].sg)
+    expect(again.result).toEqual(r)
+
+    // Dois supersets postos na mesma rotina, e um exercício sozinho: cada grupo tem um sg só dele,
+    // como o groupIds faz, e o que fica sozinho não tem sg.
+    let G = begin(doc(), ['rt'])
+    G = step(G, { type: 'exercise.add', exerciseIds: [CURL, PLANK, '0031', '0027', '0285'] }, NOW + MIN).state
+    ;['ga', 'ga', 'gb', 'gb', 'gc'].forEach((sg, i) => { G.active.entries[i + 1].sg = sg })
+    G = markAll(G, NOW + 2 * MIN)
+    const groups = finish(G, NOW + 20 * MIN).result.additions
+    const real = routineAdditions(G.active, G.routines)
+    // Cada cópia com o índice da primeira do seu grupo, ou null sem grupo.
+    const partition = ex => ex.map(c => (c.sg == null ? null : ex.findIndex(d => d.sg === c.sg)))
+    expect(groups.map(a => a.ex.map(c => c.id))).toEqual([[CURL, PLANK, '0031', '0027', '0285']])
+    expect(partition(real[0].ex)).toEqual([0, 0, 2, 2, null])
+    expect(partition(groups[0].ex)).toEqual(partition(real[0].ex))
+    expect(groups[0].ex[0].sg).not.toBe(groups[0].ex[2].sg)
+  })
+
+  it('a progressão aplicada: a linear 3 × 5 a 60 kg toda feita dá 62,5 no compare e no start seguinte; com uma série que falhou, fica em 60', () => {
+    const run = fail => {
+      let S = begin(doc(), ['ra'])
+      if (fail) S = step(S, { type: 'set.update', entry: 0, set: 2, fields: { r: 3 } }, NOW).state
+      S = markAll(S, NOW + MIN)
+      const out = finish(S, NOW + 20 * MIN)
+      const next = step(out.state, { type: 'start', routineIds: ['ra'], id: 'w2' }, NOW + 2 * DAY).state
+      return { compare: out.result.compare, sets: next.active.entries[0].sets }
+    }
+    const ok = run(false)
+    expect(ok.compare).toHaveLength(1)
+    expect(ok.compare[0].next).toEqual({ w: 62.5, r: 5, sets: 3, kind: 'up' })
+    expect(ok.compare[0].today).toEqual([{ w: 60, r: 5 }, { w: 60, r: 5 }, { w: 60, r: 5 }])
+    expect(ok.compare[0].last).toBe(null)
+    expect(ok.sets.map(s => s.w)).toEqual([62.5, 62.5, 62.5])
+    const failed = run(true)
+    expect(failed.compare[0].next.w).toBe(60)
+    expect(failed.compare[0].next.kind).toBe('hold')
+    expect(failed.sets.map(s => s.w)).toEqual([60, 60, 60])
+  })
+
+  it('passa da meia-noite: o d é o dia do começo, o end é a última série, e 25 minutos sem série no fim não entram', () => {
+    const start = new Date(2026, 10, 8, 23, 50).getTime()
+    let S = step(doc(), { type: 'start', routineIds: ['ra'], id: 'late' }, start).state
+    const ticks = [new Date(2026, 10, 8, 23, 55), new Date(2026, 10, 9, 0, 15), new Date(2026, 10, 9, 0, 35)].map(d => d.getTime())
+    ticks.forEach((at, i) => { S = mark(S, 0, i, true, at).state })
+    // 25 minutos depois da última série: o fim é a última série.
+    const out = finish(S, new Date(2026, 10, 9, 1, 0).getTime())
+    const w = saved(out.state)
+    expect(w.d).toBe('2026-11-08')
+    expect(w.start).toBe(start)
+    expect(w.end).toBe(ticks[2])
+    expect(out.result.durationMs).toBe(45 * MIN)
+    // Dez minutos depois, dentro do intervalo do sessionEnd, o fim é o toque em Terminar.
+    const soon = new Date(2026, 10, 9, 0, 45).getTime()
+    const early = saved(finish(S, soon).state)
+    expect([early.d, early.end]).toEqual(['2026-11-08', soon])
+  })
+
+  it('sem nenhuma série feita, finish grava o treino vazio com o resumo de zero séries; discard não grava; os dois dão activity.end, e o rest.cleared só com descanso', () => {
+    const S = begin(doc(), ['ra'])
+    const out = finish(S, NOW + 5 * MIN)
+    const w = saved(out.state)
+    expect(out.state.workouts).toHaveLength(1)
+    expect(w).toEqual(built(S.active, NOW + 5 * MIN, []))
+    expect(w.entries).toEqual([])
+    expect(w.end).toBe(NOW + 5 * MIN)
+    expect(out.state.active).toBe(null)
+    expect(out.result.sets).toEqual({ done: 0, work: 0 })
+    expect([out.result.volume, out.result.prs, out.result.e1rm, out.result.compare, out.result.additions]).toEqual([0, [], [], [], []])
+    expect(out.effects).toEqual([{ type: 'workout.finished', id: 'w1' }, { type: 'activity.end' }])
+    // O treino livre sem exercício também.
+    const free = finish(begin(doc(), []), NOW + MIN)
+    expect(saved(free.state).entries).toEqual([])
+    expect(free.result.sets.done).toBe(0)
+
+    const dropped = discard(S, NOW + 5 * MIN)
+    expect(dropped.state.active).toBe(null)
+    expect(dropped.state.workouts).toBe(S.workouts)
+    expect(dropped.result).toBe(null)
+    expect(dropped.effects).toEqual([{ type: 'activity.end' }])
+
+    // Com o descanso contando, os dois dão o rest.cleared.
+    const resting = mark(S, 0, 0, true, NOW + MIN).state
+    expect(types(finish(resting, NOW + 2 * MIN))).toEqual(['workout.finished', 'rest.cleared', 'activity.end'])
+    expect(types(discard(resting, NOW + 2 * MIN))).toEqual(['rest.cleared', 'activity.end'])
+    // A pausa de trocar de lado já vencida não existe mais e não dá rest.cleared.
+    const sides = withEntries(doc(), [{ id: PLANK, target: { mode: 'time', sec: 30, side: true }, sets: [{ sec: 30, w: 0, done: false, side: 'L' }, { sec: 30, w: 0, done: false, side: 'R' }] }])
+    const paused = mark(sides, 0, 0).state
+    expect(paused.active.rest.kind).toBe('switch')
+    expect(types(discard(paused, NOW + 30 * SEC))).toEqual(['activity.end'])
+    expect(types(finish(paused, NOW + 30 * SEC))).toEqual(['workout.finished', 'activity.end'])
+    expect(types(discard(paused, NOW + 5 * SEC))).toEqual(['rest.cleared', 'activity.end'])
+    // Sem treino, os dois lançam.
+    expect(() => discard(doc(), NOW)).toThrow(TypeError)
+    expect(() => finish(doc(), NOW)).toThrow(TypeError)
+    expect(() => finish(out.state, NOW)).toThrow(TypeError)
+  })
+
+  it('o workout.finished traz o id do treino gravado, e nenhum finish dá háptico', () => {
+    const history = [past('h1', '2026-11-01', NOW - 7 * DAY, 'ra', [[SQUAT, [[50, 5]]]])]
+    const cases = [
+      // Com recorde de carga (o primeiro agachamento) e o treino todo feito.
+      markAll(begin(doc(), ['ra']), NOW + MIN),
+      // Só com recorde de 1RM estimado.
+      withEntries(doc({ workouts: history }), [{ id: SQUAT, target: { mode: 'reps' }, sets: [work(50, 9)] }], { id: 'w-e1' }),
+      // Sem nada feito.
+      begin(doc(), ['rb']),
+    ]
+    for (const S of cases) {
+      const out = finish(S, NOW + 30 * MIN)
+      expect(out.effects.some(e => e.type === 'haptic')).toBe(false)
+      const done = out.effects.filter(e => e.type === 'workout.finished')
+      expect(done).toEqual([{ type: 'workout.finished', id: saved(out.state).id }])
+      expect(done[0].id).toBe(S.active.id)
+      expect(out.result.id).toBe(S.active.id)
+    }
+    expect(finish(cases[0], NOW + 30 * MIN).result.prs).toHaveLength(1)
+    expect(finish(cases[1], NOW + 30 * MIN).result.e1rm).toHaveLength(1)
+  })
+
+  it('a sessão com noProg sai com excludeFromProgression, como no openGym', () => {
+    const S0 = doc()
+    S0.routines.push({ id: 'rd', name: 'Deload', excludeFromProgression: true, ex: [{ id: SQUAT, sets: 2, reps: 5, weight: 40, mode: 'reps' }] })
+    const S = markAll(begin(S0, ['rd']), NOW + MIN)
+    expect(S.active.entries[0].noProg).toBe(true)
+    const out = finish(S, NOW + 10 * MIN)
+    const w = saved(out.state)
+    expect(w.excludeFromProgression).toBe(true)
+    expect(w.entries[0].noProg).toBe(true)
+    expect(w).toEqual(built(S.active, NOW + 10 * MIN, [SQUAT]))
+    // A rotina fora da progressão não tem "na próxima".
+    expect(out.result.compare[0].next).toBe(null)
+    // Numa sessão misturada, só a entrada leva o noProg, e o treino não.
+    const mixed = markAll(begin(S0, ['rd', 'rb']), NOW + MIN)
+    const wm = saved(finish(mixed, NOW + 10 * MIN).state)
+    expect(wm.entries.map(e => e.noProg === true)).toEqual([true, false])
+    expect('excludeFromProgression' in wm).toBe(false)
+  })
+})
+
 describe('o controlador do treino: puro', () => {
-  // Todas as ações das Tasks 1 e 2, em ordem, num treino com superset, lados e esforço.
+  // Todas as ações das Tasks 1 e 2, em ordem, num treino com superset, lados e esforço; depois, as
+  // duas saídas da Task 3 a partir do mesmo ponto, numa rotação que o finish completa (o refillAfter).
+  const pureDoc = () => doc({
+    effort: 'rir',
+    rotation: { id: 'rot', sequence: ['rs', 'ra'], label: '' },
+    queue: { ids: ['rs', 'ra'], since: NOW - 1000, startsOn: '2026-11-08', label: '', rotationId: 'rot' },
+  })
+  const ends = [[{ type: 'discard' }, 500], [{ type: 'finish' }, 500]]
   const script = [
     [{ type: 'start', routineIds: ['rs', 'ra'], id: 'w1' }, 0],
     [{ type: 'set.mark', entry: 0, set: 0, done: true }, 10],
@@ -746,7 +1076,7 @@ describe('o controlador do treino: puro', () => {
   ]
 
   it('roda todas as ações com o Date.now e o Math.random trocados por funções que lançam', () => {
-    const S = doc({ effort: 'rir' })
+    const S = pureDoc()
     const RealDate = Date
     class NoClock extends RealDate {
       constructor(...a) {
@@ -759,6 +1089,7 @@ describe('o controlador do treino: puro', () => {
     vi.spyOn(Math, 'random').mockImplementation(() => { throw new Error('o controlador leu o Math.random') })
     vi.stubGlobal('Date', NoClock)
     const seen = []
+    const ended = []
     let s = S
     let failure = null
     try {
@@ -767,6 +1098,7 @@ describe('o controlador do treino: puro', () => {
         seen.push(out.effects.map(e => e.type))
         s = out.state
       }
+      for (const [action, sec] of ends) ended.push(step(s, action, NOW + sec * SEC))
     } catch (err) {
       failure = err
     } finally {
@@ -776,10 +1108,13 @@ describe('o controlador do treino: puro', () => {
     expect(failure).toBe(null)
     expect(seen).toHaveLength(script.length)
     expect(s.active.entries[2].sets[0].done).toBe(true)
+    expect(ended.map(o => o.state.active)).toEqual([null, null])
+    expect(ended[1].state.workouts).toHaveLength(1)
+    expect(ended[1].state.queue).not.toEqual(s.queue)
   })
 
   it('o S de entrada, congelado por inteiro, passa por todas as ações sem mudar', () => {
-    let s = deepFreeze(doc({ effort: 'rir' }))
+    let s = deepFreeze(pureDoc())
     for (const [action, sec] of script) {
       const text = JSON.stringify(s)
       const out = step(s, action, NOW + sec * SEC)
@@ -787,5 +1122,12 @@ describe('o controlador do treino: puro', () => {
       s = deepFreeze(out.state)
     }
     expect(s.active.entries.map(e => e.id)).toEqual([CURL, SQUAT, SQUAT, RUN, CURL])
+    const text = JSON.stringify(s)
+    for (const [action, sec] of ends) {
+      const out = step(s, action, NOW + sec * SEC)
+      expect(JSON.stringify(s)).toBe(text)
+      expect(out.state.active).toBe(null)
+      deepFreeze(out.state)
+    }
   })
 })
