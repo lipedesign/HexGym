@@ -338,9 +338,9 @@ extension HexEngine {
 - Modify: `runtime.js`, `actions.js` (a ação `workout.delete`), `Actions.swift` (o caso novo), o script do motor gerado
 
 **Interfaces:**
-- Consumes: `workoutDay`, `workoutDuration`, `sessionVolume`, `setsDone`, `workSetsDone` (`history.js`), `sameWorkout`, `syncKeyOf` (`workout-date.js`), `exerciseNameFor`, `t`.
+- Consumes: `workoutDay`, `workoutDuration`, `sessionVolume`, `setsDone`, `workSetsDone` (`history.js`), `sameWorkout`, `legacySyncKey` (`workout-date.js`), `exerciseNameFor`, `t`.
 - Produces:
-  - JS: `history(queryJson)` com `{ before?: <chave>, limit }` → `{ items: [{ key, id, d, name, start, end, durationMs, sets, volume, unit, prs }], more }`, do mais novo para o mais antigo (pelo `workoutDay` e depois o `start`), com a `key` do `syncKeyOf` (um treino antigo pode não ter `id`); `workoutDetail(key)` → `null` ou `{ key, name, d, start, end, durationMs, volume, unit, note, prs, entries: [{ id, name, known, sg, sgLetter, sets: [{ line, done, warmup, pr }] }] }`.
+  - JS: `history(queryJson)` com `{ before?: <chave>, limit }` → `{ items: [{ key, id, d, name, start, end, durationMs, sets, volume, unit, prs }], more }`, do mais novo para o mais antigo (pelo `workoutDay` e depois o `start`), com a `key` igual à do `sameWorkout`: o `id`, ou o `legacySyncKey` quando o treino é antigo e não tem `id` (a mesma regra do `keyOf` do `session-edit.js`, porque o `syncKeyOf` não é exportado); `workoutDetail(key)` → `null` ou `{ key, name, d, start, end, durationMs, volume, unit, note, prs, entries: [{ id, name, known, sg, sgLetter, sets: [{ line, done, warmup, pr }] }] }`.
   - A ação `workout.delete { key }` no `actions.js`: tira o treino pelo `sameWorkout`, como o "Apagar treino" do `sheets.jsx:2931`, carimbada pelo `apply`; uma `key` que não existe lança `TypeError`.
   - Swift: `WorkoutSummary`, `WorkoutDetail` e `HistoryPage` (`Codable`), `func history(before: String?, limit: Int) throws -> HistoryPage`, `func workoutDetail(_ key: String) throws -> WorkoutDetail?`, e `EngineAction.deleteWorkout(key: String)`.
 
