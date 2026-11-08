@@ -61,6 +61,28 @@
         }
       }
     },
+    "%@, already has this exercise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, já tem este exercício"
+          }
+        }
+      }
+    },
+    "%lld exercises" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld exercícios"
+          }
+        }
+      }
+    },
     "%lld filters on" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -101,6 +123,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld s"
+          }
+        }
+      }
+    },
+    "1 exercise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 exercício"
           }
         }
       }
@@ -201,6 +234,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adicionar (%lld)"
+          }
+        }
+      }
+    },
+    "Add exercises" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar exercícios"
           }
         }
       }
@@ -309,6 +352,28 @@
         }
       }
     },
+    "Arms" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braços"
+          }
+        }
+      }
+    },
+    "Barbell" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra"
+          }
+        }
+      }
+    },
     "Barlow Condensed in numbers, titles and the logo; the system font in running text." : {
       "localizations" : {
         "pt-BR" : {
@@ -349,6 +414,17 @@
         }
       }
     },
+    "Boxing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxe"
+          }
+        }
+      }
+    },
     "Breathing glow" : {
       "localizations" : {
         "pt-BR" : {
@@ -369,12 +445,33 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        }
+      }
+    },
     "Caption" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Legenda"
+          }
+        }
+      }
+    },
+    "Cardio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio"
           }
         }
       }
@@ -419,16 +516,6 @@
         }
       }
     },
-    "Coming in a later version." : {
-      "localizations" : {
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chega numa próxima versão."
-          }
-        }
-      }
-    },
     "Components" : {
       "localizations" : {
         "pt-BR" : {
@@ -445,6 +532,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuar"
+          }
+        }
+      }
+    },
+    "Core" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abdômen"
           }
         }
       }
@@ -480,12 +578,44 @@
         }
       }
     },
+    "Couldn't open the routines." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não deu para abrir as rotinas."
+          }
+        }
+      }
+    },
     "Couldn't open your data." : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Não deu para abrir os seus dados."
+          }
+        }
+      }
+    },
+    "Crown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coroa"
+          }
+        }
+      }
+    },
+    "Cycling" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclismo"
           }
         }
       }
@@ -526,6 +656,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Descanso padrão"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apagar"
           }
         }
       }
@@ -576,6 +716,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pronto"
+          }
+        }
+      }
+    },
+    "Dumbbell" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halter"
+          }
+        }
+      }
+    },
+    "Duplicate" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicar"
+          }
+        }
+      }
+    },
+    "Duration and speed for cardio come in a later version." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A duração e a velocidade do cardio chegam numa próxima versão."
+          }
+        }
+      }
+    },
+    "Edit exercise" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar exercício"
+          }
+        }
+      }
+    },
+    "Edit routine" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar rotina"
           }
         }
       }
@@ -722,6 +913,50 @@
         }
       }
     },
+    "Flag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandeira"
+          }
+        }
+      }
+    },
+    "Flame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chama"
+          }
+        }
+      }
+    },
+    "Fri" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sex"
+          }
+        }
+      }
+    },
+    "Friday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sexta"
+          }
+        }
+      }
+    },
     "Get started" : {
       "localizations" : {
         "pt-BR" : {
@@ -752,12 +987,33 @@
         }
       }
     },
+    "Grip, bench, setup" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pegada, banco, ajuste"
+          }
+        }
+      }
+    },
     "Headline" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cabeçalho"
+          }
+        }
+      }
+    },
+    "Heart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coração"
           }
         }
       }
@@ -802,6 +1058,16 @@
         }
       }
     },
+    "Icon" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ícone"
+          }
+        }
+      }
+    },
     "If Reduce Motion changes while the workout screen is open, the screen gets a new identity and starts over (the if usesZoom of the destination). In phase 3, the workout state lives outside the view, or the screen reads Reduce Motion once, when it opens." : {
       "localizations" : {
         "pt-BR" : {
@@ -828,6 +1094,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Numa tela que sobe, as entradas ficam direto no fundo dela, nunca num cartão dentro dela."
+          }
+        }
+      }
+    },
+    "in a superset with %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "em superset com %@"
           }
         }
       }
@@ -872,6 +1149,27 @@
         }
       }
     },
+    "Join with next" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Juntar com o próximo"
+          }
+        }
+      }
+    },
+    "Kettlebell" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kettlebell"
+          }
+        }
+      }
+    },
     "Kilograms (kg)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -879,6 +1177,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quilos (kg)"
+          }
+        }
+      }
+    },
+    "Legs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pernas"
           }
         }
       }
@@ -903,12 +1212,34 @@
         }
       }
     },
+    "Lightning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raio"
+          }
+        }
+      }
+    },
     "Log set" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registrar série"
+          }
+        }
+      }
+    },
+    "Machine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Máquina"
           }
         }
       }
@@ -924,12 +1255,44 @@
         }
       }
     },
+    "Medal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medalha"
+          }
+        }
+      }
+    },
     "Medium" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Médio"
+          }
+        }
+      }
+    },
+    "Mode" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo"
+          }
+        }
+      }
+    },
+    "Mon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seg"
           }
         }
       }
@@ -941,6 +1304,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Segunda"
+          }
+        }
+      }
+    },
+    "Moon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lua"
           }
         }
       }
@@ -995,6 +1369,17 @@
         }
       }
     },
+    "No exercises" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum exercício"
+          }
+        }
+      }
+    },
     "No filters on" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1002,6 +1387,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nenhum filtro ligado"
+          }
+        }
+      }
+    },
+    "No routines yet" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma rotina ainda"
           }
         }
       }
@@ -1033,6 +1428,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Normal, desligado e grande."
+          }
+        }
+      }
+    },
+    "Note" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota"
           }
         }
       }
@@ -1201,6 +1606,17 @@
         }
       }
     },
+    "Pull-ups" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra fixa"
+          }
+        }
+      }
+    },
     "Record" : {
       "localizations" : {
         "pt-BR" : {
@@ -1217,6 +1633,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Carimbo de recorde"
+          }
+        }
+      }
+    },
+    "Recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recuperação"
           }
         }
       }
@@ -1241,12 +1668,52 @@
         }
       }
     },
+    "Remove" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover"
+          }
+        }
+      }
+    },
     "Remove from favorites" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tirar dos favoritos"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trocar"
+          }
+        }
+      }
+    },
+    "Replace exercise" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trocar exercício"
+          }
+        }
+      }
+    },
+    "Reps" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetições"
           }
         }
       }
@@ -1281,12 +1748,66 @@
         }
       }
     },
+    "Routine deleted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotina apagada"
+          }
+        }
+      }
+    },
+    "Routine name" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome da rotina"
+          }
+        }
+      }
+    },
     "Routines" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rotinas"
+          }
+        }
+      }
+    },
+    "Running" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corrida"
+          }
+        }
+      }
+    },
+    "Sat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sáb"
+          }
+        }
+      }
+    },
+    "Saturday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sábado"
           }
         }
       }
@@ -1311,12 +1832,32 @@
         }
       }
     },
+    "Separate" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Separar"
+          }
+        }
+      }
+    },
     "Set logged" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Série registrada"
+          }
+        }
+      }
+    },
+    "Sets" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séries"
           }
         }
       }
@@ -1337,6 +1878,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SF Symbol"
+          }
+        }
+      }
+    },
+    "Shield" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escudo"
           }
         }
       }
@@ -1377,6 +1929,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pequeno"
+          }
+        }
+      }
+    },
+    "Star" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estrela"
           }
         }
       }
@@ -1423,6 +1986,50 @@
         }
       }
     },
+    "Strength" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Força"
+          }
+        }
+      }
+    },
+    "Strength training" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Musculação"
+          }
+        }
+      }
+    },
+    "Stretching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alongamento"
+          }
+        }
+      }
+    },
+    "Sun" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dom"
+          }
+        }
+      }
+    },
     "Sunday" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1444,12 +2051,34 @@
         }
       }
     },
+    "Swimming" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natação"
+          }
+        }
+      }
+    },
     "Switch" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chave"
+          }
+        }
+      }
+    },
+    "Target" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alvo"
           }
         }
       }
@@ -1615,6 +2244,49 @@
         }
       }
     },
+    "Thu" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qui"
+          }
+        }
+      }
+    },
+    "Thursday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quinta"
+          }
+        }
+      }
+    },
+    "Time" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo"
+          }
+        }
+      }
+    },
+    "Timer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronômetro"
+          }
+        }
+      }
+    },
     "Title" : {
       "localizations" : {
         "pt-BR" : {
@@ -1625,12 +2297,55 @@
         }
       }
     },
+    "Trophy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troféu"
+          }
+        }
+      }
+    },
+    "Tue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ter"
+          }
+        }
+      }
+    },
+    "Tuesday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terça"
+          }
+        }
+      }
+    },
     "Typography" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tipografia"
+          }
+        }
+      }
+    },
+    "Undo" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfazer"
           }
         }
       }
@@ -1655,12 +2370,45 @@
         }
       }
     },
+    "Wed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qua"
+          }
+        }
+      }
+    },
+    "Wednesday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quarta"
+          }
+        }
+      }
+    },
     "Week" : {
       "localizations" : {
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Semana"
+          }
+        }
+      }
+    },
+    "Weight plate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anilha"
           }
         }
       }

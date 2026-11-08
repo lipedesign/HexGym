@@ -198,6 +198,7 @@ public struct RoutineSummary: Codable, Hashable, Identifiable, Sendable {
 // desconhecido"; o increment é o passo da carga na unidade do perfil.
 public struct SlotSummary: Codable, Hashable, Sendable {
   public let id: String, name: String, known: Bool, setsReps: String, increment: Double
+  public let repStep: Int         // 2 num exercício por lado (o side do openGym), 1 nos outros
   public let sets: Int?, reps: Int?, repsMin: Int?, weight: Double?, sec: Int?
   public let mode: String?        // reps, time ou cardio (o cardio do openGym só é lido nesta fase)
   public let note: String?, superset: String?

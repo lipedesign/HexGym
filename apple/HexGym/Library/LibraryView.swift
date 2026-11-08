@@ -8,7 +8,8 @@
 //
 // Com selection (o editor de rotina, Task 11), a lista vira múltipla escolha: cada toque marca ou
 // desmarca, na ordem dos toques, que vira a ordem dos slots, e o botão "Adicionar (n)" da barra chama o
-// onAdd com os ids nessa ordem.
+// onAdd com os ids nessa ordem. Com pickOne (o "Trocar exercício" do editor), cada toque troca a escolha
+// por aquele exercício, e o botão da barra é "Trocar".
 //
 // Para a rolagem dos 5.632 (seção 8.13): a List é preguiçosa, as linhas não têm imagem nem conta no
 // body, e cada linha é uma view só, de tipo fixo (ExerciseRow), para a List não montar todas para
@@ -30,6 +31,8 @@ struct LibraryView: View {
   let model: LibraryModel
   // nil na lista comum; no modo de escolha, os ids escolhidos, na ordem dos toques.
   var selection: Binding<[String]>? = nil
+  // Uma escolha só, no lugar da múltipla escolha.
+  var pickOne = false
   var onAdd: (([String]) -> Void)? = nil
 
   @State private var showsFilters = false
@@ -96,7 +99,11 @@ struct LibraryView: View {
     if let selection {
       ToolbarItem(placement: .confirmationAction) {
         Button { onAdd?(selection.wrappedValue) } label: {
-          Text("Add (\(selection.wrappedValue.count))")
+          if pickOne {
+            Text("Replace")
+          } else {
+            Text("Add (\(selection.wrappedValue.count))")
+          }
         }
         .disabled(selection.wrappedValue.isEmpty)
       }
@@ -116,10 +123,12 @@ struct LibraryView: View {
     Task { await model.toggleFavourite(id) }
   }
 
-  // Marca ou desmarca, guardando a ordem dos toques.
+  // Marca ou desmarca, guardando a ordem dos toques; com pickOne, o toque troca a escolha.
   private func pick(_ id: String) {
     guard let selection else { return }
-    if let index = selection.wrappedValue.firstIndex(of: id) {
+    if pickOne {
+      selection.wrappedValue = [id]
+    } else if let index = selection.wrappedValue.firstIndex(of: id) {
       selection.wrappedValue.remove(at: index)
     } else {
       selection.wrappedValue.append(id)

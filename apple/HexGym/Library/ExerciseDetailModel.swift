@@ -163,10 +163,15 @@ nonisolated struct ExerciseDetailText: Sendable {
   }
 }
 
-// Uma rotina no menu "Adicionar à rotina".
+// Uma rotina no menu "Adicionar à rotina". A que já tem o exercício leva a marca da Apple no menu, e o
+// VoiceOver diz que ela já tem: um toque põe o exercício de novo, num segundo slot, como o openGym
+// deixa (achado do QA do PR #113, feito na Task 11).
 struct RoutineChoice: Identifiable, Equatable, Sendable {
   let id: String
   let name: String
+  let hasExercise: Bool
+  // O nome e, na que já tem, "já tem este exercício".
+  let spoken: String
 }
 
 // O estado da tela do detalhe: o modelo do exercício, as rotinas do menu e a confirmação da última vez
@@ -235,7 +240,12 @@ struct RoutineChoice: Identifiable, Equatable, Sendable {
   // As rotinas do menu, na ordem do documento.
   func loadRoutines() async {
     do {
-      routines = try await engine.routines().map { RoutineChoice(id: $0.id, name: $0.name) }
+      let already = AppText.text("%@, already has this exercise", locale: locale)
+      routines = try await engine.routines().map { routine in
+        let has = routine.slots.contains { $0.id == id }
+        return RoutineChoice(id: routine.id, name: routine.name, hasExercise: has,
+                             spoken: has ? String(format: already, locale: locale, routine.name) : routine.name)
+      }
     } catch {
       Self.logger.error("não deu para ler as rotinas (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")
     }

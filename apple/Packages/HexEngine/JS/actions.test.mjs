@@ -240,6 +240,12 @@ test('a routine with an exercise that no longer exists reads as Unknown exercise
   assert.ok(r.muscles.chest > 0)
 })
 
+test('a slot of one side at a time steps its reps by two, as the openGym sheet does', () => {
+  open({ routines: [{ id: 'r1', name: 'Lados', emoji: 'dumbbell', ex: [slot('0025'), { id: '1048', ...pickedExerciseConfig('1048') }] }] })
+  const [r] = JSON.parse(R.routines())
+  assert.deepEqual(r.slots.map(s => [s.id, s.repStep, s.reps]), [['0025', 1, slot('0025').reps], ['1048', 2, 20]])
+})
+
 test('kg to lb converts the routine weights as convertStateUnit does, and back gives the value before', () => {  // Foco da revisão 3
   open({ routines: [PUSH] })
   act({ type: 'settings.set', key: 'unit', value: 'lb' })
