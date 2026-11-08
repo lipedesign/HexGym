@@ -78,6 +78,17 @@ movimentos (a flexão com remada, o agachamento com desenvolvimento), fica como 
 inclinada ou declinada não é o banco e fica fora das regras do peito. Cada regra tem um teste com
 exercícios reais do catálogo.
 
+Depois das regras, o abdômen baixo nunca acende sozinho: com ele no primário, o reto abdominal
+vai junto para o primário; com ele só no secundário, vai junto para o secundário (o 2770 hip
+flexion, issue #106).
+
+## As correções do catálogo
+
+O `CATALOGUE_FIXES` do gerador troca, pelo id, campos que o catálogo tem errados, antes de tudo e
+sem mexer no `catalogue/`. Hoje é um só: o 0459 flutter kicks tem o alvo "glutes", mas a descrição
+fala do abdômen baixo e dos flexores do quadril, e as outras versões (1179 e 1244) têm o alvo
+"abs" (issue #106).
+
 ## A ênfase
 
 A ênfase são as sub-regiões que o texto livre nomeia dentro de um grupo que está inteiro no
