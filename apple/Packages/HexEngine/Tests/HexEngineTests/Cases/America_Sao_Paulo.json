@@ -3823,6 +3823,1381 @@
           "lander"
         ]
       }
+    },
+    {
+      "name": "começar o dia de PPL numa segunda às 23:50",
+      "fn": "frontend/src/lib/session-controller.js#step",
+      "args": [
+        {
+          "unit": "kg",
+          "restSec": 90,
+          "restPauseSec": 15,
+          "sound": true,
+          "soundOnSilent": false,
+          "vibrateOnSilent": false,
+          "timerFlash": false,
+          "timedSetOvertime": false,
+          "keepAwake": true,
+          "lang": "en",
+          "theme": "dark",
+          "accent": "lime",
+          "body": "male",
+          "targetW": null,
+          "rateGoal": null,
+          "bodyweight": [],
+          "routines": [
+            {
+              "id": "ppl-push",
+              "name": "Push",
+              "ex": [
+                {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60,
+                  "mode": "reps"
+                },
+                {
+                  "id": "0047",
+                  "sets": 2,
+                  "reps": 10,
+                  "weight": 40,
+                  "mode": "reps"
+                }
+              ]
+            },
+            {
+              "id": "ppl-pull",
+              "name": "Pull",
+              "ex": [
+                {
+                  "id": "0027",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 50,
+                  "mode": "reps"
+                }
+              ]
+            },
+            {
+              "id": "ppl-legs",
+              "name": "Legs",
+              "ex": [
+                {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100,
+                  "mode": "reps"
+                }
+              ]
+            }
+          ],
+          "week": {
+            "1": [
+              "ppl-push"
+            ],
+            "3": [
+              "ppl-pull"
+            ],
+            "5": [
+              "ppl-legs"
+            ]
+          },
+          "dayPlan": {},
+          "dayNotes": {},
+          "measurements": [],
+          "measurementEnabled": null,
+          "customMeasurements": [],
+          "queue": null,
+          "rotation": null,
+          "scheduleMode": null,
+          "exWeights": {},
+          "workouts": [],
+          "active": null,
+          "customEx": [],
+          "gifSize": "mini",
+          "heatmapMetric": "time",
+          "volumeWarmups": false,
+          "workoutView": "cards",
+          "collapseCompleted": false,
+          "exerciseView": "list",
+          "wc": {
+            "steppers": true,
+            "setShortcuts": false,
+            "pairButtons": false,
+            "exerciseButtons": false,
+            "exerciseChips": true,
+            "muscleMap": true,
+            "swipeSets": true
+          },
+          "hints": {},
+          "reminder": {
+            "on": false,
+            "time": "08:00",
+            "tz": null,
+            "nudge": false,
+            "tone": "friendly"
+          },
+          "effort": null,
+          "autoBackup": false,
+          "equipProfiles": [],
+          "activeEquipId": null,
+          "equipFilterOn": false,
+          "exNotes": {},
+          "exAliases": {},
+          "favEx": [],
+          "weekStart": 1,
+          "wdec": 1,
+          "speedUnit": null,
+          "barWeights": {},
+          "plates": {},
+          "loadKind": {},
+          "dbLoad": {},
+          "dumbbells": {},
+          "stackWeights": {},
+          "gymCards": [],
+          "lastGymCardId": null,
+          "checkIn": true,
+          "showWeightCard": true,
+          "weighIn": false,
+          "connStatus": true,
+          "shareMap": true,
+          "connLocal": true,
+          "startFrom": "plan",
+          "lastFrom": "routine",
+          "enParens": {},
+          "enOnly": {},
+          "logRef": "last",
+          "balanceTemplate": "poliquin",
+          "balanceOverrides": {},
+          "langAuto": true
+        },
+        {
+          "type": "start",
+          "routineIds": [
+            "ppl-push"
+          ],
+          "id": "treino-ppl"
+        },
+        1793069400000
+      ],
+      "result": {
+        "returned": {
+          "state": {
+            "unit": "kg",
+            "restSec": 90,
+            "restPauseSec": 15,
+            "sound": true,
+            "soundOnSilent": false,
+            "vibrateOnSilent": false,
+            "timerFlash": false,
+            "timedSetOvertime": false,
+            "keepAwake": true,
+            "lang": "en",
+            "theme": "dark",
+            "accent": "lime",
+            "body": "male",
+            "targetW": null,
+            "rateGoal": null,
+            "bodyweight": [],
+            "routines": [
+              {
+                "id": "ppl-push",
+                "name": "Push",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-pull",
+                "name": "Pull",
+                "ex": [
+                  {
+                    "id": "0027",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 50,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-legs",
+                "name": "Legs",
+                "ex": [
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100,
+                    "mode": "reps"
+                  }
+                ]
+              }
+            ],
+            "week": {
+              "1": [
+                "ppl-push"
+              ],
+              "3": [
+                "ppl-pull"
+              ],
+              "5": [
+                "ppl-legs"
+              ]
+            },
+            "dayPlan": {},
+            "dayNotes": {},
+            "measurements": [],
+            "measurementEnabled": null,
+            "customMeasurements": [],
+            "queue": null,
+            "rotation": null,
+            "scheduleMode": null,
+            "exWeights": {},
+            "workouts": [],
+            "active": {
+              "id": "treino-ppl",
+              "d": "2026-10-26",
+              "start": 1793069400000,
+              "routineIds": [
+                "ppl-push"
+              ],
+              "name": "Push",
+              "bw": null,
+              "cur": 0,
+              "entries": [
+                {
+                  "id": "0025",
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  "plan": {
+                    "policy": "linear",
+                    "kind": "first",
+                    "why": [
+                      "Nothing logged yet, so this session sets the baseline."
+                    ]
+                  },
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": false
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": false
+                    }
+                  ],
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "ppl-push"
+                },
+                {
+                  "id": "0047",
+                  "target": {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  },
+                  "plan": {
+                    "policy": "linear",
+                    "kind": "first",
+                    "why": [
+                      "Nothing logged yet, so this session sets the baseline."
+                    ]
+                  },
+                  "sets": [
+                    {
+                      "w": 40,
+                      "r": 10,
+                      "done": false
+                    },
+                    {
+                      "w": 40,
+                      "r": 10,
+                      "done": false
+                    }
+                  ],
+                  "planned": {
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40
+                  },
+                  "rid": "ppl-push"
+                }
+              ],
+              "workoutView": "cards",
+              "rest": null,
+              "progress": [
+                0,
+                0
+              ]
+            },
+            "customEx": [],
+            "gifSize": "mini",
+            "heatmapMetric": "time",
+            "volumeWarmups": false,
+            "workoutView": "cards",
+            "collapseCompleted": false,
+            "exerciseView": "list",
+            "wc": {
+              "steppers": true,
+              "setShortcuts": false,
+              "pairButtons": false,
+              "exerciseButtons": false,
+              "exerciseChips": true,
+              "muscleMap": true,
+              "swipeSets": true
+            },
+            "hints": {},
+            "reminder": {
+              "on": false,
+              "time": "08:00",
+              "tz": null,
+              "nudge": false,
+              "tone": "friendly"
+            },
+            "effort": null,
+            "autoBackup": false,
+            "equipProfiles": [],
+            "activeEquipId": null,
+            "equipFilterOn": false,
+            "exNotes": {},
+            "exAliases": {},
+            "favEx": [],
+            "weekStart": 1,
+            "wdec": 1,
+            "speedUnit": null,
+            "barWeights": {},
+            "plates": {},
+            "loadKind": {},
+            "dbLoad": {},
+            "dumbbells": {},
+            "stackWeights": {},
+            "gymCards": [],
+            "lastGymCardId": null,
+            "checkIn": true,
+            "showWeightCard": true,
+            "weighIn": false,
+            "connStatus": true,
+            "shareMap": true,
+            "connLocal": true,
+            "startFrom": "plan",
+            "lastFrom": "routine",
+            "enParens": {},
+            "enOnly": {},
+            "logRef": "last",
+            "balanceTemplate": "poliquin",
+            "balanceOverrides": {},
+            "langAuto": true
+          },
+          "effects": [
+            {
+              "type": "activity.start"
+            }
+          ],
+          "result": {
+            "id": "treino-ppl"
+          }
+        },
+        "args": [
+          {
+            "unit": "kg",
+            "restSec": 90,
+            "restPauseSec": 15,
+            "sound": true,
+            "soundOnSilent": false,
+            "vibrateOnSilent": false,
+            "timerFlash": false,
+            "timedSetOvertime": false,
+            "keepAwake": true,
+            "lang": "en",
+            "theme": "dark",
+            "accent": "lime",
+            "body": "male",
+            "targetW": null,
+            "rateGoal": null,
+            "bodyweight": [],
+            "routines": [
+              {
+                "id": "ppl-push",
+                "name": "Push",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-pull",
+                "name": "Pull",
+                "ex": [
+                  {
+                    "id": "0027",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 50,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-legs",
+                "name": "Legs",
+                "ex": [
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100,
+                    "mode": "reps"
+                  }
+                ]
+              }
+            ],
+            "week": {
+              "1": [
+                "ppl-push"
+              ],
+              "3": [
+                "ppl-pull"
+              ],
+              "5": [
+                "ppl-legs"
+              ]
+            },
+            "dayPlan": {},
+            "dayNotes": {},
+            "measurements": [],
+            "measurementEnabled": null,
+            "customMeasurements": [],
+            "queue": null,
+            "rotation": null,
+            "scheduleMode": null,
+            "exWeights": {},
+            "workouts": [],
+            "active": null,
+            "customEx": [],
+            "gifSize": "mini",
+            "heatmapMetric": "time",
+            "volumeWarmups": false,
+            "workoutView": "cards",
+            "collapseCompleted": false,
+            "exerciseView": "list",
+            "wc": {
+              "steppers": true,
+              "setShortcuts": false,
+              "pairButtons": false,
+              "exerciseButtons": false,
+              "exerciseChips": true,
+              "muscleMap": true,
+              "swipeSets": true
+            },
+            "hints": {},
+            "reminder": {
+              "on": false,
+              "time": "08:00",
+              "tz": null,
+              "nudge": false,
+              "tone": "friendly"
+            },
+            "effort": null,
+            "autoBackup": false,
+            "equipProfiles": [],
+            "activeEquipId": null,
+            "equipFilterOn": false,
+            "exNotes": {},
+            "exAliases": {},
+            "favEx": [],
+            "weekStart": 1,
+            "wdec": 1,
+            "speedUnit": null,
+            "barWeights": {},
+            "plates": {},
+            "loadKind": {},
+            "dbLoad": {},
+            "dumbbells": {},
+            "stackWeights": {},
+            "gymCards": [],
+            "lastGymCardId": null,
+            "checkIn": true,
+            "showWeightCard": true,
+            "weighIn": false,
+            "connStatus": true,
+            "shareMap": true,
+            "connLocal": true,
+            "startFrom": "plan",
+            "lastFrom": "routine",
+            "enParens": {},
+            "enOnly": {},
+            "logRef": "last",
+            "balanceTemplate": "poliquin",
+            "balanceOverrides": {},
+            "langAuto": true
+          },
+          {
+            "type": "start",
+            "routineIds": [
+              "ppl-push"
+            ],
+            "id": "treino-ppl"
+          },
+          1793069400000
+        ]
+      }
+    },
+    {
+      "name": "terminar à 01:00 o treino que passou da meia-noite",
+      "fn": "frontend/src/lib/session-controller.js#step",
+      "args": [
+        {
+          "unit": "kg",
+          "restSec": 90,
+          "restPauseSec": 15,
+          "sound": true,
+          "soundOnSilent": false,
+          "vibrateOnSilent": false,
+          "timerFlash": false,
+          "timedSetOvertime": false,
+          "keepAwake": true,
+          "lang": "en",
+          "theme": "dark",
+          "accent": "lime",
+          "body": "male",
+          "targetW": null,
+          "rateGoal": null,
+          "bodyweight": [],
+          "routines": [
+            {
+              "id": "ppl-push",
+              "name": "Push",
+              "ex": [
+                {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60,
+                  "mode": "reps"
+                },
+                {
+                  "id": "0047",
+                  "sets": 2,
+                  "reps": 10,
+                  "weight": 40,
+                  "mode": "reps"
+                }
+              ]
+            },
+            {
+              "id": "ppl-pull",
+              "name": "Pull",
+              "ex": [
+                {
+                  "id": "0027",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 50,
+                  "mode": "reps"
+                }
+              ]
+            },
+            {
+              "id": "ppl-legs",
+              "name": "Legs",
+              "ex": [
+                {
+                  "id": "0043",
+                  "sets": 2,
+                  "reps": 5,
+                  "weight": 100,
+                  "mode": "reps"
+                }
+              ]
+            }
+          ],
+          "week": {
+            "1": [
+              "ppl-push"
+            ],
+            "3": [
+              "ppl-pull"
+            ],
+            "5": [
+              "ppl-legs"
+            ]
+          },
+          "dayPlan": {},
+          "dayNotes": {},
+          "measurements": [],
+          "measurementEnabled": null,
+          "customMeasurements": [],
+          "queue": null,
+          "rotation": null,
+          "scheduleMode": null,
+          "exWeights": {},
+          "workouts": [],
+          "active": {
+            "id": "treino-ppl",
+            "d": "2026-10-26",
+            "start": 1793069400000,
+            "routineIds": [
+              "ppl-push"
+            ],
+            "name": "Push",
+            "bw": null,
+            "cur": 0,
+            "entries": [
+              {
+                "id": "0025",
+                "target": {
+                  "id": "0025",
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60,
+                  "mode": "reps"
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1793070075000
+                  },
+                  {
+                    "w": 60,
+                    "r": 8,
+                    "done": true,
+                    "at": 1793070750000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 8,
+                  "weight": 60
+                },
+                "rid": "ppl-push",
+                "topW": 60
+              },
+              {
+                "id": "0047",
+                "target": {
+                  "id": "0047",
+                  "sets": 2,
+                  "reps": 10,
+                  "weight": 40,
+                  "mode": "reps"
+                },
+                "plan": {
+                  "policy": "linear",
+                  "kind": "first",
+                  "why": [
+                    "Nothing logged yet, so this session sets the baseline."
+                  ]
+                },
+                "sets": [
+                  {
+                    "w": 40,
+                    "r": 10,
+                    "done": true,
+                    "at": 1793071425000
+                  },
+                  {
+                    "w": 40,
+                    "r": 10,
+                    "done": true,
+                    "at": 1793072100000
+                  }
+                ],
+                "planned": {
+                  "sets": 2,
+                  "reps": 10,
+                  "weight": 40
+                },
+                "rid": "ppl-push",
+                "topW": 40
+              }
+            ],
+            "workoutView": "cards",
+            "rest": null,
+            "progress": [
+              2,
+              2
+            ]
+          },
+          "customEx": [],
+          "gifSize": "mini",
+          "heatmapMetric": "time",
+          "volumeWarmups": false,
+          "workoutView": "cards",
+          "collapseCompleted": false,
+          "exerciseView": "list",
+          "wc": {
+            "steppers": true,
+            "setShortcuts": false,
+            "pairButtons": false,
+            "exerciseButtons": false,
+            "exerciseChips": true,
+            "muscleMap": true,
+            "swipeSets": true
+          },
+          "hints": {},
+          "reminder": {
+            "on": false,
+            "time": "08:00",
+            "tz": null,
+            "nudge": false,
+            "tone": "friendly"
+          },
+          "effort": null,
+          "autoBackup": false,
+          "equipProfiles": [],
+          "activeEquipId": null,
+          "equipFilterOn": false,
+          "exNotes": {},
+          "exAliases": {},
+          "favEx": [],
+          "weekStart": 1,
+          "wdec": 1,
+          "speedUnit": null,
+          "barWeights": {},
+          "plates": {},
+          "loadKind": {},
+          "dbLoad": {},
+          "dumbbells": {},
+          "stackWeights": {},
+          "gymCards": [],
+          "lastGymCardId": null,
+          "checkIn": true,
+          "showWeightCard": true,
+          "weighIn": false,
+          "connStatus": true,
+          "shareMap": true,
+          "connLocal": true,
+          "startFrom": "plan",
+          "lastFrom": "routine",
+          "enParens": {},
+          "enOnly": {},
+          "logRef": "last",
+          "balanceTemplate": "poliquin",
+          "balanceOverrides": {},
+          "langAuto": true
+        },
+        {
+          "type": "finish"
+        },
+        1793073600000
+      ],
+      "result": {
+        "returned": {
+          "state": {
+            "unit": "kg",
+            "restSec": 90,
+            "restPauseSec": 15,
+            "sound": true,
+            "soundOnSilent": false,
+            "vibrateOnSilent": false,
+            "timerFlash": false,
+            "timedSetOvertime": false,
+            "keepAwake": true,
+            "lang": "en",
+            "theme": "dark",
+            "accent": "lime",
+            "body": "male",
+            "targetW": null,
+            "rateGoal": null,
+            "bodyweight": [],
+            "routines": [
+              {
+                "id": "ppl-push",
+                "name": "Push",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-pull",
+                "name": "Pull",
+                "ex": [
+                  {
+                    "id": "0027",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 50,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-legs",
+                "name": "Legs",
+                "ex": [
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100,
+                    "mode": "reps"
+                  }
+                ]
+              }
+            ],
+            "week": {
+              "1": [
+                "ppl-push"
+              ],
+              "3": [
+                "ppl-pull"
+              ],
+              "5": [
+                "ppl-legs"
+              ]
+            },
+            "dayPlan": {},
+            "dayNotes": {},
+            "measurements": [],
+            "measurementEnabled": null,
+            "customMeasurements": [],
+            "queue": null,
+            "rotation": null,
+            "scheduleMode": null,
+            "exWeights": {
+              "0025": {
+                "w": 60,
+                "d": "2026-10-26"
+              },
+              "0047": {
+                "w": 40,
+                "d": "2026-10-26"
+              }
+            },
+            "workouts": [
+              {
+                "id": "treino-ppl",
+                "d": "2026-10-26",
+                "start": 1793069400000,
+                "end": 1793072100000,
+                "routineIds": [
+                  "ppl-push"
+                ],
+                "routineId": "ppl-push",
+                "name": "Push",
+                "bw": null,
+                "entries": [
+                  {
+                    "id": "0025",
+                    "sets": [
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1793070075000
+                      },
+                      {
+                        "w": 60,
+                        "r": 8,
+                        "done": true,
+                        "at": 1793070750000
+                      }
+                    ],
+                    "topW": 60,
+                    "target": {
+                      "id": "0025",
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60,
+                      "mode": "reps"
+                    },
+                    "rid": "ppl-push",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 8,
+                      "weight": 60
+                    }
+                  },
+                  {
+                    "id": "0047",
+                    "sets": [
+                      {
+                        "w": 40,
+                        "r": 10,
+                        "done": true,
+                        "at": 1793071425000
+                      },
+                      {
+                        "w": 40,
+                        "r": 10,
+                        "done": true,
+                        "at": 1793072100000
+                      }
+                    ],
+                    "topW": 40,
+                    "target": {
+                      "id": "0047",
+                      "sets": 2,
+                      "reps": 10,
+                      "weight": 40,
+                      "mode": "reps"
+                    },
+                    "rid": "ppl-push",
+                    "planned": {
+                      "sets": 2,
+                      "reps": 10,
+                      "weight": 40
+                    }
+                  }
+                ],
+                "prs": [
+                  "0025",
+                  "0047"
+                ],
+                "vol": 1760
+              }
+            ],
+            "active": null,
+            "customEx": [],
+            "gifSize": "mini",
+            "heatmapMetric": "time",
+            "volumeWarmups": false,
+            "workoutView": "cards",
+            "collapseCompleted": false,
+            "exerciseView": "list",
+            "wc": {
+              "steppers": true,
+              "setShortcuts": false,
+              "pairButtons": false,
+              "exerciseButtons": false,
+              "exerciseChips": true,
+              "muscleMap": true,
+              "swipeSets": true
+            },
+            "hints": {},
+            "reminder": {
+              "on": false,
+              "time": "08:00",
+              "tz": null,
+              "nudge": false,
+              "tone": "friendly"
+            },
+            "effort": null,
+            "autoBackup": false,
+            "equipProfiles": [],
+            "activeEquipId": null,
+            "equipFilterOn": false,
+            "exNotes": {},
+            "exAliases": {},
+            "favEx": [],
+            "weekStart": 1,
+            "wdec": 1,
+            "speedUnit": null,
+            "barWeights": {},
+            "plates": {},
+            "loadKind": {},
+            "dbLoad": {},
+            "dumbbells": {},
+            "stackWeights": {},
+            "gymCards": [],
+            "lastGymCardId": null,
+            "checkIn": true,
+            "showWeightCard": true,
+            "weighIn": false,
+            "connStatus": true,
+            "shareMap": true,
+            "connLocal": true,
+            "startFrom": "plan",
+            "lastFrom": "routine",
+            "enParens": {},
+            "enOnly": {},
+            "logRef": "last",
+            "balanceTemplate": "poliquin",
+            "balanceOverrides": {},
+            "langAuto": true
+          },
+          "effects": [
+            {
+              "type": "workout.finished",
+              "id": "treino-ppl"
+            },
+            {
+              "type": "activity.end"
+            }
+          ],
+          "result": {
+            "id": "treino-ppl",
+            "name": "Push",
+            "start": 1793069400000,
+            "end": 1793072100000,
+            "durationMs": 2700000,
+            "volume": 1760,
+            "unit": "kg",
+            "sets": {
+              "done": 4,
+              "work": 4
+            },
+            "prs": [
+              {
+                "id": "0025",
+                "name": "barbell bench press",
+                "w": 60
+              },
+              {
+                "id": "0047",
+                "name": "barbell incline bench press",
+                "w": 40
+              }
+            ],
+            "e1rm": [],
+            "compare": [
+              {
+                "id": "0025",
+                "name": "barbell bench press",
+                "today": [
+                  {
+                    "w": 60,
+                    "r": 8
+                  },
+                  {
+                    "w": 60,
+                    "r": 8
+                  }
+                ],
+                "last": null,
+                "trend": null,
+                "next": {
+                  "w": 62.5,
+                  "r": 8,
+                  "sets": 2,
+                  "kind": "up"
+                }
+              },
+              {
+                "id": "0047",
+                "name": "barbell incline bench press",
+                "today": [
+                  {
+                    "w": 40,
+                    "r": 10
+                  },
+                  {
+                    "w": 40,
+                    "r": 10
+                  }
+                ],
+                "last": null,
+                "trend": null,
+                "next": {
+                  "w": 42.5,
+                  "r": 10,
+                  "sets": 2,
+                  "kind": "up"
+                }
+              }
+            ],
+            "additions": []
+          }
+        },
+        "args": [
+          {
+            "unit": "kg",
+            "restSec": 90,
+            "restPauseSec": 15,
+            "sound": true,
+            "soundOnSilent": false,
+            "vibrateOnSilent": false,
+            "timerFlash": false,
+            "timedSetOvertime": false,
+            "keepAwake": true,
+            "lang": "en",
+            "theme": "dark",
+            "accent": "lime",
+            "body": "male",
+            "targetW": null,
+            "rateGoal": null,
+            "bodyweight": [],
+            "routines": [
+              {
+                "id": "ppl-push",
+                "name": "Push",
+                "ex": [
+                  {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-pull",
+                "name": "Pull",
+                "ex": [
+                  {
+                    "id": "0027",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 50,
+                    "mode": "reps"
+                  }
+                ]
+              },
+              {
+                "id": "ppl-legs",
+                "name": "Legs",
+                "ex": [
+                  {
+                    "id": "0043",
+                    "sets": 2,
+                    "reps": 5,
+                    "weight": 100,
+                    "mode": "reps"
+                  }
+                ]
+              }
+            ],
+            "week": {
+              "1": [
+                "ppl-push"
+              ],
+              "3": [
+                "ppl-pull"
+              ],
+              "5": [
+                "ppl-legs"
+              ]
+            },
+            "dayPlan": {},
+            "dayNotes": {},
+            "measurements": [],
+            "measurementEnabled": null,
+            "customMeasurements": [],
+            "queue": null,
+            "rotation": null,
+            "scheduleMode": null,
+            "exWeights": {},
+            "workouts": [],
+            "active": {
+              "id": "treino-ppl",
+              "d": "2026-10-26",
+              "start": 1793069400000,
+              "routineIds": [
+                "ppl-push"
+              ],
+              "name": "Push",
+              "bw": null,
+              "cur": 0,
+              "entries": [
+                {
+                  "id": "0025",
+                  "target": {
+                    "id": "0025",
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60,
+                    "mode": "reps"
+                  },
+                  "plan": {
+                    "policy": "linear",
+                    "kind": "first",
+                    "why": [
+                      "Nothing logged yet, so this session sets the baseline."
+                    ]
+                  },
+                  "sets": [
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1793070075000
+                    },
+                    {
+                      "w": 60,
+                      "r": 8,
+                      "done": true,
+                      "at": 1793070750000
+                    }
+                  ],
+                  "planned": {
+                    "sets": 2,
+                    "reps": 8,
+                    "weight": 60
+                  },
+                  "rid": "ppl-push",
+                  "topW": 60
+                },
+                {
+                  "id": "0047",
+                  "target": {
+                    "id": "0047",
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40,
+                    "mode": "reps"
+                  },
+                  "plan": {
+                    "policy": "linear",
+                    "kind": "first",
+                    "why": [
+                      "Nothing logged yet, so this session sets the baseline."
+                    ]
+                  },
+                  "sets": [
+                    {
+                      "w": 40,
+                      "r": 10,
+                      "done": true,
+                      "at": 1793071425000
+                    },
+                    {
+                      "w": 40,
+                      "r": 10,
+                      "done": true,
+                      "at": 1793072100000
+                    }
+                  ],
+                  "planned": {
+                    "sets": 2,
+                    "reps": 10,
+                    "weight": 40
+                  },
+                  "rid": "ppl-push",
+                  "topW": 40
+                }
+              ],
+              "workoutView": "cards",
+              "rest": null,
+              "progress": [
+                2,
+                2
+              ]
+            },
+            "customEx": [],
+            "gifSize": "mini",
+            "heatmapMetric": "time",
+            "volumeWarmups": false,
+            "workoutView": "cards",
+            "collapseCompleted": false,
+            "exerciseView": "list",
+            "wc": {
+              "steppers": true,
+              "setShortcuts": false,
+              "pairButtons": false,
+              "exerciseButtons": false,
+              "exerciseChips": true,
+              "muscleMap": true,
+              "swipeSets": true
+            },
+            "hints": {},
+            "reminder": {
+              "on": false,
+              "time": "08:00",
+              "tz": null,
+              "nudge": false,
+              "tone": "friendly"
+            },
+            "effort": null,
+            "autoBackup": false,
+            "equipProfiles": [],
+            "activeEquipId": null,
+            "equipFilterOn": false,
+            "exNotes": {},
+            "exAliases": {},
+            "favEx": [],
+            "weekStart": 1,
+            "wdec": 1,
+            "speedUnit": null,
+            "barWeights": {},
+            "plates": {},
+            "loadKind": {},
+            "dbLoad": {},
+            "dumbbells": {},
+            "stackWeights": {},
+            "gymCards": [],
+            "lastGymCardId": null,
+            "checkIn": true,
+            "showWeightCard": true,
+            "weighIn": false,
+            "connStatus": true,
+            "shareMap": true,
+            "connLocal": true,
+            "startFrom": "plan",
+            "lastFrom": "routine",
+            "enParens": {},
+            "enOnly": {},
+            "logRef": "last",
+            "balanceTemplate": "poliquin",
+            "balanceOverrides": {},
+            "langAuto": true
+          },
+          {
+            "type": "finish"
+          },
+          1793073600000
+        ]
+      }
     }
   ]
 }

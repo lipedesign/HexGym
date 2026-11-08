@@ -8,6 +8,7 @@ import { freshState, stateFromSaved } from '../../../../frontend/src/lib/state-c
 import { stateJson } from '../../../../frontend/src/lib/state-json.js'
 import * as actions from './actions.js'
 import * as library from './library.js'
+import * as session from './session.js'
 import { decodeValue, encodeValue } from './values.js'
 
 // O idioma das telas, dos nomes e dos passos (language.js), que o load() do Swift chama com os
@@ -120,6 +121,38 @@ export function settings() {
 
 export function starterPlans() {
   return JSON.stringify(actions.starterPlans())
+}
+
+// O treino em andamento (session.js), com o controlador do openGym e o carimbo do update(). Recebe o
+// texto JSON da SessionAction do Swift e o instante em ms, troca o documento aberto quando a ação
+// mudou alguma coisa e devolve { changed, effects, result }. Uma ação inválida lança TypeError, e o
+// documento aberto fica o mesmo. Nenhuma ação do treino mexe nos personalizados nem nos apelidos.
+export function sessionApply(actionJson, now) {
+  const { doc, changed, effects, result } = session.apply(opened(), JSON.parse(actionJson), now)
+  current = doc
+  return JSON.stringify({ changed, effects, result })
+}
+
+// As leituras das telas do treino, sem mudar nada, no instante em ms: o treino em andamento (ou
+// null), a tela inicial e a Live Activity (ou null).
+export function activeWorkout(now) {
+  return JSON.stringify(session.activeWorkout(opened(), now))
+}
+
+export function home(now) {
+  return JSON.stringify(session.home(opened(), now))
+}
+
+export function liveActivity(now) {
+  return JSON.stringify(session.liveActivity(opened(), now))
+}
+
+// Os eventos dos botões da Live Activity, em texto JSON, escoados no instante now em ms. Devolve
+// { applied, effects } e troca o documento aberto quando algum evento mudou o treino.
+export function liveEvents(eventsJson, now) {
+  const { doc, applied, effects } = session.liveEvents(opened(), JSON.parse(eventsJson), now)
+  current = doc
+  return JSON.stringify({ applied, effects })
 }
 
 // O nome de uma função é "<caminho do módulo>#<export>", como "frontend/src/lib/onerm.js#estimate1RM".

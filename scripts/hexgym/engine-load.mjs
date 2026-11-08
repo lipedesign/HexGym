@@ -28,7 +28,11 @@
 //                    que obrigam o openGym a refazer o índice da busca: como a lista do app, que pede o
 //                    catálogo antes da busca quando aparece (LibraryModel, Task 9; achado do QA do PR
 //                    #108);
-//   tick             a mediana de 20 séries marcadas, cada uma como o update() do app web faz;
+//   tick             a mediana de 20 séries marcadas, cada uma pelo set.mark do controlador do treino
+//                    (HexEngine.sessionApply, com o carimbo do update() do app web) e o texto que o
+//                    app grava (HexEngine.document), num treino começado pelo start do controlador;
+//   leituras         a mediana do HexEngine.activeWorkout e do HexEngine.liveActivity depois de cada
+//                    uma dessas séries, o que a tela lê em seguida, só para registro;
 //   fatigue          o fatigueOf do histórico, só para registro;
 //   structuredClone  se a cópia de um objeto com Date, Map, Set e referência circular é igual ao
 //                    original e não é o mesmo objeto.
@@ -225,55 +229,39 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag, query) {
   if (foundAliased < found) throw new Error(`a busca de ${query} com outros apelidos achou ${foundAliased}, e a de antes, ${found}`)
 
   const M = HexEngine.__modules
-  const { draftOf, clone } = M['frontend/src/lib/state-core.js']
-  const { stampChange } = M['frontend/src/lib/sync-merge.js']
-  const { stateJson } = M['frontend/src/lib/state-json.js']
-  const { buildCombinedEntries, deriveSessionName } = M['frontend/src/lib/session-merge.js']
-  const { uid, todayISO } = M['frontend/src/lib/format.js']
+  const { buildCombinedEntries } = M['frontend/src/lib/session-merge.js']
   const { fatigueOf } = M['frontend/src/lib/recovery.js']
 
-  // Uma mudança como o update() do app web (store/useStore.js): o rascunho de S, a mudança nele, o
-  // done(), os mapas deleted e edited copiados quando o rascunho ainda os divide com S, os carimbos
-  // do stampChange e o texto que o app grava (stateJson).
-  const update = (prev, change) => {
-    const draft = draftOf(prev)
-    change(draft.S)
-    const next = draft.done()
-    for (const k of ['deleted', 'edited']) if (next[k] && typeof next[k] === 'object' && next[k] === prev[k]) next[k] = clone(next[k])
-    next._ts = stampChange(prev, next, Date.now())
-    stateJson(next)
-    return next
-  }
-
-  // O documento como o motor o tem depois do restore. A sessão começa como o beginWorkout
-  // (sheets.jsx), com as entries de buildCombinedEntries de uma rotina: a de mais séries, para
-  // caberem as séries marcadas.
+  // O documento como o motor o tem depois do restore. O treino começa pelo controlador do openGym
+  // (HexEngine.sessionApply, o start), com a rotina de mais séries, para caberem as séries marcadas.
+  // Um treino em andamento que o documento já traga sai antes, pelo discard.
   let S = JSON.parse(HexEngine.document())
   const setsIn = s => s.entries.reduce((n, e) => n + e.sets.length, 0)
-  const session = S.routines.map(r => buildCombinedEntries(S, [r.id])).reduce((a, b) => (setsIn(b) > setsIn(a) ? b : a))
-  if (setsIn(session) < ticks) throw new Error(`a rotina com mais séries tem ${setsIn(session)}, e o tick marca ${ticks}`)
-  const startAt = Date.now()
-  S = update(S, s => {
-    s.active = {
-      id: uid(), d: todayISO(), start: startAt, routineIds: session.routineIds,
-      name: deriveSessionName(session.routines.map(r => r.name)),
-      bw: null, cur: 0, entries: session.entries, workoutView: S.workoutView || 'cards',
-    }
-  })
+  const longest = S.routines.map(r => ({ id: r.id, ...buildCombinedEntries(S, [r.id]) })).reduce((a, b) => (setsIn(b) > setsIn(a) ? b : a))
+  if (setsIn(longest) < ticks) throw new Error(`a rotina com mais séries tem ${setsIn(longest)}, e o tick marca ${ticks}`)
+  if (S.active) HexEngine.sessionApply(JSON.stringify({ type: 'discard' }), Date.now())
+  HexEngine.sessionApply(JSON.stringify({ type: 'start', routineIds: [longest.id], id: 'treino-da-carga' }), Date.now())
 
-  // As séries, na ordem do treino, uma marcada por vez, como o toggle de views/Workout.jsx.
+  // As séries, na ordem do treino, uma marcada por vez pelo set.mark do controlador, como o toque em
+  // "Série feita": a ação, o carimbo e o texto que o app grava (HexEngine.document). Depois de cada
+  // uma, só para registro, as duas leituras que a tela faz em seguida: o treino em andamento e a
+  // Live Activity.
+  S = JSON.parse(HexEngine.document())
   const order = []
   S.active.entries.forEach((e, i) => e.sets.forEach((_, j) => order.push([i, j])))
   const times = []
+  const reads = []
   for (const [i, j] of order.slice(0, ticks)) {
     t = preciseTime()
-    S = update(S, s => {
-      const set = s.active.entries[i].sets[j]
-      set.done = true
-      set.at = Date.now()
-    })
+    HexEngine.sessionApply(JSON.stringify({ type: 'set.mark', entry: i, set: j, done: true }), Date.now())
+    HexEngine.document()
     times.push(ms(t, preciseTime()))
+    t = preciseTime()
+    HexEngine.activeWorkout(Date.now())
+    HexEngine.liveActivity(Date.now())
+    reads.push(ms(t, preciseTime()))
   }
+  S = JSON.parse(HexEngine.document())
   const marked = S.active.entries.reduce((n, e) => n + e.sets.filter(x => x.done).length, 0)
   if (marked !== ticks) throw new Error(`o tick devia deixar ${ticks} séries feitas, e deixou ${marked}`)
 
@@ -303,7 +291,7 @@ function measure(enginePath, docPath, ticks, enPath, langPath, tag, query) {
   }
 
   print(JSON.stringify({
-    evaluate, language, restore, tick: median(times), fatigue, catalogue, search, searchAfterRestore, catalogueAfterAliases, searchAfterAliases,
+    evaluate, language, restore, tick: median(times), reads: median(reads), fatigue, catalogue, search, searchAfterRestore, catalogueAfterAliases, searchAfterAliases,
     structuredClone: same(original, copy),
     workouts: S.workouts.length, ticks: times.length, listed, found,
   }))
@@ -326,7 +314,7 @@ function runJsc(jsc, files) {
   } catch {
     throw new Error(`o jsc não deu o JSON da medição:\n${said}`)
   }
-  for (const k of ['evaluate', 'language', 'restore', 'tick', 'fatigue', 'catalogue', 'search', 'searchAfterRestore', 'catalogueAfterAliases', 'searchAfterAliases']) {
+  for (const k of ['evaluate', 'language', 'restore', 'tick', 'reads', 'fatigue', 'catalogue', 'search', 'searchAfterRestore', 'catalogueAfterAliases', 'searchAfterAliases']) {
     if (!Number.isFinite(out[k])) throw new Error(`a medição do jsc veio sem ${k}: ${line}`)
   }
   if (typeof out.structuredClone !== 'boolean' || out.ticks !== TICKS) throw new Error(`a medição do jsc veio incompleta: ${line}`)
@@ -344,6 +332,7 @@ function table(results, runs, { total, slack, tag }) {
     ['restore (abrir o documento)', ms(results.restore), each('restore'), ''],
     ['evaluate + idioma + restore', ms(results.evaluate + results.language + results.restore), '', meta(OPEN_MS)],
     [`tick (mediana de ${TICKS} séries marcadas)`, ms(results.tick), each('tick'), meta(TICK_MS)],
+    ['leituras da tela depois de cada série (só para registro)', ms(results.reads), each('reads'), ''],
     ['fatigue (só para registro)', ms(results.fatigue), each('fatigue'), ''],
     [`catálogo (${results.listed} exercícios)`, ms(results.catalogue), each('catalogue'), meta(CATALOGUE_MS)],
     [`busca ("${QUERY}", a primeira do contexto)`, ms(results.search), each('search'), meta(SEARCH_MS)],
@@ -431,6 +420,7 @@ export async function main(argv = [], { jsc = JSC, env = process.env } = {}) {
       language: median(runs.map(r => r.language)),
       restore: median(runs.map(r => r.restore)),
       tick: median(runs.map(r => r.tick)),
+      reads: median(runs.map(r => r.reads)),
       fatigue: median(runs.map(r => r.fatigue)),
       catalogue: median(runs.map(r => r.catalogue)),
       search: median(runs.map(r => r.search)),
