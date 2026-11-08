@@ -17,17 +17,18 @@ O founder delegou em 03/11/2026: o tech lead segue a opção recomendada, inclus
 As escolhas recomendadas deste plano:
 1. **As abas:** cinco, nesta ordem: "Início", "Rotinas", "Exercícios", "Histórico" e "Ajustes", na barra de abas da Apple. O app abre no Início (Task 7).
 2. **A tela inicial:** de cima para baixo, o cartão de hoje (as rotinas do dia pela semana do openGym, ou "Hoje é dia de descanso", ou "Nada marcado para hoje"); o botão principal grande "Começar treino" (ou "Continuar treino", com o tempo e as séries feitas, quando há um treino em andamento); "Outro treino", um `Menu` com as rotinas e "Treino livre"; a semana em segmentos inclinados (um por dia, cheio quando treinou); a sequência de semanas e os treinos da semana; e o último treino, que abre o detalhe dele (Task 7).
-3. **A transição:** o botão "Começar treino" cresce até a tela do treino (o zoom da fase 1), que cobre as abas como uma tela cheia (`fullScreenCover`). Com Reduzir Movimento, a tela esmaece. O mesmo vale para o "Começar" do editor de rotina (Task 8).
+3. **A transição:** o botão "Começar treino" cresce até a tela do treino (o zoom da fase 1), que cobre as abas como uma tela cheia (`fullScreenCover`). Com Reduzir Movimento, a tela aparece sem se mover, como a tabela de `movimento-e-haptico.md` da fase 1 diz. O mesmo vale para o "Começar" do editor de rotina (Task 8).
 4. **A tela do treino:** em cima, o nome, o tempo que passa, os segmentos inclinados das séries e "Terminar"; no meio, um cartão de vidro por exercício, com as séries em linhas curtas ("60 kg × 8", com a marca de feita); embaixo, fixo, o painel da série atual, com as entradas grandes do HexDesign (carga, repetições e, quando o perfil usa, esforço) e o botão principal "Série feita". Tocar numa linha faz dela a série atual. É para registrar com uma mão, entre séries, com pressa (seção 6). O superset aparece com a marca na lateral dos cartões e a letra do grupo (Task 8).
 5. **O descanso:** começa sozinho ao marcar a série, pelas regras do openGym (o descanso do perfil, do exercício, do aquecimento e do superset, que só descansa no fim da volta). Ele toma o lugar do painel da série atual: o anel de descanso, o tempo, "−15 s", "+15 s" e "Pular". No fim, o háptico de descanso no app e, com o app fora da frente, uma notificação local "Descanso acabou" com o próximo exercício (Task 9).
 6. **A permissão de notificação:** pedida pelo sistema no primeiro "Começar treino", sem tela antes. Sem permissão, o descanso funciona igual dentro do app (Task 9).
 7. **O esforço:** a entrada de esforço do HexDesign na escala do perfil (RIR ou RPE), no painel da série atual. Mudar o esforço não marca a série; quem marca é o "Série feita". No openGym, escolher o esforço no seletor marca a série; no HexGym, a entrada é um passo, e marcar por ela marcaria a série a cada toque (Task 1).
 8. **A Live Activity:** na tela bloqueada e na Dynamic Island, com o nome do exercício, a série ("Série 2 de 3 · 60 kg × 8"), as séries feitas e o descanso contando. Os botões: "Série feita" fora do descanso; "+15 s" e "Pular" no descanso. As cores são as da superfície `.island` do tema (Tasks 13 e 14).
-9. **O fim do treino:** "Terminar" pede confirmação quando faltam séries ("Ainda faltam 4 séries."); "Descartar treino" fica no menu da tela, com um `.alert` destrutivo. O resumo mostra a duração, o volume, as séries, os recordes com o carimbo e o háptico de recorde, e, por exercício, "Da última vez" e "Na próxima" (a carga que a progressão do openGym vai pedir). O "Pronto" volta ao Início (Task 11).
+9. **O fim do treino:** "Terminar" pede confirmação quando faltam séries ("Ainda faltam 4 séries."); "Descartar treino" fica no menu da tela, com um `.alert` destrutivo. O resumo mostra a duração, o volume, as séries, os recordes com o carimbo (que toca o háptico de recorde, a fonte única dele), e, por exercício, "Da última vez" e "Na próxima" (a carga que a progressão do openGym vai pedir). O "Pronto" volta ao Início (Task 11).
 10. **O histórico:** a aba lista os treinos do mais novo para o mais antigo, em seções por mês; o detalhe mostra as séries, os recordes e a nota; apagar pede confirmação e não tem desfazer, como no openGym. Editar um treino salvo, mudar a data, repetir e exportar ficam para a fase 5 (Task 12).
 11. **A Siri:** dois atalhos, "Começar treino no HexGym" (o treino de hoje) e "Começar <rotina> no HexGym", em português do Brasil e em inglês. Os dois abrem o app na tela do treino; com um treino em andamento, abrem ele (Task 15).
-12. **O que fica para a fase 5:** a pesagem no começo (o `bw` do treino é o último peso do documento, sem perguntar), o cronômetro da série com tempo (no modo tempo, os segundos entram por um `Stepper` da Apple), o aquecimento novo, a edição de drop set, rest-pause, lados e cardio (as séries assim vindas do openGym aparecem e são marcadas inteiras), pausar o descanso, o treino passado, editar e repetir treinos, e o modo de tela em tabela do openGym (`workoutView`).
-13. **O descanso no documento:** o openGym guarda o descanso fora do documento (`store/useUI.js` e o `localStorage` `gym_rest`). O HexGym guarda em `active.rest`, dentro do treino em andamento: uma fonte só, gravada com o resto, e que sobrevive ao app morto. O `active` nunca sai do aparelho (seção 8.12), e o `buildCompletedWorkout` monta o treino salvo campo a campo, então o `rest` não chega ao histórico (Task 1).
+12. **O que fica para a fase 5:** a pesagem no começo (o `bw` do treino é o último peso do documento, sem perguntar; o `uid()` do openGym não entra, e o id do treino vem do Swift), o cronômetro da série com tempo (no modo tempo, os segundos entram por um `Stepper` da Apple), o aquecimento novo, a edição de drop set, rest-pause, lados e cardio (as séries assim vindas do openGym aparecem e são marcadas inteiras), pausar o descanso, o treino passado, editar e repetir treinos, e o modo de tela em tabela do openGym (`workoutView`).
+13. **O descanso no documento:** o openGym guarda o descanso fora do documento (`store/useUI.js` e o `localStorage` `gym_rest`). O HexGym guarda em `active.rest`, dentro do treino em andamento: uma fonte só, gravada com o resto, e que sobrevive ao app morto. O mesmo vale para o marco de séries feitas que o openGym guarda num `useRef` (`progressHighWater`), que aqui fica em `active.progress`. O `active` nunca sai do aparelho (seção 8.12), e o `buildCompletedWorkout` monta o treino salvo campo a campo, então os dois não chegam ao histórico (Task 1).
+14. **Mudar o treino no meio:** o menu de cada cartão tem "Adicionar série", "Remover última série", "Trocar exercício" e "Remover exercício", e a barra tem "Adicionar exercício". Remover um exercício com série feita pede confirmação num `.alert`; trocar um exercício com série feita faz a pergunta única do openGym, que num superset traz também "Manter no superset" e "Tirar do superset". Trocar escolhe um exercício só, adicionar escolhe vários. O desfazer de série fica para a fase 5 (Task 10).
 
 ## Restrições globais (Global Constraints)
 
@@ -48,7 +49,7 @@ Valem para toda Task. Os valores vêm da especificação, das decisões das fase
 - **Dependências:** nenhum pacote Swift de terceiros e nenhuma dependência npm nova.
 - **Texto para o usuário:** simples e humano, sem travessão; português do Brasil e inglês no catálogo do app (`apple/HexGym/Localizable.xcstrings`); os nomes dos exercícios e os textos que o openGym já tem vêm do motor, nos 20 idiomas; os nomes da Apple na grafia da Apple (iPhone, Apple Watch, Live Activity, Dynamic Island, Siri, VoiceOver, Dynamic Type).
 - **Prints e vídeo dos PRs:** em `docs/hexgym/prints/<issue>/`, no commit do próprio PR, mostrados no corpo por `https://github.com/lipedesign/HexGym/blob/<sha>/docs/hexgym/prints/<issue>/<arquivo>?raw=true`. Os prints saem do simulador do iPhone (o `pickSimulator` do `check.mjs`) com `xcrun simctl io <udid> screenshot`; o vídeo, com `xcrun simctl io <udid> recordVideo --codec h264`, até 15 s e menos de 5 MB. Toda Task de tela tem print em tamanho padrão e em AX5. Nunca um aparelho físico.
-- **Abrir o app num estado, para prints e testes:** argumentos de lançamento, como os das fases 1 e 2. A Task 6 cria `-HexGymFixture <nome>` (abre um documento preparado de `apple/HexGym/Fixtures/<nome>.json` numa pasta temporária, nunca no App Group, só no build Debug) e `-HexGymWorkout YES` (abre a tela do treino em andamento). A Task 7 cria `-HexGymTab inicio` e `-HexGymTab historico`; a Task 11, `-HexGymFinish YES` (termina o treino do documento preparado e mostra o resumo); a Task 12, `-HexGymWorkoutDetail <id>`. O QA não toca no simulador: ele confere por esses argumentos e pelos documentos preparados.
+- **Abrir o app num estado, para prints e testes:** argumentos de lançamento, como os das fases 1 e 2. A Task 6 cria `-HexGymFixture <nome>` (abre um documento preparado de `apple/HexGym/Fixtures/` numa pasta temporária, nunca no App Group, só no build Debug) e `-HexGymWorkout YES` (abre a tela do treino em andamento). A Task 7 cria `-HexGymTab inicio` e `-HexGymTab historico`; a Task 11, `-HexGymFinish YES` (termina o treino do documento preparado e mostra o resumo); a Task 9, `-HexGymRestSeconds <n>` para o treino (o de hoje só vale na galeria); a Task 12, `-HexGymWorkoutDetail <key>`. O QA não toca no simulador: ele confere por esses argumentos e pelos documentos preparados.
 - **O que só um iPhone de verdade prova:** hápticos, a notificação do descanso com o app no fundo e na tela bloqueada, a Live Activity na tela bloqueada e na Dynamic Island expandida, os botões dela com o app fechado, a Siri por voz, os 120 Hz e o toque em menos de 100 ms com um histórico grande. Cada Task diz o que ficou para o aparelho, e a Task 16 junta a lista para conferir com o founder, como a #67 faz.
 - **Os testes do app:** a parte `app` do `check.mjs` roda o alvo `HexGymTests` (Swift Testing). Lógica de tela que dá para provar sem tela (textos, ordem, decisões, o que um efeito faz) vai num tipo pequeno testado ali; o que só a tela prova vai nos prints.
 - **Duas fases ao mesmo tempo:** a fase 2 ainda tem os follow-ups #106, #114, #116, #117, #118 e #120 e os itens de código da #67, da sessão "Fase 2: biblioteca e rotinas", e as Tasks 13 e 14 dela (#100 e #101) esperam o `/decide 10`. Nenhuma Task daqui depende delas, e uma Task que precise mexer nos arquivos que um PR aberto da fase 2 mexe espera o merge dele. A fase 0 ainda tem a #8, a #23, a #24 e a #25: nenhuma Task daqui mexe em `README.md`, `CONTRIBUTING.md`, `SECURITY.md` nem em `scripts/hexgym/testflight.mjs`. Nenhuma linha em `docs/decisions/log.jsonl` até o `/decide 36`. Todo `gh issue list` desta fase leva `--milestone "Fase 3: Treino no iPhone"`.
@@ -88,7 +89,7 @@ apple/HexGym/
   History/                                    o histórico (Task 12)
   Live/                                       quem liga e atualiza a Live Activity (Tasks 13 e 14)
   Intents/                                    a Siri (Task 15)
-  Fixtures/                                   os documentos preparados, só no Debug (Task 6)
+  Fixtures/                                   os documentos preparados, em Swift dentro de #if DEBUG (Task 6)
 apple/HexGymWidgets/WorkoutLiveActivity.swift a tela bloqueada e a Dynamic Island (Task 13)
 apple/HexGymTests/                            um arquivo por assunto
 docs/hexgym/prints/<issue>/                   os prints e os vídeos dos PRs
@@ -136,18 +137,23 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
 - Modify: o script do motor gerado (`apple/Packages/HexEngine/Sources/HexEngine/Resources/hexengine.js.deflate` e `.sha256`)
 
 **Interfaces:**
-- Consumes (todas do lib, nenhuma muda): `buildCombinedEntries`, `deriveSessionName` (`session-merge.js`); `supersetFlowStep`, `restAfterSet`, `restSecFor`, `ownSetRest`, `warmupRestSecFor`, `nextUnfinishedUnit` (`supersetFlow.js`); `setUnits`, `supersetUnits`, `cascadeWeight`, `removeLastSet`, `bestWeightForEntry`, `stepEffort`, `effortOf`, `EFFORT`, `repStep`, `lastBW`, `modeOf` (`history.js`); `stepWeight`, `weightIncrement` (`progression.js`); `stepOwned` (`dumbbells.js`); `hasCompletedWork` e as leituras de série de `workout-model.js`; `REST_MAX` (`duration.js`); `draftOf` (`state-core.js`); `uid`, `isoOf` (`format.js`); `t` (`i18n-core.js`).
+- Consumes (todas do lib, nenhuma muda): `buildCombinedEntries`, `deriveSessionName` (`session-merge.js`); `supersetFlowStep`, `restAfterSet`, `restOnRecheck`, `setProgressHighWater`, `restSecFor`, `ownSetRest`, `warmupRestSecFor`, `nextUnfinishedUnit` (`supersetFlow.js`); `pyramidRestFor` (`pyramid.js`); `setUnits`, `supersetUnits`, `cascadeWeight`, `removeLastSet`, `removeRowAt`, `setSpanAt`, `bestWeightForEntry`, `stepEffort`, `effortOf`, `EFFORT`, `repStep`, `isPerSide`, `lastBW`, `modeOf` (`history.js`); `stepWeight`, `weightIncrement` (`progression.js`); `stepOwned`, `ownedWeightsFor` (`dumbbells.js`); `inclineFrom` (`incline.js`); `hasCompletedWork`, `isWarmupRow`, `makeSideSet` e as leituras de série de `workout-model.js`; `REST_MAX` (`duration.js`); `draftOf` (`state-core.js`); `isoOf` (`format.js`); `t` (`i18n-core.js`).
 - Produces:
-  - `step(S, action, now) → { state, effects, result }`: `S` é o documento, `now` um número em ms. Devolve o documento novo (o mesmo objeto quando nada mudou), a lista de efeitos e o resultado da ação. Não carimba: quem carimba é o `session.js` (Task 4). Uma ação inválida lança `TypeError` e não muda nada.
-  - O descanso fica em `S.active.rest`: `{ endsAt, total, forIdx, forSet, kind: 'rest' }` ou `null` (escolha 13).
+  - `step(S, action, now) → { state, effects, result }`: `S` é o documento, `now` um número em ms. Devolve o documento novo (o mesmo objeto quando nada mudou), a lista de efeitos e o resultado da ação. Não carimba: quem carimba é o `session.js` (Task 4). Uma ação inválida lança `TypeError` e não muda nada. Nada nele lê o relógio nem o `Math.random`, então o `uid()` do `format.js` também não entra: o id do treino vem na ação.
+  - Os dois campos do treino que são só do aparelho (escolha 13): `active.rest`, `{ endsAt, total, forIdx, forSet }` ou `null`, que no openGym é o `timer` do `store/useUI.js`; e `active.progress`, a lista do marco de séries feitas de cada entrada, que no openGym é o `progressHighWater` (um `useRef` do `Workout.jsx:1074`). Um `active` sem `progress` (vindo do openGym) ganha o marco como o `useRef` nasce: as séries feitas de cada entrada. O marco anda com a lista como lá: abaixa quando o número de séries diminui (`Workout.jsx:1084-1093`), acompanha a reordenação e a inserção (`Workout.jsx:1350` e 1514).
   - As ações desta Task (`type` e os campos):
-    - `start { routineIds, id? }` → `result: { id }`. Faz o que o `beginWorkout` do `sheets.jsx:3121` faz: `active = { id: id ?? uid(), d: isoOf(new Date(now)), start: now, routineIds, name, bw, cur: 0, entries, workoutView: S.workoutView ?? 'cards', rest: null }`, com as entradas do `buildCombinedEntries(S, routineIds)`, o nome do `deriveSessionName` (sem rotina, `t('Freestyle')`) e o `bw` do `lastBW(S)` ou `null` (escolha 12). Com um treino já em andamento, lança `TypeError`.
-    - `set.mark { entry, set, done }`: põe a série no estado pedido. Igual ao estado de agora, nada muda e não há efeito (Foco da revisão 3). Marcar faz o que o `toggle` do `views/Workout.jsx:1776-1908` faz, sem o som, a vibração e os avisos: `done: true`, `at: now`, tira o `planSec`, grava o `topW` quando o exercício fica todo feito, começa o descanso (o tempo do `restSecFor` com o descanso próprio da série e o do aquecimento, como lá; o superset pelo `supersetFlowStep`, que só descansa no fim da volta; o exercício simples pelo `restAfterSet`) e move o `cur` como lá. Uma série com lados, drop set ou rest-pause é marcada inteira (Foco da revisão 4). Desmarcar tira o `done` e o `at`; se o descanso era desta série, ele acaba.
+    - `start { routineIds, id }` → `result: { id }`. `id` é obrigatório (o Swift manda um UUID). Faz o que o `beginWorkout` do `sheets.jsx:3121` faz: `active = { id, d: isoOf(new Date(now)), start: now, routineIds, name, bw, cur: 0, entries, workoutView: S.workoutView ?? 'cards', rest: null, progress }`, com as entradas e o `routineIds` resolvido do `buildCombinedEntries(S, routineIds)`, o nome do `deriveSessionName` (sem rotina, `t('Freestyle')`), o `bw` do `lastBW(S)?.w ?? null` (o `lastBW` devolve a pesagem `{ d, w }`, e o `active.bw` do openGym é número; escolha 12) e o `progress` com um zero por entrada. Com um treino já em andamento, ou sem `id`, lança `TypeError`.
+    - `set.mark { entry, set, done }`: põe a série no estado pedido. Igual ao estado de agora, nada muda e não há efeito (Foco da revisão 3).
+      - Marcar reproduz o ramo de marcar do `toggle` (`views/Workout.jsx:1776-1908`) sem o som, a vibração, os avisos, as folhas e a navegação: `done: true`, `at: now`, tira o `planSec`, grava o `topW` quando o exercício fica todo feito, e passa a série pelo `setProgressHighWater` com o marco do `progress`.
+      - Progresso novo: o descanso começa como lá (o tempo do `restSecFor` com o `setRest` do `pyramidRestFor`, o `ownSetRest` da linha do `setSpanAt` e o `warmupRestSecFor` com o `S.warmupRestSec`; o superset pelo `supersetFlowStep`, que só descansa no fim da volta; o exercício simples pelo `restAfterSet`), e o `cur` anda como lá: no superset, pelo `supersetFlowStep`; no fim de um exercício, só com o `collapseOn` do openGym, que é falso no `workoutView: 'cards'` que o `start` grava (`Workout.jsx:1022` e 1878-1881).
+      - Uma série marcada de novo (não é progresso novo) segue o `restOnRecheck`, com o `restBeforeWarmup` (`Workout.jsx:1836-1856`): começa um descanso só se não houver um contando.
+      - Uma série com lados é marcada inteira: os dois lados ficam com `done: true` e `at: now`, porque o `hasCompletedWork` (`workout-model.js:199`) lê os lados. Drop set e rest-pause, também inteiros (Foco da revisão 4).
+      - Desmarcar tira o `done` e o `at` (dos lados também), como lá, e o descanso que estiver contando continua: no openGym, desmarcar não para o descanso.
     - `set.update { entry, set, fields }`: só `w`, `r`, `sec`, `rir` e `rpe`, e só a do esforço do perfil (`effortOf(S)`). `null` apaga o campo; `w` grava `weightOrigin: 'manual'` e passa pela cascata do `cascadeWeight` com o `backoffStep` do alvo, como o `setField` (`Workout.jsx:1275-1288`); `sec` apaga o `planSec`. Os limites: `w` de 0 a 1.000, `r` de 0 a 100, `sec` de 1 a 3.600 e o esforço no `EFFORT` da escala, de 0,5 em 0,5; fora deles, `TypeError`. Mudar o esforço não marca a série (escolha 7).
-    - `set.step { entry, set, field, direction }`: `field` é `w`, `r`, `sec` ou `effort`, e `direction` é `up` ou `down`. A carga passa pelo `stepOwned` quando o exercício tem pesos próprios e pelo `stepWeight` com o `weightIncrement` do alvo nos outros, como o `bump` (`Workout.jsx:326-338`); as repetições, pelo `repStep`; os segundos, de 5 em 5; o esforço, pelo `stepEffort`. É o passo que as entradas do HexDesign pedem (a entrada não decide o passo).
-    - `set.add { entry }`: uma série nova como o `addSet` (`Workout.jsx:1290-1313`). `set.remove { entry, set }`: deixa pelo menos uma série, e o descanso da série removida acaba, como o `deleteActiveSet` (`Workout.jsx:858-886`).
+    - `set.step { entry, set, field, direction }`: `field` é `w`, `r`, `sec` ou `effort`, e `direction` é `up` ou `down`. A carga passa pelo `stepOwned` com o `ownedWeightsFor` quando o exercício tem pesos próprios e pelo `stepWeight` com o `weightIncrement` do alvo nos outros, como o `bump` (`Workout.jsx:292-338`, com o `inclineFrom` da máquina inclinada); as repetições, pelo `repStep` (de 2 em 2 no exercício por lado, o `isPerSide`); os segundos, de 5 em 5; o esforço, pelo `stepEffort`. É o passo que as entradas do HexDesign pedem (a entrada não decide o passo).
+    - `set.add { entry }`: uma série nova como o `addSet` (`Workout.jsx:1290-1313`, com o `makeSideSet` no exercício por lado). `set.remove { entry, set }`: tira a linha pelo `removeRowAt`, deixa pelo menos uma série, e o descanso acaba só quando era daquela série, como o `deleteActiveSet` (`Workout.jsx:858-886`).
     - `focus { entry }`: troca o `cur`.
-    - `rest.adjust { by }`: `by` é `15` ou `-15`, como o `addRest` (`store/useUI.js:336-354`): soma ao `endsAt` e ao `total`, com o teto do `REST_MAX`; quando sobra 0 s ou menos, o descanso acaba. `rest.skip`: o descanso acaba. Sem descanso, as duas não mudam nada.
+    - `rest.adjust { by }`: `by` é `15` ou `-15`, como o `addRest` (`store/useUI.js:336-354`). Com o descanso contando: o `+15` vale até o teto, `min(15, REST_MAX − falta)` (0 não muda nada); se o que falta mais `by` der 0 ou menos, o descanso acaba; senão, o `endsAt` anda `by` segundos e o `total` vira o maior entre o `total` e o que falta (o `−15` não baixa o total). Com o descanso já acabado (o "Pronto" do openGym, `now ≥ endsAt`): o `+15` começa outro descanso de 15 s para a mesma série, e o `−15` acaba. Sem descanso, nada muda. `rest.skip`: o descanso acaba; sem descanso, nada muda.
   - Os efeitos (objetos `{ type, … }`, na ordem em que acontecem):
     - `{ type: 'haptic', kind: 'setLogged' }` ao marcar;
     - `{ type: 'rest.started', endsAt, total }` e `{ type: 'rest.cleared' }`;
@@ -155,29 +161,30 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
     - `{ type: 'activity.start' }`, `{ type: 'activity.update' }` (depois de toda ação que mudou o treino) e `{ type: 'activity.end' }` (Task 3).
   - O cabeçalho do arquivo lista as linhas do openGym que cada ação reproduz.
 
-- [ ] **Step 1: Write the failing tests** em `session-controller.test.js`, 18 testes, com documentos do `freshState` e rotinas montadas no próprio teste:
-  1. `start` de uma rotina monta o `active` como o `beginWorkout` (cada chave do objeto acima, as entradas iguais às do `buildCombinedEntries`), e o efeito é `activity.start`;
+- [ ] **Step 1: Write the failing tests** em `session-controller.test.js`, 19 testes, com documentos do `freshState` e rotinas montadas no próprio teste:
+  1. `start` de uma rotina monta o `active` como o `beginWorkout` (cada chave do objeto acima, as entradas e o `routineIds` iguais aos do `buildCombinedEntries`, o `bw` como número do último peso), e o efeito é `activity.start`;
   2. `start` com duas rotinas dá o nome "A + B", e com `[]` dá o `t('Freestyle')` e `entries: []`;
-  3. `start` com um treino em andamento lança `TypeError`;
+  3. `start` com um treino em andamento, ou sem `id`, lança `TypeError`;
   4. `set.mark` com `done: true` grava `done`, `at === now`, tira o `planSec`, e dá `haptic setLogged`, `rest.started` com `endsAt === now + 1000 * restSec` e `activity.update`;
-  5. `set.mark` com `done: false` tira o `done` e o `at`, e o descanso daquela série acaba com `rest.cleared`;
+  5. `set.mark` com `done: false` tira o `done` e o `at`, e o descanso que estava contando continua, como no openGym;
   6. `set.mark` com o estado que a série já tem devolve o mesmo objeto `S` e nenhum efeito;
-  7. a última série de um exercício grava o `topW` do `bestWeightForEntry` e leva o `cur` ao próximo exercício por terminar;
-  8. num superset de dois, marcar a série do primeiro não começa descanso e leva o `cur` ao segundo; marcar a do segundo começa o descanso do grupo (o `sgRest`, ou o maior do grupo);
-  9. com `restSec: 0` no perfil não há descanso; o descanso próprio da série e o do aquecimento valem como no `restSecFor`;
+  7. a última série de um exercício grava o `topW` do `bestWeightForEntry`, começa o descanso e, com o `workoutView: 'cards'`, deixa o `cur` onde estava;
+  8. num superset de dois, marcar a série do primeiro não começa descanso e leva o `cur` ao segundo; marcar a do segundo começa o descanso do grupo (o maior do grupo, pelo `restSecFor`);
+  9. com `restSec: 0` no perfil não há descanso; o descanso próprio da série, o da pirâmide e o do aquecimento valem como no `toggle`;
   10. a última série do treino dá `workout.complete` e nenhum descanso;
-  11. `set.update` de `w` grava `weightOrigin: 'manual'` e leva a carga às séries seguintes não feitas; `null` apaga; `w: 1001` lança;
-  12. `set.step` sobe a carga pelo incremento do exercício, as repetições pelo `repStep` e o esforço pelo `stepEffort` na escala do perfil; o esforço da outra escala lança;
-  13. `set.add` dá a série como o `addSet`; `set.remove` nunca deixa o exercício sem série, e o descanso da série removida acaba;
-  14. `focus` troca o `cur`, e um índice fora lança;
-  15. `rest.adjust` com `15` e `-15` muda o `endsAt` e o `total`, para no `REST_MAX`, e acaba quando chega a 0; `rest.skip` acaba; sem descanso, nenhuma muda nada;
-  16. um `active` do openGym com aquecimento, drop set, rest-pause, lados, cardio, série com tempo, pirâmide e `noProg` (montado com as formas dos testes do lib, como `failure-sets.test.js` e `unilateral-integration.test.js`): cada linha é marcada inteira, e fora dos campos que a ação mexeu o objeto continua igual campo a campo (Foco da revisão 4);
-  17. com o `Date.now` trocado por uma função que lança (`vi.spyOn`), todas as ações desta Task rodam;
-  18. o `S` de entrada, congelado por inteiro antes (`Object.freeze` profundo), passa por todas as ações sem erro.
+  11. desmarcar e marcar de novo uma série com o descanso contando não começa outro; com o descanso já acabado, começa (o `restOnRecheck`), e o `progress` não anda;
+  12. `set.update` de `w` grava `weightOrigin: 'manual'` e leva a carga às séries seguintes não feitas; `null` apaga; `w: 1001` lança;
+  13. `set.step` sobe a carga pelo incremento do exercício e pelos pesos próprios, as repetições pelo `repStep` (de 2 em 2 no exercício por lado) e o esforço pelo `stepEffort` na escala do perfil; o esforço da outra escala lança;
+  14. `set.add` dá a série como o `addSet`; `set.remove` nunca deixa o exercício sem série, e o descanso acaba só quando era da série removida;
+  15. `focus` troca o `cur`, e um índice fora lança;
+  16. `rest.adjust`: com o descanso contando, `15` e `-15` mudam o `endsAt`, o `+15` para no teto do `REST_MAX` e o `−15` não baixa o `total`, e acaba quando chega a 0; com o descanso acabado, `15` começa outro de 15 s e `-15` acaba; `rest.skip` acaba; sem descanso, nenhuma muda nada;
+  17. um `active` do openGym com aquecimento, drop set, rest-pause, lados, cardio, série com tempo, pirâmide, `noProg` e sem `progress` (montado com as formas dos testes do lib, como `failure-sets.test.js` e `unilateral-integration.test.js`): cada linha é marcada inteira, os dois lados ficam feitos e o `hasCompletedWork` conta a série, e fora dos campos que a ação mexeu o objeto continua igual campo a campo (Foco da revisão 4);
+  18. com o `Date.now` e o `Math.random` trocados por funções que lançam (`vi.spyOn`), todas as ações desta Task rodam;
+  19. o `S` de entrada, congelado por inteiro antes (`Object.freeze` profundo), passa por todas as ações sem erro.
 - [ ] **Step 2: Run** `cd frontend && npx vitest run src/lib/session-controller.test.js`. Expected: falham.
 - [ ] **Step 3: Implement** `step` e as ações acima em `session-controller.js`, com uma tabela `ACTIONS` como a do `actions.js` do HexEngine.
 - [ ] **Step 4: Run** `cd frontend && npx vitest run src/lib/session-controller.test.js && npm test`. Expected: passam.
-- [ ] **Step 5: Generate and check** Run: `node scripts/build-hexgym-engine.mjs && node scripts/hexgym/check.mjs scripts engine load packages`. Expected: tudo passa; a parte `engine` cresce 18 (o teste novo cai na escolha do `vitest.hexengine.config.js`, porque só importa módulos do motor; se não cair, o PR diz por quê e a Task não entra).
+- [ ] **Step 5: Generate and check** Run: `node scripts/build-hexgym-engine.mjs && node scripts/hexgym/check.mjs scripts engine load packages`. Expected: tudo passa; a parte `engine` cresce 19 (o teste novo cai na escolha do `vitest.hexengine.config.js`, porque só importa módulos do motor; se não cair, o PR diz por quê e a Task não entra).
 - [ ] **Step 6: Commit** "O controlador do treino: começar, as séries e o descanso".
 
 ---
@@ -190,16 +197,25 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
 - Modify: `frontend/src/lib/session-controller.js`, `session-controller.test.js`, o script do motor gerado
 
 **Interfaces:**
-- Consumes: `buildSessionEntry` (`session-start.js`), `insertionIndexAfterCurrentUnit` (`supersetFlow.js`), `swapActiveExercise` (`active-exercise-swap.js`), `cleanupSg` (`history.js`), `EXIDX` e `pickedExerciseConfig` (`exercises.js`, `history.js`).
+- Consumes: `buildSessionEntry`, `builtOutOfProgression` (`session-start.js`), `joinSessionNoProg` (`session-noprog.js`), `freestyleConfig`, `pickedExerciseConfig`, `cleanupSg` (`history.js`), `sessionHistory` (`backfill.js`), `insertionIndexAfterCurrentUnit` (`supersetFlow.js`), `swapActiveExercise` (`active-exercise-swap.js`), `EXIDX` (`exercises.js`).
 - Produces (ações novas no `step`):
-  - `exercise.add { exerciseIds }`: como o "adicionar exercício" do `Workout.jsx:1518-1557`: cada um montado pelo `buildSessionEntry` com o `pickedExerciseConfig`, inseridos na ordem, depois da unidade atual (`insertionIndexAfterCurrentUnit`), com o `rid` da entrada atual e `addedInSession: true`; o `cur` vai para o primeiro deles, e o `forIdx` do descanso acompanha o deslocamento. Um id que não é exercício (nem do catálogo nem personalizado) lança `TypeError`.
-  - `exercise.replace { entry, exerciseId, confirmLogged?, group? }`: pelo `swapActiveExercise`. Sem séries feitas, troca no lugar. Com séries feitas e sem `confirmLogged`, não muda nada e devolve `result: { needs: 'confirmLogged' }`; com ele, a troca entra ao lado, como lá. Dentro de um superset sem `group`, devolve `result: { needs: 'group' }`; `group` é `keep` ou `detach`. Antes da troca, o descanso daquele exercício acaba.
-  - `exercise.remove { entry }`: como o `removeActiveExercise` (`Workout.jsx:923-942`): tira a entrada, passa o `cleanupSg`, ajusta o `cur`; se o descanso era dela, acaba; se era de outra, o `forIdx` acompanha. Tirar o último exercício deixa `entries: []`, e o treino continua.
+  - `exercise.add { exerciseIds }`: o "adicionar exercício" do `Workout.jsx:1518-1557`. Cada um é montado pelo `buildSessionEntry` com o `pickedExerciseConfig`; num treino livre, a semente vem do `freestyleConfig(sessionHistory(S), …)`, como lá; a entrada herda o `noProg` do bloco (`builtOutOfProgression`, `joinSessionNoProg`), para um exercício posto num bloco de deload não progredir. Entram na ordem, depois da unidade atual (`insertionIndexAfterCurrentUnit`); o `rid` da entrada atual e `addedInSession: true` só entram quando a entrada atual tem `rid`. O `cur` vai para o primeiro deles, e o `forIdx` do descanso e o `progress` acompanham o deslocamento. Um id que não é exercício (nem do catálogo nem personalizado) lança `TypeError`.
+  - `exercise.replace { entry, exerciseId, confirmLogged?, group? }`: a substituta é montada como no `commitActiveSwap` (`sheets.jsx:1641-1676`: o `buildSessionEntry` com a rotina do lugar, o `rid` e o `noProg` do lugar) e aplicada pelo `swapActiveExercise`. Sem séries feitas, troca no lugar. Com séries feitas, o openGym faz uma pergunta só (`active-exercise-swap.js:21-33`): sem `confirmLogged`, não muda nada e devolve `result: { needs: 'confirm', grouped }`; num superset, a resposta traz também o `group` (`keep` ou `detach`), e sem ele a resposta é a mesma pergunta. Com a resposta, a troca entra ao lado, como lá. Toda troca que muda o treino acaba o descanso que estiver contando (o `stopRest` do `commitActiveSwap`).
+  - `exercise.remove { entry }`: como o `removeActiveExercise` (`Workout.jsx:923-942`): tira a entrada, passa o `cleanupSg`, ajusta o `cur`; se o descanso era dela, acaba; se era de outra, o `forIdx` acompanha; o `progress` perde a posição dela. Tirar o último exercício deixa `entries: []`, e o treino continua.
 
-- [ ] **Step 1: Write the failing tests**, 8 testes no mesmo arquivo: `exercise.add` de um id entra depois da unidade atual, com o `rid` e o `addedInSession`, e o `cur` vai para ele; com três ids, eles entram na ordem; o `forIdx` de um descanso que estava depois do ponto de inserção acompanha; `exercise.replace` sem séries feitas troca no lugar; com séries feitas, sem `confirmLogged`, devolve `needs: 'confirmLogged'` e o mesmo `S`, e com ele a troca entra ao lado; num superset, sem `group` devolve `needs: 'group'`, e com `detach` o novo sai do grupo; `exercise.remove` tira, limpa o superset desfeito e ajusta o `cur` e o descanso; um id desconhecido em `exercise.add` lança.
-- [ ] **Step 2: Run** `cd frontend && npx vitest run src/lib/session-controller.test.js`. Expected: os 8 novos falham.
+- [ ] **Step 1: Write the failing tests**, 9 testes no mesmo arquivo:
+  1. `exercise.add` de um id numa rotina entra depois da unidade atual, com o `rid` e o `addedInSession`, e o `cur` vai para ele; num treino livre, entra sem `rid` e com a semente do `freestyleConfig`;
+  2. com três ids, eles entram na ordem;
+  3. o `forIdx` de um descanso e o `progress` que estavam depois do ponto de inserção acompanham;
+  4. num bloco com `noProg`, o exercício adicionado sai com `noProg`;
+  5. `exercise.replace` sem séries feitas troca no lugar, com o `rid` e o `noProg` do lugar;
+  6. com séries feitas, sem `confirmLogged`, devolve `needs: 'confirm'` e o mesmo `S`, e com ele a troca entra ao lado e o descanso acaba;
+  7. num superset com séries feitas, `confirmLogged` sem `group` devolve `needs: 'confirm'` com `grouped: true`, e com `detach` o novo sai do grupo;
+  8. `exercise.remove` tira, limpa o superset desfeito e ajusta o `cur`, o descanso e o `progress`;
+  9. um id desconhecido em `exercise.add` lança.
+- [ ] **Step 2: Run** `cd frontend && npx vitest run src/lib/session-controller.test.js`. Expected: os 9 novos falham.
 - [ ] **Step 3: Implement** as três ações.
-- [ ] **Step 4: Generate and check** Run: `cd frontend && npm test && cd .. && node scripts/build-hexgym-engine.mjs && node scripts/hexgym/check.mjs scripts engine load packages`. Expected: tudo passa, e a parte `engine` cresce 8.
+- [ ] **Step 4: Generate and check** Run: `cd frontend && npm test && cd .. && node scripts/build-hexgym-engine.mjs && node scripts/hexgym/check.mjs scripts engine load packages`. Expected: tudo passa, e a parte `engine` cresce 9.
 - [ ] **Step 5: Commit** "O controlador do treino: adicionar, trocar e remover exercícios no meio".
 
 ---
@@ -214,7 +230,7 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
 - Modify: `frontend/src/lib/session-controller.js`, `session-controller.test.js`, o script do motor gerado
 
 **Interfaces:**
-- Consumes: `buildCompletedWorkout`, `sessionEnd` (`finish-workout.js`); `beatsWeight`, `betterWeight` (`exercises.js`); `bestWeightFor`, `bestWeightForEntry`, `workoutVolume`, `sessionVolume`, `setsDone`, `workSetsDone` (`history.js`); `is1RMRecord` (`onerm.js`); `finishCompare` (`finish-compare.js`); `routineAdditions` (`session-routines.js`); `refillAfter` (`rotation.js`); `exerciseNameFor` (`i18n-core.js`).
+- Consumes: `buildCompletedWorkout`, `sessionEnd` (`finish-workout.js`); `beatsWeight`, `betterWeight` (`exercises.js`); `bestWeightFor`, `bestWeightForEntry`, `workoutVolume`, `sessionVolume`, `setsDone`, `workSetsDone` (`history.js`); `is1RMRecord` (`onerm.js`); `finishCompare` (`finish-compare.js`); `routineAdditions` (`session-routines.js`); `refillAfter` (`rotation.js`); `exerciseNameFor` (`i18n-core.js`); e, para o `snapshotFor` do `doFinishWorkout`, `entryDbLoad` (`dumbbells.js`), `isWarmupRow` (`workout-model.js`), `isCustomEx` (`exercises.js`) e `exerciseMuscleSnapshot` (`muscles.js`).
 - Produces (ações novas no `step`):
   - `finish {}`: o que o `doFinishWorkout` (`sheets.jsx:3738-3798`) faz num treino que não é passado, com o `now` em todo lugar que lá usa o relógio: os recordes de carga (`prs`, pelo `beatsWeight` contra o `bestWeightFor` de antes, só com séries feitas que não são aquecimento) e os de 1RM estimado fora deles (`is1RMRecord`); `w = buildCompletedWorkout(active, { end: sessionEnd(active, now), prs, snapshotFor })` com `w.vol = workoutVolume(w)`; o `exWeights` de cada exercício que bateu o melhor; `workouts.push(w)`; `active = null`; e o `refillAfter(S, w, hoje, now)`. Sem nenhuma série feita, não grava nada, o treino continua e o resultado é `{ empty: true }` (o "Terminar" da tela pergunta antes, Task 11).
   - O resultado do `finish` (o que a tela do resumo mostra):
@@ -228,7 +244,7 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
 ```
 
   - `discard {}`: `active = null`, sem treino salvo.
-  - Os efeitos: `finish` e `discard` dão `rest.cleared` (quando havia descanso) e `activity.end`; `finish` com algum recorde dá `{ type: 'haptic', kind: 'record' }`, e todo `finish` que grava dá `{ type: 'workout.finished', id }`.
+  - Os efeitos: `finish` e `discard` dão `rest.cleared` (quando havia descanso) e `activity.end`; todo `finish` que grava dá `{ type: 'workout.finished', id }`. O controlador não dá háptico de recorde: quem toca é o carimbo do resumo (Task 11), para não tocar duas vezes.
 
 - [ ] **Step 1: Write the failing tests**, 9 testes no mesmo arquivo:
   1. `finish` grava o treino como o `doFinishWorkout`: o objeto do `buildCompletedWorkout` com o `vol`, no fim de `workouts`, `active: null`, o `exWeights` e o `refillAfter`;
@@ -238,7 +254,7 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
   5. a progressão aplicada: uma rotina linear 3×5 a 60 kg, com as três séries feitas, dá `next.w` de 62,5 no `compare` e um `start` seguinte com 62,5 kg nas séries; com uma série que falhou, os dois ficam em 60 kg;
   6. passa da meia-noite (Foco da revisão 2): começo às 23:50 e última série às 00:35 dão o `d` do dia do começo e o `end` da última série; 25 minutos sem série no fim não entram no `end`;
   7. sem nenhuma série feita, `finish` devolve `{ empty: true }` e o mesmo `S`; `discard` deixa `active: null` sem gravar treino; os dois dão `activity.end`, e o `rest.cleared` só com descanso (Foco da revisão 5);
-  8. o `haptic record` sai só com recorde, e o `workout.finished` traz o id do treino gravado;
+  8. o `workout.finished` traz o id do treino gravado, e nenhum `finish` dá efeito `haptic`;
   9. a sessão com `noProg` sai com `excludeFromProgression`, como no openGym.
 - [ ] **Step 2: Run** `cd frontend && npx vitest run src/lib/session-controller.test.js`. Expected: os 9 novos falham.
 - [ ] **Step 3: Implement** `finish` e `discard`.
@@ -265,20 +281,20 @@ Ficam fora desta fase, de propósito: o Watch e o WatchCore (fase 4); o que a es
 ```js
 { id, name, start, unit, effort /* 'none' | 'rir' | 'rpe' */, cur, done, total,
   rest: null | { endsAt, total, forIdx, forSet, remaining /* s, nunca < 0 */ },
-  next: null | { entry, set },                 // a série que o "Série feita" marca
+  next: null | { entry, set },                 // a série que o "Série feita" marca: a primeira por fazer do `cur`; sem ela, a primeira da unidade do `nextUnfinishedUnit`
   entries: [{ index, id, name, known, mode, sg, sgLetter /* 'A', 'B'... ou null */,
               target /* "3 × 8 · 60 kg" */, increment,
               sets: [{ index, w, r, sec, rir, rpe, done, warmup, kind /* normal | drop | restpause | sides | cardio */, line /* "60 kg × 8" */ }] }] }
 ```
 
   - `home(now)` → `{ today: { date, status /* planned | rest | none | done */, routines: [{ id, name, glyph }] }, active: null | { name, start, done, total }, week: [{ day, date, trained, planned, today }] /* 7, na ordem do weekStart */, streakWeeks, weekCount, total, last: null | { id, name, d, durationMs, sets } }`, com o `effectiveRoutineIds(S, hoje, hoje)` e o hoje tirado do `now`. Uma função do lib que só lê o relógio por dentro (o `streakWeeks`, por exemplo) roda como está, e o teste prende o resultado com o relógio falso do `node --test` (`mock.timers`).
-  - `liveActivity(now)` → `null` ou `{ name, exercise, setLine, done, total, restEndsAt, restTotal, ahead: [{ entry, set, exercise, setLine, restAfter }] }`: as próximas 8 séries por fazer na ordem do treino (o `LIVE_AHEAD` do openGym), com o descanso que vem depois de cada uma, para a Live Activity avançar sozinha (Task 14). O JSON passa de 3.600 bytes nunca: os nomes são cortados em 40 letras e o `ahead` encolhe até caber (o orçamento do openGym, `lib/live-activity.js`).
+  - `liveActivity(now)` → `null` ou `{ name, exercise, setLine, done, total, restEndsAt, restTotal, ahead: [{ entry, set, exercise, setLine, restAfter }] }`: as próximas 8 séries por fazer na ordem do treino (o `LIVE_AHEAD` do openGym), com o descanso que vem depois de cada uma, para a Live Activity avançar sozinha (Task 14). O JSON passa de 3.600 bytes nunca (o orçamento do openGym, `lib/live-activity.js`): o `ahead` encolhe até caber, e os nomes são cortados em 40 letras (o corte é do HexGym). O `live-activity.js` não entra no motor (ele importa `mobile.js`, `i18n.js` e o `@capacitor/core`), então o `session.js` tem a própria ordem das próximas séries, a do `upcomingSets` de lá (o resto do exercício atual, o superset volta por volta, depois os exercícios seguintes e por fim os anteriores), e conta os bytes em UTF-8 à mão, porque o motor não tem `TextEncoder`.
   - `liveEvents(eventsJson, now)` → `{ applied, effects }`: cada evento é `{ id, wid, kind: 'set.done' | 'rest.skip' | 'rest.adjust', entry?, set?, by? }`; aplica cada um uma vez só, pelo `id`, guardado em `active.liveSeen` (os últimos 64); evento de outro treino (`wid` diferente do `active.id`) ou sem treino é ignorado. `set.done` vira `set.mark` com `done: true` (Foco da revisão 3).
 - Produces (Swift, em `Session.swift`):
 
 ```swift
 public enum SessionAction: Encodable, Sendable {
-  case start(routineIDs: [String], id: String?)
+  case start(routineIDs: [String], id: String)
   case markSet(entry: Int, set: Int, done: Bool)
   case updateSet(entry: Int, set: Int, fields: SetFields)
   case stepSet(entry: Int, set: Int, field: SetField, direction: SessionStep)
@@ -312,7 +328,7 @@ extension HexEngine {
 - [ ] **Step 1: Write the failing tests** em `session.test.mjs`, 8 testes:
   1. `sessionApply` carimba: o `active` mexido ganha o `_ts` do `now`, e as rotinas ficam com o de antes;
   2. uma ação inválida lança e o documento fica igual (`document()` antes e depois);
-  3. `activeWorkout` de um treino de PPL tem os nomes em pt-BR, as linhas "60 kg × 8", o `sgLetter` do superset, o `next` e o `done`/`total` certos; sem treino, `null`;
+  3. `activeWorkout` de um treino de PPL tem os nomes em pt-BR, as linhas "60 kg × 8", o `sgLetter` do superset, o `next` e o `done`/`total` certos; uma entrada com um exercício que não existe neste aparelho sai com `known: false` e o nome "Exercício desconhecido" (Foco da revisão 5); sem treino, `null`;
   4. `home` com a semana do PPL dá `planned` na segunda com as rotinas, `rest` no domingo, `done` depois de um treino no dia, os 7 dias na ordem do `weekStart`, e o `last`; sem rotinas e sem histórico, `none`, `streakWeeks: 0` e `last: null` (Foco da revisão 5);
   5. `liveActivity` traz o exercício, a linha da série, o descanso e até 8 próximas séries com o `restAfter`; com nomes de 70 letras, o JSON fica com menos de 3.600 bytes;
   6. `liveEvents` com o mesmo `set.done` duas vezes marca uma vez; um `set.done` de uma série já feita não muda nada; um evento de outro `wid` é ignorado (Foco da revisão 3);
@@ -358,7 +374,7 @@ extension HexEngine {
 
 **Files:**
 - Create: `apple/HexGym/Workout/WorkoutSession.swift`, `apple/HexGym/Workout/SessionEffects.swift`, `apple/HexGym/Workout/RestAlerts.swift`
-- Create: `apple/HexGym/Fixtures/FixtureLoader.swift` e os documentos `semana-ppl.json`, `treino-em-andamento.json`, `descanso.json`, `vazio.json` e `veio-do-opengym.json`
+- Create: `apple/HexGym/Fixtures/FixtureLoader.swift` e `apple/HexGym/Fixtures/FixtureDocuments.swift` (os cinco documentos, `semana-ppl`, `treino-em-andamento`, `descanso`, `vazio` e `veio-do-opengym`, como texto JSON em Swift)
 - Create: `apple/HexGymTests/WorkoutSessionTests.swift`, `FixtureLoaderTests.swift`
 - Modify: `apple/HexGym/AppModel.swift`, `apple/HexGym/HexGymApp.swift`, `docs/hexgym/design-system/movimento-e-haptico.md`
 
@@ -390,15 +406,15 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
   - O `perform` passa a ação pelo `AppModel` (o motor e a gravação de 0,5 s da fase 2, com o `flush()` na ida para o fundo) e executa os efeitos pelo `SessionEffects`, na ordem: `haptic` muda o `haptic` e o `hapticTick`; `rest.started` agenda o aviso no `endsAt` (o texto é da Task 9; até lá, o título "Descanso acabou" e o corpo vazio); `rest.cleared` cancela; `activity.*` chama o `WorkoutActivityControlling` com o `liveActivity()` lido depois da ação. Até a Task 9 e a 13, o app usa um `RestAlerts` e um `WorkoutActivityControlling` que não fazem nada.
   - Ao abrir o app com um treino em andamento, o `refresh` agenda o aviso para o resto do descanso, se o `endsAt` ainda não passou, e não agenda nada se passou (Foco da revisão 1).
   - `AppModel` ganha `var session: WorkoutSession` e uma `func perform(_ action: SessionAction) async throws -> SessionOutcome`, com a mesma gravação do `perform` das ações.
-  - O `FixtureLoader`: com `-HexGymFixture <nome>` num build Debug, o `AppModel.live()` usa um `DocumentStore` numa pasta temporária nova e grava nela o documento preparado antes de abrir. O relógio do documento é trocado na carga: o arquivo traz a chave `_fixtureNow`, e o carregador soma `agora − _fixtureNow` a todo `start`, `at` e `endsAt` do `active` e tira a chave. Os documentos: `semana-ppl` (as três rotinas do PPL na semana, 12 treinos em quatro semanas, hoje é dia de Push), `treino-em-andamento` (o Push com 5 séries feitas e um superset no meio), `descanso` (o mesmo, com 75 s de descanso pela frente), `vazio` (o documento novo) e `veio-do-opengym` (um `active` com as formas da Foco da revisão 4). Nenhum documento preparado entra no build Release.
+  - O `FixtureLoader`: com `-HexGymFixture <nome>` num build Debug, o `AppModel.live()` usa um `DocumentStore` numa pasta temporária nova e grava nela o documento preparado antes de abrir. O relógio do documento é trocado na carga: o arquivo traz a chave `_fixtureNow`, e o carregador soma `agora − _fixtureNow` a todo `start`, `at` e `endsAt` do `active` e tira a chave. Os documentos: `semana-ppl` (as três rotinas do PPL na semana, 12 treinos em quatro semanas, hoje é dia de Push), `treino-em-andamento` (o Push com 5 séries feitas e um superset no meio), `descanso` (o mesmo, com 75 s de descanso pela frente), `vazio` (o documento novo) e `veio-do-opengym` (um `active` com as formas da Foco da revisão 4). Nenhum documento preparado entra no build Release: os dois arquivos ficam inteiros dentro de `#if DEBUG`. Um `.json` solto em `apple/HexGym/` entraria nos dois builds, porque a pasta é um grupo sincronizado do Xcode (`PBXFileSystemSynchronizedRootGroup`) sem exceções, e tirar do Release pediria mudar o `project.pbxproj`, que é da Task 13. Um teste do `FixtureLoaderTests` lê o `FixtureDocuments.swift` e confere que a primeira e a última linha de código são `#if DEBUG` e `#endif`.
   - `-HexGymWorkout YES` abre a tela do treino quando há um em andamento (a Task 8 liga).
   - O `movimento-e-haptico.md` passa a dizer que o `setLogged` toca ao marcar a série.
   - A medida da gravação: o PR mede o `DocumentStore.save` com o documento de 1.040 treinos do `engine-load.mjs` no simulador (o pior de 20 gravações). A meta é 50 ms, metade do toque de 100 ms (escolha recomendada, com a delegação do Lipe de 03/11/2026); se passar, a Task troca a leitura do `state.json` inteiro a cada gravação (a linha 106 do plano da fase 0) por um `rename` para a cópia anterior e mede de novo.
 
-- [ ] **Step 1: Write the failing tests**, 8 testes: `WorkoutSessionTests`, 6, com o motor de verdade, um `DocumentStore` numa pasta temporária e um `RestAlerts` e um `WorkoutActivityControlling` falsos que guardam as chamadas: `start` publica o `workout` e chama o `start` da Live Activity; `markSet` muda o `haptic` para `.setLogged` e agenda o aviso no `endsAt`; `skipRest` cancela; `finish` limpa o `workout`, guarda o `lastFinish` e chama o `end`; um documento com descanso que ainda não acabou agenda o aviso no `refresh`, e um com o descanso acabado não agenda (Foco da revisão 1); duas marcações em menos de 0,5 s gravam o documento uma vez. `FixtureLoaderTests`, 2: os cinco documentos abrem no motor; o relógio do `descanso` deixa 75 s pela frente.
+- [ ] **Step 1: Write the failing tests**, 9 testes: `WorkoutSessionTests`, 6, com o motor de verdade, um `DocumentStore` numa pasta temporária e um `RestAlerts` e um `WorkoutActivityControlling` falsos que guardam as chamadas: `start` publica o `workout` e chama o `start` da Live Activity; `markSet` muda o `haptic` para `.setLogged` e agenda o aviso no `endsAt`; `skipRest` cancela; `finish` limpa o `workout`, guarda o `lastFinish` e chama o `end`; um documento com descanso que ainda não acabou agenda o aviso no `refresh`, e um com o descanso acabado não agenda (Foco da revisão 1); duas marcações em menos de 0,5 s gravam o documento uma vez. `FixtureLoaderTests`, 3: os cinco documentos abrem no motor; o relógio do `descanso` deixa 75 s pela frente; o `FixtureDocuments.swift` e o `FixtureLoader.swift` ficam inteiros dentro de `#if DEBUG`.
 - [ ] **Step 2: Run** `node scripts/hexgym/check.mjs app`. Expected: falham.
 - [ ] **Step 3: Implement** o `WorkoutSession`, os efeitos, o `AppModel` e os documentos preparados.
-- [ ] **Step 4: Run** `node scripts/hexgym/check.mjs app`. Expected: passa, e a parte `app` cresce 8. O PR diz a medida da gravação.
+- [ ] **Step 4: Run** `node scripts/hexgym/check.mjs app`. Expected: passa, e a parte `app` cresce 9. O PR diz a medida da gravação.
 - [ ] **Step 5: Commit** "O treino no app: o modelo, os efeitos e os documentos preparados".
 
 ---
@@ -445,7 +461,7 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
 **Interfaces:**
 - Consumes: `WorkoutSession`, `ActiveWorkout`, `SessionAction`, `LoadInput`, `RepsInput`, `EffortInput`, `WorkoutInputLayout`, `SlantedSegments`, `HexGlassCard`, `StartWorkoutTransition` (`hexStartWorkoutSource` e `hexStartWorkoutDestination`), `.sensoryFeedback`.
 - Produces:
-  - A transição: o "Começar treino" e o "Continuar treino" do Início e o "Começar" do editor de rotina são a origem do zoom (`hexStartWorkoutSource`), e a tela do treino, num `fullScreenCover` do `RootView`, é o destino (`hexStartWorkoutDestination`, que já cuida do Reduzir Movimento). O estado do treino mora no `WorkoutSession`, fora da view (a tela recomeça quando o Reduzir Movimento muda com ela aberta, `StartWorkoutTransition.swift`). Se o zoom do HexDesign não pegar no `fullScreenCover`, a Task o estende no próprio HexDesign, com um teste no `MotionTests`, e o PR diz.
+  - A transição: o "Começar treino" e o "Continuar treino" do Início e o "Começar" do editor de rotina são a origem do zoom (`hexStartWorkoutSource`), e a tela do treino, num `fullScreenCover` do `RootView`, é o destino (`hexStartWorkoutDestination`). O Reduzir Movimento tem duas metades: o destino troca o zoom pela tela que aparece sem se mover, e quem abre a tela usa `withTransaction(StartWorkoutTransition.transaction(reduceMotion:))`, como a galeria da fase 1. O estado do treino mora no `WorkoutSession`, fora da view (a tela recomeça quando o Reduzir Movimento muda com ela aberta, `StartWorkoutTransition.swift`). Se o zoom do HexDesign não pegar no `fullScreenCover`, a Task o estende no próprio HexDesign, com um teste no `MotionTests`, e o PR diz.
   - `WorkoutView`: o cabeçalho (o nome, o tempo que passa em `.hexFont(.number)` por `TimelineView(.periodic(from:by: 1))`, os `SlantedSegments(total:done:)` das séries e o botão "Terminar", que até a Task 11 só fecha a tela); a lista dos `ExerciseCard` (o nome, o `target` em `.secondary`, as séries em `SetRow`, a série atual destacada pela cor do tema, a marca do superset na lateral com "Superset A"); o `CurrentSetPanel` fixo embaixo, sobre o vidro: "Supino reto · Série 2 de 3", as entradas (no modo reps, `LoadInput` e `RepsInput`; no modo tempo, um `Stepper` da Apple de segundos, de 5 em 5; o `EffortInput` quando o perfil usa esforço), dispostas pelo `WorkoutInputLayout`, e o botão "Série feita" (`.hexPrimary(size: .large)`). Cada passo das entradas manda `stepSet` ao motor; o "Série feita" manda `markSet(done: true)` para o `next`. Tocar numa `SetRow` faz dela a série atual (um `focus` e o painel nela); a marca de feita da linha manda `markSet` com o contrário do que ela está. Uma linha de drop set, rest-pause, lados ou cardio mostra o texto do motor e só a marca de feita (escolha 12, Foco da revisão 4).
   - O háptico: `.sensoryFeedback` com o `HexHaptic.feedback(on: .phone)` do `haptic` do `WorkoutSession`, pelo `hapticTick`.
   - `struct WorkoutScreenModel`: os textos e as decisões da tela, a partir do `ActiveWorkout` (o título do painel, "Série 2 de 3", o tempo "12:04" e "1:02:10", o rótulo do VoiceOver de uma linha: "Série 2, 60 quilos, 8 repetições, feita", a fala do superset "Superset A, 1 de 2", quais entradas o painel mostra por modo e escala, e o que a marca de uma linha manda).
@@ -482,7 +498,7 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
 - [ ] **Step 2: Run** `node scripts/hexgym/check.mjs app`. Expected: falham.
 - [ ] **Step 3: Implement** o painel, os avisos e a permissão.
 - [ ] **Step 4: Run** `node scripts/hexgym/check.mjs app`. Expected: passa, e a parte `app` cresce 5.
-- [ ] **Step 5: Prints e vídeo**: o painel com `descanso` no Ultravioleta e no Cobre, em AX5, e o "Descanso acabou"; um vídeo marcando uma série, vendo o descanso começar, "+15 s" e "Pular". O aviso com o app no fundo aparece no simulador (`xcrun simctl launch <udid> com.apple.Preferences` depois de marcar a série, com `-HexGymRestSeconds 5`): print dele. O háptico e o aviso na tela bloqueada ficam para o aparelho.
+- [ ] **Step 5: Prints e vídeo**: o painel com `descanso` no Ultravioleta e no Cobre, em AX5, e o "Descanso acabou"; um vídeo marcando uma série, vendo o descanso começar, "+15 s" e "Pular". O aviso com o app no fundo aparece no simulador (`xcrun simctl launch <udid> com.apple.Preferences` depois de marcar a série, com `-HexGymRestSeconds 5`): print dele. A Task cria o `-HexGymRestSeconds <n>` para o treino, só no Debug (o de hoje só vale na galeria, `GalleryView.swift:100-102`): o descanso que começar dura `n` segundos. O háptico e o aviso na tela bloqueada ficam para o aparelho.
 - [ ] **Step 6: Commit** "O descanso: o anel, o aviso do fim e os hápticos".
 
 ---
@@ -491,24 +507,26 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
 
 **Depende de:** Task 8.
 
+**Escolha recomendada, com a delegação do Lipe de 03/11/2026:** a escolha 14, e o texto abaixo.
+
 **Files:**
 - Create: `apple/HexGym/Workout/ExerciseMenu.swift`, `WorkoutEditModel.swift`
 - Create: `apple/HexGymTests/WorkoutEditModelTests.swift`
 - Modify: `apple/HexGym/Workout/WorkoutView.swift`, `ExerciseCard.swift`, `apple/HexGym/Localizable.xcstrings`
 
 **Interfaces:**
-- Consumes: `SessionAction.addSet`, `.removeSet`, `.addExercises`, `.replaceExercise`, `.removeExercise`, `LibraryView(model:selection:onAdd:)` da fase 2, `SessionOutcome.result` (o `needs` da Task 2).
+- Consumes: `SessionAction.addSet`, `.removeSet`, `.addExercises`, `.replaceExercise`, `.removeExercise`, `LibraryView(model:selection:pickOne:onAdd:)` da fase 2, `SessionOutcome.result` (o `needs` da Task 2).
 - Produces:
-  - O `Menu` de cada cartão (`ellipsis.circle`): "Adicionar série", "Remover última série", "Trocar exercício" e "Remover exercício". Remover pede confirmação num `.alert` ("Remover supino reto do treino?") quando o exercício tem série feita. Trocar abre a biblioteca em modo de escolha de um só; se o motor devolver `needs: 'confirmLogged'`, um `.alert` ("Este exercício já tem séries feitas. A troca entra ao lado, e as séries ficam.") com "Trocar" e "Cancelar"; se devolver `needs: 'group'`, um `.alert` com "Manter no superset" e "Tirar do superset".
+  - O `Menu` de cada cartão (`ellipsis.circle`): "Adicionar série", "Remover última série", "Trocar exercício" e "Remover exercício". Remover pede confirmação num `.alert` ("Remover supino reto do treino?") quando o exercício tem série feita. Trocar abre a biblioteca em modo de escolha de um só; se o motor devolver `needs: 'confirm'`, a pergunta única do openGym num `.alert` ("Este exercício já tem séries feitas. A troca entra ao lado, e as séries ficam."): com `grouped: false`, "Trocar" e "Cancelar"; com `grouped: true`, "Manter no superset", "Tirar do superset" e "Cancelar". A resposta volta ao motor numa ação só.
   - Na barra da tela, "Adicionar exercício" (`plus`), que abre a biblioteca em modo de escolha de vários, como o editor de rotina.
   - Uma série apagada some com a animação da Apple; o desfazer de série fica para a fase 5.
   - `struct WorkoutEditModel`: os títulos e as mensagens dos alertas, quando cada alerta aparece, e qual ação vai ao motor depois de cada resposta.
 
-- [ ] **Step 1: Write the failing tests** em `WorkoutEditModelTests.swift`, 4 testes: remover sem série feita não pergunta, e com série feita pergunta com o nome; a resposta "Trocar" ao `needs: 'confirmLogged'` manda o `replaceExercise` com `confirmLogged: true`; as duas respostas ao `needs: 'group'` mandam `keep` e `detach`; com o motor de verdade, adicionar dois exercícios põe os dois depois do atual, na ordem.
+- [ ] **Step 1: Write the failing tests** em `WorkoutEditModelTests.swift`, 4 testes: remover sem série feita não pergunta, e com série feita pergunta com o nome; a resposta "Trocar" ao `needs: 'confirm'` sem grupo manda o `replaceExercise` com `confirmLogged: true`; com `grouped: true`, as duas respostas mandam `confirmLogged: true` com `keep` e com `detach`; com o motor de verdade, adicionar dois exercícios põe os dois depois do atual, na ordem.
 - [ ] **Step 2: Run** `node scripts/hexgym/check.mjs app`. Expected: falham.
 - [ ] **Step 3: Implement** o menu, os alertas e o "Adicionar exercício".
 - [ ] **Step 4: Run** `node scripts/hexgym/check.mjs app`. Expected: passa, e a parte `app` cresce 4.
-- [ ] **Step 5: Prints**: o menu aberto (pelo argumento `-HexGymWorkoutMenu <índice>`, que a Task cria), o alerta da troca, o alerta do superset e a biblioteca em modo de escolha, no Ultravioleta.
+- [ ] **Step 5: Prints**: o alerta de remover, o da troca, o do superset e a biblioteca em modo de escolha, no Ultravioleta, abertos pelo argumento `-HexGymWorkoutAlert remover|trocar|superset|adicionar` (que a Task cria, só no Debug). Um `Menu` da Apple não abre por código, então o menu aberto fica para o aparelho.
 - [ ] **Step 6: Commit** "Mudar o treino no meio: séries e exercícios".
 
 ---
@@ -529,7 +547,7 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
 - Produces:
   - "Terminar": sem série por fazer, termina na hora; com séries por fazer, um `.alert` "Ainda faltam 4 séries." com "Terminar" e "Continuar treinando"; sem nenhuma série feita, "Nenhuma série feita. Descartar o treino?" com "Descartar" (destrutivo) e "Continuar treinando" (Foco da revisão 5).
   - "Descartar treino", no `Menu` da barra da tela, com o `.alert` "Descartar este treino? As séries feitas não vão para o histórico." e "Descartar" (destrutivo).
-  - `FinishSummaryView`, no mesmo `fullScreenCover`, no lugar da tela do treino: "Treino feito" em `.hexFont(.title)`, o nome, e três números grandes (`RollingNumber`): a duração, o volume ("4.320 kg") e as séries ("18 séries"); os recordes num `HexGlassCard` com o `RecordStamp(isShown: true)` (que toca o háptico de recorde e anuncia "Novo recorde") e uma linha por recorde ("Supino reto · 82,5 kg"), mais os de 1RM estimado ("Melhor 1RM estimado: 95 kg"); e, por exercício, "Da última vez: 60 kg × 8" e "Na próxima: 62,5 kg × 8" (o `compare.next`). O botão "Pronto" (`.hexPrimary`) fecha a tela e volta ao Início, que já mostra o treino feito.
+  - `FinishSummaryView`, no mesmo `fullScreenCover`, no lugar da tela do treino: "Treino feito" em `.hexFont(.title)`, o nome, e três números grandes (`RollingNumber`): a duração, o volume ("4.320 kg") e as séries ("18 séries"); os recordes num `HexGlassCard` com o `RecordStamp(isShown:)`, que abre com `isShown: false` e passa a `true` no `onAppear` do cartão (o `RecordStamp` só toca o háptico de recorde e anuncia "Novo recorde" na troca de falso para verdadeiro; é a única fonte desse háptico, Task 3) e uma linha por recorde ("Supino reto · 82,5 kg"), mais os de 1RM estimado ("Melhor 1RM estimado: 95 kg"); e, por exercício, "Da última vez: 60 kg × 8" e "Na próxima: 62,5 kg × 8" (o `compare.next`). O botão "Pronto" (`.hexPrimary`) fecha a tela e volta ao Início, que já mostra o treino feito.
   - `struct FinishModel`: o texto e a decisão do "Terminar" (qual alerta, ou nenhum), os textos do resumo (a duração "48 min" e "1 h 12 min", o volume na unidade, "1 série" e "18 séries", a linha do recorde, "Da última vez" e "Na próxima" para cada `kind` do `next`: `up`, `hold`, `down` e `deload`, e a primeira vez, sem "Da última vez").
 
 - [ ] **Step 1: Write the failing tests** em `FinishModelTests.swift`, 5 testes: a decisão do "Terminar" para tudo feito, faltando séries e nada feito; a duração abaixo e acima de uma hora e o volume em kg e em lb; o singular e o plural das séries nos dois idiomas; as linhas "Na próxima" para cada `kind`; com o motor de verdade e o `treino-em-andamento` terminado, o resumo tem o recorde que o documento preparado tem.
@@ -588,12 +606,13 @@ protocol WorkoutActivityControlling: Sendable {     // o de verdade é da Task 1
 
 ```swift
 public struct WorkoutActivityContent: Codable, Hashable, Sendable {
-  public struct Ahead: Codable, Hashable, Sendable { public let entry: Int, set: Int; public let exercise: String, setLine: String; public let restAfter: Int }
+  public struct Ahead: Codable, Hashable, Sendable { public let entry: Int, set: Int; public let exercise: String, setLine: String; public let restAfter: Int; public let alertBody: String }
   public let name: String, exercise: String, setLine: String
   public let done: Int, total: Int
   public let restEndsAt: Date?, restTotal: Int?
+  public let alertTitle: String, alertBody: String?   // o texto do aviso do descanso, já no idioma (Task 9), para os botões reagendarem sem catálogo próprio
   public let ahead: [Ahead]
-  public init(name: String, exercise: String, setLine: String, done: Int, total: Int, restEndsAt: Date?, restTotal: Int?, ahead: [Ahead])
+  public init(name: String, exercise: String, setLine: String, done: Int, total: Int, restEndsAt: Date?, restTotal: Int?, alertTitle: String, alertBody: String?, ahead: [Ahead])
 }
 #if canImport(ActivityKit)
 public struct WorkoutActivityAttributes: ActivityAttributes {
@@ -603,7 +622,7 @@ public struct WorkoutActivityAttributes: ActivityAttributes {
 #endif
 ```
 
-  O `HexLive` não importa o `HexEngine`: o app monta o conteúdo a partir do `LiveActivityModel`.
+  O `HexLive` não importa o `HexEngine`: o app monta o conteúdo a partir do `LiveActivityModel`, com os textos do aviso do `RestPanelModel` (Task 9). O `alertBody` de cada `Ahead` é o aviso do descanso que vem depois daquela série, nomeando a série seguinte. O ponto de partida é o código do openGym (seção 8.6): `frontend/ios/App/OpenGymWidgets/LiveActivityWidget.swift` e `frontend/ios/App/App/WorkoutActivity.swift`.
   - `WorkoutLiveActivity` (`ActivityConfiguration(for: WorkoutActivityAttributes.self)`), com as cores da superfície `.island` do tema dos atributos:
     - **Tela bloqueada:** o `HexWordmark` pequeno, o exercício e a linha da série, os `SlantedSegments(total:done:)`; no descanso, o tempo que conta (`Text(timerInterval:countsDown:)`) e a barra (`ProgressView(timerInterval:countsDown:)`).
     - **Dynamic Island compacta:** à esquerda, "2/3" da série; à direita, o tempo do descanso que conta, ou as séries feitas fora do descanso. **Mínima:** o anel do descanso, ou o "H" da marca. **Expandida:** o exercício, a linha da série e o descanso, com o espaço dos botões embaixo (os botões são da Task 14).
@@ -613,7 +632,7 @@ public struct WorkoutActivityAttributes: ActivityAttributes {
 - [ ] **Step 1: Write the failing tests**: em `WorkoutActivityTests.swift`, 3 testes: o `WorkoutActivityContent` vai e volta pelo `JSONEncoder`; com 8 `ahead` e nomes de 40 letras, ele tem menos de 4 KB codificado (o limite do ActivityKit); um conteúdo sem descanso tem `restEndsAt` nulo. Em `WorkoutActivityControllerTests.swift`, 2 testes, com o ActivityKit atrás de um protocolo falso: o `start` de um treino novo encerra a atividade de outro treino; o `update` sem atividade não faz nada.
 - [ ] **Step 2: Run** o comando do pacote do HexLive e `node scripts/hexgym/check.mjs app`. Expected: falham.
 - [ ] **Step 3: Implement** o pacote, a Live Activity, o controlador e o projeto.
-- [ ] **Step 4: Run** `node --test scripts/hexgym/project-format.test.mjs scripts/hexgym/check.test.mjs && node scripts/hexgym/check.mjs`. Expected: tudo passa; a parte `packages` cresce 3, a `app` 2, e a `scripts` o que o `project-format.test.mjs` e o `check.test.mjs` ganharem (o PR diz).
+- [ ] **Step 4: Run** `node --test scripts/hexgym/project-format.test.mjs scripts/hexgym/check.test.mjs && node scripts/hexgym/check.mjs`. Expected: tudo passa; a parte `packages` cresce 3, a `app` 2 e a `scripts` 2: um teste novo no `project-format.test.mjs` (o `NSSupportsLiveActivities` no `HexGym-Info.plist`) e um no `check.test.mjs` (a rodada do `HexLive` na parte `packages`, depois da `HexBody`). O `HexLive` no `PACKAGES` entra no teste que já existe e não conta.
 - [ ] **Step 5: Prints**: a Dynamic Island compacta no simulador de um iPhone com ilha, com o treino em andamento e o app no fundo (`xcrun simctl launch <udid> com.apple.Preferences`), no descanso e fora dele, no Ultravioleta e no Cobre. A tela bloqueada e a ilha expandida ficam para o aparelho, com o código das três telas no PR.
 - [ ] **Step 6: Commit** "A Live Activity e a Dynamic Island do treino".
 
@@ -635,7 +654,14 @@ public struct WorkoutActivityAttributes: ActivityAttributes {
 - Produces:
   - `LiveEventQueue`: um arquivo `live-events.json` no App Group (`group.app.hexgym`), escrito de forma atômica; `append(_ event: QueuedLiveEvent)`, `drain() -> [QueuedLiveEvent]` (lê e esvazia), com `QueuedLiveEvent { id: String; wid: String; kind: String; entry: Int?; set: Int?; by: Int?; at: Date }` e no máximo 64 eventos (o mais velho sai).
   - `LiveAdvance`: `static func advanced(_ content: WorkoutActivityContent, by kind: String, by seconds: Int?, now: Date) -> WorkoutActivityContent`, o que o `LiveActivityTick` do openGym (`frontend/ios/App/App/WorkoutActivity.swift:224-308`) faz: `set.done` tira a primeira do `ahead`, soma uma às feitas e começa o descanso dela (`restAfter`); `rest.skip` tira o descanso; `rest.adjust` muda o `restEndsAt` e o `restTotal` com o teto de 900 s e acaba em 0. Sem `ahead`, `set.done` não muda nada.
-  - Os App Intents (`#if os(iOS)`), `LiveActivityIntent`, cada um com o `workoutID` como parâmetro: `LogSetIntent` ("Série feita"), `AddRestIntent` ("+15 s") e `SkipRestIntent` ("Pular"). O `perform` grava o evento na fila, avança a Live Activity pelo `LiveAdvance`, e reagenda ou cancela o aviso do descanso (id `hexgym.rest`, pelo `UNUserNotificationCenter`); quando o app está aberto e com o motor pronto, um `LiveIntentHandler` registrado pelo app no começo (`WorkoutIntents.handler`) aplica o evento direto no motor, como a seção 8.6 pede, e a fila fica vazia.
+  - Os App Intents (`#if os(iOS)`), `LiveActivityIntent`, cada um com o `workoutID` como parâmetro: `LogSetIntent` ("Série feita"), `AddRestIntent` ("+15 s") e `SkipRestIntent` ("Pular"). O `perform` primeiro pergunta ao `WorkoutIntents.handler`; quando o app está aberto e com o motor pronto, ele aplica o evento direto no motor, como a seção 8.6 pede, e a fila fica vazia. Senão, grava o evento na fila, avança a Live Activity pelo `LiveAdvance`, e reagenda ou cancela o aviso do descanso (id `hexgym.rest`, pelo `UNUserNotificationCenter`, com o `alertTitle` e o `alertBody` do conteúdo). Os intents ficam num pacote, então o `HexLive` declara um `AppIntentsPackage` (`HexLiveIntents`), e o app e a extensão dos widgets declaram o deles incluindo esse.
+
+```swift
+public protocol LiveIntentHandling: Sendable {
+  func handle(_ event: QueuedLiveEvent) async -> Bool   // verdadeiro: o motor aplicou, e o evento não vai para a fila
+}
+public enum WorkoutIntents { @MainActor public static var handler: (any LiveIntentHandling)? }
+```
   - `LiveEventDrain` (no app): ao abrir e ao voltar para a frente, `drain()` e `engine.liveEvents`, que aplica cada evento uma vez pelo id (Foco da revisão 3), e depois o `WorkoutSession.refresh()`.
   - Os botões na Live Activity: fora do descanso, "Série feita"; no descanso, "+15 s" e "Pular"; na tela bloqueada e na ilha expandida.
 
@@ -663,9 +689,9 @@ public struct WorkoutActivityAttributes: ActivityAttributes {
 - Consumes: `engine.routines()`, `engine.home(now:)`, `WorkoutSession.perform(.start(...))`.
 - Produces:
   - `StartWorkoutIntent: AppIntent` ("Começar treino"), com `static let supportedModes: IntentModes = .foreground` e o parâmetro opcional `routine: RoutineEntity?`. O `perform` põe um `StartRequest` no app (`StartRequest.pending`), que o `RootView` atende quando o motor está pronto.
-  - `RoutineEntity: AppEntity`, com o `id` e o nome da rotina; a `RoutineQuery` lê `intents/routines.json` do App Group, que o `AppModel` grava (só o id e o nome) a cada `revision` que mudou as rotinas.
+  - `RoutineEntity: AppEntity`, com o `id` e o nome da rotina; a `RoutineQuery` lê `intents/routines.json` do App Group, que o `AppModel` grava (só o id e o nome) a cada `revision` que mudou as rotinas, chamando depois o `HexGymShortcuts.updateAppShortcutParameters()`, para a frase com a rotina conhecer os nomes novos.
   - `HexGymShortcuts: AppShortcutsProvider`, com as frases em `AppShortcuts.xcstrings`: "Começar treino no \(.applicationName)", "Começar o treino no \(.applicationName)", "Começar \(\.$routine) no \(.applicationName)"; em inglês, "Start a workout in \(.applicationName)", "Start my workout in \(.applicationName)", "Start \(\.$routine) in \(.applicationName)". O símbolo: `figure.strengthtraining.traditional`.
-  - `struct StartRequest`: `func decide(home: HomeSummary, routine: String?) -> StartDecision`, com `enum StartDecision { case resume, start([String]), chooseOnHome }`: com um treino em andamento, abre ele; com uma rotina pedida, começa ela; sem rotina pedida, começa as do dia; sem nada marcado para hoje, abre o Início com "Outro treino" aberto (Foco da revisão 5).
+  - `struct StartRequest`: `func decide(home: HomeSummary, routine: String?) -> StartDecision`, com `enum StartDecision { case resume, start([String]), chooseOnHome }`: com um treino em andamento, abre ele; com uma rotina pedida, começa ela; sem rotina pedida, começa as do dia; sem nada marcado para hoje, abre o Início, onde "Outro treino" está à mão (Foco da revisão 5; um `Menu` da Apple não abre por código).
 
 - [ ] **Step 1: Write the failing tests** em `StartRequestTests.swift`, 4 testes: as quatro decisões do `decide`; a `RoutineQuery` lê o arquivo de uma pasta temporária e acha a rotina pelo id e pelo nome; o arquivo das rotinas é gravado depois de criar uma rotina (com o motor de verdade); uma rotina pedida que não existe mais dá `chooseOnHome`.
 - [ ] **Step 2: Run** `node scripts/hexgym/check.mjs app`. Expected: falham.
