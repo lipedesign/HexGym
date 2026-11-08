@@ -27,6 +27,15 @@
 //   focus        views/Workout.jsx:1974 (o next do bindLiveActions).
 //   rest.adjust  store/useUI.js:336-354 (addRest).
 //   rest.skip    store/useUI.js:382-389 (stopRest).
+//   exercise.add views/Workout.jsx:1518-1557 (addExercise), pelo "+" da lista (1554), e
+//                store/useUI.js:357-361 (shiftRestOwner); o marco refeito em Workout.jsx:1078-1080.
+//   exercise.replace
+//                sheets.jsx:1641-1684 (commitActiveSwap), pelo "+" da lista do
+//                swapActiveWorkoutExercise (1612-1626, o pickedExerciseConfig em 1619), e
+//                lib/active-exercise-swap.js (swapActiveExercise); a pergunta do confirmSheet e do
+//                swapGroupSheet (1670-1683) volta no result. O marco, como em Workout.jsx:1078-1093.
+//   exercise.remove
+//                views/Workout.jsx:923-942 (removeActiveExercise); o marco refeito em 1078-1080.
 // O descanso, o timer do store/useUI.js no openGym, mora aqui em active.rest (escolha 13):
 // startRest em useUI.js:284-307 (começar troca o que estava contando, e 0 s não começa nenhum) e o
 // tique em 166-209 (a pausa de trocar de lado some quando acaba, 177-183; o descanso comum fica
@@ -41,19 +50,24 @@ import { isoOf } from './format.js'
 import { t } from './i18n-core.js'
 import { buildCombinedEntries, deriveSessionName } from './session-merge.js'
 import {
-  nextUnfinishedUnit, ownSetRest, restAfterSet, restOnRecheck, restSecFor, setProgressHighWater,
-  sideRestFor, supersetFlowStep, warmupRestSecFor,
+  insertionIndexAfterCurrentUnit, nextUnfinishedUnit, ownSetRest, restAfterSet, restOnRecheck, restSecFor,
+  setProgressHighWater, sideRestFor, supersetFlowStep, warmupRestSecFor,
 } from './supersetFlow.js'
 import { pyramidRestFor } from './pyramid.js'
 import {
-  EFFORT, bestWeightForEntry, cascadeWeight, effortOf, isPerSide, lastBW, modeOf, removeRowAt,
-  repStep, setSpanAt, stepEffort, supersetUnits, unitOf,
+  EFFORT, bestWeightForEntry, cascadeWeight, cleanupSg, effortOf, freestyleConfig, isPerSide, lastBW, modeOf,
+  pickedExerciseConfig, removeRowAt, repStep, setSpanAt, stepEffort, supersetUnits, unitOf,
 } from './history.js'
 import { stepWeight, weightIncrement } from './progression.js'
 import { ownedWeightsFor, stepOwned } from './dumbbells.js'
 import { inclineFrom } from './incline.js'
 import { WEIGHT_ORIGIN_MANUAL, isSideSet, isWarmupRow, makeSideSet, setSideField, toggleSide } from './workout-model.js'
 import { REST_MAX } from './duration.js'
+import { buildSessionEntry, builtOutOfProgression } from './session-start.js'
+import { joinSessionNoProg } from './session-noprog.js'
+import { sessionHistory } from './backfill.js'
+import { swapActiveExercise } from './active-exercise-swap.js'
+import { EXIDX } from './exercises.js'
 
 // A pausa entre os dois lados de uma série com tempo, copiada do views/Workout.jsx:108 (está na
 // tela do openGym, não no lib).
@@ -111,6 +125,28 @@ export const restRunning = (rest, now) => !!restNow(rest, now) && now < rest.end
 function startRest(A, sec, forIdx, forSet, now, kind = 'rest') {
   A.rest = sec > 0 ? { endsAt: now + sec * 1000, total: sec, forIdx, forSet, kind } : null
 }
+
+// O shiftRestOwner do store/useUI.js:357-361: a lista de entradas mudou de forma em at, e o
+// descanso continua apontando para o mesmo exercício.
+function shiftRestOwner(A, at, delta) {
+  const rest = A.rest
+  if (!isMap(rest) || !(rest.forIdx >= at)) return
+  A.rest = { ...rest, forIdx: rest.forIdx + delta }
+}
+
+// O marco refeito como as séries feitas de agora, o que o efeito do Workout.jsx:1078-1080 faz
+// quando o número de entradas muda.
+function rebaseProgress(A) {
+  A.progress = A.entries.map(doneCount)
+}
+
+// Um exercício que existe: do catálogo ou personalizado deste documento (o registerCustom do
+// runtime.js põe os personalizados no EXIDX), como o exerciseId do actions.js.
+function exerciseIdOf(type, id) {
+  need(typeof id === 'string' && Object.hasOwn(EXIDX, id), type, `não existe o exercício ${String(id)}`)
+  return id
+}
+const routineOf = (S, rid) => (rid && Array.isArray(S.routines) ? S.routines.find(r => r?.id === rid) : null) || null
 
 // O treino em andamento do rascunho (ler s.active copia só ele), ou o erro.
 function activeOf(s, type) {
@@ -401,6 +437,84 @@ const ACTIONS = {
       const A = activeOf(s, a.type)
       need(isIndex(a.entry, A.entries.length), a.type, `não existe a entrada ${a.entry}`)
       A.cur = a.entry
+      return null
+    },
+  },
+
+  // O addExercise do Workout.jsx:1518-1557, com o "+" da lista (a configuração padrão, ou a semente
+  // do treino livre). Vários ids são como somar um por vez com a lista aberta: a entrada, a rotina
+  // e o noProg vêm do exercício atual de quando a lista abriu (o A da tela), e cada um entra depois
+  // da unidade atual, que já é o anterior.
+  'exercise.add': {
+    run(s, a, S) {
+      need(Array.isArray(a.exerciseIds) && a.exerciseIds.length > 0, a.type, 'exerciseIds precisa ser uma lista com pelo menos um id')
+      for (const id of a.exerciseIds) exerciseIdOf(a.type, id)
+      const A = activeOf(s, a.type)
+      const curEntry = A.entries[A.cur]
+      const curRid = curEntry?.rid
+      const routine = routineOf(S, curRid)
+      const freestyle = !routine
+      const noProg = !freestyle && builtOutOfProgression(curEntry, routine)
+      for (const id of a.exerciseIds) {
+        const cfg = freestyle ? freestyleConfig(sessionHistory(S), { id, ...pickedExerciseConfig(id) }) : pickedExerciseConfig(id)
+        const built = buildSessionEntry(S, id, cfg, routine, curEntry)
+        const insertAt = insertionIndexAfterCurrentUnit(supersetUnits(A.entries), A.cur, A.entries.length)
+        A.entries.splice(insertAt, 0, clone(joinSessionNoProg(A, {
+          id, ...built, ...(curRid ? { rid: curRid, addedInSession: true } : {}), ...(noProg ? { noProg: true } : {}),
+        })))
+        A.cur = insertAt
+        shiftRestOwner(A, insertAt, 1)
+      }
+      rebaseProgress(A)
+      return null
+    },
+  },
+
+  // O commitActiveSwap do sheets.jsx:1641-1684, com o "+" da lista (o pickedExerciseConfig do
+  // sheets.jsx:1619), e o swapActiveExercise do lib. A pergunta do openGym (o confirmSheet, ou o
+  // swapGroupSheet num superset) volta como result, sem mudar nada, até vir a resposta.
+  'exercise.replace': {
+    run(s, a, S) {
+      exerciseIdOf(a.type, a.exerciseId)
+      need(a.confirmLogged == null || typeof a.confirmLogged === 'boolean', a.type, 'confirmLogged precisa ser true ou false')
+      need(a.group == null || a.group === 'keep' || a.group === 'detach', a.type, 'group precisa ser keep ou detach')
+      const A = activeOf(s, a.type)
+      const current = entryAt(A, a)
+      const progress = progressOf(A)
+      const count = current.sets.length
+      const built = buildSessionEntry(S, a.exerciseId, pickedExerciseConfig(a.exerciseId), routineOf(S, current.rid), current)
+      const replacement = clone({
+        id: a.exerciseId, ...built,
+        ...(current.rid ? { rid: current.rid } : {}),
+        ...(current.noProg === true ? { noProg: true } : {}),
+      })
+      const out = swapActiveExercise(A, a.entry, replacement, { loggedConfirmed: a.confirmLogged === true, groupDisposition: a.group ?? undefined })
+      if (out.needsConfirmation) return { needs: 'confirm', grouped: out.grouped }
+      // O stopRest do apply do commitActiveSwap: toda troca acaba o descanso.
+      A.rest = null
+      if (out.inserted) rebaseProgress(A)
+      else {
+        // No lugar, o número de entradas fica; o marco só abaixa se a nova tem menos séries
+        // (Workout.jsx:1084-1093).
+        A.progress = progress
+        if (A.entries[a.entry].sets.length < count) A.progress[a.entry] = Math.min(progress[a.entry] || 0, doneCount(A.entries[a.entry]))
+      }
+      return { inserted: out.inserted, index: out.index }
+    },
+  },
+
+  // O removeActiveExercise do Workout.jsx:923-942.
+  'exercise.remove': {
+    run(s, a) {
+      const A = activeOf(s, a.type)
+      need(isIndex(a.entry, A.entries.length), a.type, `não existe a entrada ${a.entry}`)
+      if (isMap(A.rest) && A.rest.forIdx === a.entry) A.rest = null
+      else shiftRestOwner(A, a.entry + 1, -1)
+      A.entries.splice(a.entry, 1)
+      cleanupSg(A.entries)
+      if (a.entry < A.cur) A.cur--
+      if (A.cur >= A.entries.length) A.cur = Math.max(0, A.entries.length - 1)
+      rebaseProgress(A)
       return null
     },
   },
