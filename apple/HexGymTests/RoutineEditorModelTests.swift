@@ -8,7 +8,9 @@
 // como está, mas o editor só manda de volta um valor dentro do limite. Os do QA do PR #115: duas
 // remoções seguidas e as ações depois de mover acham a linha pelo id; as repetições por lado andam de 2
 // em 2; o campo da nota volta para o texto cortado; a faixa do desfazer guarda o prazo; e o editor cai
-// no estado de erro quando a leitura falha.
+// no estado de erro quando a leitura falha. Os da issue #118: a edição de um exercício acha o slot pelo
+// id no motor a cada toque, e um slot que saiu não grava em outro; apagar e reordenar em seguida move a
+// rotina certa, e o reordenar acha as rotinas pelo id quando a lista mudou por baixo.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -303,6 +305,103 @@ import Testing
     #expect(screen.shouldAnnounce(1))
     #expect(!screen.shouldAnnounce(1))
     #expect(screen.shouldAnnounce(2))
+  }
+
+  // Os da issue #118: a edição de um exercício e a lista de rotinas acham o item pelo id na hora da ação.
+
+  @Test func anEditWithTheSheetOpenGoesToTheSlotWhereverItIsNow() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["1060", "0025", "1048"])
+    let rows = try #require(screen.content?.slots)
+    let before = try #require(try await engine.routines().first?.slots)
+    let editor = try #require(await screen.slotEditor(rows[2].id))
+    #expect(editor.index == 2)
+    // Com a tela aberta, outro aparelho põe o 1048 no começo: o 0025 fica na posição 2.
+    _ = try await engine.apply(.moveSlot(routineID: screen.id, from: 2, to: 0))
+    editor.stepSets(.up)
+    await editor.flush()
+    let after = try #require(try await engine.routines().first?.slots)
+    #expect(after.map(\.id) == ["1048", "1060", "0025"])
+    #expect(after[0].sets == (before[2].sets ?? 0) + 1, "a série a mais vai para o 1048")
+    #expect(after[1].sets == before[0].sets)
+    #expect(after[2].sets == before[1].sets, "o 0025, que agora está na posição 2, não muda")
+  }
+
+  @Test func anEditToASlotThatIsGoneWritesNothing() async throws {
+    let engine = try await engine()
+    let screen = try await editor(engine, ["1060", "0025", "1048"])
+    let rows = try #require(screen.content?.slots)
+    let editor = try #require(await screen.slotEditor(rows[1].id))
+    // Com a tela aberta, o 0025 sai da rotina: o 1048 fica na posição 1, a de quando a tela abriu.
+    _ = try await engine.apply(.removeSlot(routineID: screen.id, index: 1))
+    let before = try #require(try await engine.routines().first?.slots)
+    editor.stepSets(.up)
+    editor.stepLoad(.up)
+    _ = editor.typeNote("Não é este")
+    await editor.flush()
+    #expect(try await engine.routines().first?.slots == before, "nenhum outro exercício muda")
+  }
+
+  // Uma tela da lista em que o routine.delete demora a chegar ao motor, como num aparelho lento.
+  func slowDeleteScreen(_ engine: HexEngine) -> RoutinesScreen {
+    RoutinesScreen(engine: engine, locale: portuguese) { action in
+      if case .deleteRoutine = action { try await Task.sleep(for: .milliseconds(150)) }
+      return try await engine.apply(action)
+    }
+  }
+
+  @Test func deletingAndThenReorderingMovesTheRightRoutine() async throws {
+    let engine = try await engine()
+    var ids: [String] = []
+    for name in ["A", "B", "C"] { ids.append(try #require(try await engine.apply(.createRoutine(name: name)).id)) }
+    let screen = slowDeleteScreen(engine)
+    await screen.load()
+    #expect(screen.rows.map(\.name) == ["A", "B", "C"])
+    // Apaga o A e, sem esperar o motor, leva o C para o começo da lista que sobrou.
+    let deleted = screen.delete(ids[0])
+    #expect(screen.rows.map(\.name) == ["B", "C"])
+    let moved = screen.move(from: IndexSet(integer: 1), to: 0)
+    #expect(screen.rows.map(\.name) == ["C", "B"])
+    await deleted.value
+    await moved?.value
+    #expect(try await engine.routines().map(\.name) == ["C", "B"])
+    #expect(screen.rows.map(\.name) == ["C", "B"])
+    #expect(screen.undo != nil, "o desfazer do apagar continua valendo")
+  }
+
+  @Test func reorderingFindsTheRoutinesByIDWhenTheListChangedUnderneath() async throws {
+    let engine = try await engine()
+    var ids: [String] = []
+    for name in ["A", "B", "C"] { ids.append(try #require(try await engine.apply(.createRoutine(name: name)).id)) }
+    let screen = screen(engine)
+    await screen.load()
+    // Outro aparelho leva o C para o começo, e a tela ainda mostra A, B, C.
+    _ = try await engine.apply(.moveRoutine(from: 2, to: 0))
+    // A pessoa leva o A para depois do B: no motor, ele vai para depois do B também.
+    await screen.move(from: IndexSet(integer: 0), to: 2)?.value
+    #expect(try await engine.routines().map(\.name) == ["C", "B", "A"])
+    #expect(screen.rows.map(\.name) == ["C", "B", "A"])
+  }
+
+  @Test func theMoveTargetComesFromTheNeighboursOnScreen() {
+    let ids = ["a", "b", "c", "d"]
+    // Para o começo: a posição 0.
+    #expect(RoutineEditorModel.routineMove("c", after: nil, before: "a", in: ids) == RoutineMove(from: 2, to: 0))
+    // Para depois do vizinho de cima.
+    #expect(RoutineEditorModel.routineMove("a", after: "c", before: "d", in: ids) == RoutineMove(from: 0, to: 2))
+    // O vizinho de cima não está mais no motor: antes do de baixo.
+    #expect(RoutineEditorModel.routineMove("d", after: "x", before: "b", in: ids) == RoutineMove(from: 3, to: 1))
+    // A rotina saiu, ou nenhum vizinho ficou, ou já está no lugar: nada vai.
+    #expect(RoutineEditorModel.routineMove("x", after: nil, before: "a", in: ids) == nil)
+    #expect(RoutineEditorModel.routineMove("a", after: "x", before: "y", in: ids) == nil)
+    #expect(RoutineEditorModel.routineMove("b", after: "a", before: "c", in: ids) == nil)
+  }
+
+  @Test func theRowIDCountsTheRepeatsOfTheSameExercise() {
+    #expect(RoutineEditorModel.position(of: "0025#1", in: ["0025", "1048", "0025"]) == 2)
+    #expect(RoutineEditorModel.position(of: "1048#0", in: ["0025", "1048", "0025"]) == 1)
+    #expect(RoutineEditorModel.position(of: "0025#2", in: ["0025", "1048", "0025"]) == nil)
+    #expect(RoutineEditorModel.rowIDs(["0025", "1048", "0025"]) == ["0025#0", "1048#0", "0025#1"])
   }
 
   @Test func anEditorWhoseReadFailsShowsTheErrorAndNotTheSpinner() async {
