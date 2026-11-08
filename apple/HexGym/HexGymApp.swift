@@ -4,6 +4,10 @@
 // tema do aparelho (o ThemeModel, nos UserDefaults do App Group) vai para o ambiente na raiz, com o
 // brilho que respira atrás da tela: a troca de tema nos Ajustes ou na galeria muda tudo na hora e pede
 // aos widgets que se desenhem de novo, com o tema novo.
+//
+// O treino em andamento (Task 6 do plano da fase 3): depois de o documento abrir, e a cada volta para
+// a frente, o session lê o treino e acerta o aviso do descanso pelo endsAt gravado (refresh), para o
+// app morto no meio do descanso voltar no ponto certo, sem aviso pendurado (Foco da revisão 1).
 import HexDesign
 import os
 import SwiftUI
@@ -21,10 +25,16 @@ struct HexGymApp: App {
       ThemedRoot(theme: theme) {
         RootView(model: model)
       }
-      .task { await model.start() }
+      .task {
+        await model.start()
+        await model.session.refresh()
+      }
     }
     .onChange(of: scenePhase) { _, phase in
       if phase == .background { flushInBackground() }
+      // A volta para a frente. Antes de o documento abrir, o refresh não faz nada: o do .task vem
+      // depois do start().
+      if phase == .active { Task { await model.session.refresh() } }
     }
   }
 

@@ -34,7 +34,7 @@ Cada háptico é um `HexHaptic`, com uma versão para o iPhone e outra para o Wa
 |---|---|---|---|
 | `increase` | `.selection` | `.increase` | o botão + das entradas do treino |
 | `decrease` | `.selection` | `.decrease` | o botão − das entradas do treino |
-| `setLogged` | `.success` | `.success` | a série registrada; nenhum componente do pacote usa ainda |
+| `setLogged` | `.success` | `.success` | a série registrada: toca ao marcar a série, pelo efeito `haptic` do motor, que o `WorkoutSession` do app publica (`haptic` e `hapticTick`) para a tela do treino tocar com `.sensoryFeedback` |
 | `record` | `.impact(weight: .heavy, intensity: 1)` | o mesmo | o carimbo de recorde, quando ele chega |
 | `restDone` | `.warning` | `.start` | o anel de descanso, quando o tempo chega a zero |
 | `error` | `.error` | `.error` | um erro; nenhum componente do pacote usa ainda |

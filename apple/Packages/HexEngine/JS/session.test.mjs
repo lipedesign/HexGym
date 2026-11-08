@@ -177,6 +177,9 @@ test('liveActivity carries the next set, the rest and up to 8 sets after it, wit
   assert.equal(R.liveActivity(NOW), 'null')
   act({ type: 'start', routineIds: ['r-push'], id: 'w-1' })
   act({ type: 'set.mark', entry: 0, set: 0, done: true }, NOW + MIN)
+  // Lida no mesmo ms em que o descanso começou, como o app lê logo depois da ação: o cur marca depois
+  // do descanso que conta, e o descanso dele sai inteiro (rodada 2 do PR #156).
+  assert.equal(live(NOW + MIN).cur.restAfter, 90)
   const at = NOW + MIN + 10 * SEC
   const la = live(at)
   const next = active(at).next

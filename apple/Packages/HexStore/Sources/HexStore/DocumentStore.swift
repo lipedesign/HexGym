@@ -54,6 +54,12 @@ public actor DocumentStore {
   private static let syncBaseFile = "sync-base.json"
 
   private let directory: URL
+  // Os bytes do state.json que este store leu bom no load() ou gravou por último. Na gravação seguinte,
+  // um state.json com os mesmos bytes é bom sem passar pelo JSONSerialization de novo, que era quase
+  // todo o tempo do save: com os 1.040 treinos do engine-load.mjs, uns 26 ms por leitura do JSON no
+  // simulador, contra 0,3 ms para ler o arquivo (Task 6 do plano da fase 3). Um state.json que outro
+  // gravou, ou que não bate por qualquer motivo, passa pela conferência inteira, como antes.
+  private var known: Data?
 
   public init(directory: URL) {
     self.directory = directory
@@ -79,7 +85,10 @@ public actor DocumentStore {
   // A recuperação e o erro vão para o log.
   public func load() throws -> StoredDocument {
     let current = try contents(of: Self.document)
-    if let current, Self.isObject(current) { return .current(current) }
+    if let current, Self.isObject(current) {
+      known = current
+      return .current(current)
+    }
     let previous = try contents(of: Self.previous)
     if let previous, Self.isObject(previous) {
       if current != nil { try setAside() }
@@ -100,15 +109,18 @@ public actor DocumentStore {
   // vira cópia, e a cópia boa que já existe fica. Um state.json que existe e não abre lança .unreadable
   // antes de qualquer gravação. As duas gravações são atômicas: um app que morre no meio deixa o
   // arquivo de antes ou o novo, nunca um pedaço. Um erro ao gravar sai como o Foundation lançou.
+  // O state.json de agora é sempre lido, para o erro de leitura e o arquivo que outro mexeu; só a
+  // conferência do JSON dele fica de fora quando ele é o known.
   public func save(_ document: Data) throws {
     guard Self.isObject(document) else {
       Self.logger.error("o documento para gravar não é um objeto JSON, e nada foi gravado")
       throw DocumentStoreError.notAnObject
     }
-    if let current = try contents(of: Self.document), Self.isObject(current) {
+    if let current = try contents(of: Self.document), current == known || Self.isObject(current) {
       try write(current, to: Self.previous)
     }
     try write(document, to: Self.document)
+    known = document
   }
 
   // A base de sincronização, ou nil quando o sync-base.json não existe. Como no documento, só a falta

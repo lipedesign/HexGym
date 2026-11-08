@@ -53,3 +53,23 @@ test('the HexDesign package is linked to the four app targets, and HexBody to th
     }
   }
 })
+// Task 6 do plano da fase 3 (issue #135): os documentos preparados do -HexGymFixture só existem no build
+// Debug. A pasta apple/HexGym é um grupo sincronizado do Xcode, sem exceções, e tudo nela entra nos dois
+// builds; por isso, os dois arquivos ficam inteiros dentro de um #if DEBUG: a primeira linha de código
+// abre o bloco, a última fecha, e nenhuma linha de código fica fora dele no meio. As linhas em branco e
+// os comentários de linha não contam.
+test('the prepared documents stay entirely inside #if DEBUG', () => {
+  for (const name of ['FixtureLoader.swift', 'FixtureDocuments.swift']) {
+    const code = fs.readFileSync(path.join(APPLE, 'HexGym', 'Fixtures', name), 'utf8')
+      .split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('//'))
+    assert.equal(code[0], '#if DEBUG', `a primeira linha de código do ${name}`)
+    assert.equal(code.at(-1), '#endif', `a última linha de código do ${name}`)
+    let depth = 0
+    code.forEach((line, i) => {
+      if (/^#if\b/.test(line)) depth++
+      if (/^#endif\b/.test(line)) depth--
+      if (i < code.length - 1) assert.ok(depth >= 1, `a linha ${i + 1} de código do ${name} fica fora do #if DEBUG: ${line}`)
+    })
+    assert.equal(depth, 0, `os #if e os #endif do ${name}`)
+  }
+})
