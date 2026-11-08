@@ -3,13 +3,17 @@
 // JSONEncoder escreve de volta na ordem que quiser. Para o motor receber de volta exatamente o que
 // escreveu, o Swift guarda os bytes do valor como estão no texto, e este leitor só acha onde o valor
 // começa e onde acaba.
+//
+// O leitor confia num texto que o JSONDecoder já validou, como a resposta do apply, e não confere a
+// gramática: um escalar ou um escape inválido passa como está ({"a":tru} dá tru).
 
 import Foundation
 
 enum JSONText {
   // Os bytes do valor no caminho de chaves, como estão no texto: ["result", "snapshot"] é o
   // result.snapshot do topo. Nil quando uma chave falta, quando o caminho passa por algo que não é
-  // objeto ou quando o texto não é JSON até ali.
+  // objeto, quando o texto acaba no meio ou quando passa de 512 níveis. Um texto que não é JSON pode
+  // dar um trecho qualquer: quem chama passa um texto que o JSONDecoder já leu.
   static func value(at path: [String], in data: Data) -> Data? {
     let bytes = [UInt8](data)
     var reader = Reader(bytes: bytes)
@@ -20,6 +24,10 @@ enum JSONText {
   private struct Reader {
     let bytes: [UInt8]
     var at = 0
+    // Quantos objetos e listas estão abertos agora. Mais de 512, como no JSONDecoder, e o leitor
+    // desiste, em vez de esgotar a pilha.
+    private var depth = 0
+    private static let maxDepth = 512
 
     init(bytes: [UInt8]) { self.bytes = bytes }
 
@@ -31,6 +39,8 @@ enum JSONText {
         return skipValue() ? start..<at : nil
       }
       guard byte == UInt8(ascii: "{") else { return nil }
+      // Os objetos do caminho contam para o limite de níveis, como os de dentro do valor.
+      depth += 1
       at += 1
       skipSpace()
       if byte == UInt8(ascii: "}") { return nil }
@@ -41,8 +51,10 @@ enum JSONText {
         skipSpace()
         guard byte == UInt8(ascii: ":") else { return nil }
         at += 1
-        // O JSON.stringify do motor nunca repete uma chave; a primeira que bate é a única.
-        if name == key { return member(path.dropFirst()) }
+        // O JSON.stringify do motor nunca repete uma chave; a primeira que bate é a única. A
+        // comparação é pelos escalares, como o JavaScript compara, e não pela equivalência do
+        // String do Swift, que junta o "é" composto e o decomposto.
+        if name.unicodeScalars.elementsEqual(key.unicodeScalars) { return member(path.dropFirst()) }
         skipSpace()
         guard skipValue() else { return nil }
         skipSpace()
@@ -67,6 +79,9 @@ enum JSONText {
       case UInt8(ascii: "\""): return skipString()
       case UInt8(ascii: "{"), UInt8(ascii: "["):
         let close = byte == UInt8(ascii: "{") ? UInt8(ascii: "}") : UInt8(ascii: "]")
+        depth += 1
+        defer { depth -= 1 }
+        guard depth <= Self.maxDepth else { return false }
         at += 1
         skipSpace()
         if byte == close { at += 1; return true }

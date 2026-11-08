@@ -47,7 +47,8 @@ public struct RoutineSnapshot: Codable, Equatable, Sendable {
   public let json: Data
 
   // O snapshot da resposta do apply, { changed, result: { snapshot } }, nos bytes do texto, sem
-  // passar por um dicionário (JSONText).
+  // passar por um dicionário (JSONText). Confia numa resposta que o JSONDecoder já validou, como o
+  // apply faz antes, e não confere a gramática do que vai dentro do snapshot.
   init(response: Data) throws {
     guard let json = JSONText.value(at: ["result", "snapshot"], in: response), json.first == UInt8(ascii: "{")
     else { throw EngineError.javaScript("HexEngine: a resposta do apply não traz o snapshot como objeto") }

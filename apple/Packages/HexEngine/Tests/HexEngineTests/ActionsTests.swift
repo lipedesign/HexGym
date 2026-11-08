@@ -69,7 +69,7 @@ private func object(_ text: Data) throws -> NSDictionary {
 }
 
 @Test func theReaderFindsAValueByItsPathWithoutDecodingTheText() {  // issue #117
-  let text = Data(#"{"a":[1,{"b":"]"}],"cat":{"d":-1.5e3,"e":null},"f":"\\","g":{}}"#.utf8)
+  let text = Data(#"{"a":[1,{"b":"]"}],"c\u0061t":{"d":-1.5e3,"e":null},"f":"\\","g":{}}"#.utf8)
   let value = { (path: [String]) in JSONText.value(at: path, in: text).map { String(decoding: $0, as: UTF8.self) } }
   #expect(value(["a"]) == #"[1,{"b":"]"}]"#)
   #expect(value(["cat"]) == #"{"d":-1.5e3,"e":null}"#)  // a chave com escape é lida como "cat"
@@ -84,6 +84,15 @@ private func object(_ text: Data) throws -> NSDictionary {
   #expect(value(["a", "b"]) == nil)
   #expect(JSONText.value(at: ["b"], in: Data(#"{"a":"sem fim"#.utf8)) == nil)
   #expect(JSONText.value(at: ["a"], in: Data(#"{"a":[1,2"#.utf8)) == nil)
+  // A chave é comparada pelos códigos, como o JavaScript, e não pela equivalência do Unicode: o "é"
+  // decomposto (e e U+0301) e o composto (U+00E9) são duas chaves.
+  let accents = Data("{\"e\u{301}\":13,\"\u{E9}\":14}".utf8)
+  #expect(JSONText.value(at: ["\u{E9}"], in: accents).map { String(decoding: $0, as: UTF8.self) } == "14")
+  #expect(JSONText.value(at: ["e\u{301}"], in: accents).map { String(decoding: $0, as: UTF8.self) } == "13")
+  // Até 512 níveis, contando o objeto do topo, como o JSONDecoder; mais que isso dá nil.
+  let deep = { (lists: Int) in Data(("{\"a\":" + String(repeating: "[", count: lists) + String(repeating: "]", count: lists) + "}").utf8) }
+  #expect(JSONText.value(at: ["a"], in: deep(511))?.count == 1022)
+  #expect(JSONText.value(at: ["a"], in: deep(512)) == nil)
 }
 
 @Test func aRoutineCreatedInTheEngineReadsBackAndSurvivesDeleteAndUndo() async throws {
