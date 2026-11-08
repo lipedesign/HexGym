@@ -1830,7 +1830,7 @@
   "1848": {"name": "calves stretch static position", "primary": ["calves", "soleus"], "secondary": ["hamstring"], "source": "freetext", "emphasis": ["soleus"]},
   "1849": {"name": "wrist extensor stretch", "primary": ["forearm"], "secondary": [], "source": "freetext", "variantOf": "11383"},
   "1850": {"name": "wrist flexor stretch", "primary": ["forearm"], "secondary": [], "source": "freetext"},
-  "1851": {"name": "incline push press", "primary": ["upperChest", "chest", "lowerChest"], "secondary": ["frontDeltoid", "deltoids", "rearDeltoid", "tricepsLongHead", "triceps", "quadriceps", "innerQuad", "outerQuad"], "source": "freetext", "emphasis": ["upperChest"]},
+  "1851": {"name": "incline push press", "primary": ["upperChest"], "secondary": ["frontDeltoid", "triceps"], "source": "freetext"},
   "1852": {"name": "leg raise hip lift", "primary": ["upperAbs", "lowerAbs", "hipFlexors"], "secondary": [], "source": "freetext"},
   "1853": {"name": "hip lift low back off floor", "primary": ["upperAbs", "lowerAbs"], "secondary": ["hipFlexors"], "source": "freetext", "variantOf": "11010"},
   "1854": {"name": "leg raise slightly bent knee", "primary": ["upperAbs", "lowerAbs", "hipFlexors"], "secondary": [], "source": "freetext"},

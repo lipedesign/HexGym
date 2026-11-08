@@ -17,7 +17,7 @@ from pathlib import Path
 
 import build_exercise_regions as B
 
-ROWS, _, _ = B.build()
+ROWS, EXERCISES, _ = B.build()   # EXERCISES: o catálogo com as correções do CATALOGUE_FIXES
 
 
 def regions(id_):
@@ -153,13 +153,10 @@ class ResearchRules(unittest.TestCase):
         for id_ in ('0493', '3812', '10927'):
             self.assertEqual(regions(id_)[0], set(B.G['chest']), id_)
 
-    def test_push_press_is_not_the_incline_bench(self):
-        # incline push press: o push press tem o impulso das pernas e fica fora das regras do peito (#106).
-        # Fica o que o catálogo diz, o peito inteiro, com o peito alto do texto na ênfase.
-        p, s = regions('1851')
-        self.assertEqual(p, set(B.G['chest']))
-        self.assertEqual(ROWS['1851'].get('emphasis'), ['upperChest'])
-        self.assertLessEqual({'frontDeltoid', 'triceps', 'quadriceps'}, s)
+    def test_incline_push_press_stays_on_the_incline_bench(self):
+        # incline push press: apesar do nome, o texto do catálogo descreve o banco inclinado, com a
+        # barra no peito alto e um pouco de impulso das pernas, e não o desenvolvimento (issue #106).
+        self.assertRegions('1851', {'upperChest'}, {'frontDeltoid', 'triceps'})
 
     def test_decline_press_is_low_chest(self):
         self.assertRegions('0033', {'lowerChest', 'chest'}, {'triceps', 'frontDeltoid'})   # barbell decline bench press
@@ -260,6 +257,10 @@ class CatalogueFixes(unittest.TestCase):
         self.assertEqual(regions('0459'), ({'upperAbs', 'lowerAbs'}, {'hipFlexors'}))
         self.assertEqual(regions('0459'), regions('1179'))
         self.assertEqual(regions('0459'), regions('1244'))
+
+    def test_build_returns_the_fixed_catalogue(self):
+        # O --report lê os exercícios que o build devolve: o 0459 sai lá com o alvo corrigido.
+        self.assertEqual(EXERCISES['0459']['target'], 'abs')
 
 
 class OutsideRows(unittest.TestCase):

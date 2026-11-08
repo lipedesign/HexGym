@@ -300,11 +300,10 @@ CHEST_FLY = re.compile(r'\bfly\b|\bflyes?\b|\bflys\b|cross[- ]?over|pec (deck|de
 PUSH_UP = re.compile(r'push[- ]?ups?\b|\bpress[- ]?ups?\b')
 # O giro do tronco corta (twisting, rotational push up, "with twist"); o do punho não (twisted fly,
 # twist press, rotational grip). A flexão pliométrica (plyo, clap) e a archer seguem como flexão.
-# O push press é o desenvolvimento com o impulso das pernas, não o supino: fica fora (1851, #106).
 CHEST_COMBO = re.compile(r'\bto\b|\band\b|\bplus\b|jump|burpee|\bwalk|\btaps?\b|crawl|\brows?\b|\brotation\b'
                          r'|twisting|\btwist\b(?! (fly|press))|rotational(?! grip)|spider|pike|hindu|\bdive|depth'
                          r'|superman|plank|\bdips?\b|pull|lunge|\bjack|kick|toe touch|raise|thrust|bridge|tuck'
-                         r'|bird dog|child pose|slide|push press')
+                         r'|bird dog|child pose|slide')
 # O cabo de baixo para cima, de cima para baixo, e o nome que já diz a parte: ficam fora da regra do reto.
 CHEST_ANGLED = re.compile(r'upper chest|lower chest|low chest|\blow (fly|crossover)|\bhigh (fly|crossover)')
 INCLINE, DECLINE = re.compile(r'\bincline\b'), re.compile(r'\bdecline\b')
@@ -500,7 +499,8 @@ CATALOGUE_FIXES = {
 
 
 def load_catalogue():
-    """O catálogo como está no catalogue/, sem as correções de CATALOGUE_FIXES (o build as aplica)."""
+    """O catálogo como está no catalogue/, sem as correções de CATALOGUE_FIXES (o build as aplica e
+    devolve os exercícios já corrigidos)."""
     exercises, variants = {}, {}
     for path in sorted(CATALOGUE.glob('*.json')):
         e = json.loads(path.read_text(encoding='utf-8'))
@@ -594,10 +594,11 @@ def build():
         sys.exit('termos novos no catálogo sem mapeamento em TERM_REGIONS: ' + ', '.join(unknown))
     additions = read_secondary_additions()
     exercises, variants = load_catalogue()
+    # As correções do catálogo valem para tudo o que sai daqui, o --report inclusive.
+    exercises = {k: {**e, **CATALOGUE_FIXES.get(k, {})} for k, e in exercises.items()}
 
     out = {}
     for id_, e in exercises.items():
-        e = {**e, **CATALOGUE_FIXES.get(id_, {})}
         extra = [t for t in additions.get(id_, []) if t not in e['secondaryMuscles']]
         if e.get('muscleMap'):
             p, s, sub_terms = from_musclemap(e, extra)

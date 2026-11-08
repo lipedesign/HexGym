@@ -75,8 +75,8 @@ o secundário pelos dela, e só o agachamento guarda os secundários que já tin
 texto nomeia uma a uma (manguito, braquial, glúteo médio) ficam no secundário. Uma regra só vale
 quando o primário é o grupo que ela espera, então um exercício com outro alvo, ou que junta dois
 movimentos (a flexão com remada, o agachamento com desenvolvimento), fica como estava. A flexão
-inclinada ou declinada não é o banco e fica fora das regras do peito, e o push press também (o
-1851 incline push press). Cada regra tem um teste com exercícios reais do catálogo.
+inclinada ou declinada não é o banco e fica fora das regras do peito. Cada regra tem um teste com
+exercícios reais do catálogo.
 
 Depois das regras, o abdômen baixo nunca acende sozinho: com ele no primário, o reto abdominal
 vai junto para o primário; com ele só no secundário, vai junto para o secundário (o 2770 hip
