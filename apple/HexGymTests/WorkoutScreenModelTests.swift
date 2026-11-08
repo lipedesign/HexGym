@@ -90,6 +90,11 @@ import Testing
     #expect(model(warm).panel?.title == "Supino com barra\u{00A0}· Aquecimento 1")
     #expect(model(warm, selection: WorkoutRef(entry: 0, set: 1)).panel?.title == "Supino com barra\u{00A0}· Série 1 de 2")
     #expect(model(warm, selection: WorkoutRef(entry: 0, set: 2), english).panel?.title == "Supino com barra\u{00A0}· Set 2 of 2")
+    // Na tela, o título vai em duas linhas: o nome, e "Série 2 de 3" ou "Aquecimento 1" numa linha própria,
+    // que nunca quebra no meio (achado 6 do QA da #160).
+    #expect(model(three).panel?.exercise == "Supino com barra"); #expect(model(three).panel?.setLabel == "Série 2 de 3")
+    #expect(model(warm).panel?.exercise == "Supino com barra"); #expect(model(warm).panel?.setLabel == "Aquecimento 1")
+    #expect(model(warm, selection: WorkoutRef(entry: 0, set: 2), english).panel?.setLabel == "Set 2 of 2")
     // Uma linha tocada é a série do painel, e a linha atual da lista; uma feita leva o botão de volta para
     // a próxima série.
     let tapped = model(three, selection: WorkoutRef(entry: 0, set: 0))
@@ -180,6 +185,13 @@ import Testing
     #expect(model(kg, english).cards[0].rows[0].spoken == "Warm-up 1, 40 kilograms, 5 repetitions, done")
     #expect(model(kg, english).cards[0].rows[1].markLabel == "Set 1 done")
     #expect(model(lb).panel?.unit == .lb); #expect(model(kg).panel?.unit == .kg)
+    // No cardio, o VoiceOver não lê o "@" do texto do motor como "arroba": "20 min a 9 km/h" (achado 8 do
+    // QA da #160). A linha na tela fica como o motor escreve.
+    let cardio = try Self.workout(entries: [Self.entry(0, name: "esteira", mode: "cardio", target: "1 × 20 min @ 9 km/h", sets: [
+      Self.set(0, w: "null", r: "null", kind: "cardio", line: "20 min @ 9 km/h · 2% de inclinação")])])
+    #expect(model(cardio).cards[0].rows[0].spoken == "Série 1, 20 min a 9 km/h · 2% de inclinação")
+    #expect(model(cardio, english).cards[0].rows[0].spoken == "Set 1, 20 min at 9 km/h · 2% de inclinação")
+    #expect(model(cardio).cards[0].rows[0].line == "20 min @ 9 km/h · 2% de inclinação")
   }
 
   @Test func thePanelShowsTheInputsForTheModeAndTheScale() throws {
@@ -250,7 +262,7 @@ import Testing
     #expect(rows[3].line == "80×4 ↘ 60×4"); #expect(rows[3].spoken == "Série 3, 80×4 ↘ 60×4")
     #expect(rows[4].spoken == "Série 1, 60×5+3")
     #expect(rows[5].spoken == "Série 1, E 10×8 · D \u{2013}")      // o traço é do setLabel do openGym
-    #expect(rows[7].spoken == "Série 1, 20 min @ 9 km/h · 2% de inclinação")
+    #expect(rows[7].spoken == "Série 1, 20 min a 9 km/h · 2% de inclinação")
     #expect(rows[8].spoken == "Série 1, 45 segundos")
     // O alvo que o motor escreveu com um "undefined" (um alvo sem séries de outro aparelho) não aparece.
     #expect(built.cards[2].target == nil); #expect(built.cards[0].target == "8 · 6 · 4")

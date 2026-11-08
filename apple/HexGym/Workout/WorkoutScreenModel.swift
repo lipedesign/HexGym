@@ -51,7 +51,7 @@ nonisolated struct WorkoutText: Sendable {
   let textLocale: Locale
   let logSet, nextSet, allDone, noExercises: String
   private let setOfFormat, warmupFormat, setFormat, setDoneFormat, warmupDoneFormat, doneFormat, warmupSpokenDoneFormat,
-      supersetFormat, supersetPlaceFormat: String
+      supersetFormat, supersetPlaceFormat, atFormat: String
 
   @MainActor init(locale: Locale) {
     self.locale = locale
@@ -72,6 +72,7 @@ nonisolated struct WorkoutText: Sendable {
     warmupSpokenDoneFormat = portuguese ? text("%@, done (warm-up)") : doneFormat
     supersetFormat = text("Superset %@")
     supersetPlaceFormat = text("Superset %@, %lld of %lld")
+    atFormat = text("%@ at %@")
   }
 
   // "Série 2 de 3".
@@ -90,6 +91,12 @@ nonisolated struct WorkoutText: Sendable {
   // "Superset A, 1 de 2".
   func supersetPlace(_ letter: String, _ position: Int, _ count: Int) -> String {
     String(format: supersetPlaceFormat, locale: locale, letter, position, count)
+  }
+  // A fala de uma linha do motor: o "@" do cardio do openGym ("20 min @ 9 km/h") vira "a" ("20 min a 9
+  // km/h"), para o VoiceOver não ler "arroba". O openGym não tem esse texto por extenso.
+  func spokenLine(_ line: String) -> String {
+    guard let range = line.range(of: " @ ") else { return line }
+    return String(format: atFormat, locale: locale, String(line[..<range.lowerBound]), String(line[range.upperBound...]))
   }
 }
 
@@ -158,8 +165,12 @@ nonisolated struct WorkoutPanel: Equatable, Sendable {
   enum Action: Equatable, Sendable { case log, next }
 
   let ref: WorkoutRef
-  // "Supino com barra · Série 2 de 3".
+  // "Supino com barra · Série 2 de 3": o título inteiro, o que o VoiceOver lê e anuncia.
   let title: String
+  // O título em duas linhas na tela: o nome do exercício, que quebra só entre palavras, e "Série 2 de 3"
+  // (ou "Aquecimento 1") numa linha própria, que nunca quebra no meio (achado 6 do QA da #160).
+  let exercise: String
+  let setLabel: String
   let inputs: PanelInputs
   let load: Double, reps: Int, seconds: Int
   let effort: Double?
@@ -230,12 +241,13 @@ nonisolated struct WorkoutScreenModel: Equatable, Sendable {
     if let current {
       let entry = workout.entries[current.entry]
       let set = entry.sets[current.set]
-      let title = LibraryNames.capitalized(entry.name, language: language) + LibraryNames.separator
-        + Self.setTitle(entry.sets, at: current.set, text: text)
+      let exercise = LibraryNames.capitalized(entry.name, language: language)
+      let setLabel = Self.setTitle(entry.sets, at: current.set, text: text)
+      let title = exercise + LibraryNames.separator + setLabel
       let seconds = max(0, set.sec ?? 0)
       let action: WorkoutPanel.Action? = !set.done ? .log : next != nil ? .next : nil
       panel = WorkoutPanel(
-        ref: current, title: title, inputs: Self.inputs(mode: entry.mode, kind: set.kind, scale: scale),
+        ref: current, title: title, exercise: exercise, setLabel: setLabel, inputs: Self.inputs(mode: entry.mode, kind: set.kind, scale: scale),
         load: set.w ?? 0, reps: set.r ?? 0, seconds: seconds,
         effort: scale == .rir ? set.rir : scale == .rpe ? set.rpe : nil, unit: unit, line: set.line,
         secondsText: Self.elapsed(TimeInterval(seconds)), spokenSeconds: Self.spokenSeconds(seconds, locale: text.textLocale),
@@ -311,7 +323,7 @@ nonisolated struct WorkoutScreenModel: Equatable, Sendable {
       if let sec = set.sec { parts.append(spokenSeconds(sec, locale: locale)) }
       if let w = set.w, w > 0 { parts.append(WorkoutFormat.spokenLoad(w, unit: unit, locale: locale)) }
     default:
-      if !set.line.isEmpty { parts.append(set.line) }
+      if !set.line.isEmpty { parts.append(text.spokenLine(set.line)) }
     }
     if let rir = set.rir {
       parts.append(WorkoutFormat.spokenEffort(rir, scale: .rir, locale: locale))

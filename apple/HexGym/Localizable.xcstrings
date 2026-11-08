@@ -54,6 +54,17 @@
         }
       }
     },
+    "%@ at %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a %@"
+          }
+        }
+      }
+    },
     "%@ on the background" : {
       "localizations" : {
         "pt-BR" : {

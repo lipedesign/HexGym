@@ -57,7 +57,7 @@ struct ExerciseCard: View {
         Text(verbatim: card.name)
           .hexFont(.headline)
           .foregroundStyle(Color.white)
-          .fixedSize(horizontal: false, vertical: true)
+          .modifier(WholeWords(card.name))
           .frame(maxWidth: .infinity, alignment: .leading)
         if !card.known {
           Image(systemName: "questionmark.circle")

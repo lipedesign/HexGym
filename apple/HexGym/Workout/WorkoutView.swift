@@ -254,7 +254,7 @@ private struct WorkoutHeader: View {
       Text(verbatim: model.name)
         .hexFont(.title)
         .foregroundStyle(Color.white)
-        .fixedSize(horizontal: false, vertical: true)
+        .modifier(WholeWords(model.name))
         .accessibilityAddTraits(.isHeader)
       let layout = typeSize.isAccessibilitySize
         ? AnyLayout(VStackLayout(alignment: .leading, spacing: HexSpacing.xxs))
@@ -273,6 +273,24 @@ private struct WorkoutHeader: View {
         .accessibilityHidden(true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+}
+
+// Um nome na tela do treino (o do treino, o do exercício no cartão e no painel) quebra só entre palavras
+// (achado 4 do QA da #160): uma linha por palavra, no máximo, e o texto encolhe até a metade antes de
+// partir uma palavra longa ("Desenvolvimento" em AX5). A fonte da marca em AX5 nas outras telas fica para
+// um follow-up no HexDesign.
+struct WholeWords: ViewModifier {
+  let lines: Int
+
+  init(_ text: String) {
+    lines = max(1, text.split(whereSeparator: \.isWhitespace).count)
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .lineLimit(lines)
+      .minimumScaleFactor(0.5)
   }
 }
 

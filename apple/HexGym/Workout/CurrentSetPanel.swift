@@ -1,7 +1,7 @@
 // O painel da série atual, fixo embaixo da tela do treino (Task 8 do plano da fase 3, escolha 4): "Supino
-// com barra · Série 2 de 3", as entradas grandes do HexDesign e o botão principal "Registrar série". No
-// modo de repetições, a carga (LoadInput) e as repetições (RepsInput), e o esforço (EffortInput) quando o
-// perfil usa, na escala dele; no modo tempo, um Stepper da Apple de segundos, de 5 em 5 (o passo é do
+// com barra" e, numa linha própria, "Série 2 de 3", as entradas grandes do HexDesign e o botão principal
+// "Registrar série". No modo de repetições, a carga (LoadInput) e as repetições (RepsInput), e o esforço
+// (EffortInput) quando o perfil usa, na escala dele; no modo tempo, um Stepper da Apple de segundos, de 5 em 5 (o passo é do
 // motor); numa série de drop set, rest-pause, lados ou cardio, o texto do motor e só o botão, que marca a
 // linha inteira (escolha 12, Foco da revisão 4). Cada passo das entradas vai ao motor como um set.step, na
 // série que o painel mostra; o botão marca a série com set.mark (done: true), e o painel passa para a
@@ -29,12 +29,7 @@ struct CurrentSetPanel: View {
   var body: some View {
     VStack(alignment: .leading, spacing: HexSpacing.s) {
       if let panel = model.panel {
-        Text(verbatim: panel.title)
-          .hexFont(.headline)
-          .foregroundStyle(Color.white)
-          .fixedSize(horizontal: false, vertical: true)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .accessibilityAddTraits(.isHeader)
+        PanelTitle(panel: panel)
         inputs(panel)
         if panel.action != nil {
           Button { screen.log() } label: { Text(verbatim: panel.buttonLabel) }
@@ -74,6 +69,33 @@ struct CurrentSetPanel: View {
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+  }
+}
+
+// O título do painel em duas linhas (achado 6 do QA da #160): o nome do exercício, que quebra só entre
+// palavras, e embaixo "Série 2 de 3" (ou "Aquecimento 1") na cor do tema, sobre o preto, numa linha só, que
+// encolhe antes de quebrar. Para o VoiceOver, um cabeçalho só, com o título inteiro.
+private struct PanelTitle: View {
+  let panel: WorkoutPanel
+
+  @Environment(\.hexPalette) private var palette
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: HexSpacing.xxs) {
+      Text(verbatim: panel.exercise)
+        .hexFont(.headline)
+        .foregroundStyle(Color.white)
+        .modifier(WholeWords(panel.exercise))
+      Text(verbatim: panel.setLabel)
+        .hexFont(.headline)
+        .foregroundStyle(Color(palette.accent))
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(Text(verbatim: panel.title))
+    .accessibilityAddTraits(.isHeader)
   }
 }
 

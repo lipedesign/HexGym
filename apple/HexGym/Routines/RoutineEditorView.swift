@@ -16,8 +16,8 @@
 //
 // Na barra, o "Começar" começa o treino desta rotina e abre a tela do treino pelo zoom, com o botão de
 // origem (Task 8 do plano da fase 3, escolha 3). Com um treino em andamento, o botão diz "Retomar" e abre
-// o que está aí, como o openGym, porque começar outro apagaria o de agora. Uma rotina sem exercício não
-// tem o que começar, e o botão fica desligado.
+// o que está aí, como o openGym, porque começar outro apagaria o de agora, e fica ligado mesmo numa rotina
+// vazia. Uma rotina sem exercício não tem o que começar, e o "Começar" fica desligado.
 //
 // Escolha recomendada, com a delegação do Lipe de 03/11/2026: o título "Editar rotina" na barra (o nome
 // inteiro fica no campo, que quebra a linha); o nome vai ao motor quando o campo perde o foco; a marca do
@@ -95,7 +95,9 @@ struct RoutineEditorView: View {
       if let door {
         ToolbarItem(placement: .topBarTrailing) {
           Button(door.launcher.hasWorkout ? "Resume" : "Start") { start(door.launcher) }
-            .disabled(screen.content?.slots.isEmpty ?? true || door.launcher.starting)
+            // O "Retomar" abre o treino que já existe, e fica ligado mesmo numa rotina vazia (achado 7 do QA
+            // da #160); o "Começar" precisa de um exercício.
+            .disabled(door.launcher.starting || (!door.launcher.hasWorkout && (screen.content?.slots.isEmpty ?? true)))
         }
         .hexStartWorkoutSource(id: WorkoutZoom.routine, in: door.namespace)
       }
