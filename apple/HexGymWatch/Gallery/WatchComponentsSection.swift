@@ -133,14 +133,14 @@ private struct Ring: View {
   }
 }
 
-// Os nomes em outras escritas, no title: o cirílico e o grego saem na reserva do sistema, comprimida.
+// Os nomes em outras escritas, no title: o cirílico e o grego saem na reserva do sistema, comprimida. O
+// HexText põe o grego em maiúsculas sem o tonos, como a regra do grego pede, também em pt-BR (#121).
 private struct OtherScripts: View {
   var body: some View {
     WatchComponentRow {
       WatchSubheader("Other scripts")
       ForEach(["Supino", "ЖИМ ЛЁЖА", "Πιέσεις πάγκου"], id: \.self) { name in
-        Text(verbatim: name)
-          .hexFont(.title)
+        HexText(name, style: .title)
           .foregroundStyle(Color.white)
           .lineLimit(1)
           .minimumScaleFactor(0.5)

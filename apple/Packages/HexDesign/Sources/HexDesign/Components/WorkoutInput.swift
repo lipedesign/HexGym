@@ -119,10 +119,14 @@ private struct WorkoutInputBody: View {
   var body: some View {
     Group {
       if WorkoutInputLayout.axis(for: dynamicTypeSize, on: .current) == .vertical {
+        #if os(watchOS)
+        CrownInput(gap: gap, onStep: onStep) { reading } buttons: { HStack(spacing: gap) { decrease; increase } }
+        #else
         VStack(spacing: gap) {
           reading
           HStack(spacing: gap) { decrease; increase }
         }
+        #endif
       } else {
         HStack(spacing: HexSpacing.s) { decrease; reading; increase }
       }
@@ -158,9 +162,6 @@ private struct WorkoutInputBody: View {
       @unknown default: break
       }
     }
-    #if os(watchOS)
-    .modifier(CrownInput(onStep: onStep))
-    #endif
   }
 
   private var decrease: some View {
@@ -192,8 +193,18 @@ private struct WorkoutInputBody: View {
 // trocas por segundo, sem toque nenhum). Assim, a coroa rola a tela até a pessoa tocar numa entrada;
 // depois, muda o valor dela. Um toque em outra entrada passa a coroa para ela, e a entrada que sai da
 // tela devolve a coroa para a rolagem.
-private struct CrownInput: ViewModifier {
+//
+// O foco fica na entrada inteira, com o valor e os botões − e +, e não só no valor (#121, achado no QA
+// da PR #86): um toque fora da view focada tira o foco dela, e com o foco só no valor, tocar em + e
+// girar a coroa depois rolava a tela em vez de mudar o mesmo valor. Medido no simulador do Watch: com o
+// foco só no valor, a coroa rolava a tela depois do +; com a entrada inteira, ela muda a carga depois
+// do + e do −. O toque que pega a coroa e o contorno continuam só no valor: um toque em − ou + numa
+// entrada sem a coroa não a pega.
+private struct CrownInput<Reading: View, Buttons: View>: View {
+  let gap: CGFloat
   let onStep: (StepDirection) -> Void
+  @ViewBuilder let reading: Reading
+  @ViewBuilder let buttons: Buttons
   // A leitura da coroa e se a entrada pode ter o foco. Os State vão escritos sem o @, como no resto
   // do pacote.
   private let rotation = State(initialValue: 0.0)
@@ -202,25 +213,28 @@ private struct CrownInput: ViewModifier {
 
   // Os dois lados do giro. Com isContinuous, a coroa dá a volta de um lado para o outro: um salto
   // maior que o lado é essa volta, e não um giro, então não vira passo.
-  private static let side = 1_000_000.0
+  private static var side: Double { 1_000_000 }
 
-  func body(content: Content) -> some View {
-    content
-      .overlay { CrownFocusRing(isFocused: focused) }
-      .contentShape(Rectangle())
-      .onTapGesture { takeTheCrown() }
-      .focusable(armed.wrappedValue)
-      .focused($focused)
-      .digitalCrownRotation(
-        rotation.projectedValue, from: -Self.side, through: Self.side, by: 1, sensitivity: .low, isContinuous: true,
-        isHapticFeedbackEnabled: true)
-      .onChange(of: rotation.wrappedValue) { old, new in
-        guard focused, abs(new - old) < Self.side else { return }
-        for direction in CrownSteps.steps(from: old, to: new) { onStep(direction) }
-      }
-      // Sem o foco (outra entrada o pegou), a entrada deixa de ser focável; fora da tela, também.
-      .onChange(of: focused) { _, now in if !now { armed.wrappedValue = false } }
-      .onDisappear { armed.wrappedValue = false }
+  var body: some View {
+    VStack(spacing: gap) {
+      reading
+        .overlay { CrownFocusRing(isFocused: focused) }
+        .contentShape(Rectangle())
+        .onTapGesture { takeTheCrown() }
+      buttons
+    }
+    .focusable(armed.wrappedValue)
+    .focused($focused)
+    .digitalCrownRotation(
+      rotation.projectedValue, from: -Self.side, through: Self.side, by: 1, sensitivity: .low, isContinuous: true,
+      isHapticFeedbackEnabled: true)
+    .onChange(of: rotation.wrappedValue) { old, new in
+      guard focused, abs(new - old) < Self.side else { return }
+      for direction in CrownSteps.steps(from: old, to: new) { onStep(direction) }
+    }
+    // Sem o foco (outra entrada o pegou), a entrada deixa de ser focável; fora da tela, também.
+    .onChange(of: focused) { _, now in if !now { armed.wrappedValue = false } }
+    .onDisappear { armed.wrappedValue = false }
   }
 
   // Um toque pega a coroa. O foco só chega depois que a entrada já é focável, na volta seguinte do

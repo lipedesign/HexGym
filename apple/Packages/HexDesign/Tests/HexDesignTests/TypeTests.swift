@@ -57,6 +57,30 @@ func cyrillicAndGreekFallBackToSFProCompressed(weight: HexWeight) {      // Foco
   #expect(HexTextStyle.allCases.map(\.maxSize) == [132, 88, 60, nil, 44, nil])
   #expect(HexTextStyle.allCases.filter(\.tabularDigits) == [.display, .number, .caption])
 }
+// O grego em caixa alta (#121, achado no QA da PR #86): a regra do grego tira o tonos das maiúsculas. O
+// textCase do SwiftUI segue o locale do ambiente, e no iPhone e no Watch em português ou em inglês ele
+// deixava "ΠΙΈΣΕΙΣ ΠΆΓΚΟΥ" (no Mac, tira sempre). O HexCase põe cada trecho em grego em maiúsculas com o
+// locale do grego, e o resto com o locale de quem lê: no turco, o i do latim continua virando İ.
+@Test func greekCapitalsDropTheTonos() {
+  for locale in [br, en] {
+    #expect(HexCase.uppercased("Πιέσεις πάγκου", locale: locale) == "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ")
+    #expect(HexCase.uppercased("Πιε\u{301}σεις πα\u{301}γκου", locale: locale) == "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ")
+    #expect(HexCase.uppercased("Supino reto", locale: locale) == "SUPINO RETO")
+    #expect(HexCase.uppercased("Жим лёжа", locale: locale) == "ЖИМ ЛЁЖА")
+  }
+  #expect(HexCase.uppercased("pilates με αλτήρα 12,5", locale: Locale(identifier: "tr")) == "PİLATES ΜΕ ΑΛΤΗΡΑ 12,5")
+  #expect(HexCase.uppercased("", locale: br) == "")
+}
+// O HexText chega à tela com o grego sem o tonos, num estilo em caixa alta, e deixa como está um estilo
+// sem caixa alta.
+@MainActor @Test func theHexTextShowsGreekCapitalsWithoutTheTonos() {
+  for locale in [br, en] {
+    #expect(pixels(HexText("Πιέσεις πάγκου", style: .title), locale) != nil)
+    #expect(pixels(HexText("Πιέσεις πάγκου", style: .title), locale) == pixels(Text(verbatim: "ΠΙΕΣΕΙΣ ΠΑΓΚΟΥ").hexFont(.title), locale))
+    #expect(pixels(HexText("Supino reto", style: .title), locale) == pixels(Text(verbatim: "Supino reto").hexFont(.title), locale))
+    #expect(pixels(HexText("Πιέσεις 12", style: .number), locale) == pixels(Text(verbatim: "Πιέσεις 12").hexFont(.number), locale))
+  }
+}
 @MainActor @Test(.enabled(if: printsEnabled)) func printTheTypeScale() throws {   // tipografia.png e logotipo.png
   try writePrint(TypeScale(), named: "tipografia")
   try writePrint(Wordmarks(), named: "logotipo")
@@ -66,6 +90,11 @@ func cyrillicAndGreekFallBackToSFProCompressed(weight: HexWeight) {      // Foco
 // largura e de peso dessa fonte e os glifos. O glifo 0 é o quadrado vazio (.notdef).
 private struct TextRun {
   let text: String, fontName: String, widthTrait: CGFloat, weightTrait: CGFloat, glyphs: [CGGlyph]
+}
+
+// Os bytes da view desenhada no locale pedido, para comparar duas views pixel a pixel.
+@MainActor private func pixels(_ view: some View, _ locale: Locale) -> Data? {
+  image(view.environment(\.locale, locale))?.dataProvider?.data as Data?
 }
 
 // O texto numa linha do CoreText, com a fonte.

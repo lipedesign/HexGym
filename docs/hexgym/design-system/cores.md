@@ -90,6 +90,16 @@ Os pares com pouca folga, para quem pensar em mudar uma cor. O critério: todos 
 
 Quem mudar uma cor e passar da regra vê o teste cair.
 
+### A folga do botão principal no Ultravioleta
+
+O branco sobre o #6F5CFF, o rótulo do botão principal no Ultravioleta escuro, passa a regra de 4,5 por 0,02: é o par com menos folga de todos (achado no QA da PR #86). A cor fica como está, e a folga fica escrita no teste. Escolha recomendada, com a delegação do Lipe de 03/11/2026 (#121). O porquê:
+
+- **O #6F5CFF é uma cor aprovada.** Ele está na seção 6 do documento de design, aprovado em 31/10/2026 ("botão #6F5CFF com rótulo branco"), no estudo de cor, e nos valores da Task 1 que as decisões visuais de 03/11/2026 aceitaram. A recomendação de partida era escurecer o roxo até uns 4,8:1, com a condição de manter a cor se as decisões da fase 1 fixassem o hex; elas fixam, e a #121 não reabre essas decisões.
+- **Passa a regra.** 4,52 está acima de 4,5, na conta da WCAG 2.2 que o pacote usa, e o simulador do Watch mediu os mesmos 4,52:1 no pior pixel do botão. Com Aumentar Contraste, o botão já vira #8A88FF com rótulo preto, a 7,05:1.
+- **A cor aparece em todo lugar do botão.** O `fill` do Ultravioleta é o botão principal no iPhone, no Watch e na galeria, e o tema padrão: escurecer mudaria o botão que o founder aprovou em todas as telas.
+
+O teste `theUltravioletButtonLabelHasTheLeastSlack` confere que esse par é o de menos folga entre todos os que o `everyPairMeetsItsRule` confere, com a regra de 4,5 e o contraste de 4,52. Quem mudar o #6F5CFF, ou deixar outro par mais perto da regra, vê o teste cair e atualiza esta seção. Se um dia a cor mudar, o caminho é uma Task normal com o founder, como as decisões de 03/11/2026 pedem.
+
 ## Como saíram os tons de alto contraste da #71
 
 Com Aumentar Contraste, o cartão do sistema fica #242426, e os primeiros tons de alto contraste do Ultravioleta (#A29BFF) e do Cobre (#F48B5C) davam 6,40 e 6,41 ali, abaixo de 7. Os tons novos saíram assim:
