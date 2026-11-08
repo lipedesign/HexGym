@@ -9,6 +9,7 @@ import { stateJson } from '../../../../frontend/src/lib/state-json.js'
 import * as actions from './actions.js'
 import * as library from './library.js'
 import * as session from './session.js'
+import * as workouts from './workouts.js'
 import { decodeValue, encodeValue } from './values.js'
 
 // O idioma das telas, dos nomes e dos passos (language.js), que o load() do Swift chama com os
@@ -153,6 +154,17 @@ export function liveEvents(eventsJson, now) {
   const { doc, applied, effects } = session.liveEvents(opened(), JSON.parse(eventsJson), now)
   current = doc
   return JSON.stringify({ applied, effects })
+}
+
+// O histórico (workouts.js), sem mudar nada: uma página da lista, pelo texto JSON da consulta
+// { before?, limit } do Swift, e o detalhe de um treino pela chave (ou null). Apagar um treino é a
+// ação workout.delete do apply.
+export function history(queryJson) {
+  return JSON.stringify(workouts.history(opened(), JSON.parse(queryJson)))
+}
+
+export function workoutDetail(key) {
+  return JSON.stringify(workouts.workoutDetail(opened(), key))
 }
 
 // O nome de uma função é "<caminho do módulo>#<export>", como "frontend/src/lib/onerm.js#estimate1RM".

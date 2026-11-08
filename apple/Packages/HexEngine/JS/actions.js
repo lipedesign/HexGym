@@ -24,6 +24,8 @@ import { uid, weekOrder, weekStartOf } from '../../../../frontend/src/lib/format
 import { REST_MAX } from '../../../../frontend/src/lib/duration.js'
 import { exerciseNameFor, t } from '../../../../frontend/src/lib/i18n-core.js'
 import { DEFAULT_GLYPH, ROUTINE_GLYPHS, glyphStr } from '../../../../api/coach/core/glyphs.js'
+import { sameWorkout } from '../../../../frontend/src/lib/workout-date.js'
+import { keyText } from './workouts.js'
 
 // Os limites do slot.update. O openGym não tem teto (o salvar da sheet só faz Math.max(1, ...)):
 // estes são escolha recomendada, com a delegação do Lipe de 03/11/2026. Só um valor novo é
@@ -311,6 +313,18 @@ const ACTIONS = {
       const doc = convertStateUnit(prev, a.value)
       doc.unitSet = { at: Math.max(Number(now) || 0, highestStamp(prev) + 1), convert: true }
       return { doc, changed: true, result: {} }
+    },
+  },
+  // O "Apagar treino" do detalhe do openGym (sheets.jsx:2931): o treino sai pelo sameWorkout, e não
+  // pelo id, porque um treino antigo não tem id, e comparar o id levava junto todos os outros sem id
+  // (o comentário do sheets.jsx:2929). A key é a do workouts.js, o id ou o legacySyncKey. O carimbo do
+  // apply registra a remoção no deleted.workouts, para a sincronização não trazer o treino de volta.
+  'workout.delete': {
+    run(s, a, prev) {
+      const key = text(a, 'key')
+      const target = list(prev.workouts).find(w => isMap(w) && keyText(w) === key)
+      if (!target) fail(a.type, `não existe o treino ${key}`)
+      s.workouts = s.workouts.filter(x => !sameWorkout(x, target))
     },
   },
   // O favorito da biblioteca (toggleFav). Um id que não existe mais só pode sair dos favoritos.
