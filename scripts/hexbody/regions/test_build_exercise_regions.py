@@ -153,6 +153,14 @@ class ResearchRules(unittest.TestCase):
         for id_ in ('0493', '3812', '10927'):
             self.assertEqual(regions(id_)[0], set(B.G['chest']), id_)
 
+    def test_push_press_is_not_the_incline_bench(self):
+        # incline push press: o push press tem o impulso das pernas e fica fora das regras do peito (#106).
+        # Fica o que o catálogo diz, o peito inteiro, com o peito alto do texto na ênfase.
+        p, s = regions('1851')
+        self.assertEqual(p, set(B.G['chest']))
+        self.assertEqual(ROWS['1851'].get('emphasis'), ['upperChest'])
+        self.assertLessEqual({'frontDeltoid', 'triceps', 'quadriceps'}, s)
+
     def test_decline_press_is_low_chest(self):
         self.assertRegions('0033', {'lowerChest', 'chest'}, {'triceps', 'frontDeltoid'})   # barbell decline bench press
         self.assertRegions('0307', {'lowerChest', 'chest'}, {'frontDeltoid'})              # dumbbell decline twist fly
@@ -163,6 +171,7 @@ class ResearchRules(unittest.TestCase):
         self.assertRegions('1045', {'frontDeltoid'}, ohp)   # barbell seated military press (inside squat cage)
         self.assertRegions('0388', {'frontDeltoid'}, ohp)   # dumbbell seated alternate press: "press" com o deltoide inteiro
         self.assertRegions('2927', {'frontDeltoid'}, ohp | {'rotatorCuff'})   # kettlebell kneeling one arm bottoms up press
+        self.assertRegions('1225', {'frontDeltoid'}, ohp)   # standing plate presses: o "press" no plural (#106)
 
     def test_lateral_raise_is_lateral_deltoid(self):
         self.assertRegions('0334', {'deltoids'}, {'rearDeltoid', 'upperTrapezius'})   # dumbbell lateral raise
@@ -187,6 +196,7 @@ class ResearchRules(unittest.TestCase):
         self.assertRegions('0687', {'obliques'}, {'upperAbs'})    # russian twist
         self.assertRegions('11251', {'obliques'}, {'upperAbs'})   # cable kneeling woodchop v. 3
         self.assertRegions('0715', {'obliques'}, {'upperAbs'})    # side plank
+        self.assertRegions('0464', {'obliques'}, {'upperAbs'})    # front plank with twist: o tronco gira (#106)
 
     def test_side_plank_with_abduction_is_gluteus_medius(self):
         self.assertRegions('0703', {'gluteusMedius'}, {'gluteal', 'obliques'})   # side bridge hip abduction (star)
@@ -215,6 +225,41 @@ class ResearchRules(unittest.TestCase):
         self.assertNotIn('emphasis', ROWS['1163'])
         for id_ in ('4886', '9049', '0910'):   # lying flat hip raise, incline hip raise, band lying leg and hip raise
             self.assertRegions(id_, whole, set())
+
+
+class LowerAbs(unittest.TestCase):
+    """O abdômen baixo nunca acende sozinho: nem no primário, nem no secundário (#106)."""
+
+    def test_lower_abs_never_lights_alone(self):
+        for id_, v in ROWS.items():
+            p, s = set(v['primary']), set(v['secondary'])
+            if 'lowerAbs' in p:
+                self.assertIn('upperAbs', p, f'{id_} {v["name"]}: o abdômen baixo sozinho no primário')
+            if 'lowerAbs' in s:
+                self.assertIn('upperAbs', p | s, f'{id_} {v["name"]}: o abdômen baixo sozinho no secundário')
+
+    def test_hip_flexion_keeps_the_lower_abs_with_the_upper(self):
+        p, s = regions('2770')                       # hip flexion, com "lower abs" no texto
+        self.assertEqual(p, set(B.G['quadriceps']))
+        self.assertEqual(s, {'upperAbs', 'lowerAbs', 'hipFlexors'})
+
+
+class CatalogueFixes(unittest.TestCase):
+    """Os erros do catálogo que o gerador corrige, sem mexer no catalogue/ (#106)."""
+
+    def test_every_fix_points_to_a_real_field(self):
+        exercises, _ = B.load_catalogue()
+        for id_, fix in B.CATALOGUE_FIXES.items():
+            self.assertIn(id_, exercises, id_)
+            for field in fix:
+                self.assertIn(field, exercises[id_], f'{id_}: {field}')
+
+    def test_flutter_kicks_are_abs_like_the_other_versions(self):
+        # flutter kicks: o catálogo diz "glutes" no alvo, mas a descrição fala do abdômen baixo e dos
+        # flexores do quadril, e as outras versões (1179 e 1244) têm o alvo "abs".
+        self.assertEqual(regions('0459'), ({'upperAbs', 'lowerAbs'}, {'hipFlexors'}))
+        self.assertEqual(regions('0459'), regions('1179'))
+        self.assertEqual(regions('0459'), regions('1244'))
 
 
 class OutsideRows(unittest.TestCase):
