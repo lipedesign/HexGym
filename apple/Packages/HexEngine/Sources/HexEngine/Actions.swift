@@ -239,7 +239,9 @@ public struct WeekPlan: Codable, Equatable, Sendable {
 
 public struct DocumentSettings: Codable, Equatable, Sendable { public let unit: String, body: String, weekStart: Int, restSec: Int, effort: String? }
 
-public struct StarterPlanOption: Codable, Hashable, Identifiable, Sendable { public let id: String, days: Int }
+// Um plano pronto: o id, quantos dias ele ocupa e quais (weekdays, o getDay() de cada um, 0 é o domingo,
+// na ordem do plano).
+public struct StarterPlanOption: Codable, Hashable, Identifiable, Sendable { public let id: String, days: Int, weekdays: [Int] }
 
 extension HexEngine {
   // Roda a ação no documento aberto, com o instante dela em ms para o carimbo.
@@ -265,6 +267,13 @@ extension HexEngine {
 
   public func starterPlans() throws -> [StarterPlanOption] {
     try decodedAction(run("starterPlans", []))
+  }
+
+  // Os dias que o plan.starter do plano trocaria de fato no documento aberto, na ordem da semana do
+  // perfil: os que têm alguma rotina e ficariam com outra coisa. O motor roda o plano num rascunho e
+  // não muda o documento (issue #120). Um plano que não existe dá nil.
+  public func starterPlanChanges(_ planID: String) throws -> [Int]? {
+    try decodedAction(run("starterPlanChanges", [planID]))
   }
 
   // A resposta do motor num modelo. Um texto que não decodifica é erro do motor, com o que faltou.

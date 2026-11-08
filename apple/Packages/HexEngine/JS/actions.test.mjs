@@ -5,8 +5,8 @@
 //   node --test apple/Packages/HexEngine/JS/actions.test.mjs
 //
 // Os testes dividem o documento aberto, como o JSContext do app: cada um abre o que quer antes. Os
-// 18 primeiros são um por ação, na ordem do plano (Task 5 do plano da fase 2); os outros 9 são os
-// do Foco da revisão e os limites.
+// 18 primeiros são um por ação, na ordem do plano (Task 5 do plano da fase 2); os 10 seguintes são os
+// do Foco da revisão e os limites; os 4 últimos, os da leitura starterPlanChanges (issue #120).
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -16,7 +16,7 @@ import * as R from './runtime.js'
 import { t } from '../../../../frontend/src/lib/i18n-core.js'
 import { pickedExerciseConfig, setsRepsOf } from '../../../../frontend/src/lib/history.js'
 import { replaceSlotExercise } from '../../../../frontend/src/lib/routines.js'
-import { starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
+import { starterPlanDays, starterPlanOptions } from '../../../../frontend/src/lib/starter.js'
 import { convertWeight } from '../../../../frontend/src/lib/units.js'
 import { defaultIncrement } from '../../../../frontend/src/lib/exercises.js'
 
@@ -187,7 +187,8 @@ test('plan.starter loads a plan on its days, with the names in English', () => {
   const d = doc()
   assert.equal(result.routines, 3); assert.deepEqual(d.routines.map(r => r.name), ['Push Day', 'Pull Day', 'Leg Day'])
   assert.deepEqual(Object.keys(d.week).sort(), ['0', '1', '3', '5']); assert.deepEqual(d.week[1], [d.routines[0].id])
-  assert.deepEqual(JSON.parse(R.starterPlans()), starterPlanOptions())
+  assert.deepEqual(JSON.parse(R.starterPlans()), starterPlanOptions().map(o => ({ ...o, weekdays: starterPlanDays(o.id) })))
+  assert.deepEqual(JSON.parse(R.starterPlans()).map(o => o.weekdays), [[1, 3, 5], [1, 2, 4, 5], [1, 3, 5], [1, 3, 5]])
   rejects({ type: 'plan.starter', planId: 'nao-existe' })
 })
 
@@ -300,4 +301,72 @@ test('loading the ppl plan twice does not duplicate its routines', () => {
   const { result } = act({ type: 'plan.starter', planId: 'ppl' }, NOW + 1000)
   assert.equal(result.routines, 0)
   assert.deepEqual(ids(doc().routines), ids(first.routines)); assert.deepEqual(doc().week, first.week)
+})
+
+// Os exercícios do Push Day do PPL (lib/starter.js), na ordem, para uma rotina igual à do plano.
+const PPL_PUSH = ['0025', '0047', '0426', '0334', '0241', '0251']
+const changes = planId => JSON.parse(R.starterPlanChanges(planId))
+// O que o plan.starter faz de verdade: os dias que tinham rotina e mudaram, pela leitura week(). O
+// documento volta como estava depois.
+function changedByAction(planId) {
+  const before = R.document(), days = JSON.parse(R.week()).days
+  act({ type: 'plan.starter', planId })
+  const after = JSON.parse(R.week()).days
+  R.restore(before)
+  return days.filter((d, i) => d.routineIds.length && JSON.stringify(d.routineIds) !== JSON.stringify(after[i].routineIds)).map(d => d.day)
+}
+
+test('starterPlanChanges gives the days a plan really changes, and leaves the document as it was', () => {  // issue #120
+  // A segunda com uma rotina que o plano troca, a terça com duas, a quarta com um id velho (que não
+  // conta) e a sexta com o Push Day igual ao do plano, que ele reaproveita mas tira da sexta.
+  const pushDay = { id: 'r-pd', name: 'Push Day', emoji: 'barbell', ex: PPL_PUSH.map(id => slot(id)) }
+  open({ routines: [PUSH, PULL, pushDay], week: { 1: ['r-push'], 2: ['r-push', 'r-pull'], 3: ['nao-existe'], 5: ['r-pd'] } })
+  const before = R.document()
+  assert.deepEqual(changes('ppl'), [1, 5])
+  assert.deepEqual(changes('upper-lower'), [1, 2, 5])
+  assert.equal(R.document(), before, 'a leitura não muda o documento aberto')
+  for (const plan of ['ppl', 'upper-lower', 'full-body', '5x5']) assert.deepEqual(changes(plan), changedByAction(plan), plan)
+  assert.equal(R.document(), before)
+  // O Push Day já na segunda: o ppl o reaproveita ali, e a segunda não é trocada.
+  open({ routines: [pushDay], week: { 1: ['r-pd'] } })
+  assert.deepEqual(changes('ppl'), [])
+  assert.deepEqual(changes('5x5'), [1])
+})
+
+test('starterPlanChanges counts a null item in a routine as the engine does, and the day is changed', () => {  // nota 3 do QA do PR #119
+  // O Push Day de um documento quebrado: os exercícios do plano e um nulo no fim. O routines() deixa o
+  // nulo de fora, mas o sameLift do plan.starter o conta, e o plano cria outra rotina para a segunda.
+  const broken = { id: 'r-pd', name: 'Push Day', emoji: 'barbell', ex: [...PPL_PUSH.map(id => slot(id)), null] }
+  open({ routines: [broken], week: { 1: ['r-pd'] } })
+  assert.deepEqual(JSON.parse(R.routines())[0].slots.map(s => s.id), PPL_PUSH)
+  assert.deepEqual(changes('ppl'), [1])
+  assert.deepEqual(changedByAction('ppl'), [1])
+  // O nulo no meio também.
+  open({ routines: [{ ...broken, ex: [slot('0025'), null, ...PPL_PUSH.slice(1).map(id => slot(id))] }], week: { 1: ['r-pd'] } })
+  assert.deepEqual(changes('ppl'), [1])
+})
+
+test('starterPlanChanges is empty for a plan that changes no day, and null for a plan that does not exist', () => {  // issue #120
+  // Sem rotina na semana, nenhum plano troca dia: ele só preenche.
+  open({ week: { 0: ['nao-existe'] } })
+  for (const plan of ['ppl', 'upper-lower', 'full-body', '5x5']) assert.deepEqual(changes(plan), [], plan)
+  // Com o ppl carregado, o ppl de novo volta às mesmas rotinas e não troca nada.
+  act({ type: 'plan.starter', planId: 'ppl' })
+  assert.deepEqual(changes('ppl'), [])
+  assert.deepEqual(changes('full-body'), [1, 3, 5])
+  const before = R.document()
+  for (const id of ['nao-existe', '', 'constructor', '__proto__', 5, null, undefined]) assert.equal(changes(id), null, String(id))
+  assert.equal(R.document(), before)
+})
+
+test('starterPlanChanges follows the week of the profile, from Sunday or from Monday', () => {  // issue #120
+  // Nenhum plano usa o domingo, então o começo da semana não muda a resposta, só a ordem em que ela
+  // seria lida; a lista sai na ordem do week().
+  for (const weekStart of [0, 1]) {
+    open({ weekStart, routines: [PUSH, PULL], week: { 0: ['r-push'], 1: ['r-pull'], 2: ['r-push'], 4: ['r-pull'], 5: ['r-push'] } })
+    assert.deepEqual(JSON.parse(R.week()).days[0].day, weekStart)
+    assert.deepEqual(changes('upper-lower'), [1, 2, 4, 5], `semana começando em ${weekStart}`)
+    assert.deepEqual(changes('ppl'), [1, 5])
+    assert.deepEqual(changes('ppl'), changedByAction('ppl'))
+  }
 })

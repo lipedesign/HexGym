@@ -11,7 +11,9 @@
 // numa tela que sobe. Quando o plano troca um dia que tinha rotina, o alerta da Apple diz quais antes
 // de aplicar ("Este plano troca segunda, quarta e sexta."), com "Cancelar" e "Carregar plano" sempre à
 // vista (achado 1 do QA do PR #119: o confirmationDialog no iPhone escondia o "Cancelar"), e as rotinas
-// de antes ficam. Sem dia para trocar, o plano entra no primeiro toque, como no openGym.
+// de antes ficam. Sem dia para trocar, o plano entra no primeiro toque, como no openGym. Se não deu para
+// ler os dias que o plano troca, o alerta aparece mesmo assim, só com "As suas rotinas ficam." (sugestão 1
+// do QA do PR #154).
 //
 // Depois de carregar, o VoiceOver anuncia "Plano <nome> carregado", como a mensagem do openGym, um pouco
 // depois de a tela fechar (PlanLoadedAnnouncement).
@@ -124,8 +126,8 @@ struct StarterPlansSheet: View {
         Button("Cancel", role: .cancel) {}
         Button("Load plan") { load(plan) }
       } message: { plan in
-        Text(verbatim: [screen.model?.warning(forPlan: plan.id) ?? "", AppText.text("Your routines stay.", locale: screen.text.locale)]
-          .joined(separator: " "))
+        Text(verbatim: ([screen.model?.warning(forPlan: plan.id)].compactMap { $0 }
+          + [AppText.text("Your routines stay.", locale: screen.text.locale)]).joined(separator: " "))
       }
       .task { await appear() }
     }
@@ -140,10 +142,10 @@ struct StarterPlansSheet: View {
     Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } })
   }
 
-  // Com dias para trocar, o aviso; sem, o plano entra no primeiro toque.
+  // Com dias para trocar (ou sem saber quais), o aviso; sem, o plano entra no primeiro toque.
   private func choose(_ plan: StarterPlanRow) {
     guard loading == nil else { return }
-    if screen.model?.warning(forPlan: plan.id) != nil {
+    if screen.model?.asks(forPlan: plan.id) == true {
       confirming = plan
     } else {
       load(plan)

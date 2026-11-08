@@ -7,15 +7,15 @@
 // WeekPlanScreen é o estado da tela: lê no motor, muda a tela na hora e manda a ação pelo perform. A
 // tela não calcula nada no body.
 //
-// Toda regra continua no motor (seção 8.2): o week.set e o plan.starter, que é o loadStarterPlan do
-// sheets.jsx. As ações acham as rotinas pelo id, nunca pela posição na tela. O que fica aqui é a conta
-// do aviso, que o motor não tem como leitura: o plan.starter reaproveita a rotina que já existe com o
-// mesmo nome e os mesmos exercícios e põe uma rotina só em cada dia do plano, e os outros dias ficam como
-// estavam. Um dia do plano é trocado de fato quando tinha alguma rotina (um id que não é mais rotina não
-// conta, como o "taken" do StarterPlanChooser do openGym) e vai ficar com outra coisa. Um dia vazio que o
-// plano preenche não é trocado, e o openGym também não avisa por ele. Para a conta, o StarterPlanCatalog
-// leva os nomes, os exercícios e os dias dos quatro planos, copiados do lib/starter.js; os testes
-// (WeekPlanModelTests) conferem a tabela e o aviso contra o motor de verdade, nos quatro planos.
+// Toda regra fica no motor (seção 8.2): o week.set e o plan.starter, que é o loadStarterPlan do
+// sheets.jsx. As ações acham as rotinas pelo id, nunca pela posição na tela. Os dias de cada plano vêm
+// do engine.starterPlans(), e os dias que o aviso cita, do engine.starterPlanChanges(id) (issue #120): o
+// motor roda o plan.starter num rascunho e devolve os dias que tinham rotina e ficariam com outra coisa.
+// Assim, quando uma rotina é reaproveitada é a regra do próprio plan.starter, inclusive num documento
+// quebrado (nota 3 do QA do PR #119), e o app não leva cópia dos planos nem da regra. Uma leitura dos
+// dias de um plano que falha não derruba a semana: o plano fica na lista sem os dias (PlanChanges.unread)
+// e sempre pede o alerta, sem a frase dos dias, porque na dúvida a tela pergunta. Um plano que o motor diz
+// que não existe sai da lista, com o id no log (sugestões 1 e 2 do QA do PR #154).
 //
 // No log, como no AppModel, o tipo do erro fica público e o detalhe, privado, porque a mensagem do motor
 // pode trazer um pedaço do documento.
@@ -151,41 +151,10 @@ nonisolated struct StarterPlanRow: Identifiable, Equatable, Sendable {
   let spoken: String
 }
 
-// Os quatro planos do lib/starter.js do openGym: em cada dia, o nome da rotina e os exercícios dela, na
-// ordem. É o que o plan.starter compara para reaproveitar uma rotina que já existe (o sameLift do
-// sheets.jsx). Os testes conferem a tabela contra as rotinas que o motor cria.
-nonisolated enum StarterPlanCatalog {
-  struct Entry: Equatable, Sendable {
-    let day: Int
-    let name: String
-    let exercises: [String]
-  }
-
-  static func schedule(of id: String) -> [Entry]? { plans[id] }
-
-  private static let plans: [String: [Entry]] = [
-    "ppl": [
-      Entry(day: 1, name: "Push Day", exercises: ["0025", "0047", "0426", "0334", "0241", "0251"]),
-      Entry(day: 3, name: "Pull Day", exercises: ["2330", "0027", "1323", "0031", "0313"]),
-      Entry(day: 5, name: "Leg Day", exercises: ["0043", "0085", "0739", "0585", "0586", "0605"]),
-    ],
-    "upper-lower": [
-      Entry(day: 1, name: "Upper A", exercises: ["0025", "2330", "0047", "1323", "0334", "0241", "0031"]),
-      Entry(day: 2, name: "Lower A", exercises: ["0043", "0085", "0739", "0586", "0605"]),
-      Entry(day: 4, name: "Upper B", exercises: ["0047", "0027", "0426", "2330", "0334", "0241", "0313"]),
-      Entry(day: 5, name: "Lower B", exercises: ["0739", "0085", "0585", "0586", "0605"]),
-    ],
-    "full-body": [
-      Entry(day: 1, name: "Full Body A", exercises: ["0043", "0025", "2330", "0586", "0334", "0031"]),
-      Entry(day: 3, name: "Full Body B", exercises: ["0085", "0047", "1323", "0585", "0334", "0241"]),
-      Entry(day: 5, name: "Full Body C", exercises: ["0739", "0025", "0027", "0426", "0586", "0605"]),
-    ],
-    "5x5": [
-      Entry(day: 1, name: "5×5 A", exercises: ["0043", "0025", "0027"]),
-      Entry(day: 3, name: "5×5 B", exercises: ["0085", "0426", "2330"]),
-      Entry(day: 5, name: "5×5 C", exercises: ["0739", "0047", "1323"]),
-    ],
-  ]
+// O que o motor disse dos dias que um plano troca: os dias, ou unread quando a leitura falhou.
+nonisolated enum PlanChanges: Equatable, Sendable {
+  case days([Int])
+  case unread
 }
 
 nonisolated struct WeekPlanModel: Sendable {
@@ -196,22 +165,58 @@ nonisolated struct WeekPlanModel: Sendable {
   private let assigned: [Int: [String]]
   private let routines: [RoutineSummary]
   private let options: [StarterPlanOption]
+  // Os dias que cada plano troca, do engine.starterPlanChanges, pelo id do plano.
+  private let changes: [String: PlanChanges]
   private let text: WeekPlanText
 
-  // As rotinas de cada dia vêm do week(), que já deixa de fora o id que não é mais rotina.
-  init(week: WeekPlan, routines: [RoutineSummary], plans: [StarterPlanOption] = [], text: WeekPlanText) {
+  private static let logger = Logger(subsystem: "app.hexgym", category: "week")
+
+  // As rotinas de cada dia vêm do week(), que já deixa de fora o id que não é mais rotina. Um plano só
+  // aparece com o que o motor disse dos dias dele (changes): os dias, ou unread quando a leitura falhou.
+  init(week: WeekPlan, routines: [RoutineSummary], plans: [StarterPlanOption] = [], changes: [String: PlanChanges] = [:],
+       text: WeekPlanText) {
     self.init(weekStart: week.weekStart, order: week.days.map(\.day),
               assigned: Dictionary(week.days.map { ($0.day, $0.routineIds) }, uniquingKeysWith: { first, _ in first }),
-              routines: routines, options: plans, text: text)
+              routines: routines, options: plans, changes: changes, text: text)
+  }
+
+  // Tudo o que a semana e os planos prontos mostram, lido no motor: a semana, as rotinas, os planos e os
+  // dias que cada um troca.
+  static func read(_ engine: HexEngine, text: WeekPlanText) async throws -> WeekPlanModel {
+    let week = try await engine.week(), routines = try await engine.routines(), plans = try await engine.starterPlans()
+    let changes = await changes(of: plans) { try await engine.starterPlanChanges($0) }
+    return WeekPlanModel(week: week, routines: routines, plans: plans, changes: changes, text: text)
+  }
+
+  // Os dias que cada plano troca, lidos um plano por vez pelo read. Uma leitura que falha vira unread, com
+  // o erro no log (o tipo público e o detalhe privado, como no WeekPlanScreen), e não derruba a semana.
+  // Um nil quer dizer que o motor não conhece o plano que o starterPlans() listou: o plano fica de fora,
+  // com o id no log.
+  static func changes(of plans: [StarterPlanOption], read: @Sendable (String) async throws -> [Int]?) async -> [String: PlanChanges] {
+    var changes: [String: PlanChanges] = [:]
+    for plan in plans {
+      do {
+        if let days = try await read(plan.id) {
+          changes[plan.id] = .days(days)
+        } else {
+          logger.error("o motor não conhece o plano \(plan.id, privacy: .public), que o starterPlans() listou")
+        }
+      } catch {
+        changes[plan.id] = .unread
+        logger.error("não deu para ler os dias que o plano \(plan.id, privacy: .public) troca (\(String(describing: type(of: error)), privacy: .public)): \(String(describing: error), privacy: .private)")
+      }
+    }
+    return changes
   }
 
   private init(weekStart: Int, order: [Int], assigned: [Int: [String]], routines: [RoutineSummary], options: [StarterPlanOption],
-               text: WeekPlanText) {
+               changes: [String: PlanChanges], text: WeekPlanText) {
     self.weekStart = weekStart
     self.order = order
     self.assigned = assigned
     self.routines = routines
     self.options = options
+    self.changes = changes
     self.text = text
     let names = Dictionary(routines.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
     days = order.map { day in
@@ -221,9 +226,8 @@ nonisolated struct WeekPlanModel: Sendable {
                         isRest: ids.isEmpty, spoken: "\(text.full(day)), \(routines)")
     }
     plans = options.compactMap { option in
-      guard let schedule = StarterPlanCatalog.schedule(of: option.id), let name = text.planName(option.id),
-            let about = text.planAbout(option.id) else { return nil }
-      let planDays = order.filter { day in schedule.contains { $0.day == day } }
+      guard changes[option.id] != nil, let name = text.planName(option.id), let about = text.planAbout(option.id) else { return nil }
+      let planDays = order.filter(option.weekdays.contains)
       let count = text.daysPerWeek(option.days)
       return StarterPlanRow(
         id: option.id, name: name, about: about, days: planDays,
@@ -252,27 +256,34 @@ nonisolated struct WeekPlanModel: Sendable {
     ids.contains(id) ? ids.filter { $0 != id } : ids + [id]
   }
 
-  // A mesma semana com um dia mudado, até a leitura do motor chegar.
+  // A mesma semana com um dia mudado, até a leitura do motor chegar. Os dias que cada plano troca ficam
+  // os da última leitura até lá: a leitura que vem depois da ação traz os novos.
   func setting(_ day: Int, to ids: [String]) -> WeekPlanModel {
     var assigned = assigned
     assigned[day] = ids
-    return WeekPlanModel(weekStart: weekStart, order: order, assigned: assigned, routines: routines, options: options, text: text)
+    return WeekPlanModel(weekStart: weekStart, order: order, assigned: assigned, routines: routines, options: options,
+                         changes: changes, text: text)
   }
 
-  // Os dias que o plano troca de fato, na ordem da semana do perfil: os dias dele que tinham rotina e que
-  // vão ficar com outra. O plan.starter põe em cada dia do plano só a rotina dele: a que já existe com o
-  // mesmo nome e os mesmos exercícios ou, sem ela, uma nova.
+  // Os dias que o plano troca de fato, na ordem da semana do perfil, como o motor leu; nenhum quando a
+  // leitura falhou.
   func replacedDays(byPlan id: String) -> [Int] {
-    guard let schedule = StarterPlanCatalog.schedule(of: id) else { return [] }
-    return order.filter { day in
-      guard let entry = schedule.first(where: { $0.day == day }), let current = self.day(day)?.routineIDs, !current.isEmpty
-      else { return false }
-      let reused = routines.first { $0.name == entry.name && $0.slots.map(\.id) == entry.exercises }
-      return reused.map { current != [$0.id] } ?? true
+    guard case .days(let days) = changes[id] else { return [] }
+    return days
+  }
+
+  // Se o plano pede o alerta antes de entrar: quando troca algum dia e, na dúvida, quando a leitura dos
+  // dias dele falhou.
+  func asks(forPlan id: String) -> Bool {
+    switch changes[id] {
+    case .unread: true
+    case .days(let days): !days.isEmpty
+    case nil: false
     }
   }
 
-  // "Este plano troca segunda, quarta e sexta.", ou nil quando ele não troca nenhum dia.
+  // "Este plano troca segunda, quarta e sexta.", ou nil quando ele não troca nenhum dia ou quando não deu
+  // para ler os dias dele (o alerta, então, vai sem a frase dos dias).
   func warning(forPlan id: String) -> String? {
     let days = replacedDays(byPlan: id)
     return days.isEmpty ? nil : text.changes(days)
@@ -328,8 +339,7 @@ nonisolated enum PlanLoadedAnnouncement {
   func load() async {
     guard pending == 0 else { return }
     do {
-      let model = WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(),
-                                plans: try await engine.starterPlans(), text: text)
+      let model = try await WeekPlanModel.read(engine, text: text)
       guard pending == 0 else { return }
       self.model = model
       phase = .ready

@@ -3,9 +3,13 @@
 // curtos e por extenso; um dia sem rotina diz "Descanso", na linha e no VoiceOver; com o motor de
 // verdade, o plano PPL deixa segunda, quarta e sexta com as rotinas dele e os outros dias como estavam;
 // e o aviso de um plano pronto diz só os dias que ele troca de fato, conferido contra o que o motor faz
-// em cada um dos quatro planos (e a tabela dos planos, contra as rotinas que o motor cria). E o da nota 4
-// do QA do PR #119: o anúncio "Plano <nome> carregado" sai só depois de um atraso, quando a tela dos
-// planos já fechou, para a troca de foco não cortar a fala do VoiceOver.
+// em cada um dos quatro planos (e os dias de cada plano, contra os dias que o plano preenche). E o da
+// nota 4 do QA do PR #119: o anúncio "Plano <nome> carregado" sai só depois de um atraso, quando a tela
+// dos planos já fechou, para a troca de foco não cortar a fala do VoiceOver. E o da nota 3 do mesmo QA
+// (issue #120): num documento com um item nulo no ex de uma rotina, o aviso cita o dia que o motor troca,
+// porque os dias do aviso vêm da leitura do motor (engine.starterPlanChanges). E o das sugestões 1 e 2 do
+// QA do PR #154: uma leitura dos dias de um plano que falha não derruba a semana, e o plano fica e sempre
+// pede o alerta; um plano que o motor não conhece sai da lista.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -30,9 +34,9 @@ import Testing
     return engine
   }
 
+  // O modelo pelo mesmo caminho da tela (WeekPlanScreen.load).
   func model(_ engine: HexEngine, locale: Locale? = nil) async throws -> WeekPlanModel {
-    WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(), plans: try await engine.starterPlans(),
-                  text: WeekPlanText(locale: locale ?? portuguese))
+    try await WeekPlanModel.read(engine, text: WeekPlanText(locale: locale ?? portuguese))
   }
 
   @Test func theDaysFollowTheWeekStartWithShortAndSpokenLabels() async throws {
@@ -134,28 +138,85 @@ import Testing
     #expect(loaded.replacedDays(byPlan: "ppl").isEmpty)
     #expect(loaded.warning(forPlan: "full-body") == "Este plano troca segunda, quarta e sexta.")
 
-    // Contra o motor, nos quatro planos e nos dois documentos: os dias que o aviso diz são os dias que
-    // tinham rotina e mudaram depois do plan.starter. E a tabela dos planos é a do starter.js: as
-    // rotinas que o motor cria têm os nomes e os exercícios dela, nos dias dela.
-    for start in [document, nil] {
-      for plan in model.plans.map(\.id) {
+    // Contra o motor, nos quatro planos e em três documentos: os dias que o aviso diz são os dias que
+    // tinham rotina e mudaram depois do plan.starter. Na semana vazia, nenhum dia é trocado, e os dias
+    // que o plano preenche são os dias da linha dele.
+    let empty = #"{"weekStart":1}"#
+    for start in [document, nil, empty] {
+      for row in model.plans {
         let engine = try await self.engine(start)
         if start == nil { _ = try await engine.apply(.loadStarterPlan(id: "ppl")) }
-        let predicted = try await self.model(engine).replacedDays(byPlan: plan)
+        let predicted = try await self.model(engine)
         let before = try await engine.week().days
-        _ = try await engine.apply(.loadStarterPlan(id: plan))
+        _ = try await engine.apply(.loadStarterPlan(id: row.id))
         let after = try await engine.week().days
         let changed = zip(before, after).filter { !$0.routineIds.isEmpty && $0.routineIds != $1.routineIds }.map(\.0.day)
-        #expect(predicted == changed, "\(plan), \(start == nil ? "depois do ppl" : "com as duas rotinas")")
-        let routines = try await engine.routines()
-        for entry in try #require(StarterPlanCatalog.schedule(of: plan)) {
-          let id = try #require(after.first { $0.day == entry.day }?.routineIds.first)
-          let routine = try #require(routines.first { $0.id == id })
-          #expect(routine.name == entry.name)
-          #expect(routine.slots.map(\.id) == entry.exercises, "\(plan), \(entry.name)")
+        let label = start == nil ? "depois do ppl" : start == empty ? "na semana vazia" : "com as duas rotinas"
+        #expect(predicted.replacedDays(byPlan: row.id) == changed, "\(row.id), \(label)")
+        #expect((predicted.warning(forPlan: row.id) == nil) == changed.isEmpty, "\(row.id), \(label)")
+        if start == empty {
+          #expect(after.filter { !$0.routineIds.isEmpty }.map(\.day) == row.days, "\(row.id)")
         }
       }
     }
+  }
+
+  @Test func aNullItemInARoutineStillWarnsAboutTheDayTheEngineChanges() async throws {  // nota 3 do QA do PR #119
+    // O Push Day de um documento quebrado: os exercícios do PPL e um nulo no fim. A lista das rotinas
+    // deixa o nulo de fora e mostra a rotina igual à do plano, mas o plan.starter conta o nulo, cria outro
+    // Push Day e troca a segunda. O aviso diz a segunda, e o plano não entra no primeiro toque.
+    let push = ["0025", "0047", "0426", "0334", "0241", "0251"]
+      .map { #"{"id":"\#($0)","sets":4,"reps":8,"weight":0}"# }.joined(separator: ",")
+    let engine = try await engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Push Day","emoji":"barbell","ex":[\#(push),null]}],
+       "week":{"1":["r1"]}}
+      """#)
+    #expect(try await engine.routines().first?.slots.count == 6)
+    let model = try await model(engine)
+    #expect(model.replacedDays(byPlan: "ppl") == [1])
+    #expect(model.warning(forPlan: "ppl") == "Este plano troca segunda.")
+    // E o motor troca mesmo a segunda.
+    _ = try await engine.apply(.loadStarterPlan(id: "ppl"))
+    #expect(try await engine.week().days.first { $0.day == 1 }?.routineIds != ["r1"])
+    // A mesma rotina sem o nulo é reaproveitada, e o ppl não troca dia nenhum.
+    let clean = try await self.engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Push Day","emoji":"barbell","ex":[\#(push)]}],
+       "week":{"1":["r1"]}}
+      """#)
+    #expect(try await self.model(clean).warning(forPlan: "ppl") == nil)
+  }
+
+  @Test func aPlanWhoseDaysFailToReadStaysAndAlwaysAsks() async throws {  // sugestões 1 e 2 do QA do PR #154
+    // Só a terça com rotina: o PPL não a toca e entra no primeiro toque; o Superior e inferior a troca. A
+    // leitura do Corpo inteiro falha, e a do 5×5 dá nil, como se o motor não conhecesse o plano.
+    let engine = try await engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Peito","emoji":"arm","ex":[{"id":"0025","sets":3,"reps":10}]}],
+       "week":{"2":["r1"]}}
+      """#)
+    struct Broken: Error {}
+    let plans = try await engine.starterPlans()
+    let changes = await WeekPlanModel.changes(of: plans) { id in
+      if id == "full-body" { throw Broken() }
+      if id == "5x5" { return nil }
+      return try await engine.starterPlanChanges(id)
+    }
+    #expect(changes == ["ppl": .days([]), "upper-lower": .days([2]), "full-body": .unread])
+    let model = WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(), plans: plans, changes: changes,
+                              text: WeekPlanText(locale: portuguese))
+    // A semana continua, o plano que falhou fica na lista com os dias dele, e o que o motor não conhece sai.
+    #expect(try #require(model.day(2)).routines == "Peito")
+    #expect(model.plans.map(\.id) == ["ppl", "upper-lower", "full-body"])
+    #expect(model.plans.last?.days == [1, 3, 5])
+    // O que falhou sempre pede o alerta, sem citar dias que o motor não deu; os outros seguem o motor.
+    #expect(model.asks(forPlan: "full-body"))
+    #expect(model.warning(forPlan: "full-body") == nil)
+    #expect(model.replacedDays(byPlan: "full-body").isEmpty)
+    #expect(!model.asks(forPlan: "ppl"))
+    #expect(model.warning(forPlan: "ppl") == nil)
+    #expect(model.asks(forPlan: "upper-lower"))
+    #expect(model.warning(forPlan: "upper-lower") == "Este plano troca terça.")
+    // Pelo motor de verdade, o Corpo inteiro não trocaria a terça: sem a leitura, a tela pergunta mesmo assim.
+    #expect(try await engine.starterPlanChanges("full-body") == [])
   }
 
   @Test func theLoadedAnnouncementWaitsUntilTheSheetHasClosed() async throws {  // nota 4 do QA do PR #119
