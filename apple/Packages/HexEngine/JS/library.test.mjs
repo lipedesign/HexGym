@@ -148,6 +148,12 @@ test('exercise() says whether the steps and the description came translated', ()
     R.setLanguage(pack('en'), pack('de'))
     assert.deepEqual(flags('1000'), [true, true])
     assert.equal(flags('0025')[1], false)
+    // De volta ao pt-BR, o pacote de descrições do alemão não fica: a descrição do 1000 é a inglesa.
+    R.setLanguage(pack('en'), pack('pt-BR'))
+    assert.equal(flags('1000')[1], false)
+    // O de-CH é derivado do de e tem as mesmas descrições, com ss no lugar do ß.
+    R.setLanguage(pack('en'), pack('de'), 'de-CH')
+    assert.deepEqual(flags('1000'), [true, true])
     R.setLanguage(pack('en'))
     assert.deepEqual(flags('0025'), [false, false])
   } finally {
