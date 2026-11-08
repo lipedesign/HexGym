@@ -477,7 +477,10 @@ export function step(S, action, now) {
   if (!changedFrom(S, next)) return { state: S, effects: [], result }
   // Um active do openGym, sem marco, ganha o de antes da ação, como o useRef nasce com a tela.
   if (isMap(next.active) && next.active !== S.active && isMap(S.active) && !Array.isArray(next.active.progress)) next.active.progress = progressOf(S.active)
-  const rest = restEffect(restNow(S.active?.rest, now), next.active?.rest)
+  // A pausa de trocar de lado que já acabou sai do treino, como o tique do openGym põe o timer em
+  // null (store/useUI.js:177-183): ela não existe mais, e nenhuma ação depois dela agenda descanso.
+  if (isMap(next.active) && next.active !== S.active && isMap(next.active.rest) && !restNow(next.active.rest, now)) next.active.rest = null
+  const rest = restEffect(restNow(S.active?.rest, now), restNow(next.active?.rest, now))
   if (rest) effects.push(rest)
   effects.push({ type: spec.activity || 'activity.update' })
   return { state: next, effects, result }

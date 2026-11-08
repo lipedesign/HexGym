@@ -194,10 +194,20 @@ describe('o controlador do treino: as séries', () => {
     expect(mark(w1.state, 0, 1, true, NOW + 30 * SEC).state.active.rest.total).toBe(90)
     // Entre a linha L e a R de uma série com tempo por lado: a pausa de trocar de lado, de 10 s.
     const sides = [{ sec: 30, w: 0, done: false, side: 'L' }, { sec: 30, w: 0, done: false, side: 'R' }, { sec: 30, w: 0, done: false, side: 'L' }, { sec: 30, w: 0, done: false, side: 'R' }]
-    const plank = withEntries(doc(), [{ id: PLANK, target: { mode: 'time', sec: 30, side: true }, sets: sides }])
+    const plank = withEntries(doc(), [
+      { id: PLANK, target: { mode: 'time', sec: 30, side: true }, sets: sides },
+      { id: SQUAT, target: { mode: 'reps' }, sets: [{ w: 60, r: 5, done: false }] },
+    ])
     const left = mark(plank, 0, 0)
     expect(left.state.active.rest).toEqual({ endsAt: NOW + 10 * SEC, total: 10, forIdx: 0, forSet: 0, kind: 'switch' })
     expect(left.effects[1]).toEqual({ type: 'rest.started', endsAt: NOW + 10 * SEC, total: 10, kind: 'switch' })
+    // Acabada a pausa, ela sai do treino como o tique do openGym a tira: mudar a carga ou o
+    // exercício da frente não agenda descanso nenhum.
+    for (const a of [{ type: 'set.update', entry: 1, set: 0, fields: { w: 65 } }, { type: 'focus', entry: 1 }]) {
+      const later = step(left.state, a, NOW + 30 * SEC)
+      expect(types(later)).toEqual(['activity.update'])
+      expect(later.state.active.rest).toBe(null)
+    }
     const right = mark(left.state, 0, 1, true, NOW + 45 * SEC)
     expect(right.state.active.rest).toEqual({ endsAt: NOW + 135 * SEC, total: 90, forIdx: 0, forSet: 1, kind: 'rest' })
     // Com o sideRestOff, o descanso que estava contando acaba e nenhum começa entre os lados.
