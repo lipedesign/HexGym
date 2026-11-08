@@ -7,7 +7,9 @@
 // nota 4 do QA do PR #119: o anúncio "Plano <nome> carregado" sai só depois de um atraso, quando a tela
 // dos planos já fechou, para a troca de foco não cortar a fala do VoiceOver. E o da nota 3 do mesmo QA
 // (issue #120): num documento com um item nulo no ex de uma rotina, o aviso cita o dia que o motor troca,
-// porque os dias do aviso vêm da leitura do motor (engine.starterPlanChanges).
+// porque os dias do aviso vêm da leitura do motor (engine.starterPlanChanges). E o das sugestões 1 e 2 do
+// QA do PR #154: uma leitura dos dias de um plano que falha não derruba a semana, e o plano fica e sempre
+// pede o alerta; um plano que o motor não conhece sai da lista.
 //
 // O alvo roda dentro do app (TEST_HOST) e lê os textos do catálogo do app.
 //
@@ -182,6 +184,39 @@ import Testing
        "week":{"1":["r1"]}}
       """#)
     #expect(try await self.model(clean).warning(forPlan: "ppl") == nil)
+  }
+
+  @Test func aPlanWhoseDaysFailToReadStaysAndAlwaysAsks() async throws {  // sugestões 1 e 2 do QA do PR #154
+    // Só a terça com rotina: o PPL não a toca e entra no primeiro toque; o Superior e inferior a troca. A
+    // leitura do Corpo inteiro falha, e a do 5×5 dá nil, como se o motor não conhecesse o plano.
+    let engine = try await engine(#"""
+      {"weekStart":1,"routines":[{"id":"r1","name":"Peito","emoji":"arm","ex":[{"id":"0025","sets":3,"reps":10}]}],
+       "week":{"2":["r1"]}}
+      """#)
+    struct Broken: Error {}
+    let plans = try await engine.starterPlans()
+    let changes = await WeekPlanModel.changes(of: plans) { id in
+      if id == "full-body" { throw Broken() }
+      if id == "5x5" { return nil }
+      return try await engine.starterPlanChanges(id)
+    }
+    #expect(changes == ["ppl": .days([]), "upper-lower": .days([2]), "full-body": .unread])
+    let model = WeekPlanModel(week: try await engine.week(), routines: try await engine.routines(), plans: plans, changes: changes,
+                              text: WeekPlanText(locale: portuguese))
+    // A semana continua, o plano que falhou fica na lista com os dias dele, e o que o motor não conhece sai.
+    #expect(try #require(model.day(2)).routines == "Peito")
+    #expect(model.plans.map(\.id) == ["ppl", "upper-lower", "full-body"])
+    #expect(model.plans.last?.days == [1, 3, 5])
+    // O que falhou sempre pede o alerta, sem citar dias que o motor não deu; os outros seguem o motor.
+    #expect(model.asks(forPlan: "full-body"))
+    #expect(model.warning(forPlan: "full-body") == nil)
+    #expect(model.replacedDays(byPlan: "full-body").isEmpty)
+    #expect(!model.asks(forPlan: "ppl"))
+    #expect(model.warning(forPlan: "ppl") == nil)
+    #expect(model.asks(forPlan: "upper-lower"))
+    #expect(model.warning(forPlan: "upper-lower") == "Este plano troca terça.")
+    // Pelo motor de verdade, o Corpo inteiro não trocaria a terça: sem a leitura, a tela pergunta mesmo assim.
+    #expect(try await engine.starterPlanChanges("full-body") == [])
   }
 
   @Test func theLoadedAnnouncementWaitsUntilTheSheetHasClosed() async throws {  // nota 4 do QA do PR #119
