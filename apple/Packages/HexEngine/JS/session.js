@@ -23,6 +23,7 @@ import { clustersOf, dropsOf, isDropSet, isRestPauseSet, isSideSet, isWarmupRow 
 import { EXIDX, defaultIncrement } from '../../../../frontend/src/lib/exercises.js'
 import { weightIncrement } from '../../../../frontend/src/lib/progression.js'
 import { exerciseNameFor, t } from '../../../../frontend/src/lib/i18n-core.js'
+import { legacySyncKey } from '../../../../frontend/src/lib/workout-date.js'
 import { glyphStr } from '../../../../api/coach/core/glyphs.js'
 
 // As séries depois da atual que a Live Activity leva, para o "Série feita" dela andar sem o app
@@ -234,6 +235,16 @@ const planned = S => ({
 const orderKey = (w, i) => ({ w, i, day: workoutDay(w) || '', start: Number(w.start) || 0 })
 const newerFirst = (a, b) => (a.day !== b.day ? (a.day > b.day ? -1 : 1) : a.start !== b.start ? b.start - a.start : b.i - a.i)
 
+/**
+ * A chave de um treino, a do sameWorkout do openGym (lib/workout-date.js): o id, ou o legacySyncKey
+ * ("<dia>|<começo>") quando o treino é antigo e não tem id. É a regra do keyOf do lib/session-edit.js,
+ * porque o syncKeyOf de lá não é exportado. Mora aqui, com a ordem, para o último treino do Início e
+ * o Histórico (workouts.js) darem a mesma chave sem um importar o outro de volta.
+ */
+export const keyOf = w => (w?.id != null ? w.id : legacySyncKey(w))
+// A chave em texto, como o Swift manda de volta e a sincronização guarda (o entryKey do sync-merge.js).
+export const keyText = w => String(keyOf(w))
+
 /** Os treinos do mais novo para o mais antigo, numa lista nova. */
 export function byNewest(workouts) {
   return workouts.map(orderKey).sort(newerFirst).map(k => k.w)
@@ -286,7 +297,9 @@ export function home(S0, now) {
     streakWeeks: streakWeeks(S),
     weekCount: weekTally(S, today).done,
     total: S.workouts.length,
+    // O último treino leva a chave do Histórico, para o Início abrir o detalhe de um treino antigo sem id.
     last: last ? {
+      key: keyText(last),
       id: last.id != null ? String(last.id) : null,
       name: typeof last.name === 'string' ? last.name : '',
       d: workoutDay(last),

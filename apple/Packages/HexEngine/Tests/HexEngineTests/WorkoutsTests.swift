@@ -47,6 +47,8 @@ private func bench() -> [String: Any] { [
   #expect(top.id == "w3"); #expect(top.name == "Treino w3"); #expect(top.start == friday); #expect(top.end == friday + 3000)
   #expect(top.durationMs == 3_000_000); #expect(top.sets == WorkoutSummary.Sets(done: 3, work: 2))
   #expect(top.volume == 60 * 8 + 62.5 * 8); #expect(top.unit == "kg"); #expect(top.prs == ["0025"])
+  // O último treino do Início leva a mesma chave do primeiro da lista.
+  #expect(try await engine.home(now: friday + day).last?.key == top.key)
 
   // A página seguinte traz o treino antigo, sem id, pela chave do legacySyncKey.
   let next = try await engine.history(before: "w2", limit: 2)

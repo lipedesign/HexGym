@@ -6,26 +6,21 @@
 // actions.js. Cada função recebe o documento, e o runtime.js passa o aberto e troca o JSON com o
 // Swift.
 //
-// Cada treino tem uma chave, a do sameWorkout do openGym (lib/workout-date.js): o id, ou o
-// legacySyncKey ("<dia>|<começo>") quando o treino é antigo e não tem id. É a regra do keyOf do
-// lib/session-edit.js, porque o syncKeyOf de lá não é exportado. Para o Swift, a chave vai sempre em
-// texto, como a sincronização a guarda (o entryKey do lib/sync-merge.js).
+// Cada treino tem uma chave, a do sameWorkout do openGym: o id, ou o legacySyncKey quando o treino é
+// antigo e não tem id (o keyOf do session.js, que o último treino do Início também usa). Para o Swift,
+// a chave vai sempre em texto, como a sincronização a guarda (o entryKey do lib/sync-merge.js).
 import { setLabel, setsDone, sessionVolume, workSetsDone, workoutDay, workoutDuration, bestWeightForEntry } from '../../../../frontend/src/lib/history.js'
-import { legacySyncKey } from '../../../../frontend/src/lib/workout-date.js'
 import { hasCompletedWork, isSideSet, isWarmupRow } from '../../../../frontend/src/lib/workout-model.js'
 import { hrLabel } from '../../../../frontend/src/lib/heart-rate.js'
 import { speedUnitOf } from '../../../../frontend/src/lib/speed.js'
 import { fmtNum } from '../../../../frontend/src/lib/format.js'
-import { byNewest, groupOf, knownEx, lineOf, nameOf, supersetLetters } from './session.js'
+import { byNewest, groupOf, keyText, knownEx, lineOf, nameOf, supersetLetters } from './session.js'
 
 const isMap = v => v !== null && typeof v === 'object' && !Array.isArray(v)
 const list = v => (Array.isArray(v) ? v : [])
 const num = v => (typeof v === 'number' && Number.isFinite(v) ? v : null)
 
-/** A chave de um treino, a do sameWorkout: o id, ou o legacySyncKey quando ele não tem id. */
-export const keyOf = w => (w?.id != null ? w.id : legacySyncKey(w))
-// A chave em texto, como o Swift manda de volta.
-export const keyText = w => String(keyOf(w))
+export { keyOf, keyText } from './session.js'
 
 // O treino com as entradas e as séries que as funções do openGym leem sem conferir (o setsDone lê
 // w.entries e e.sets direto), para um treino estragado de outro aparelho não derrubar a tela. Sem
@@ -70,12 +65,25 @@ function limitOf(q) {
   return q.limit
 }
 
+// O fim da sequência de treinos vizinhos com a mesma chave que começa em i: o índice do último deles.
+function runEnd(all, i) {
+  const key = keyText(all[i])
+  while (i + 1 < all.length && keyText(all[i + 1]) === key) i++
+  return i
+}
+
 /**
  * Uma página do histórico, do mais novo para o mais antigo: os limit treinos depois do de chave
  * before (ou do começo, sem before), e se há mais depois deles. Um before que não é a chave de nenhum
  * treino lança TypeError (o treino saiu do histórico, apagado aqui ou em outro aparelho): a tela lê
- * de novo do começo. Dois treinos antigos com a mesma chave são o mesmo treino para o openGym (o
- * sameWorkout); a página continua depois do último deles.
+ * de novo do começo.
+ *
+ * Dois treinos com a mesma chave (dois antigos com o mesmo dia e começo, ou um id 5 e um "5") são o
+ * mesmo treino para o sameWorkout do openGym, e o before não diz qual deles foi o último da página.
+ * Por isso a página nunca corta no meio de treinos vizinhos com a mesma chave: o corte estica até o
+ * último deles, e o before continua depois dele. Quando os dois não são vizinhos, o before vale pelo
+ * primeiro com a chave: a página seguinte pode repetir treinos que já vieram (a tela tira as chaves
+ * que já tem), mas nunca pula um.
  */
 export function history(S, query) {
   if (!isMap(query)) throw new TypeError('HexEngine: history: a consulta precisa ser um objeto')
@@ -84,11 +92,12 @@ export function history(S, query) {
   let from = 0
   if (query.before != null) {
     const before = String(query.before)
-    const at = all.findLastIndex(w => keyText(w) === before)
+    const at = all.findIndex(w => keyText(w) === before)
     if (at < 0) throw new TypeError(`HexEngine: history: não existe o treino ${before}`)
-    from = at + 1
+    from = runEnd(all, at) + 1
   }
-  return { items: all.slice(from, from + limit).map(w => summary(S, w)), more: from + limit < all.length }
+  const to = from + limit <= all.length ? runEnd(all, from + limit - 1) + 1 : all.length
+  return { items: all.slice(from, to).map(w => summary(S, w)), more: to < all.length }
 }
 
 // A linha de uma série feita no detalhe: a do treino em andamento ("60 kg × 8", o lineOf do
